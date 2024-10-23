@@ -1,4 +1,4 @@
-package com.github.heheteam
+package com.github.heheteam.samplebot
 
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel

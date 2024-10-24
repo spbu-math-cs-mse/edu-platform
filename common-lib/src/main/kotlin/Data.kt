@@ -1,4 +1,4 @@
-@Suppress("unused") // since it's a public api
+@file:Suppress("unused")
 
 data class Student(val id: String)
 data class Teacher(val id: String)

@@ -28,11 +28,14 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
 
+      - name: Gradle wrapper
+        run: gradle wrapper
+
       - name: Make gradlew executable
         working-directory: calculator-backend
         run: chmod +x gradlew
 
-      - name: Run Spotless Check
+      - name: Run Spotless Check on changed files
         run: ./gradlew spotlessCheck
 
 
@@ -48,6 +51,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Gradle wrapper
+        run: gradle wrapper
 
       - name: Make gradlew executable
         run: chmod +x gradlew

@@ -14,7 +14,8 @@ class Course(
 
 
 data class SolutionContent(
-    val text: String // probably not just text in general
+    // probably not just text in general
+    val text: String
 )
 
 data class SolutionAssessment(

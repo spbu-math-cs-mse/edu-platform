@@ -4,4 +4,4 @@ plugins {
 
 rootProject.name = "edu-platform"
 
-include(":sample-bot")
+include("sample-bot", "common-lib", "student-bot")

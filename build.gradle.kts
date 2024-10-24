@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.0.20" apply false
+    id("com.diffplug.spotless") version "7.0.0.BETA3"
 }
 
 allprojects {
@@ -10,4 +11,25 @@ allprojects {
         mavenCentral()
     }
 
+    apply(plugin = "com.diffplug.spotless")
+}
+
+spotless {
+    kotlin {
+        ktlint("1.0.0")
+            .setEditorConfigPath("$projectDir/.editorconfig")  // sample unusual placement
+            .editorConfigOverride(
+                mapOf(
+                    "indent_size" to 2,
+                    // intellij_idea is the default style we preset in Spotless, you can override it referring to https://pinterest.github.io/ktlint/latest/rules/code-styles.
+                    "ktlint_code_style" to "intellij_idea",
+                )
+            )
+            .customRuleSets(
+                listOf(
+                    "io.nlopez.compose.rules:ktlint:0.3.3"
+                )
+            )
+        target("**/*.kt")
+    }
 }

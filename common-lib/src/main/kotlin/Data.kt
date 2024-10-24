@@ -10,6 +10,7 @@ class Course(
   val teachers: MutableList<Teacher>,
   val students: MutableList<Student>,
   var description: String,
+  val gradeTable: GradeTable,
 )
 
 data class SolutionContent(

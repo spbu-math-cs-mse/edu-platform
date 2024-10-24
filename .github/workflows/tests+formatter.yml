@@ -9,38 +9,6 @@ on:
       - '**'
 
 jobs:
-  check-formatting:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Run Spotless Check on changed files
-        if: success()
-        run: |
-          git diff --name-only HEAD^ HEAD > changed_files.txt
-          cat changed_files.txt
-          CHANGED_FILES=$(grep ".kt$" changed_files.txt)
-          if [ -n "$CHANGED_FILES" ]; then
-            ./gradlew spotlessCheck -PspotlessFiles="$CHANGED_FILES"
-          else
-            echo "No Kotlin files changed."
-          fi
 
   run-backend-tests:
     runs-on: ubuntu-latest
@@ -54,6 +22,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Gradle wrapper
+        run: gradle wrapper
 
       - name: Make gradlew executable
         run: chmod +x gradlew

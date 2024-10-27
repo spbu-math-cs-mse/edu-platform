@@ -50,5 +50,5 @@ object Dialogues {
         ?.map { "Задача ${it.key.id} решена на ${it.value} баллов" }
         ?.joinToString("\n")
         ?: "Пока нет решенных задач"
-    )
+      )
 }

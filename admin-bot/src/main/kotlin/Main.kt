@@ -54,37 +54,37 @@ data class PickACourseState(
 data class EditCourseState(
   override val context: User,
   val course: Course,
-  val courseName: String
+  val courseName: String,
 ) : BotState
 
 data class AddStudentState(
   override val context: User,
   val course: Course,
-  val courseName: String
+  val courseName: String,
 ) : BotState
 
 data class RemoveStudentState(
   override val context: User,
   val course: Course,
-  val courseName: String
+  val courseName: String,
 ) : BotState
 
 data class AddTeacherState(
   override val context: User,
   val course: Course,
-  val courseName: String
+  val courseName: String,
 ) : BotState
 
 data class RemoveTeacherState(
   override val context: User,
   val course: Course,
-  val courseName: String
+  val courseName: String,
 ) : BotState
 
 data class EditDescriptionState(
   override val context: User,
   val course: Course,
-  val courseName: String
+  val courseName: String,
 ) : BotState
 
 suspend fun main(vararg args: String) {
@@ -148,8 +148,8 @@ suspend fun main(vararg args: String) {
               row {
                 dataButton("Проверить ещё раз", "update")
               }
-            }
-          )
+            },
+          ),
         )
         NotAdminState(state.context)
       }
@@ -181,7 +181,6 @@ suspend fun main(vararg args: String) {
         }
 
         data == "edit course" -> {
-
           bot.send(
             state.context,
             "Выберите курс, который хотите изменить:",
@@ -208,7 +207,7 @@ suspend fun main(vararg args: String) {
       val answer = message.content.text
 
       when {
-       answer == "/stop" ->
+        answer == "/stop" ->
           StartState(state.context)
 
         mockCourses.containsKey(answer) -> {
@@ -247,25 +246,23 @@ suspend fun main(vararg args: String) {
             state.context,
             "Изменить курс $answer:",
             replyMarkup =
-              inlineKeyboard {
-
-                row {
-                  dataButton("Добавить ученика", "add a student")
-                }
-                row {
-                  dataButton("Убрать ученика", "remove a student")
-                }
-                row {
-                  dataButton("Добавить преподавателя", "add a teacher")
-                }
-                row {
-                  dataButton("Убрать преподавателя", "remove a teacher")
-                }
-                row {
-                  dataButton("Изменить описание", "edit description")
-                }
-
+            inlineKeyboard {
+              row {
+                dataButton("Добавить ученика", "add a student")
               }
+              row {
+                dataButton("Убрать ученика", "remove a student")
+              }
+              row {
+                dataButton("Добавить преподавателя", "add a teacher")
+              }
+              row {
+                dataButton("Убрать преподавателя", "remove a teacher")
+              }
+              row {
+                dataButton("Изменить описание", "edit description")
+              }
+            },
 
           )
           mockCourses[answer]?.let { EditCourseState(state.context, it, answer) }
@@ -282,7 +279,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Введите ID ученика, которого хотите добавить на курс ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           AddStudentState(state.context, state.course, state.courseName)
         }
@@ -338,7 +335,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Ученика с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           AddStudentState(state.context, state.course, state.courseName)
         }
@@ -347,7 +344,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Ученик $id уже есть на курсе ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -356,8 +353,8 @@ suspend fun main(vararg args: String) {
           state.course.students.addLast(Student(id))
           send(
             state.context,
-          "Ученик $id успешно добавлен на курс ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove()
+            "Ученик $id успешно добавлен на курс ${state.courseName}",
+            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -374,7 +371,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Ученика с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           RemoveStudentState(state.context, state.course, state.courseName)
         }
@@ -384,15 +381,14 @@ suspend fun main(vararg args: String) {
             send(
               state.context,
               "Ученик $id успешно удалён с курса ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove()
-              )
+              replyMarkup = ReplyKeyboardRemove(),
+            )
           } else {
             send(
               state.context,
-            "Ученика $id нет на курсе ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove()
+              "Ученика $id нет на курсе ${state.courseName}",
+              replyMarkup = ReplyKeyboardRemove(),
             )
-
           }
           StartState(state.context)
         }
@@ -409,7 +405,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Преподавателя с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           AddTeacherState(state.context, state.course, state.courseName)
         }
@@ -418,7 +414,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Преподаватель $id уже есть на курсе ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -427,9 +423,9 @@ suspend fun main(vararg args: String) {
           state.course.teachers.addLast(Teacher(id))
           send(
             state.context,
-          "Преподаватель $id успешно добавлен на курс ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove()
-            )
+            "Преподаватель $id успешно добавлен на курс ${state.courseName}",
+            replyMarkup = ReplyKeyboardRemove(),
+          )
           StartState(state.context)
         }
       }
@@ -445,7 +441,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Преподавателя с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove()
+            replyMarkup = ReplyKeyboardRemove(),
           )
           RemoveTeacherState(state.context, state.course, state.courseName)
         }
@@ -454,15 +450,15 @@ suspend fun main(vararg args: String) {
           if (state.course.teachers.remove(Teacher(id))) {
             send(
               state.context,
-            "Преподаватель $id успешно удалён с курса ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove()
-              )
+              "Преподаватель $id успешно удалён с курса ${state.courseName}",
+              replyMarkup = ReplyKeyboardRemove(),
+            )
           } else {
             send(
               state.context,
-            "Преподавателя $id нет на курсе ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove()
-              )
+              "Преподавателя $id нет на курсе ${state.courseName}",
+              replyMarkup = ReplyKeyboardRemove(),
+            )
           }
           StartState(state.context)
         }
@@ -479,14 +475,13 @@ suspend fun main(vararg args: String) {
           state.course.description = answer
           send(
             state.context,
-          "Описание курса ${state.courseName} успешно обновлено",
-            replyMarkup = ReplyKeyboardRemove()
-            )
+            "Описание курса ${state.courseName} успешно обновлено",
+            replyMarkup = ReplyKeyboardRemove(),
+          )
 
           StartState(state.context)
         }
       }
-
     }
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {

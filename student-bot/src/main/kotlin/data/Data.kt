@@ -5,7 +5,7 @@ import Student
 interface CoursesDistributor {
   fun addRecord(studentId: String, courseId: String)
   fun getCourses(studentId: String): String
-  fun getAvailableCourses(studentId: String): MutableList<Course>
+  fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>>
 }
 
 data class Course(val id: String, val description: String)
@@ -25,8 +25,18 @@ val mockStudentsTable = mutableMapOf(
 )
 
 val mockAvailableCoursesTable = mutableMapOf(
-  "0" to mutableListOf(mockCoursesTable["0"]!!, mockCoursesTable["3"]!!),
-  "1" to mutableListOf(mockCoursesTable["1"]!!, mockCoursesTable["2"]!!),
+  "0" to mutableMapOf(
+    "0" to Pair(mockCoursesTable["0"]!!, true),
+    "1" to Pair(mockCoursesTable["1"]!!, false),
+    "2" to Pair(mockCoursesTable["2"]!!, false),
+    "3" to Pair(mockCoursesTable["3"]!!, true),
+  ),
+  "1" to mutableMapOf(
+    "0" to Pair(mockCoursesTable["0"]!!, false),
+    "1" to Pair(mockCoursesTable["1"]!!, true),
+    "2" to Pair(mockCoursesTable["2"]!!, true),
+    "3" to Pair(mockCoursesTable["3"]!!, false),
+  ),
 )
 
 class MockCoursesDistributor : CoursesDistributor {
@@ -44,10 +54,8 @@ class MockCoursesDistributor : CoursesDistributor {
       students[studentId] = Student(studentId)
       data[studentId] = mutableListOf()
     }
-    if (!available.containsKey(studentId)) {
-      available[studentId] = mockCoursesTable.values.toMutableList()
-    }
-    available[studentId]!!.removeIf { it.id == courseId }
+    buildCoursesForStudent(studentId)
+    available[studentId]!![courseId] = Pair(mockCoursesTable[courseId]!!, false)
     data[studentId]!!.add(courseId)
   }
 
@@ -58,10 +66,18 @@ class MockCoursesDistributor : CoursesDistributor {
     return data[studentId]!!.map { courses[it]!!.description }.joinToString(separator = "\n") { "- $it" }
   }
 
-  override fun getAvailableCourses(studentId: String): MutableList<Course> {
+  override fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>> {
+    buildCoursesForStudent(studentId)
+    return available[studentId]!!.values.toMutableList()
+  }
+
+  private fun buildCoursesForStudent(studentId: String) {
     if (!available.containsKey(studentId)) {
-      available[studentId] = mockCoursesTable.values.toMutableList()
+      available[studentId] = mutableMapOf<String, Pair<Course, Boolean>>().apply {
+        mockCoursesTable.forEach { (key, course) ->
+          this[key] = Pair(course, true)
+        }
+      }
     }
-    return available[studentId]!!.toMutableList()
   }
 }

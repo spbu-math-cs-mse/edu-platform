@@ -11,6 +11,7 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
+import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
@@ -175,7 +176,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
           ) {
-            +"Введите название курса, который хотите создать, или " + botCommand("stop") + " чтобы отменить операцию"
+            +"Введите название курса, который хотите создать, или отправьте " + botCommand("stop") + ", чтобы отменить операцию"
           }
           CreateCourseState(state.context)
         }
@@ -236,9 +237,16 @@ suspend fun main(vararg args: String) {
       val message = waitTextMessage().first()
       val answer = message.content.text
 
+      val msg = bot.send(
+        state.context,
+        "...",
+        replyMarkup = ReplyKeyboardRemove(),
+      )
+      bot.delete(msg)
+
       when {
         answer == "/stop" -> {
-          MenuState(state.context)
+          StartState(state.context)
         }
 
         else -> {
@@ -262,6 +270,9 @@ suspend fun main(vararg args: String) {
               row {
                 dataButton("Изменить описание", "edit description")
               }
+              row {
+                dataButton("Назад", "cancel")
+              }
             },
 
           )
@@ -275,11 +286,12 @@ suspend fun main(vararg args: String) {
       val data = callback.data
       answerCallbackQuery(callback)
       when {
+        data == "cancel" -> StartState(state.context)
+
         data == "add a student" -> {
           send(
             state.context,
             "Введите ID ученика, которого хотите добавить на курс ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove(),
           )
           AddStudentState(state.context, state.course, state.courseName)
         }
@@ -315,7 +327,7 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
           ) {
-            +"Введите новое описание курса ${state.course}. Текущее описание:" + newLine + newLine
+            +"Введите новое описание курса ${state.courseName}. Текущее описание:" + newLine + newLine
             +state.course.description
           }
           EditDescriptionState(state.context, state.course, state.courseName)
@@ -334,8 +346,7 @@ suspend fun main(vararg args: String) {
         !mockStudents.containsKey(id) -> {
           send(
             state.context,
-            "Ученика с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove(),
+            "Ученика с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
           )
           AddStudentState(state.context, state.course, state.courseName)
         }
@@ -344,7 +355,6 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Ученик $id уже есть на курсе ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -354,7 +364,6 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Ученик $id успешно добавлен на курс ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -365,13 +374,12 @@ suspend fun main(vararg args: String) {
       val message = waitTextMessage().first()
       val id = message.content.text
       when {
-        id == "/stop" -> MenuState(state.context)
+        id == "/stop" -> StartState(state.context)
 
         !mockStudents.containsKey(id) -> {
           send(
             state.context,
-            "Ученика с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove(),
+            "Ученика с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
           )
           RemoveStudentState(state.context, state.course, state.courseName)
         }
@@ -381,13 +389,11 @@ suspend fun main(vararg args: String) {
             send(
               state.context,
               "Ученик $id успешно удалён с курса ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove(),
             )
           } else {
             send(
               state.context,
               "Ученика $id нет на курсе ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove(),
             )
           }
           StartState(state.context)
@@ -399,13 +405,12 @@ suspend fun main(vararg args: String) {
       val message = waitTextMessage().first()
       val id = message.content.text
       when {
-        id == "/stop" -> MenuState(state.context)
+        id == "/stop" -> StartState(state.context)
 
         !mockTeachers.containsKey(id) -> {
           send(
             state.context,
-            "Преподавателя с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove(),
+            "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
           )
           AddTeacherState(state.context, state.course, state.courseName)
         }
@@ -414,7 +419,6 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Преподаватель $id уже есть на курсе ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -424,7 +428,6 @@ suspend fun main(vararg args: String) {
           send(
             state.context,
             "Преподаватель $id успешно добавлен на курс ${state.courseName}",
-            replyMarkup = ReplyKeyboardRemove(),
           )
           StartState(state.context)
         }
@@ -435,13 +438,12 @@ suspend fun main(vararg args: String) {
       val message = waitTextMessage().first()
       val id = message.content.text
       when {
-        id == "/stop" -> MenuState(state.context)
+        id == "/stop" -> StartState(state.context)
 
         !mockTeachers.containsKey(id) -> {
           send(
             state.context,
-            "Преподавателя с идентификатором $id не существует",
-            replyMarkup = ReplyKeyboardRemove(),
+            "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
           )
           RemoveTeacherState(state.context, state.course, state.courseName)
         }
@@ -451,13 +453,11 @@ suspend fun main(vararg args: String) {
             send(
               state.context,
               "Преподаватель $id успешно удалён с курса ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove(),
             )
           } else {
             send(
               state.context,
               "Преподавателя $id нет на курсе ${state.courseName}",
-              replyMarkup = ReplyKeyboardRemove(),
             )
           }
           StartState(state.context)
@@ -469,14 +469,13 @@ suspend fun main(vararg args: String) {
       val message = waitTextMessage().first()
       val answer = message.content.text
       when {
-        answer == "/stop" -> MenuState(state.context)
+        answer == "/stop" -> StartState(state.context)
 
         else -> {
           state.course.description = answer
           send(
             state.context,
             "Описание курса ${state.courseName} успешно обновлено",
-            replyMarkup = ReplyKeyboardRemove(),
           )
 
           StartState(state.context)

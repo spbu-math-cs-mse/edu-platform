@@ -1,9 +1,26 @@
 @file:Suppress("unused")
 
-data class Student(val id: String)
-data class Teacher(val id: String)
-data class Problem(val id: String)
-data class Solution(val id: String, val problem: Problem)
+data class Student(
+  val id: String,
+)
+
+data class Parent(
+  val id: String,
+  val children: List<Student>,
+)
+
+data class Teacher(
+  val id: String,
+)
+
+data class Problem(
+  val id: String,
+)
+
+data class Solution(
+  val id: String,
+  val problem: Problem,
+)
 typealias Grade = Int
 
 class Course(
@@ -41,6 +58,7 @@ interface SolutionDistributor {
   ): Solution
 
   fun querySolution(teacher: Teacher): Pair<Solution, SolutionContent>
+
   fun assessSolution(
     solution: Solution,
     teacher: Teacher,

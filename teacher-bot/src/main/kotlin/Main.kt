@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import states.*
 
-
 /**
  * @param args bot token and telegram @username for mocking data.
  */

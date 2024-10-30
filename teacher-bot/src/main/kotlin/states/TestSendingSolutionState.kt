@@ -2,10 +2,10 @@ package states
 
 import Dialogues
 import Keyboards
-import Solution
 import Problem
-import com.github.heheteam.samplebot.mockTeachers
+import Solution
 import com.github.heheteam.samplebot.mockSolutions
+import com.github.heheteam.samplebot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send

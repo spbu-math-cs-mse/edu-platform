@@ -12,5 +12,4 @@ val mockTeachers: MutableMap<String, Teacher> by lazy {
     mockTgUsername to Teacher("1"),
     "@somebody" to Teacher("2"),
   )
-
 }

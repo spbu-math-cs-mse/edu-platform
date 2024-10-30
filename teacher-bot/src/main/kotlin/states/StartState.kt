@@ -2,7 +2,7 @@ package states
 
 import Dialogues
 import Keyboards
-import Parent
+import Teacher
 import com.github.heheteam.samplebot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -36,7 +36,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
       )
       val grade = waitDataCallbackQuery().first().data
       if (grade == "Другое") {
-        mockTeachers[username] = Parent((mockTeachers.size + 1).toString(), listOf())
+        mockTeachers[username] = Teacher((mockTeachers.size + 1).toString())
       }
       return@strictlyOn MenuState(state.context)
     }

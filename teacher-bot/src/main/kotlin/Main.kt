@@ -22,39 +22,39 @@ import states.*
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
-    telegramBot(botToken) {
-        logger =
-            KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-                println(defaultMessageFormatter(level, tag, message, throwable))
-            }
+  telegramBot(botToken) {
+    logger =
+      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+        println(defaultMessageFormatter(level, tag, message, throwable))
+      }
+  }
+
+  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
+    botToken,
+    CoroutineScope(Dispatchers.IO),
+    onStateHandlingErrorHandler = { state, e ->
+      println("Thrown error on $state")
+      e.printStackTrace()
+      state
+    },
+  ) {
+    println(getMe())
+
+    command(
+      "start",
+    ) {
+      if (it.from != null) {
+        startChain(StartState(it.from!!))
+      }
     }
 
-    telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
-        botToken,
-        CoroutineScope(Dispatchers.IO),
-        onStateHandlingErrorHandler = { state, e ->
-            println("Thrown error on $state")
-            e.printStackTrace()
-            state
-        },
-    ) {
-        println(getMe())
+    strictlyOnStartState()
+    strictlyOnMenuState()
+    strictlyOnTestSendingSolutionState()
+    strictlyOnGettingSolutionState()
 
-        command(
-            "start",
-        ) {
-            if (it.from != null) {
-                startChain(StartState(it.from!!))
-            }
-        }
-
-        strictlyOnStartState()
-        strictlyOnMenuState()
-        strictlyOnTestSendingSolutionState()
-        strictlyOnGettingSolutionState()
-
-        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-            println(it)
-        }
-    }.second.join()
+    allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
+      println(it)
+    }
+  }.second.join()
 }

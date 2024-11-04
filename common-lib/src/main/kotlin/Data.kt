@@ -17,9 +17,18 @@ data class Problem(
   val id: String,
 )
 
+enum class SolutionType {
+  TEXT,
+  PHOTO,
+  PHOTOS,
+  DOCUMENT,
+}
+
 data class Solution(
   val id: String,
   val problem: Problem,
+  val content: SolutionContent,
+  val type: SolutionType,
 )
 typealias Grade = Int
 
@@ -31,8 +40,8 @@ class Course(
 )
 
 data class SolutionContent(
-  // probably not just text in general
-  val text: String,
+  val fileIds: List<String>? = null,
+  val text: String? = null,
 )
 
 data class SolutionAssessment(

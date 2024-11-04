@@ -1,17 +1,22 @@
 package states
 
 import Dialogues
+import Dialogues.solutionNotSent
+import Dialogues.solutionSent
 import Keyboards
 import Problem
 import Solution
+import SolutionContent
 import com.github.heheteam.samplebot.mockSolutions
 import com.github.heheteam.samplebot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.*
+import dev.inmo.tgbotapi.extensions.utils.documentContentOrNull
+import dev.inmo.tgbotapi.extensions.utils.mediaGroupContentOrNull
+import dev.inmo.tgbotapi.extensions.utils.photoContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
@@ -38,7 +43,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnTestSendingSolutionState(
         replyMarkup = Keyboards.returnBack(),
       )
 
-    when (val response = flowOf(waitDataCallbackQuery(), waitTextMessage()).flattenMerge().first()) {
+    when (
+      val response =
+        flowOf(waitDataCallbackQuery(), waitTextMessage(), waitMediaMessage(), waitDocumentMessage()).flattenMerge().first()
+    ) {
       is DataCallbackQuery -> {
         val command = response.data
         if (command == Keyboards.returnBack) {
@@ -47,23 +55,61 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnTestSendingSolutionState(
       }
 
       is CommonMessage<*> -> {
-        val solution = response.content.textContentOrNull()
+        val textSolution = response.content.textContentOrNull()
+        val photoSolution = response.content.photoContentOrNull()
+        val photosSolution = response.content.mediaGroupContentOrNull()?.group?.map { it.content.photoContentOrNull() }
+        val documentSolution = response.content.documentContentOrNull()
 
-        if (solution != null) {
-          mockSolutions.add(Solution(solution.text, Problem("")))
-
+        if (textSolution != null || photoSolution != null || photosSolution != null || documentSolution != null) {
+          if (textSolution != null) {
+            mockSolutions.add(
+              Solution(
+                (mockSolutions.size + 1).toString(),
+                Problem(""),
+                SolutionContent(text = textSolution.text),
+                SolutionType.TEXT,
+              ),
+            )
+          } else if (photoSolution != null) {
+            mockSolutions.add(
+              Solution(
+                (mockSolutions.size + 1).toString(),
+                Problem(""),
+                SolutionContent(listOf(photoSolution.media.fileId.fileId), photoSolution.text),
+                SolutionType.PHOTO,
+              ),
+            )
+          } else if (photosSolution != null) {
+            mockSolutions.add(
+              Solution(
+                (mockSolutions.size + 1).toString(),
+                Problem(""),
+                SolutionContent(photosSolution.map { it!!.media.fileId.fileId }, photosSolution[0]!!.text),
+                SolutionType.PHOTOS,
+              ),
+            )
+          } else {
+            mockSolutions.add(
+              Solution(
+                (mockSolutions.size + 1).toString(),
+                Problem(""),
+                SolutionContent(listOf(documentSolution!!.media.fileId.fileId), text = documentSolution.text),
+                SolutionType.DOCUMENT,
+              ),
+            )
+          }
           bot.sendSticker(
             state.context,
             Dialogues.okSticker,
           )
           bot.send(
             state.context,
-            "Готово!",
+            solutionSent(),
           )
         } else {
           bot.send(
             state.context,
-            "Ошибка, попробуйте ещё раз...",
+            solutionNotSent(),
           )
         }
       }

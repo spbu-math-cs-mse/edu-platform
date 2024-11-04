@@ -16,6 +16,13 @@ object Dialogues {
 
   fun askLastName(firstName: String): String = "Отлично, $firstName, введи свою фамилию \uD83D\uDC47"
 
+  fun solutionSent(): String = "Готово!"
+
+  fun solutionNotSent(): String = "Ошибка, попробуйте ещё раз..."
+
+  // TODO: add more of student and problem info
+  fun solutionInfo(solution: Solution): String = "Ученик отправил задачу ${solution.problem.id}"
+
   fun askGrade(
     firstName: String,
     lastName: String,

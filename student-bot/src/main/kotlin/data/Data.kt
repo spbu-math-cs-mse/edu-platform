@@ -1,6 +1,6 @@
 package com.github.heheteam.studentbot.data
 
-import Student
+import com.github.heheteam.commonlib.Student
 
 interface CoursesDistributor {
   fun addRecord(studentId: String, courseId: String)

@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot
 
-import SolutionContent
-import SolutionDistributor
-import Student
+import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionDistributor
+import com.github.heheteam.commonlib.Student
 
 class StudentCore(
   private val solutionDistributor: SolutionDistributor,

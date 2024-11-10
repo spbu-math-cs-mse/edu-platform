@@ -27,5 +27,6 @@ fun menuKeyboard() = InlineKeyboardMarkup(
   keyboard = matrix {
     row { dataButton("Записаться на курсы", ButtonKey.SIGN_UP) }
     row { dataButton("Посмотреть мои курсы", ButtonKey.VIEW) }
+    row { dataButton("Отправить решение", ButtonKey.SEND_SOLUTION) }
   },
 )

@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.studentbot.data.MockCoursesDistributor
-import com.github.heheteam.studentbot.state.*
+import com.github.heheteam.studentbot.state.* 
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -49,6 +49,7 @@ suspend fun main(vararg args: String) {
     strictlyOnMenuState()
     strictlyOnViewState(coursesDistributor)
     strictlyOnSignUpState(coursesDistributor)
+    strictlyOnSendSolutionState(coursesDistributor)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

@@ -1,4 +1,4 @@
-package com.github.heheteam.samplebot.metaData
+package com.github.heheteam.studentbot.metaData
 
 object ButtonKey {
   const val SIGN_UP = "signUpForCourses"

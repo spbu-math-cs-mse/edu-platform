@@ -1,7 +1,7 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.studentbot
 
-import com.github.heheteam.samplebot.data.MockCoursesDistributor
-import com.github.heheteam.samplebot.state.*
+import com.github.heheteam.studentbot.data.MockCoursesDistributor
+import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -26,7 +26,7 @@ suspend fun main(vararg args: String) {
       }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
     botToken,
     CoroutineScope(Dispatchers.IO),
     onStateHandlingErrorHandler = { state, e ->
@@ -41,10 +41,11 @@ suspend fun main(vararg args: String) {
       "start",
     ) {
       if (it.from != null) {
-        startChain(MenuState(it.from!!))
+        startChain(StartState(it.from!!))
       }
     }
-
+    
+    strictlyOnStartState()
     strictlyOnMenuState()
     strictlyOnViewState(coursesDistributor)
     strictlyOnSignUpState(coursesDistributor)

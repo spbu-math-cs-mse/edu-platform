@@ -1,6 +1,6 @@
-package com.github.heheteam.samplebot.metaData
+package com.github.heheteam.studentbot.metaData
 
-import com.github.heheteam.samplebot.data.Course
+import com.github.heheteam.studentbot.data.Course
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix

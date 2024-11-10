@@ -1,6 +1,6 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.samplebot.metaData.menuKeyboard
+import com.github.heheteam.studentbot.metaData.menuKeyboard
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM

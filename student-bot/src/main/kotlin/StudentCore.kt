@@ -1,4 +1,4 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.studentbot
 
 import SolutionContent
 import SolutionDistributor

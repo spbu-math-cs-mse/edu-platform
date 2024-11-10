@@ -1,7 +1,7 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.samplebot.data.CoursesDistributor
-import com.github.heheteam.samplebot.metaData.*
+import com.github.heheteam.studentbot.data.CoursesDistributor
+import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send

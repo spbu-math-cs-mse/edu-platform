@@ -1,4 +1,4 @@
-package com.github.heheteam.samplebot.data
+package com.github.heheteam.studentbot.data
 
 import Student
 

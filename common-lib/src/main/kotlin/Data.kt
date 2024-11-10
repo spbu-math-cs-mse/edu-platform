@@ -1,4 +1,6 @@
 @file:Suppress("unused")
+package com.github.heheteam.commonlib
+
 
 data class Student(
   val id: String,

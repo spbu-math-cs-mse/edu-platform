@@ -1,4 +1,6 @@
+package com.github.heheteam.teacherbot
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import com.github.heheteam.commonlib.*
 
 object Dialogues {
   val okSticker = InputFile.fromId("CAACAgEAAxkBAAIBJWcUPyqe-UEVGqMmhNYi21U3gkBEAALrAQACOA6CEbOGBM7hnEk5NgQ")

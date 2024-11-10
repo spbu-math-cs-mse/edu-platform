@@ -1,11 +1,11 @@
-package states
+package com.github.heheteam.teacherbot.states
 
-import Dialogues.noSolutionsToCheck
-import Dialogues.solutionInfo
-import Keyboards
-import SolutionType
-import com.github.heheteam.samplebot.mockSolutions
-import com.github.heheteam.samplebot.mockTeachers
+import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
+import com.github.heheteam.teacherbot.Dialogues.solutionInfo
+import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.teacherbot.mockSolutions
+import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup

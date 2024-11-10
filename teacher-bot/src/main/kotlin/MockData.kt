@@ -1,7 +1,7 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.teacherbot
 
-import Solution
-import Teacher
+import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.Teacher
 
 val mockSolutions: MutableList<Solution> = mutableListOf()
 

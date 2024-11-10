@@ -1,3 +1,7 @@
+package com.github.heheteam.teacherbot
+
+import com.github.heheteam.commonlib.*
+
 class TeacherCore(
   private val solutionDistributor: SolutionDistributor,
   private val usernamesRegistry: UsernamesRegistry,

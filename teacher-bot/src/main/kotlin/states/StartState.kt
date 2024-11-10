@@ -1,9 +1,9 @@
-package states
+package com.github.heheteam.teacherbot.states
 
-import Dialogues
-import Keyboards
-import Teacher
-import com.github.heheteam.samplebot.mockTeachers
+import com.github.heheteam.teacherbot.Dialogues
+import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM

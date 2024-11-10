@@ -1,4 +1,4 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.teacherbot
 
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -12,7 +12,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import states.*
+import com.github.heheteam.teacherbot.states.*
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -49,7 +49,6 @@ suspend fun main(vararg args: String) {
 
     strictlyOnStartState()
     strictlyOnMenuState()
-    strictlyOnTestSendingSolutionState()
     strictlyOnGettingSolutionState()
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {

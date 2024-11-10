@@ -1,4 +1,4 @@
-package states
+package com.github.heheteam.teacherbot.states
 
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
@@ -14,9 +14,5 @@ data class MenuState(
 ) : BotState
 
 data class GettingSolutionState(
-  override val context: User,
-) : BotState
-
-data class TestSendingSolutionState(
   override val context: User,
 ) : BotState

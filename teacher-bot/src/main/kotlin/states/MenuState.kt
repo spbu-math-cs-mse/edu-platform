@@ -1,8 +1,8 @@
-package states
+package com.github.heheteam.teacherbot.states
 
-import Dialogues
-import Keyboards
-import com.github.heheteam.samplebot.mockTeachers
+import com.github.heheteam.teacherbot.Dialogues
+import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -33,16 +33,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
         replyMarkup = Keyboards.menu(),
       )
 
-    when (val command = waitDataCallbackQuery().first().data) {
-      Keyboards.testSendSolution -> {
-        bot.delete(menuMessage)
-        return@strictlyOn TestSendingSolutionState(state.context)
-      }
-
-      else -> {
-        bot.delete(menuMessage)
-        return@strictlyOn GettingSolutionState(state.context)
-      }
-    }
+    bot.delete(menuMessage)
+    return@strictlyOn GettingSolutionState(state.context)
   }
 }

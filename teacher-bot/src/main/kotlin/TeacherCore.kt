@@ -1,34 +1,20 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.SolutionDistributor
 
 class TeacherCore(
-  private val solutionDistributor: SolutionDistributor,
-  private val usernamesRegistry: UsernamesRegistry,
-) : UsernamesRegistry by usernamesRegistry {
-  fun querySolution(username: String): Pair<Solution, SolutionContent> =
-    solutionDistributor.querySolution(Teacher(getUserId(username)))
+    private val solutionDistributor: SolutionDistributor,
+    private val userIdRegistry: UserIdRegistry,
+) : UserIdRegistry by userIdRegistry,
+    SolutionDistributor by solutionDistributor
 
-  fun assessSolution(
-    solution: Solution,
-    username: String,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-  ) {
-    solutionDistributor.assessSolution(
-      solution,
-      Teacher(getUserId(username)),
-      assessment,
-      gradeTable,
+interface UserIdRegistry {
+    fun getUserId(tgId: String): String?
+
+    fun setUserId(
+        tgId: String,
+        id: String,
     )
-  }
 }
 
-interface UsernamesRegistry {
-  fun getUserId(username: String): String
-
-  fun setUserId(
-    username: String,
-    id: String,
-  )
-}
+var mockTgUsername: String = ""

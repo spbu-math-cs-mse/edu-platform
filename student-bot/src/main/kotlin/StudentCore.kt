@@ -1,26 +1,21 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.CoursesDistributor
 import com.github.heheteam.commonlib.SolutionDistributor
-import com.github.heheteam.commonlib.Student
 
 class StudentCore(
   private val solutionDistributor: SolutionDistributor,
-  private val usernamesRegistry: UsernamesRegistry,
-) : UsernamesRegistry by usernamesRegistry {
-  fun sendSolution(
-    username: String,
-    solutionContent: SolutionContent,
-  ) {
-    solutionDistributor.inputSolution(Student(getUserId(username)), solutionContent)
-  }
-}
+  private val coursesDistributor: CoursesDistributor,
+  private val userIdRegistry: UserIdRegistry,
+) : UserIdRegistry by userIdRegistry,
+  CoursesDistributor by coursesDistributor,
+  SolutionDistributor by solutionDistributor
 
-interface UsernamesRegistry {
-  fun getUserId(username: String): String
+interface UserIdRegistry {
+  fun getUserId(tgId: String): String
 
   fun setUserId(
-    username: String,
+    tgId: String,
     id: String,
   )
 }

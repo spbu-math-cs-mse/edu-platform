@@ -2,7 +2,7 @@ package states
 
 import Dialogues
 import Keyboards
-import Parent
+import com.github.heheteam.commonlib.Parent
 import com.github.heheteam.samplebot.mockParents
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send

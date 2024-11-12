@@ -1,6 +1,6 @@
 @file:Suppress("unused")
-package com.github.heheteam.commonlib
 
+package com.github.heheteam.commonlib
 
 data class Student(
   val id: String,
@@ -35,6 +35,7 @@ data class Solution(
 typealias Grade = Int
 
 class Course(
+  val id: String,
   val teachers: MutableList<Teacher>,
   val students: MutableList<Student>,
   var description: String,
@@ -64,16 +65,27 @@ interface GradeTable {
 
 interface SolutionDistributor {
   fun inputSolution(
-    student: Student,
+    studentId: String,
     solutionContent: SolutionContent,
   ): Solution
 
-  fun querySolution(teacher: Teacher): Pair<Solution, SolutionContent>
+  fun querySolution(teacherId: String): Solution?
 
   fun assessSolution(
     solution: Solution,
-    teacher: Teacher,
+    teacherId: String,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
   )
+}
+
+interface CoursesDistributor {
+  fun addRecord(
+    studentId: String,
+    courseId: String,
+  )
+
+  fun getCourses(studentId: String): String
+
+  fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>>
 }

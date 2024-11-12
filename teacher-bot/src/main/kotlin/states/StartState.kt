@@ -2,8 +2,7 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
-import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.teacherbot.mockTeachers
+import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -11,14 +10,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallb
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: TeacherCore) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
-    if (state.context.username == null) {
-      return@strictlyOn null
-    }
-    val username = state.context.username!!.username
-    if (!mockTeachers.containsKey(username)) {
+    if (core.getUserId(state.context.id.toString()) == null) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),
@@ -35,8 +30,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
         replyMarkup = Keyboards.askGrade(),
       )
       val grade = waitDataCallbackQuery().first().data
+      bot.send(
+        state.context,
+        Dialogues.askIdentifier(),
+      )
+      val identifier = waitTextMessage().first().content.text
       if (grade == "Другое") {
-        mockTeachers[username] = Teacher((mockTeachers.size + 1).toString())
+        core.setUserId(state.context.id.toString(), identifier)
       }
       return@strictlyOn MenuState(state.context)
     }

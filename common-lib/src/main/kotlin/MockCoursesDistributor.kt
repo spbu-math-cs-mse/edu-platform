@@ -25,6 +25,7 @@ class MockCoursesDistributor : CoursesDistributor {
   }
 
   override fun getCourses(studentId: String): String {
+    println(studentId)
     if (!data.containsKey(studentId)) {
       return "Вы не записаны ни на один курс!"
     }

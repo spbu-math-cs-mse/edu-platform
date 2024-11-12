@@ -13,10 +13,9 @@ class StudentCore(
     SolutionDistributor by solutionDistributor
 
 interface UserIdRegistry {
-    fun getUserId(tgId: UserId): String?
+    fun getUserId(tgId: UserId): String
 
     fun setUserId(
-        tgId: UserId,
-        id: String,
-    )
+        tgId: UserId
+    ): String
 }

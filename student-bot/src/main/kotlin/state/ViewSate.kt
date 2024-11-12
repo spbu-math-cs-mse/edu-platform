@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.first
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(core: StudentCore) {
   strictlyOn<ViewState> { state ->
     val studentId = state.context.id
-    val studentCourses = core.getCourses(studentId.toString())
+    val studentCourses = core.getCourses(core.getUserId(studentId))
 
     val initialMessage =
       bot.send(

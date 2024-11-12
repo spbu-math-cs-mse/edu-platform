@@ -9,33 +9,33 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessa
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState() {
-    strictlyOn<CreateCourseState> { state ->
-        val message = waitTextMessage().first()
-        val answer = message.content.text
+  strictlyOn<CreateCourseState> { state ->
+    val message = waitTextMessage().first()
+    val answer = message.content.text
 
-        when {
-            answer == "/stop" ->
-                StartState(state.context)
+    when {
+      answer == "/stop" ->
+        StartState(state.context)
 
-            mockCourses.containsKey(answer) -> {
-                send(
-                    state.context,
-                ) {
-                    +"Курс с таким названием уже существует"
-                }
-                CreateCourseState(state.context)
-            }
-
-            else -> {
-                mockCourses.put(answer, Course(mutableListOf(), mutableListOf(), "", mockGradeTable))
-
-                send(
-                    state.context,
-                ) {
-                    +"Курс $answer успешно создан"
-                }
-                StartState(state.context)
-            }
+      mockCourses.containsKey(answer) -> {
+        send(
+          state.context,
+        ) {
+          +"Курс с таким названием уже существует"
         }
+        CreateCourseState(state.context)
+      }
+
+      else -> {
+        mockCourses.put(answer, Course(mutableListOf(), mutableListOf(), "", mockGradeTable))
+
+        send(
+          state.context,
+        ) {
+          +"Курс $answer успешно создан"
+        }
+        StartState(state.context)
+      }
     }
+  }
 }

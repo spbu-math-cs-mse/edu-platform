@@ -8,24 +8,34 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.*
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
-
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnScheduleMessageSelectDateState() {
-    strictlyOn<ScheduleMessageSelectDateState> { state ->
-        val callback = waitDataCallbackQuery().first()
-        val data = callback.data
-        answerCallbackQuery(callback)
-        when {
-            data == "enter date" -> ScheduleMessageEnterDateState(state.context,
-                state.course, state.courseName, state.text)
+  strictlyOn<ScheduleMessageSelectDateState> { state ->
+    val callback = waitDataCallbackQuery().first()
+    val data = callback.data
+    answerCallbackQuery(callback)
+    when {
+      data == "enter date" -> ScheduleMessageEnterDateState(
+        state.context,
+        state.course,
+        state.courseName,
+        state.text,
+      )
 
-            data == "cancel" -> StartState(state.context)
+      data == "cancel" -> StartState(state.context)
 
-            else -> {
-                send(state.context,
-                    "Введите время в формате чч:мм")
-                ScheduleMessageEnterTimeState(state.context, state.course, state.courseName, state.text,
-                    LocalDate.parse(data, dateFormatter))
-            }
-        }
+      else -> {
+        send(
+          state.context,
+          "Введите время в формате чч:мм",
+        )
+        ScheduleMessageEnterTimeState(
+          state.context,
+          state.course,
+          state.courseName,
+          state.text,
+          LocalDate.parse(data, dateFormatter),
+        )
+      }
     }
+  }
 }

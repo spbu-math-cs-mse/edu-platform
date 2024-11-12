@@ -9,23 +9,33 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnScheduleMessageEnterDateState() {
-    strictlyOn<ScheduleMessageEnterDateState> { state ->
-        val message = waitTextMessage().first().content.text
-        if (message == "/stop") {
-            return@strictlyOn StartState(state.context)
-        }
-        try {
-            val date = LocalDate.parse(message, dateFormatter)
-            send(state.context,"Введите время в формате чч:мм")
-            ScheduleMessageEnterTimeState(state.context, state.course, state.courseName, state.text,
-                date)
-        }
-        catch (e: DateTimeParseException) {
-            send(state.context,
-                "Неправильный формат, введите дату в формате дд.мм.гггг" +
-                        " или /stop, чтобы отменить операцию")
-            return@strictlyOn ScheduleMessageEnterDateState(state.context,
-                state.course, state.courseName, state.text)
-        }
+  strictlyOn<ScheduleMessageEnterDateState> { state ->
+    val message = waitTextMessage().first().content.text
+    if (message == "/stop") {
+      return@strictlyOn StartState(state.context)
     }
+    try {
+      val date = LocalDate.parse(message, dateFormatter)
+      send(state.context, "Введите время в формате чч:мм")
+      ScheduleMessageEnterTimeState(
+        state.context,
+        state.course,
+        state.courseName,
+        state.text,
+        date,
+      )
+    } catch (e: DateTimeParseException) {
+      send(
+        state.context,
+        "Неправильный формат, введите дату в формате дд.мм.гггг" +
+          " или /stop, чтобы отменить операцию",
+      )
+      return@strictlyOn ScheduleMessageEnterDateState(
+        state.context,
+        state.course,
+        state.courseName,
+        state.text,
+      )
+    }
+  }
 }

@@ -8,34 +8,34 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessa
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState() {
-    strictlyOn<RemoveTeacherState> { state ->
-        val message = waitTextMessage().first()
-        val id = message.content.text
-        when {
-            id == "/stop" -> StartState(state.context)
+  strictlyOn<RemoveTeacherState> { state ->
+    val message = waitTextMessage().first()
+    val id = message.content.text
+    when {
+      id == "/stop" -> StartState(state.context)
 
-            !mockTeachers.containsKey(id) -> {
-                send(
-                    state.context,
-                    "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
-                )
-                RemoveTeacherState(state.context, state.course, state.courseName)
-            }
+      !mockTeachers.containsKey(id) -> {
+        send(
+          state.context,
+          "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
+        )
+        RemoveTeacherState(state.context, state.course, state.courseName)
+      }
 
-            else -> {
-                if (state.course.teachers.remove(Teacher(id))) {
-                    send(
-                        state.context,
-                        "Преподаватель $id успешно удалён с курса ${state.courseName}",
-                    )
-                } else {
-                    send(
-                        state.context,
-                        "Преподавателя $id нет на курсе ${state.courseName}",
-                    )
-                }
-                StartState(state.context)
-            }
+      else -> {
+        if (state.course.teachers.remove(Teacher(id))) {
+          send(
+            state.context,
+            "Преподаватель $id успешно удалён с курса ${state.courseName}",
+          )
+        } else {
+          send(
+            state.context,
+            "Преподавателя $id нет на курсе ${state.courseName}",
+          )
         }
+        StartState(state.context)
+      }
     }
+  }
 }

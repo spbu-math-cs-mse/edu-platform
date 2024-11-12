@@ -6,21 +6,21 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessa
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
-    strictlyOn<EditDescriptionState> { state ->
-        val message = waitTextMessage().first()
-        val answer = message.content.text
-        when {
-            answer == "/stop" -> StartState(state.context)
+  strictlyOn<EditDescriptionState> { state ->
+    val message = waitTextMessage().first()
+    val answer = message.content.text
+    when {
+      answer == "/stop" -> StartState(state.context)
 
-            else -> {
-                state.course.description = answer
-                send(
-                    state.context,
-                    "Описание курса ${state.courseName} успешно обновлено",
-                )
+      else -> {
+        state.course.description = answer
+        send(
+          state.context,
+          "Описание курса ${state.courseName} успешно обновлено",
+        )
 
-                StartState(state.context)
-            }
-        }
+        StartState(state.context)
+      }
     }
+  }
 }

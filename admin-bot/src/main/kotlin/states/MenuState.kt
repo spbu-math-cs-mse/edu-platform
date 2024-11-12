@@ -12,39 +12,39 @@ import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
-    strictlyOn<MenuState> { state ->
-        val callback = waitDataCallbackQuery().first()
-        val data = callback.data
-        answerCallbackQuery(callback)
-        when {
-            data == "create course" -> {
-                send(
-                    state.context,
-                ) {
-                    +"Введите название курса, который хотите создать, или отправьте " + botCommand("stop") + ", чтобы отменить операцию"
-                }
-                CreateCourseState(state.context)
-            }
-
-            data == "edit course" -> {
-                bot.send(
-                    state.context,
-                    "Выберите курс, который хотите изменить:",
-                    replyMarkup =
-                    replyKeyboard {
-                        for ((name, _) in mockCourses) {
-                            row {
-                                simpleButton(
-                                    text = name,
-                                )
-                            }
-                        }
-                    },
-                )
-                PickACourseState(state.context)
-            }
-
-            else -> MenuState(state.context)
+  strictlyOn<MenuState> { state ->
+    val callback = waitDataCallbackQuery().first()
+    val data = callback.data
+    answerCallbackQuery(callback)
+    when {
+      data == "create course" -> {
+        send(
+          state.context,
+        ) {
+          +"Введите название курса, который хотите создать, или отправьте " + botCommand("stop") + ", чтобы отменить операцию"
         }
+        CreateCourseState(state.context)
+      }
+
+      data == "edit course" -> {
+        bot.send(
+          state.context,
+          "Выберите курс, который хотите изменить:",
+          replyMarkup =
+          replyKeyboard {
+            for ((name, _) in mockCourses) {
+              row {
+                simpleButton(
+                  text = name,
+                )
+              }
+            }
+          },
+        )
+        PickACourseState(state.context)
+      }
+
+      else -> MenuState(state.context)
     }
+  }
 }

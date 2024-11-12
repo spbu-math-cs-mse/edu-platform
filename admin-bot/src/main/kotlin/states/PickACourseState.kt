@@ -12,54 +12,54 @@ import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPickACourseState() {
-    strictlyOn<PickACourseState> { state ->
-        val message = waitTextMessage().first()
-        val answer = message.content.text
+  strictlyOn<PickACourseState> { state ->
+    val message = waitTextMessage().first()
+    val answer = message.content.text
 
-        val msg = bot.send(
-            state.context,
-            "...",
-            replyMarkup = ReplyKeyboardRemove(),
+    val msg = bot.send(
+      state.context,
+      "...",
+      replyMarkup = ReplyKeyboardRemove(),
+    )
+    bot.delete(msg)
+
+    when {
+      answer == "/stop" -> {
+        StartState(state.context)
+      }
+
+      else -> {
+        bot.send(
+          state.context,
+          "Изменить курс $answer:",
+          replyMarkup =
+          inlineKeyboard {
+            row {
+              dataButton("Добавить ученика", "add a student")
+            }
+            row {
+              dataButton("Убрать ученика", "remove a student")
+            }
+            row {
+              dataButton("Добавить преподавателя", "add a teacher")
+            }
+            row {
+              dataButton("Убрать преподавателя", "remove a teacher")
+            }
+            row {
+              dataButton("Изменить описание", "edit description")
+            }
+            row {
+              dataButton("Добавить отложенное сообщение", "add scheduled message")
+            }
+            row {
+              dataButton("Назад", "cancel")
+            }
+          },
+
         )
-        bot.delete(msg)
-
-        when {
-            answer == "/stop" -> {
-                StartState(state.context)
-            }
-
-            else -> {
-                bot.send(
-                    state.context,
-                    "Изменить курс $answer:",
-                    replyMarkup =
-                    inlineKeyboard {
-                        row {
-                            dataButton("Добавить ученика", "add a student")
-                        }
-                        row {
-                            dataButton("Убрать ученика", "remove a student")
-                        }
-                        row {
-                            dataButton("Добавить преподавателя", "add a teacher")
-                        }
-                        row {
-                            dataButton("Убрать преподавателя", "remove a teacher")
-                        }
-                        row {
-                            dataButton("Изменить описание", "edit description")
-                        }
-                        row {
-                            dataButton("Добавить отложенное сообщение", "add scheduled message")
-                        }
-                        row {
-                            dataButton("Назад", "cancel")
-                        }
-                    },
-
-                    )
-                mockCourses[answer]?.let { EditCourseState(state.context, it, answer) }
-            }
-        }
+        mockCourses[answer]?.let { EditCourseState(state.context, it, answer) }
+      }
     }
+  }
 }

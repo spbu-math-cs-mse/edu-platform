@@ -9,43 +9,43 @@ import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
-    strictlyOn<StartState> { state ->
-        if (state.context.username == null) {
-            return@strictlyOn null
-        }
-        val username = state.context.username!!.username
-        if (mockAdmins.containsValue(username)) {
-            bot.send(
-                state.context,
-                "Главное меню:",
-                replyMarkup =
-                InlineKeyboardMarkup(
-                    keyboard =
-                    matrix {
-                        row {
-                            dataButton("Создать курс", "create course")
-                        }
-                        row {
-                            dataButton("Изменить курс", "edit course")
-                        }
-                    },
-                ),
-            )
-            MenuState(state.context)
-        } else {
-            send(
-                state.context,
-
-                "У вас нет прав администратора",
-                replyMarkup = InlineKeyboardMarkup(
-                    keyboard = matrix {
-                        row {
-                            dataButton("Проверить ещё раз", "update")
-                        }
-                    },
-                ),
-            )
-            NotAdminState(state.context)
-        }
+  strictlyOn<StartState> { state ->
+    if (state.context.username == null) {
+      return@strictlyOn null
     }
+    val username = state.context.username!!.username
+    if (mockAdmins.containsValue(username)) {
+      bot.send(
+        state.context,
+        "Главное меню:",
+        replyMarkup =
+        InlineKeyboardMarkup(
+          keyboard =
+          matrix {
+            row {
+              dataButton("Создать курс", "create course")
+            }
+            row {
+              dataButton("Изменить курс", "edit course")
+            }
+          },
+        ),
+      )
+      MenuState(state.context)
+    } else {
+      send(
+        state.context,
+
+        "У вас нет прав администратора",
+        replyMarkup = InlineKeyboardMarkup(
+          keyboard = matrix {
+            row {
+              dataButton("Проверить ещё раз", "update")
+            }
+          },
+        ),
+      )
+      NotAdminState(state.context)
+    }
+  }
 }

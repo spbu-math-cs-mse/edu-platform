@@ -13,29 +13,34 @@ import java.time.LocalTime
 import java.time.format.DateTimeParseException
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnScheduleMessageEnterTimeState() {
-    strictlyOn<ScheduleMessageEnterTimeState> { state ->
-        val message = waitTextMessage().first().content.text
-        if (message == "/stop") {
-            return@strictlyOn StartState(state.context)
-        }
-        try {
-            val time = LocalTime.parse(message, timeFormatter)
-            send(state.context)
-            {
-                +"Сообщение успешно добавлено:" + newLine + state.text + newLine +
-                        "Время отправки: " + time.format(timeFormatter) + " " +
-                        state.date.format(dateFormatter) + newLine +
-                        "Курс: " + state.courseName
-            }
-            mockScheduledMessages[state.course] = LocalDateTime.of(state.date, time) to state.text
-            StartState(state.context)
-        }
-        catch (e: DateTimeParseException) {
-            send(state.context,
-                "Неправильный формат, введите время в формате чч::мм" +
-                        " или /stop, чтобы отменить операцию")
-            return@strictlyOn ScheduleMessageEnterTimeState(state.context,
-                state.course, state.courseName, state.text, state.date)
-        }
+  strictlyOn<ScheduleMessageEnterTimeState> { state ->
+    val message = waitTextMessage().first().content.text
+    if (message == "/stop") {
+      return@strictlyOn StartState(state.context)
     }
+    try {
+      val time = LocalTime.parse(message, timeFormatter)
+      send(state.context) {
+        +"Сообщение успешно добавлено:" + newLine + state.text + newLine +
+          "Время отправки: " + time.format(timeFormatter) + " " +
+          state.date.format(dateFormatter) + newLine +
+          "Курс: " + state.courseName
+      }
+      mockScheduledMessages[state.course] = LocalDateTime.of(state.date, time) to state.text
+      StartState(state.context)
+    } catch (e: DateTimeParseException) {
+      send(
+        state.context,
+        "Неправильный формат, введите время в формате чч::мм" +
+          " или /stop, чтобы отменить операцию",
+      )
+      return@strictlyOn ScheduleMessageEnterTimeState(
+        state.context,
+        state.course,
+        state.courseName,
+        state.text,
+        state.date,
+      )
+    }
+  }
 }

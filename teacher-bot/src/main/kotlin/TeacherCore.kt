@@ -1,6 +1,7 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.SolutionDistributor
+import dev.inmo.tgbotapi.types.UserId
 
 class TeacherCore(
     private val solutionDistributor: SolutionDistributor,
@@ -9,10 +10,10 @@ class TeacherCore(
     SolutionDistributor by solutionDistributor
 
 interface UserIdRegistry {
-    fun getUserId(tgId: String): String?
+    fun getUserId(tgId: UserId): String?
 
     fun setUserId(
-        tgId: String,
+        tgId: UserId,
         id: String,
     )
 }

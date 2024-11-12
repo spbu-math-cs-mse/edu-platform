@@ -15,7 +15,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
         if (state.context.username == null) {
             return@strictlyOn null
         }
-        if (core.getUserId(state.context.id.toString()) == null) {
+        if (core.getUserId(state.context.id) == null) {
             return@strictlyOn StartState(state.context)
         }
 

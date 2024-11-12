@@ -1,14 +1,16 @@
 package com.github.heheteam.teacherbot
 
-class MockUserIdRegistry : UserIdRegistry {
-  override fun getUserId(tgId: String): String? {
-    TODO("Not yet implemented")
-  }
+import dev.inmo.tgbotapi.types.UserId
 
-  override fun setUserId(
-    tgId: String,
-    id: String,
-  ) {
-    TODO("Not yet implemented")
-  }
+class MockUserIdRegistry : UserIdRegistry {
+    private val registry = mutableMapOf<UserId, String>()
+
+    override fun getUserId(tgId: UserId): String? = registry[tgId]
+
+    override fun setUserId(
+        tgId: UserId,
+        id: String,
+    ) {
+        registry[tgId] = id
+    }
 }

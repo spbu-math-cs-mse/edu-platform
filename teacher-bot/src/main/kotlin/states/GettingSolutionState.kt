@@ -29,7 +29,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core
         if (state.context.username == null) {
             return@strictlyOn null
         }
-        val userId = core.getUserId(state.context.id.toString())
+        val userId = core.getUserId(state.context.id)
         if (userId == null) {
             return@strictlyOn StartState(state.context)
         }

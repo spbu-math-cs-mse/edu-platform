@@ -17,3 +17,5 @@ data class SignUpState(override val context: User) : BotState {
 
   val chosenCourses = mutableListOf<String>()
 }
+
+data class CheckGradesState(override val context: User) : BotState

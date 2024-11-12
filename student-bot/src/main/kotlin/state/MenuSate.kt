@@ -28,6 +28,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
         SignUpState(state.context)
       }
 
+      "checkGrades" -> {
+        deleteMessage(state.context.id, initialMessage.messageId)
+        CheckGradesState(state.context)
+      }
+
       else -> {
         MenuState(state.context)
       }

@@ -1,5 +1,7 @@
 @file:Suppress("unused")
 
+typealias Grade = Int
+
 data class Student(
   val id: String,
 )
@@ -15,6 +17,10 @@ data class Teacher(
 
 data class Problem(
   val id: String,
+  val number: Int,
+  val description: String,
+  val maxScore: Grade,
+  val seriesId: String,
 )
 
 enum class SolutionType {
@@ -30,13 +36,19 @@ data class Solution(
   val content: SolutionContent,
   val type: SolutionType,
 )
-typealias Grade = Int
 
 class Course(
   val teachers: MutableList<Teacher>,
   val students: MutableList<Student>,
   var description: String,
   val gradeTable: GradeTable,
+)
+
+data class Series(
+  val id: String,
+  val description: String,
+  val problems: MutableList<Problem>,
+  val courseId: String,
 )
 
 data class SolutionContent(

@@ -1,8 +1,12 @@
 package com.github.heheteam.commonlib
 
 import javax.management.Query
+import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.statistics.TeacherStatistics
 
-class MockSolutionDistributor : SolutionDistributor {
+class MockSolutionDistributor(
+    private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
+) : SolutionDistributor {
 
   private val solutions = ArrayDeque<Solution>()
   private var solutionId = 1
@@ -32,6 +36,7 @@ class MockSolutionDistributor : SolutionDistributor {
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
   ) {
+    teacherStatistics.recordAssessment(teacherId)
     TODO("Not yet implemented")
   }
 }

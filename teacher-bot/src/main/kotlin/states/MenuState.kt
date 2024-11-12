@@ -40,6 +40,24 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
                     bot.delete(menuMessage)
                     return@strictlyOn GettingSolutionState(state.context)
                 }
+                Keyboards.viewStats -> {
+                    val userId = core.getUserId(state.context.id)
+                    if (userId != null) {
+                        val stats = core.getTeacherStats(userId)
+                        bot.send(
+                            state.context,
+                            """
+                        📊 Ваша статистика проверок:
+                        
+                        Всего проверено: ${stats.totalAssessments}
+                        Среднее число проверок в день: %.2f
+                        ${stats.lastAssessmentTime?.let { "Последняя проверка: $it" } ?: "Нет проверок"}
+                        """.trimIndent().format(stats.averageAssessmentsPerDay),
+                            replyMarkup = Keyboards.returnBack()
+                        )
+                    }
+                    return@strictlyOn MenuState(state.context)
+                    }
             }
         }
         return@strictlyOn GettingSolutionState(state.context)

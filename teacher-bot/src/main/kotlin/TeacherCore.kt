@@ -15,6 +15,7 @@ class TeacherCore(
   fun getTeacherStats(teacherId: String): TeacherStatsData {
     return teacherStatistics.getTeacherStats(teacherId)
   }
+  fun getGlobalStats() = teacherStatistics.getGlobalStats()
 }
 
 interface UserIdRegistry {

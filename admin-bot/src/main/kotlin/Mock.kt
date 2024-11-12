@@ -4,6 +4,7 @@ import Course
 import MockGradeTable
 import Student
 import Teacher
+import java.time.LocalDateTime
 
 val mockGradeTable = MockGradeTable()
 
@@ -31,3 +32,5 @@ val mockAdmins: MutableMap<String, String> by lazy {
     "1" to mockTgUsername,
   )
 }
+
+val mockScheduledMessages: MutableMap<Course, Pair<LocalDateTime, String>> = mutableMapOf()

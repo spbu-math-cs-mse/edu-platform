@@ -5,4 +5,3 @@ plugins {
 rootProject.name = "edu-platform"
 
 include("sample-bot", "common-lib", "student-bot", "parent-bot", "teacher-bot")
-include("distribution-test")

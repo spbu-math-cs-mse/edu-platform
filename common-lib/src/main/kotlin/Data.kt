@@ -2,6 +2,10 @@
 
 package com.github.heheteam.commonlib
 
+import dev.inmo.tgbotapi.types.MessageId
+import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.UserId
+
 data class Student(
   val id: String,
 )
@@ -28,6 +32,9 @@ enum class SolutionType {
 
 data class Solution(
   val id: String,
+  val studentId: String,
+  val chatId: RawChatId,
+  val messageId: MessageId,
   val problem: Problem,
   val content: SolutionContent,
   val type: SolutionType,
@@ -66,6 +73,8 @@ interface GradeTable {
 interface SolutionDistributor {
   fun inputSolution(
     studentId: String,
+    chatId: RawChatId,
+    messageID: MessageId,
     solutionContent: SolutionContent,
   ): Solution
 
@@ -89,3 +98,14 @@ interface CoursesDistributor {
 
   fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>>
 }
+
+interface UserIdRegistry {
+  fun getUserId(tgId: UserId): String?
+
+  fun setUserId(
+    tgId: UserId
+  )
+
+  fun getRegistry(): Map<UserId, String>
+}
+

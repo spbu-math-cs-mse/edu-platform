@@ -21,11 +21,24 @@ fun buildCoursesSelector(availableCourses: MutableList<Pair<Course, Boolean>>) =
     },
   )
 
+fun buildCoursesSendingSelector(availableCourses: MutableList<Pair<Course, Boolean>>) =
+  InlineKeyboardMarkup(
+    keyboard =
+    matrix {
+      availableCourses.forEach { (course, status) ->
+        if (!status)
+          row { dataButton(course.description, "${ButtonKey.COURSE_ID} ${course.id}") }
+      }
+      row { dataButton("Назад", ButtonKey.BACK) }
+    },
+  )
+
 fun buildSendSolutionSelector() =
   InlineKeyboardMarkup(
     keyboard =
     matrix {
-      row { dataButton("Фото", SolutionType.PHOTO.toString()) }
+      row { dataButton("Текст", SolutionType.TEXT.toString()) }
+      row { dataButton("Фото", SolutionType.PHOTOS.toString()) }
       row { dataButton("Файлик", SolutionType.DOCUMENT.toString()) }
       row { dataButton("Назад", ButtonKey.BACK) }
     }

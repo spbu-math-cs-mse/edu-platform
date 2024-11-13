@@ -4,11 +4,12 @@ plugins {
 }
 
 application {
-    mainClass.set("com.github.heheteam.samplebot.MainKt")
+    mainClass.set("com.github.heheteam.distribution-test.MainKt")
 }
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("dev.inmo:tgbotapi:18.2.1")
 }
 
 tasks.test {

@@ -1,4 +1,4 @@
-package com.github.heheteam.studentbot
+package com.github.heheteam.commonlib
 
 import dev.inmo.tgbotapi.types.UserId
 
@@ -6,12 +6,13 @@ class MockUserIdRegistry : UserIdRegistry {
     private val registry = mutableMapOf<UserId, String>()
     private var id = 1
 
-    override fun getUserId(tgId: UserId): String = registry[tgId] ?: setUserId(tgId)
+    override fun getUserId(tgId: UserId): String? = if (registry.contains(tgId)) registry[tgId] else null
 
     override fun setUserId(
         tgId: UserId
-    ): String {
+    ) {
         registry[tgId] = (id++).toString()
-        return registry[tgId]!!
     }
+
+    override fun getRegistry(): Map<UserId, String> = registry.toMap()
 }

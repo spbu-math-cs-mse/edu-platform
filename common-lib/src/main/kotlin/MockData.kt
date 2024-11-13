@@ -25,11 +25,4 @@ val mockAvailableCoursesTable =
         "2" to Pair(mockCoursesTable["2"]!!, false),
         "3" to Pair(mockCoursesTable["3"]!!, true),
       ),
-    "1" to
-      mutableMapOf(
-        "0" to Pair(mockCoursesTable["0"]!!, false),
-        "1" to Pair(mockCoursesTable["1"]!!, true),
-        "2" to Pair(mockCoursesTable["2"]!!, true),
-        "3" to Pair(mockCoursesTable["3"]!!, false),
-      ),
   )

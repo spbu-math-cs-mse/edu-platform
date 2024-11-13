@@ -1,20 +1,34 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.MockSolutionDistributor
+import dev.inmo.tgbotapi.types.MessageId
+import dev.inmo.tgbotapi.types.RawChatId
 import javax.management.Query
+import kotlin.collections.mutableListOf
 
 class MockSolutionDistributor : SolutionDistributor {
 
-  private val solutions = ArrayDeque<Solution>()
+  private val solutions = mutableListOf<Solution>()
   private var solutionId = 1
 
   override fun inputSolution(
     studentId: String,
+    chatId: RawChatId,
+    messageId: MessageId,
     solutionContent: SolutionContent,
   ): Solution {
-    val solutionType = if (solutionContent.text != null) SolutionType.TEXT else SolutionType.DOCUMENT
+    val solutionType = when (solutionContent.text) {
+      SolutionType.PHOTOS.toString() -> SolutionType.PHOTOS
+      SolutionType.PHOTO.toString() -> SolutionType.PHOTO
+      SolutionType.DOCUMENT.toString() -> SolutionType.DOCUMENT
+      else -> SolutionType.TEXT
+    }
     val solution = Solution(
       (solutionId++).toString(),
-      Problem("1"),
+      studentId,
+      chatId,
+      messageId,
+      Problem(""),
       solutionContent,
       solutionType
     )
@@ -23,7 +37,9 @@ class MockSolutionDistributor : SolutionDistributor {
   }
 
   override fun querySolution(teacherId: String): Solution? {
-    TODO("Not yet implemented")
+    if (solutions.isEmpty())
+      return null
+    return solutions.first()
   }
 
   override fun assessSolution(
@@ -32,6 +48,7 @@ class MockSolutionDistributor : SolutionDistributor {
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
   ) {
-    TODO("Not yet implemented")
+    solutions.removeIf{ it == solution }
+    gradeTable.addAssessment(Student(solution.studentId), Teacher(teacherId), solution, assessment)
   }
 }

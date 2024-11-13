@@ -8,7 +8,6 @@ class MockCoursesDistributor : CoursesDistributor {
   private val data =
     mutableMapOf(
       "0" to mutableListOf("1", "2"),
-      "1" to mutableListOf("0", "3"),
     )
 
   override fun addRecord(
@@ -17,6 +16,8 @@ class MockCoursesDistributor : CoursesDistributor {
   ) {
     if (!students.containsKey(studentId)) {
       students[studentId] = Student(studentId)
+    }
+    if (!data.containsKey(studentId)) {
       data[studentId] = mutableListOf()
     }
     buildCoursesForStudent(studentId)
@@ -25,7 +26,6 @@ class MockCoursesDistributor : CoursesDistributor {
   }
 
   override fun getCourses(studentId: String): String {
-    println(studentId)
     if (!data.containsKey(studentId)) {
       return "Вы не записаны ни на один курс!"
     }

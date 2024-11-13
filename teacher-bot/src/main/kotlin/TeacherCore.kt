@@ -1,6 +1,7 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.SolutionDistributor
+import com.github.heheteam.commonlib.UserIdRegistry
 import dev.inmo.tgbotapi.types.UserId
 
 class TeacherCore(
@@ -8,14 +9,5 @@ class TeacherCore(
     private val userIdRegistry: UserIdRegistry,
 ) : UserIdRegistry by userIdRegistry,
     SolutionDistributor by solutionDistributor
-
-interface UserIdRegistry {
-    fun getUserId(tgId: UserId): String?
-
-    fun setUserId(
-        tgId: UserId,
-        id: String,
-    )
-}
 
 var mockTgUsername: String = ""

@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.CoursesDistributor
 import com.github.heheteam.commonlib.SolutionDistributor
+import com.github.heheteam.commonlib.UserIdRegistry
 import dev.inmo.tgbotapi.types.UserId
 
 class StudentCore(
@@ -11,11 +12,3 @@ class StudentCore(
 ) : UserIdRegistry by userIdRegistry,
     CoursesDistributor by coursesDistributor,
     SolutionDistributor by solutionDistributor
-
-interface UserIdRegistry {
-    fun getUserId(tgId: UserId): String
-
-    fun setUserId(
-        tgId: UserId
-    ): String
-}

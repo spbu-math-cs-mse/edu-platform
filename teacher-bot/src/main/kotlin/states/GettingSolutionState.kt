@@ -1,22 +1,32 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.MockGradeTable
+import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
+import dev.inmo.tgbotapi.extensions.api.chat.get.getChat
 import dev.inmo.tgbotapi.extensions.api.delete
+import dev.inmo.tgbotapi.extensions.api.forwardMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
+import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.types.ChatId
+import dev.inmo.tgbotapi.types.commands.BotCommandScope.Companion.Chat
 import dev.inmo.tgbotapi.types.media.TelegramMediaPhoto
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.types.replyToMessageIdField
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -107,10 +117,36 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core
             when (val response = flowOf(waitDataCallbackQuery(), waitTextMessage()).flattenMerge().first()) {
                 is DataCallbackQuery -> {
                     val command = response.data
-                    if (command == Keyboards.returnBack) {
-                        delete(getSolution)
-                        if (getMarkup != null) {
-                            delete(getMarkup)
+                    when (command) {
+                        Keyboards.goodSolution -> {
+                            try {
+                                bot.reply(
+                                    ChatId(solution.chatId),
+                                    solution.messageId,
+                                    "good"
+                                )
+                            } catch (e: CommonRequestException) {}
+
+                            core.assessSolution(solution, core.getUserId(state.context.id)!!, SolutionAssessment(5, ""), MockGradeTable())
+                        }
+
+                        Keyboards.badSolution -> {
+                            try {
+                                bot.reply(
+                                    ChatId(solution.chatId),
+                                    solution.messageId,
+                                    "bad"
+                                )
+                            } catch (e: CommonRequestException) { }
+
+                            core.assessSolution(solution, core.getUserId(state.context.id)!!, SolutionAssessment(2, ""), MockGradeTable())
+                        }
+
+                        Keyboards.returnBack -> {
+                            delete(getSolution)
+                            if (getMarkup != null) {
+                                delete(getMarkup)
+                            }
                         }
                     }
                 }

@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.first
 @OptIn(RiskFeature::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: StudentCore) {
     strictlyOn<SignUpState> { state ->
-        val studentId = core.getUserId(state.context.id)
+        val studentId = core.getUserId(state.context.id)!!
         val availableCourses = core.getAvailableCourses(studentId)
 
         var initialMessage =

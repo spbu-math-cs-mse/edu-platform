@@ -20,3 +20,7 @@ data class GettingSolutionState(
 data class TestSendingSolutionState(
   override val context: User,
 ) : BotState
+
+data class CheckGradesState(
+  override val context: User,
+) : BotState

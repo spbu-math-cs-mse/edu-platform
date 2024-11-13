@@ -34,9 +34,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
       )
 
     when (val command = waitDataCallbackQuery().first().data) {
-      Keyboards.testSendSolution -> {
+      Keyboards.checkGrades -> {
         bot.delete(menuMessage)
-        return@strictlyOn TestSendingSolutionState(state.context)
+        return@strictlyOn CheckGradesState(state.context)
       }
 
       else -> {

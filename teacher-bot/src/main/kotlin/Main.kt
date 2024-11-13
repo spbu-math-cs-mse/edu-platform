@@ -1,5 +1,6 @@
 package com.github.heheteam.samplebot
 
+import com.github.heheteam.samplebot.state.strictlyOnCheckGradesState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -20,6 +21,7 @@ import states.*
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
+  val gradeTable = MockGradeTable()
   mockTgUsername = args[1]
   telegramBot(botToken) {
     logger =
@@ -49,8 +51,9 @@ suspend fun main(vararg args: String) {
 
     strictlyOnStartState()
     strictlyOnMenuState()
-    strictlyOnTestSendingSolutionState()
+//    strictlyOnTestSendingSolutionState()
     strictlyOnGettingSolutionState()
+    strictlyOnCheckGradesState(gradeTable)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

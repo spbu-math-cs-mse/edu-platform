@@ -1,6 +1,6 @@
 package com.github.heheteam.samplebot.state
 
-import com.github.heheteam.samplebot.data.Course
+import Course
 import com.github.heheteam.samplebot.data.CoursesDistributor
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User

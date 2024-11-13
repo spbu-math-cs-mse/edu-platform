@@ -1,5 +1,6 @@
 package com.github.heheteam.samplebot.data
 
+import Course
 import Grade
 import GradeTable
 import Problem
@@ -17,8 +18,6 @@ interface CoursesDistributor {
   fun getListOfCourses(studentId: String): List<Course>
   fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>>
 }
-
-data class Course(val id: String, val description: String, val series: MutableList<Series> = mutableListOf())
 
 fun Problem.getSeries(series: MutableList<Series>): Series? {
   return series.find { it.id == seriesId }
@@ -38,18 +37,18 @@ data class Quadruple<A, B, C, D>(
 val mockCoursesTable = mutableMapOf(
   "0" to Course(
     "0",
-    "Начала мат. анализа",
-    mutableListOf(Series("0", "Серия 1", mutableListOf(Problem("0", 1, "", 10, "0"), Problem("1", 2, "", 5, "0")), "0")),
+    description = "Начала мат. анализа",
+    series = mutableListOf(Series("0", "Серия 1", mutableListOf(Problem("0", 1, "", 10, "0"), Problem("1", 2, "", 5, "0")), "0")),
   ),
   "1" to Course(
     "1",
-    "Теория вероятности",
-    mutableListOf(Series("1", "Серия 1", mutableListOf(Problem("2", 1, "", 10, "1")), "1")),
+    description = "Теория вероятности",
+    series = mutableListOf(Series("1", "Серия 1", mutableListOf(Problem("2", 1, "", 10, "1")), "1")),
   ),
   "2" to Course(
     "2",
-    "Линейная алгебра",
-    mutableListOf(
+    description = "Линейная алгебра",
+    series = mutableListOf(
       Series(
         "2", "Серия 1",
         mutableListOf(Problem("3", 1, "", 10, "2"), Problem("4", 2, "", 5, "2"), Problem("5", 3, "", 5, "2")),
@@ -59,8 +58,8 @@ val mockCoursesTable = mutableMapOf(
   ),
   "3" to Course(
     "3",
-    "Теория функции комплексной переменной",
-    mutableListOf(Series("3", "Серия 1", mutableListOf(Problem("6", 1, "", 1, "3"), Problem("7", 2, "", 5, "3")), "3")),
+    description = "Теория функции комплексной переменной",
+    series = mutableListOf(Series("3", "Серия 1", mutableListOf(Problem("6", 1, "", 1, "3"), Problem("7", 2, "", 5, "3")), "3")),
   ),
 )
 

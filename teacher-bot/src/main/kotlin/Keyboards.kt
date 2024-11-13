@@ -32,6 +32,7 @@ object Keyboards {
 
   val testSendSolution = "Отправить решение"
   val getSolution = "Получить решение"
+  val checkGrades = "checkGrades"
 
   val goodSolution = "Правильное решение"
   val badSolution = "Неправильное решение"
@@ -41,8 +42,11 @@ object Keyboards {
       keyboard =
       matrix {
         row {
-          dataButton("TEST: отправить решение", testSendSolution)
+//          dataButton("TEST: отправить решение", testSendSolution)
           dataButton("Получить решение", getSolution)
+        }
+        row {
+          dataButton("Посмотреть успеваемость учеников", checkGrades)
         }
       },
     )

@@ -4,6 +4,8 @@ typealias Grade = Int
 
 data class Student(
   val id: String,
+  val name: String = "",
+  val surname: String = "",
 )
 
 data class Parent(
@@ -38,10 +40,11 @@ data class Solution(
 )
 
 class Course(
-  val teachers: MutableList<Teacher>,
-  val students: MutableList<Student>,
+  val id: String,
+  val teachers: MutableList<Teacher> = mutableListOf(),
+  val students: MutableList<Student> = mutableListOf(),
   var description: String,
-  val gradeTable: GradeTable,
+  val series: MutableList<Series> = mutableListOf(),
 )
 
 data class Series(

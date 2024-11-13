@@ -12,9 +12,9 @@ import Teacher
 class MockGradeTable(
   val constGradeMap: Map<Student, Map<Problem, Int>> =
     mapOf(
-      Student("1") to mapOf(Problem("1c") to 100, Problem("1d") to 500, Problem("2a") to 200),
-      Student("2") to mapOf(Problem("1d") to 250, Problem("2a") to 200),
-      Student("3") to mapOf(Problem("1c") to 200),
+      Student("1") to mapOf(Problem("1c", "1c", "", 1000, "1") to 100, Problem("1d", "1d", "", 1000, "1") to 500, Problem("2a", "2a", "", 1000, "1") to 200),
+      Student("2") to mapOf(Problem("1d", "1d", "", 1000, "1") to 250, Problem("2a", "2a", "", 1000, "1") to 200),
+      Student("3") to mapOf(Problem("1c", "1c", "", 1000, "1") to 200),
     ),
 ) : GradeTable {
   override fun addAssessment(

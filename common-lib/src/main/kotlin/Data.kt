@@ -19,7 +19,7 @@ data class Teacher(
 
 data class Problem(
   val id: String,
-  val number: Int,
+  val number: String,
   val description: String,
   val maxScore: Grade,
   val seriesId: String,

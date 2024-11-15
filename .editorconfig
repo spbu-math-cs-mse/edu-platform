@@ -1,2 +1,6 @@
 [*.{kt,kts}]
 ktlint_standard_no-wildcard-imports = disabled
+
+[*.kt]
+tab_width = 2
+indent_size = 2

@@ -1,9 +1,32 @@
 package com.github.heheteam.commonlib
 
 class MockCoursesDistributor : CoursesDistributor {
-  private val students = mockStudentsTable
-  private val courses = mockCoursesTable
-  private val available = mockAvailableCoursesTable
+  private val students =
+    mutableMapOf(
+      "0" to Student("0"),
+      "1" to Student("1"),
+      "2" to Student("2"),
+      "3" to Student("3"),
+    )
+
+  private val courses =
+    mutableMapOf(
+      "0" to Course("0", mutableListOf(), mutableListOf(), "Начала мат. анализа", MockGradeTable()),
+      "1" to Course("1", mutableListOf(), mutableListOf(), "Теория вероятности", MockGradeTable()),
+      "2" to Course("2", mutableListOf(), mutableListOf(), "Линейная алгебра", MockGradeTable()),
+      "3" to Course("3", mutableListOf(), mutableListOf(), "ТФКП", MockGradeTable()),
+    )
+
+  private val available =
+    mutableMapOf(
+      "0" to
+        mutableMapOf(
+          "0" to Pair(courses["0"]!!, true),
+          "1" to Pair(courses["1"]!!, false),
+          "2" to Pair(courses["2"]!!, false),
+          "3" to Pair(courses["3"]!!, true),
+        ),
+    )
 
   private val data =
     mutableMapOf(
@@ -21,7 +44,7 @@ class MockCoursesDistributor : CoursesDistributor {
       data[studentId] = mutableListOf()
     }
     buildCoursesForStudent(studentId)
-    available[studentId]!![courseId] = Pair(mockCoursesTable[courseId]!!, false)
+    available[studentId]!![courseId] = Pair(courses[courseId]!!, false)
     data[studentId]!!.add(courseId)
   }
 
@@ -41,7 +64,7 @@ class MockCoursesDistributor : CoursesDistributor {
     if (!available.containsKey(studentId)) {
       available[studentId] =
         mutableMapOf<String, Pair<Course, Boolean>>().apply {
-          mockCoursesTable.forEach { (key, course) ->
+          courses.forEach { (key, course) ->
             this[key] = Pair(course, true)
           }
         }

@@ -4,7 +4,9 @@ import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.*
+import com.github.heheteam.studentbot.metaData.ButtonKey
+import com.github.heheteam.studentbot.metaData.back
+import com.github.heheteam.studentbot.metaData.buildCoursesSendingSelector
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -63,33 +65,37 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
         break
       }
 
-      if (callbackData.contains(ButtonKey.COURSE_ID))  {
+      if (callbackData.contains(ButtonKey.COURSE_ID)) {
         val courseId = callbackData.split(" ").last()
 
         state.selectedCourse = courses.first { it.first.id == courseId }.first
 
         deleteMessage(state.context.id, initialMessage.messageId)
 
-        val selectSolutionTypePrompt = bot.send(
-          state.context,
-          Dialogues.tellValidSolutionTypes(),
-          replyMarkup = back()
-        )
+        val selectSolutionTypePrompt =
+          bot.send(
+            state.context,
+            Dialogues.tellValidSolutionTypes(),
+            replyMarkup = back(),
+          )
 
-        val content = flowOf(
-          waitDataCallbackQuery(),
-          waitTextMessage(),
-          waitMediaMessage(),
-          waitDocumentMessage()).
-        flattenMerge().first()
+        val content =
+          flowOf(
+            waitDataCallbackQuery(),
+            waitTextMessage(),
+            waitMediaMessage(),
+            waitDocumentMessage(),
+          ).flattenMerge()
+            .first()
 
         if (content is CallbackQuery) {
           deleteMessage(state.context.id, selectSolutionTypePrompt.messageId)
-          initialMessage = bot.send(
-            state.context,
-            initialMessage.text.toString(),
-            replyMarkup = initialMessage.reply_markup
-          )
+          initialMessage =
+            bot.send(
+              state.context,
+              initialMessage.text.toString(),
+              replyMarkup = initialMessage.reply_markup,
+            )
           continue
         }
 
@@ -100,49 +106,57 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
 
           val textSolution = content.content.textContentOrNull()
           val photoSolution = content.content.photoContentOrNull()
-          val photosSolution = content.content.mediaGroupContentOrNull()?.group?.mapNotNull { it.content.photoContentOrNull() ?: it.content.documentContentOrNull() }
+          val photosSolution =
+            content.content.mediaGroupContentOrNull()?.group?.mapNotNull {
+              it.content.photoContentOrNull()
+                ?: it.content.documentContentOrNull()
+            }
           val documentSolution = content.content.documentContentOrNull()
 
-          val solutionContent = if (textSolution != null) {
-            SolutionContent(text = textSolution.text)
-          } else if (photoSolution != null) {
-            SolutionContent(text = SolutionType.PHOTO.toString(), fileIds = listOf(photoSolution.media.fileId.fileId))
-          } else if (photosSolution != null) {
-            SolutionContent(text = SolutionType.PHOTOS.toString(), fileIds = photosSolution.map { it!!.media.fileId.fileId })
-          } else if (documentSolution != null) {
-            SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution.media.fileId.fileId))
-          } else  {
-            deleteMessage(state.context.id, initialMessage.messageId)
-            val invalidSolutionTypePrompt = bot.send(
-              state.context,
-              Dialogues.tellSolutionTypeIsInvalid(),
-              replyMarkup = back()
-            )
-            deleteMessage(state.context.id, invalidSolutionTypePrompt.messageId)
-            waitDataCallbackQuery().first()
-            initialMessage = bot.send(
-              state.context,
-              initialMessage.text.toString(),
-              replyMarkup = initialMessage.reply_markup
-            )
-            continue
-          }
+          val solutionContent =
+            if (textSolution != null) {
+              SolutionContent(text = textSolution.text)
+            } else if (photoSolution != null) {
+              SolutionContent(text = SolutionType.PHOTO.toString(), fileIds = listOf(photoSolution.media.fileId.fileId))
+            } else if (photosSolution != null) {
+              SolutionContent(text = SolutionType.PHOTOS.toString(), fileIds = photosSolution.map { it!!.media.fileId.fileId })
+            } else if (documentSolution != null) {
+              SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution.media.fileId.fileId))
+            } else {
+              deleteMessage(state.context.id, initialMessage.messageId)
+              val invalidSolutionTypePrompt =
+                bot.send(
+                  state.context,
+                  Dialogues.tellSolutionTypeIsInvalid(),
+                  replyMarkup = back(),
+                )
+              deleteMessage(state.context.id, invalidSolutionTypePrompt.messageId)
+              waitDataCallbackQuery().first()
+              initialMessage =
+                bot.send(
+                  state.context,
+                  initialMessage.text.toString(),
+                  replyMarkup = initialMessage.reply_markup,
+                )
+              continue
+            }
 
           core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent!!)
 
           deleteMessage(state.context.id, initialMessage.messageId)
 
-          initialMessage = bot.send(
-            state.context,
-            Dialogues.tellSolutionIsSent(),
-            replyMarkup = back()
-          )
+          initialMessage =
+            bot.send(
+              state.context,
+              Dialogues.tellSolutionIsSent(),
+              replyMarkup = back(),
+            )
 
           waitDataCallbackQuery().first()
 
           bot.editMessageReplyMarkup(
             initialMessage,
-            replyMarkup = null
+            replyMarkup = null,
           )
 
           break

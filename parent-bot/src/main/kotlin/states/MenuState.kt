@@ -1,9 +1,9 @@
-package states
+package com.github.heheteam.parentbot.states
 
 import Dialogues
 import Keyboards
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.samplebot.mockParents
+import com.github.heheteam.parentbot.mockParents
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send

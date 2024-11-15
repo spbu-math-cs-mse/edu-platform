@@ -1,13 +1,6 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.parentbot
 
-import Grade
-import GradeTable
-import Parent
-import Problem
-import Solution
-import SolutionAssessment
-import Student
-import Teacher
+import com.github.heheteam.commonlib.*
 
 class MockGradeTable(
   val constGradeMap: Map<Student, Map<Problem, Int>> =

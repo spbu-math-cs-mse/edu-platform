@@ -1,5 +1,6 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.parentbot
 
+import com.github.heheteam.parentbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -12,7 +13,6 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import states.*
 
 /**
  * @param args bot token and telegram @username for mocking data.

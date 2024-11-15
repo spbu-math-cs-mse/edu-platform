@@ -4,33 +4,52 @@ import Course
 import MockGradeTable
 import Student
 import Teacher
+import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 
 val mockGradeTable = MockGradeTable()
 
-val mockCourses: MutableMap<String, Course> = mutableMapOf(
+val mockCoursesTable: MutableMap<String, Course> = mutableMapOf(
   "Геома 1" to Course(
     mutableListOf(Teacher("1")), mutableListOf(Student("1")),
     "какое-то описание", mockGradeTable,
   ),
 )
 
-var mockTgUsername: String = ""
-
-val mockStudents: MutableMap<String, String> = mutableMapOf(
-  "1" to "@username_of_a_student",
-  "2" to "@another_username",
+val mockStudentsTable: MutableMap<String, Student> = mutableMapOf(
+  "1" to Student("1"),
+  "2" to Student("2"),
 )
 
-val mockTeachers: MutableMap<String, String> = mutableMapOf(
-  "1" to "@username_of_a_teacher",
-  "2" to "@some_username",
+val mockTeachersTable: MutableMap<String, Teacher> = mutableMapOf(
+  "3" to Teacher("3"),
+  "4" to Teacher("4"),
 )
 
-val mockAdmins: MutableMap<String, String> by lazy {
-  mutableMapOf(
-    "1" to mockTgUsername,
-  )
+val mockAdminsTable: List<Username> = listOf(
+  Username("@schindleria_praematurus")
+)
+
+class mockScheduledMessagesDistributor(
+  private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf()
+) : ScheduledMessagesDistributor {
+  override fun addMessage(message: ScheduledMessage) {
+      messages[message] = false
+  }
+
+  override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> {
+    val res = mutableListOf<ScheduledMessage>()
+    for(message in messages) {
+      if(!message.value && date.isAfter(message.key.date))
+        res.addLast(message.key)
+    }
+    return res.toList()
+  }
+
+  override fun markMessagesUpToDateAsSent(date: LocalDateTime) {
+    for(message in messages) {
+      if(!message.value && date.isAfter(message.key.date))
+        messages[message.key] = true
+    }
+  }
 }
-
-val mockScheduledMessages: MutableMap<Course, Pair<LocalDateTime, String>> = mutableMapOf()

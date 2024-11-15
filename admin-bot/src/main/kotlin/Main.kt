@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 
 suspend fun main(vararg args: String) {
   val botToken = args.first()
-  mockTgUsername = args[1]
   val bot =
     telegramBot(botToken) {
       logger =
@@ -23,6 +22,9 @@ suspend fun main(vararg args: String) {
           println(defaultMessageFormatter(level, tag, message, throwable))
         }
     }
+
+  val core = AdminCore(mockGradeTable, mockScheduledMessagesDistributor(),
+    mockCoursesTable, mockStudentsTable, mockTeachersTable, mockAdminsTable)
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
     botToken,
@@ -41,21 +43,21 @@ suspend fun main(vararg args: String) {
       startChain(StartState(it.from!!))
     }
 
-    strictlyOnStartState()
+    strictlyOnStartState(core)
     strictlyOnNotAdminState()
-    strictlyOnMenuState()
-    strictlyOnCreateCourseState()
-    strictlyOnPickACourseState()
+    strictlyOnMenuState(core)
+    strictlyOnCreateCourseState(core)
+    strictlyOnPickACourseState(core)
     strictlyOnEditCourseState()
-    strictlyOnAddStudentState()
-    strictlyOnRemoveStudentState()
-    strictlyOnAddTeacherState()
-    strictlyOnRemoveTeacherState()
+    strictlyOnAddStudentState(core)
+    strictlyOnRemoveStudentState(core)
+    strictlyOnAddTeacherState(core)
+    strictlyOnRemoveTeacherState(core)
     strictlyOnEditDescriptionState()
     strictlyOnAddScheduledMessageState()
     strictlyOnScheduleMessageSelectDateState()
     strictlyOnScheduleMessageEnterDateState()
-    strictlyOnScheduleMessageEnterTimeState()
+    strictlyOnScheduleMessageEnterTimeState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

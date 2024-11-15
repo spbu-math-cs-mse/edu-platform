@@ -1,14 +1,13 @@
 package com.github.heheteam.adminbot.states
 
 import Course
-import com.github.heheteam.adminbot.mockCourses
-import com.github.heheteam.adminbot.mockGradeTable
+import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: AdminCore) {
   strictlyOn<CreateCourseState> { state ->
     val message = waitTextMessage().first()
     val answer = message.content.text
@@ -17,7 +16,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState() {
       answer == "/stop" ->
         StartState(state.context)
 
-      mockCourses.containsKey(answer) -> {
+      core.coursesTable.containsKey(answer) -> {
         send(
           state.context,
         ) {
@@ -27,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState() {
       }
 
       else -> {
-        mockCourses.put(answer, Course(mutableListOf(), mutableListOf(), "", mockGradeTable))
+        core.coursesTable[answer] = Course(mutableListOf(), mutableListOf(), "", core)
 
         send(
           state.context,

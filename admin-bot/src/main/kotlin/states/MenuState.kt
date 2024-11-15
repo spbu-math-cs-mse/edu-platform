@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.mockCourses
+import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.types.message.textsources.botCommand
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: AdminCore) {
   strictlyOn<MenuState> { state ->
     val callback = waitDataCallbackQuery().first()
     val data = callback.data
@@ -32,7 +32,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
           "Выберите курс, который хотите изменить:",
           replyMarkup =
           replyKeyboard {
-            for ((name, _) in mockCourses) {
+            for ((name, _) in core.coursesTable) {
               row {
                 simpleButton(
                   text = name,

@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.mockCourses
+import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.types.buttons.ReplyKeyboardRemove
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPickACourseState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPickACourseState(core: AdminCore) {
   strictlyOn<PickACourseState> { state ->
     val message = waitTextMessage().first()
     val answer = message.content.text
@@ -58,7 +58,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPickACourseState() {
           },
 
         )
-        mockCourses[answer]?.let { EditCourseState(state.context, it, answer) }
+        core.coursesTable[answer]?.let { EditCourseState(state.context, it, answer) }
       }
     }
   }

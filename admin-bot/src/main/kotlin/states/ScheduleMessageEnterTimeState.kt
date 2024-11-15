@@ -1,8 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.dateFormatter
-import com.github.heheteam.adminbot.mockScheduledMessages
-import com.github.heheteam.adminbot.timeFormatter
+import com.github.heheteam.adminbot.*
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
@@ -12,7 +10,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeParseException
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnScheduleMessageEnterTimeState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnScheduleMessageEnterTimeState(core: AdminCore) {
   strictlyOn<ScheduleMessageEnterTimeState> { state ->
     val message = waitTextMessage().first().content.text
     if (message == "/stop") {
@@ -26,7 +24,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnScheduleMessageEnterTimeS
           state.date.format(dateFormatter) + newLine +
           "Курс: " + state.courseName
       }
-      mockScheduledMessages[state.course] = LocalDateTime.of(state.date, time) to state.text
+
+      core.addMessage(ScheduledMessage(state.course, LocalDateTime.of(state.date, time), state.text))
+
       StartState(state.context)
     } catch (e: DateTimeParseException) {
       send(

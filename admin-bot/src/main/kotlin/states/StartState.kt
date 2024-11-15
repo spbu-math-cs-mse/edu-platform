@@ -1,20 +1,21 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.mockAdmins
+import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
+import dev.inmo.tgbotapi.types.Username
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: AdminCore) {
   strictlyOn<StartState> { state ->
     if (state.context.username == null) {
       return@strictlyOn null
     }
     val username = state.context.username!!.username
-    if (mockAdmins.containsValue(username)) {
+    if (core.adminsTable.contains(Username(username))) {
       bot.send(
         state.context,
         "Главное меню:",

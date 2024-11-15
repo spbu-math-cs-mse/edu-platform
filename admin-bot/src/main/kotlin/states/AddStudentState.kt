@@ -1,20 +1,20 @@
 package com.github.heheteam.adminbot.states
 
 import Student
-import com.github.heheteam.adminbot.mockStudents
+import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: AdminCore) {
   strictlyOn<AddStudentState> { state ->
     val message = waitTextMessage().first()
     val id = message.content.text
     when {
       id == "/stop" -> StartState(state.context)
 
-      !mockStudents.containsKey(id) -> {
+      !core.studentsTable.containsKey(id) -> {
         send(
           state.context,
           "Ученика с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",

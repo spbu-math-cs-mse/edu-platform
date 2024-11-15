@@ -1,5 +1,8 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.teacherbot
 
+import com.github.heheteam.commonlib.MockSolutionDistributor
+import com.github.heheteam.commonlib.MockUserIdRegistry
+import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -12,7 +15,6 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import states.*
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -21,6 +23,7 @@ import states.*
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
+  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry())
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -47,10 +50,9 @@ suspend fun main(vararg args: String) {
       }
     }
 
-    strictlyOnStartState()
-    strictlyOnMenuState()
-    strictlyOnTestSendingSolutionState()
-    strictlyOnGettingSolutionState()
+    strictlyOnStartState(core)
+    strictlyOnMenuState(core)
+    strictlyOnGettingSolutionState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

@@ -1,7 +1,9 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.studentbot
 
-import com.github.heheteam.samplebot.data.MockCoursesDistributor
-import com.github.heheteam.samplebot.state.*
+import com.github.heheteam.commonlib.MockCoursesDistributor
+import com.github.heheteam.commonlib.MockSolutionDistributor
+import com.github.heheteam.commonlib.MockUserIdRegistry
+import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -18,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val coursesDistributor = MockCoursesDistributor()
+  val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry())
   val botToken = args.first()
   telegramBot(botToken) {
     logger =
@@ -26,7 +29,7 @@ suspend fun main(vararg args: String) {
       }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
     botToken,
     CoroutineScope(Dispatchers.IO),
     onStateHandlingErrorHandler = { state, e ->
@@ -41,13 +44,15 @@ suspend fun main(vararg args: String) {
       "start",
     ) {
       if (it.from != null) {
-        startChain(MenuState(it.from!!))
+        startChain(StartState(it.from!!))
       }
     }
 
+    strictlyOnStartState(core)
     strictlyOnMenuState()
-    strictlyOnViewState(coursesDistributor)
-    strictlyOnSignUpState(coursesDistributor)
+    strictlyOnViewState(core)
+    strictlyOnSignUpState(core)
+    strictlyOnSendSolutionState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

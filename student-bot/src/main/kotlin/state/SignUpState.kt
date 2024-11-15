@@ -1,7 +1,7 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.samplebot.data.CoursesDistributor
-import com.github.heheteam.samplebot.metaData.*
+import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -12,16 +12,17 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
 @OptIn(RiskFeature::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(coursesDistributor: CoursesDistributor) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: StudentCore) {
   strictlyOn<SignUpState> { state ->
-    val studentId = state.context.id
-    val availableCourses = state.getAvailableCourses(coursesDistributor)
+    val studentId = core.getUserId(state.context.id)!!
+    val availableCourses = core.getAvailableCourses(studentId)
 
-    var initialMessage = bot.send(
-      state.context,
-      text = "Вот доступные курсы",
-      replyMarkup = buildCoursesSelector(availableCourses),
-    )
+    var initialMessage =
+      bot.send(
+        state.context,
+        text = "Вот доступные курсы",
+        replyMarkup = buildCoursesSelector(availableCourses),
+      )
 
     while (true) {
       val callbackData = waitDataCallbackQuery().first().data
@@ -35,21 +36,23 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(coursesDistri
           if (!availableCourses[index].second) {
             deleteMessage(state.context.id, initialMessage.messageId)
 
-            val lastMessage = bot.send(
-              state.context,
-              text = "Вы уже записаны на этот курс!",
-              replyMarkup = back(),
-            )
+            val lastMessage =
+              bot.send(
+                state.context,
+                text = "Вы уже записаны на этот курс!",
+                replyMarkup = back(),
+              )
 
             waitDataCallbackQuery().first()
 
             deleteMessage(state.context.id, lastMessage.messageId)
 
-            initialMessage = bot.send(
-              state.context.id,
-              text = initialMessage.text.toString(),
-              replyMarkup = buildCoursesSelector(availableCourses),
-            )
+            initialMessage =
+              bot.send(
+                state.context.id,
+                text = initialMessage.text.toString(),
+                replyMarkup = buildCoursesSelector(availableCourses),
+              )
             continue
           }
 
@@ -73,26 +76,28 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(coursesDistri
           if (state.chosenCourses.isEmpty()) {
             deleteMessage(state.context.id, initialMessage.messageId)
 
-            val lastMessage = bot.send(
-              state.context,
-              text = "Вы не выбрали ни одного курса!",
-              replyMarkup = back(),
-            )
+            val lastMessage =
+              bot.send(
+                state.context,
+                text = "Вы не выбрали ни одного курса!",
+                replyMarkup = back(),
+              )
 
             waitDataCallbackQuery().first()
             deleteMessage(state.context.id, lastMessage.messageId)
 
             return@strictlyOn SignUpState(state.context)
           } else {
-            state.chosenCourses.forEach { coursesDistributor.addRecord(studentId.toString(), it) }
+            state.chosenCourses.forEach { core.addRecord(studentId, it) }
 
             deleteMessage(state.context.id, initialMessage.messageId)
 
-            val lastMessage = bot.send(
-              state.context,
-              text = "Вы успешно записались на курсы!",
-              replyMarkup = back(),
-            )
+            val lastMessage =
+              bot.send(
+                state.context,
+                text = "Вы успешно записались на курсы!",
+                replyMarkup = back(),
+              )
 
             waitDataCallbackQuery().first()
             deleteMessage(state.context.id, lastMessage.messageId)

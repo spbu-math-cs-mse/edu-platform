@@ -1,6 +1,6 @@
-package states
+package com.github.heheteam.parentbot.states
 
-import Student
+import com.github.heheteam.commonlib.Student
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 

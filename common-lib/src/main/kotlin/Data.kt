@@ -1,5 +1,10 @@
 @file:Suppress("unused")
 
+package com.github.heheteam.commonlib
+
+import dev.inmo.tgbotapi.types.MessageId
+import dev.inmo.tgbotapi.types.RawChatId
+
 data class Student(
   val id: String,
 )
@@ -26,13 +31,19 @@ enum class SolutionType {
 
 data class Solution(
   val id: String,
+  val studentId: String,
+  val chatId: RawChatId,
+  val messageId: MessageId,
   val problem: Problem,
   val content: SolutionContent,
   val type: SolutionType,
+  val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
+
 typealias Grade = Int
 
 class Course(
+  val id: String,
   val teachers: MutableList<Teacher>,
   val students: MutableList<Student>,
   var description: String,
@@ -48,30 +59,3 @@ data class SolutionAssessment(
   val grade: Grade,
   val comments: String,
 )
-
-interface GradeTable {
-  fun addAssessment(
-    student: Student,
-    teacher: Teacher,
-    solution: Solution,
-    assessment: SolutionAssessment,
-  )
-
-  fun getGradeMap(): Map<Student, Map<Problem, Grade>>
-}
-
-interface SolutionDistributor {
-  fun inputSolution(
-    student: Student,
-    solutionContent: SolutionContent,
-  ): Solution
-
-  fun querySolution(teacher: Teacher): Pair<Solution, SolutionContent>
-
-  fun assessSolution(
-    solution: Solution,
-    teacher: Teacher,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-  )
-}

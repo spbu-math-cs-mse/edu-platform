@@ -1,6 +1,6 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.samplebot.metaData.menuKeyboard
+import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
   strictlyOn<MenuState> { state ->
-
     val initialMessage = bot.send(
       state.context,
       text = "Мне нужно...",
@@ -18,19 +17,21 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
 
     val callback = waitDataCallbackQuery().first()
     when (callback.data) {
-      "viewMyCourses" -> {
+      ButtonKey.VIEW -> {
         deleteMessage(state.context.id, initialMessage.messageId)
         ViewState(state.context)
       }
-
-      "signUpForCourses" -> {
+      ButtonKey.SIGN_UP -> {
         deleteMessage(state.context.id, initialMessage.messageId)
         SignUpState(state.context)
       }
-
+      ButtonKey.SEND_SOLUTION -> {
+        deleteMessage(state.context.id, initialMessage.messageId)
+        SendSolutionState(state.context)
+      }
       else -> {
         MenuState(state.context)
       }
     }
   }
-}
+} 

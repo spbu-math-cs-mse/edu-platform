@@ -1,3 +1,5 @@
+package com.github.heheteam.teacherbot
+
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
@@ -30,8 +32,8 @@ object Keyboards {
 
   val returnBack = "Назад"
 
-  val testSendSolution = "Отправить решение"
   val getSolution = "Получить решение"
+  val viewStats = "Статистика проверок"
 
   val goodSolution = "Правильное решение"
   val badSolution = "Неправильное решение"
@@ -41,8 +43,10 @@ object Keyboards {
       keyboard =
       matrix {
         row {
-          dataButton("TEST: отправить решение", testSendSolution)
           dataButton("Получить решение", getSolution)
+        }
+        row {
+          dataButton("Статистика проверок", viewStats)
         }
       },
     )

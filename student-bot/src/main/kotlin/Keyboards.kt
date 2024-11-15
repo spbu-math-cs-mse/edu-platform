@@ -1,6 +1,6 @@
-import com.github.heheteam.commonlib.Student
+package com.github.heheteam.studentbot
+
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
@@ -30,33 +30,7 @@ object Keyboards {
       },
     )
 
-  val petDog = "Почесать таксе пузо"
-  val giveFeedback = "Дать обратную связь"
   val returnBack = "Назад"
-
-  fun menu(children: List<Student>) =
-    InlineKeyboardMarkup(
-      keyboard =
-      matrix {
-        row {
-          dataButton("Почесать таксе пузо", petDog)
-        }
-        row {
-          urlButton("Учиться на курсах", "https://dabromat.ru/#rec784116042")
-          dataButton("Дать обратную связь", giveFeedback)
-        }
-        if (children.isNotEmpty()) {
-          row {
-            dataButton("Следить за успеваемостью \uD83D\uDC47", "-")
-          }
-          for (child in children) {
-            row {
-              dataButton(child.toString(), child.id)
-            }
-          }
-        }
-      },
-    )
 
   fun returnBack() =
     InlineKeyboardMarkup(

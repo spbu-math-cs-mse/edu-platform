@@ -1,3 +1,5 @@
+package com.github.heheteam.teacherbot
+import com.github.heheteam.commonlib.*
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {
@@ -6,15 +8,22 @@ object Dialogues {
   val greetingSticker = InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")
 
   fun greetings(): String =
-    "Привет! Меня зовут такса Дуся, и я отлично разбираюсь в олимпиадной математике.\n" +
-      "Мои охотничьи инстинкты помогают мне находить классные олимпиадные задачи, " +
-      "а превосходный нюх - отыскивать ошибки в твоих рассуждениях, гав-гав!\n\n" +
-      "Свистни мне, когда захочешь порешать з-аф-аф-дачи! Также я помогу тебе не пропустить интересные" +
-      " математические события - я тщательно за ними слежу!\n\n"
+    "Здравствуйте! Я бот-помощник для преподавателей.\n" +
+      "С моей помощью вы сможете:\n" +
+      "• Получать решения учеников на проверку\n" +
+      "• Отправлять обратную связь\n" +
+      "• Выставлять оценки\n"
 
-  fun askFirstName(): String = "Как я могу к тебе обращаться? Напиши свое имя."
+  fun askFirstName(): String = "Как я могу к вам обращаться? Напишите ваше имя."
 
-  fun askLastName(firstName: String): String = "Отлично, $firstName, введи свою фамилию \uD83D\uDC47"
+  fun askLastName(firstName: String): String = "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"
+
+  fun askIdentifier(): String = "Теперь введите Ваш идентификатор \uD83D\uDC47"
+
+  fun askGrade(
+    firstName: String,
+    lastName: String,
+  ): String = "Рад знакомству, $firstName $lastName!\nУкажите ваши предметы преподавания"
 
   fun solutionSent(): String = "Готово!"
 
@@ -23,16 +32,9 @@ object Dialogues {
   // TODO: add more of student and problem info
   fun solutionInfo(solution: Solution): String = "Ученик отправил задачу ${solution.problem.id}"
 
-  fun askGrade(
-    firstName: String,
-    lastName: String,
-  ): String = "Безумно рада нашему с тобой знакомству, $firstName $lastName!\nВ каком классе ты учишься?"
-
   fun menu(): String = "\u2705 Главное меню"
 
-  fun testSendSolution(): String =
-    "ТЕСТ_Отправьте решение:"
+  fun testSendSolution(): String = "ТЕСТ_Отправьте решение:"
 
-  fun noSolutionsToCheck(): String =
-    "Задач для проверки нет!"
+  fun noSolutionsToCheck(): String = "Задач для проверки нет!"
 }

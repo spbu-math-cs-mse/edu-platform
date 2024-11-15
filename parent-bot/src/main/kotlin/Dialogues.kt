@@ -1,3 +1,5 @@
+import com.github.heheteam.commonlib.GradeTable
+import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {

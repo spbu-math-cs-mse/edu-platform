@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass.set("com.github.heheteam.samplebot.MainKt")
+    mainClass.set("com.github.heheteam.teacherbot.MainKt")
 }
 
 dependencies {

@@ -43,7 +43,6 @@ fun buildSendSolutionSelector() =
       row { dataButton("Назад", ButtonKey.BACK) }
     },
   )
-
 fun back() =
   InlineKeyboardMarkup(
     keyboard =
@@ -52,6 +51,7 @@ fun back() =
     },
   )
 
+
 fun menuKeyboard() =
   InlineKeyboardMarkup(
     keyboard =
@@ -59,5 +59,6 @@ fun menuKeyboard() =
       row { dataButton("Записаться на курсы", ButtonKey.SIGN_UP) }
       row { dataButton("Посмотреть мои курсы", ButtonKey.VIEW) }
       row { dataButton("Отправить решение", ButtonKey.SEND_SOLUTION) }
+      row { dataButton("Проверить успеваемость", ButtonKey.CHECK_GRADES) }
     },
   )

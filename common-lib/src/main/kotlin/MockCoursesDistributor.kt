@@ -14,7 +14,7 @@ class MockCoursesDistributor : CoursesDistributor {
       "0" to Course("0", mutableListOf(), mutableListOf(), "Начала мат. анализа", MockGradeTable()),
       "1" to Course("1", mutableListOf(), mutableListOf(), "Теория вероятности", MockGradeTable()),
       "2" to Course("2", mutableListOf(), mutableListOf(), "Линейная алгебра", MockGradeTable()),
-      "3" to Course("3", mutableListOf(), mutableListOf(), "ТФКП", MockGradeTable()),
+      "3" to Course("3", mutableListOf(), mutableListOf(), "ТФКП", MockGradeTable()), // TODO unite interfaces
     )
 
   private val available =
@@ -31,6 +31,7 @@ class MockCoursesDistributor : CoursesDistributor {
   private val data =
     mutableMapOf(
       "0" to mutableListOf("1", "2"),
+      "1" to mutableListOf("0", "3"),
     )
 
   override fun addRecord(
@@ -53,6 +54,13 @@ class MockCoursesDistributor : CoursesDistributor {
       return "Вы не записаны ни на один курс!"
     }
     return data[studentId]!!.map { courses[it]!!.description }.joinToString(separator = "\n") { "- $it" }
+  }
+
+  override fun getListOfCourses(studentId: String): List<Course> {
+    if (!data.containsKey(studentId)) {
+      return listOf()
+    }
+    return data[studentId]!!.map { courses[it]!! }
   }
 
   override fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>> {

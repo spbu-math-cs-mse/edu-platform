@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 suspend fun main(vararg args: String) {
   val coursesDistributor = MockCoursesDistributor()
   val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry())
+  val core = StudentCore(MockCoursesDistributor(), MockGradeTable()) // TODO merge mocks
   val botToken = args.first()
   telegramBot(botToken) {
     logger =
@@ -29,7 +30,7 @@ suspend fun main(vararg args: String) {
       }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling(
     botToken,
     CoroutineScope(Dispatchers.IO),
     onStateHandlingErrorHandler = { state, e ->
@@ -53,6 +54,7 @@ suspend fun main(vararg args: String) {
     strictlyOnViewState(core)
     strictlyOnSignUpState(core)
     strictlyOnSendSolutionState(core)
+    strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

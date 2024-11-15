@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.states
 
+import Keyboards
 import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -30,12 +30,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: TeacherC
         replyMarkup = Keyboards.askGrade(),
       )
       val grade = waitDataCallbackQuery().first().data
-      // bot.send(
-      //    state.context,
-      //    Dialogues.askIdentifier(),
-      // )
-      // val identifier = waitTextMessage().first().content.text
-      core.setUserId(state.context.id)
+      if (grade == "Другое") {
+        core.setUserId(state.context.id)
+      }
       return@strictlyOn MenuState(state.context)
     }
     bot.send(

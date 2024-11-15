@@ -21,17 +21,25 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
         deleteMessage(state.context.id, initialMessage.messageId)
         ViewState(state.context)
       }
+
       ButtonKey.SIGN_UP -> {
         deleteMessage(state.context.id, initialMessage.messageId)
         SignUpState(state.context)
       }
+
       ButtonKey.SEND_SOLUTION -> {
         deleteMessage(state.context.id, initialMessage.messageId)
         SendSolutionState(state.context)
       }
+
+      "checkGrades" -> { // TODO: refactoring
+        deleteMessage(state.context.id, initialMessage.messageId)
+        CheckGradesState(state.context)
+      }
+
       else -> {
         MenuState(state.context)
       }
     }
   }
-} 
+}

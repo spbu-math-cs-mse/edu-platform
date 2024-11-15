@@ -16,3 +16,11 @@ data class MenuState(
 data class GettingSolutionState(
   override val context: User,
 ) : BotState
+
+data class TestSendingSolutionState(
+  override val context: User,
+) : BotState
+
+data class CheckGradesState(
+  override val context: User,
+) : BotState

@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
+import Keyboards
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -35,6 +35,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
     while (true) {
       val callbackData = waitDataCallbackQuery().first().data
       when (callbackData) {
+        Keyboards.checkGrades -> {
+          bot.delete(menuMessage)
+          return@strictlyOn CheckGradesState(state.context)
+        }
+
         Keyboards.getSolution -> {
           bot.delete(stickerMessage)
           bot.delete(menuMessage)

@@ -15,6 +15,8 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import strictlyOnMenuState
+import strictlyOnStartState
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -23,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
+  val core = TeacherCore(MockGradeTable()) // TODO merge mocks
   val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry())
   telegramBot(botToken) {
     logger =
@@ -53,6 +56,8 @@ suspend fun main(vararg args: String) {
     strictlyOnStartState(core)
     strictlyOnMenuState(core)
     strictlyOnGettingSolutionState(core)
+    strictlyOnGettingSolutionState(core)
+    strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

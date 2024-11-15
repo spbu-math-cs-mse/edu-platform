@@ -2,9 +2,11 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
+import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
@@ -17,10 +19,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.extensions.utils.mediaGroupContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.photoContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
-import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
-import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.CallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,7 +40,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
       val message =
         bot.send(
           state.context,
-          "Сначала запишитесь на курсы!",
+          Dialogues.tellToApplyForCourses(),
           replyMarkup = back(),
         )
       waitDataCallbackQuery().first()
@@ -49,137 +48,106 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
       return@strictlyOn MenuState(state.context)
     }
 
-    var courseMessage =
+    var initialMessage =
       bot.send(
         state.context,
-        "Выберите курс для отправки решения:",
+        Dialogues.askCourseForSolution(),
         replyMarkup = buildCoursesSendingSelector(courses.toMutableList()),
       )
 
-    val callback = waitDataCallbackQuery().first()
-    if (callback.data == ButtonKey.BACK) {
-      deleteMessage(state.context.id, courseMessage.messageId)
-      return@strictlyOn MenuState(state.context)
-    }
-
-    val courseId = callback.data.split(" ").last()
-    state.selectedCourse = courses.first { it.first.id == courseId }.first
-    deleteMessage(state.context.id, courseMessage.messageId)
-
-    var typeSelectorMessage = bot.send(
-      state.context,
-      "Как бы вы хотели отправить решение?",
-      replyMarkup = buildSendSolutionSelector(),
-    )
-
-    val type = waitDataCallbackQuery().first().data
-    var lastMessage: ContentMessage<TextContent>? = null
-
     while (true) {
-      if (type == ButtonKey.BACK) {
-        deleteMessage(state.context.id, typeSelectorMessage.messageId)
-        courseMessage =
-          bot.send(
-            state.context,
-            courseMessage.text.toString(),
-            replyMarkup = courseMessage.reply_markup,
-          )
-        continue
-      } else {
-        val promptMessage: ContentMessage<TextContent>
-        deleteMessage(state.context.id, typeSelectorMessage.messageId)
-        when (type) {
-          "PHOTOS" -> {
-            promptMessage =
-              bot.send(
-                state.context,
-                "Отправь мне фото я отошлю решение на проверку!",
-                replyMarkup = back(),
-              )
-          }
+      val callbackData = waitDataCallbackQuery().first().data
 
-          "TEXT" -> {
-            promptMessage =
-              bot.send(
-                state.context,
-                "Напиши решение текстом и я отошлю его на проверку!",
-                replyMarkup = back(),
-              )
-          }
+      if (callbackData == ButtonKey.BACK) {
+        deleteMessage(state.context.id, initialMessage.messageId)
+        break
+      }
 
-          "DOCUMENT" -> {
-            promptMessage =
-              bot.send(
-                state.context,
-                "Отправь файл и я отошлю его на проверку!",
-                replyMarkup = back(),
-              )
-          }
+      if (callbackData.contains(ButtonKey.COURSE_ID))  {
+        val courseId = callbackData.split(" ").last()
 
-          else -> {
-            break
-          }
-        }
+        state.selectedCourse = courses.first { it.first.id == courseId }.first
+
+        deleteMessage(state.context.id, initialMessage.messageId)
+
+        val selectSolutionTypePrompt = bot.send(
+          state.context,
+          Dialogues.tellValidSolutionTypes(),
+          replyMarkup = back()
+        )
 
         val content = flowOf(
           waitDataCallbackQuery(),
           waitTextMessage(),
           waitMediaMessage(),
-          waitDocumentMessage(),
-        )
-          .flattenMerge().first()
+          waitDocumentMessage()).
+        flattenMerge().first()
 
         if (content is CallbackQuery) {
-          typeSelectorMessage = bot.send(
+          deleteMessage(state.context.id, selectSolutionTypePrompt.messageId)
+          initialMessage = bot.send(
             state.context,
-            typeSelectorMessage.text.toString(),
-            replyMarkup = typeSelectorMessage.reply_markup,
+            initialMessage.text.toString(),
+            replyMarkup = initialMessage.reply_markup
           )
           continue
         }
 
-        val solutionContent: SolutionContent
-        val messageId: MessageId
+        initialMessage = selectSolutionTypePrompt
 
         if (content is CommonMessage<*>) {
-          messageId = content.messageId
+          val messageId = content.messageId
 
           val textSolution = content.content.textContentOrNull()
           val photoSolution = content.content.photoContentOrNull()
-          val photosSolution = content.content.mediaGroupContentOrNull()?.group?.map { it.content.photoContentOrNull() }
+          val photosSolution = content.content.mediaGroupContentOrNull()?.group?.mapNotNull { it.content.photoContentOrNull() ?: it.content.documentContentOrNull() }
           val documentSolution = content.content.documentContentOrNull()
 
-          solutionContent = if (textSolution != null) {
+          val solutionContent = if (textSolution != null) {
             SolutionContent(text = textSolution.text)
           } else if (photoSolution != null) {
             SolutionContent(text = SolutionType.PHOTO.toString(), fileIds = listOf(photoSolution.media.fileId.fileId))
           } else if (photosSolution != null) {
             SolutionContent(text = SolutionType.PHOTOS.toString(), fileIds = photosSolution.map { it!!.media.fileId.fileId })
           } else if (documentSolution != null) {
-            SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution!!.media.fileId.fileId))
-          } else {
-            break
+            SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution.media.fileId.fileId))
+          } else  {
+            deleteMessage(state.context.id, initialMessage.messageId)
+            val invalidSolutionTypePrompt = bot.send(
+              state.context,
+              Dialogues.tellSolutionTypeIsInvalid(),
+              replyMarkup = back()
+            )
+            deleteMessage(state.context.id, invalidSolutionTypePrompt.messageId)
+            waitDataCallbackQuery().first()
+            initialMessage = bot.send(
+              state.context,
+              initialMessage.text.toString(),
+              replyMarkup = initialMessage.reply_markup
+            )
+            continue
           }
 
-          core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent)
+          core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent!!)
 
-          deleteMessage(state.context.id, promptMessage.messageId)
+          deleteMessage(state.context.id, initialMessage.messageId)
 
-          lastMessage =
-            bot.send(
-              state.context,
-              "Решение отправлено на проверку!",
-              replyMarkup = back(),
-            )
+          initialMessage = bot.send(
+            state.context,
+            Dialogues.tellSolutionIsSent(),
+            replyMarkup = back()
+          )
 
           waitDataCallbackQuery().first()
+
+          bot.editMessageReplyMarkup(
+            initialMessage,
+            replyMarkup = null
+          )
+
           break
         }
       }
-    }
-
-    if (lastMessage != null) {
-      deleteMessage(state.context.id, lastMessage.messageId)
     }
 
     MenuState(state.context)

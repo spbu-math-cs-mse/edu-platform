@@ -8,3 +8,5 @@ student-bot/build/
 teacher-bot/build/
 *.bin
 .kotlin/*
+/build/*
+/build/spotless/*

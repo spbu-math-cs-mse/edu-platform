@@ -33,6 +33,7 @@ object Keyboards {
   val returnBack = "Назад"
 
   val getSolution = "Получить решение"
+  val viewStats = "Статистика проверок"
 
   val goodSolution = "Правильное решение"
   val badSolution = "Неправильное решение"
@@ -43,6 +44,9 @@ object Keyboards {
       matrix {
         row {
           dataButton("Получить решение", getSolution)
+        }
+        row {
+          dataButton("Статистика проверок", viewStats)
         }
       },
     )

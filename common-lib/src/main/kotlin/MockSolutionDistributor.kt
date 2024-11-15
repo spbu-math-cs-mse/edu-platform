@@ -5,8 +5,12 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import javax.management.Query
 import kotlin.collections.mutableListOf
+import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.statistics.TeacherStatistics
 
-class MockSolutionDistributor : SolutionDistributor {
+class MockSolutionDistributor(
+    private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
+) : SolutionDistributor {
 
   private val solutions = mutableListOf<Solution>()
   private var solutionId = 1
@@ -49,6 +53,7 @@ class MockSolutionDistributor : SolutionDistributor {
     gradeTable: GradeTable,
   ) {
     solutions.removeIf{ it == solution }
+    teacherStatistics.recordAssessment(teacherId)
     gradeTable.addAssessment(Student(solution.studentId), Teacher(teacherId), solution, assessment)
   }
 }

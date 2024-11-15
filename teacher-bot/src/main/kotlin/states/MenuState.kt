@@ -9,6 +9,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
+import kotlin.time.DurationUnit
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCore) {
     strictlyOn<MenuState> { state ->
@@ -40,6 +41,37 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
                     bot.delete(menuMessage)
                     return@strictlyOn GettingSolutionState(state.context)
                 }
+                Keyboards.viewStats -> {
+                    val userId = core.getUserId(state.context.id)
+                    if (userId != null) {
+                        val stats = core.getTeacherStats(userId)
+                        val globalStats = core.getGlobalStats()
+
+                        bot.send(
+                            state.context,
+                            """
+                        📊 Ваша статистика проверок:
+                        
+                        Всего проверено: ${stats.totalAssessments}
+                        Среднее число проверок в день: %.2f
+                        ${stats.lastAssessmentTime?.let { "Последняя проверка: $it" } ?: "Нет проверок"}
+                        Непроверенных работ: ${stats.uncheckedSolutions}
+                        ${stats.averageCheckTimeHours?.let { "Среднее время на проверку: %.1f часов".format(it) } ?: ""}
+                        
+                        📈 Общая статистика:
+                        Среднее время проверки: %.1f часов
+                        Всего непроверенных работ: %d
+                        """.trimIndent().format(
+                            stats.averageAssessmentsPerDay,
+                            globalStats.averageCheckTimeHours,
+                            globalStats.totalUncheckedSolutions,
+                            globalStats.averageResponseTimeHours
+                        ),
+                            replyMarkup = Keyboards.returnBack()
+                        )
+                    }
+                    return@strictlyOn MenuState(state.context)
+                    }
             }
         }
         return@strictlyOn GettingSolutionState(state.context)

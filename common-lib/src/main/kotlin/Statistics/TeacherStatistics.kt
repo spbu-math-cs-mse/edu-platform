@@ -1,27 +1,25 @@
 package com.github.heheteam.commonlib.statistics
 
+import com.github.heheteam.commonlib.Solution
 import java.time.LocalDateTime
 import kotlin.time.Duration
 
 interface TeacherStatistics {
-  fun recordAssessment(teacherId: String, timestamp: LocalDateTime = LocalDateTime.now())
-  fun recordNewSolution(timestamp: LocalDateTime = LocalDateTime.now())
-  fun getTeacherStats(teacherId: String): TeacherStatsData
+  fun recordAssessment(teacherId: String, solution: Solution, timestamp: LocalDateTime)
+  fun recordNewSolution(solution: Solution)
+  fun getTeacherStats(teacherId: String): TeacherStatsData?
   fun getAllTeachersStats(): Map<String, TeacherStatsData>
   fun getGlobalStats(): GlobalTeacherStats
 }
 
 data class TeacherStatsData(
     val totalAssessments: Int,
-    val lastAssessmentTime: LocalDateTime?,
+    val lastAssessmentTime: LocalDateTime,
     val averageAssessmentsPerDay: Double,
-    val averageCheckTimeHours: Double?,
-    val uncheckedSolutions: Int,
-    val averageResponseTime: Duration?
+    val averageCheckTimeSeconds: Double,
 )
 
 data class GlobalTeacherStats(
     val averageCheckTimeHours: Double,
     val totalUncheckedSolutions: Int,
-    val averageResponseTimeHours: Double
 )

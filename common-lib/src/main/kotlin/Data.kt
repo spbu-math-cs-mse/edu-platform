@@ -38,6 +38,7 @@ data class Solution(
   val problem: Problem,
   val content: SolutionContent,
   val type: SolutionType,
+  val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
 typealias Grade = Int
 
@@ -85,6 +86,7 @@ interface SolutionDistributor {
     teacherId: String,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
+    timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
   )
 }
 

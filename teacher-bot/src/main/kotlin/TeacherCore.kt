@@ -13,7 +13,7 @@ class TeacherCore(
   private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
 ) : UserIdRegistry by userIdRegistry,
   SolutionDistributor by solutionDistributor {
-  fun getTeacherStats(teacherId: String): TeacherStatsData {
+  fun getTeacherStats(teacherId: String): TeacherStatsData? {
     return teacherStatistics.getTeacherStats(teacherId)
   }
   fun getGlobalStats() = teacherStatistics.getGlobalStats()

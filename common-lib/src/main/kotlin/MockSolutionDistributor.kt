@@ -51,9 +51,10 @@ class MockSolutionDistributor(
     teacherId: String,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
+    timestamp: java.time.LocalDateTime,
   ) {
     solutions.removeIf{ it == solution }
-    teacherStatistics.recordAssessment(teacherId)
+    teacherStatistics.recordAssessment(teacherId, solution, timestamp)
     gradeTable.addAssessment(Student(solution.studentId), Teacher(teacherId), solution, assessment)
   }
 }

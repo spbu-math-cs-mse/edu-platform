@@ -1,15 +1,13 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.MockSolutionDistributor
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
-import javax.management.Query
-import kotlin.collections.mutableListOf
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
+import dev.inmo.tgbotapi.types.MessageId
+import dev.inmo.tgbotapi.types.RawChatId
+import kotlin.collections.mutableListOf
 
 class MockSolutionDistributor(
-    private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
+  private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
 ) : SolutionDistributor {
 
   private val solutions = mutableListOf<Solution>()
@@ -34,15 +32,16 @@ class MockSolutionDistributor(
       messageId,
       Problem(""),
       solutionContent,
-      solutionType
+      solutionType,
     )
     solutions.add(solution)
     return solution
   }
 
   override fun querySolution(teacherId: String): Solution? {
-    if (solutions.isEmpty())
+    if (solutions.isEmpty()) {
       return null
+    }
     return solutions.first()
   }
 
@@ -53,7 +52,7 @@ class MockSolutionDistributor(
     gradeTable: GradeTable,
     timestamp: java.time.LocalDateTime,
   ) {
-    solutions.removeIf{ it == solution }
+    solutions.removeIf { it == solution }
     teacherStatistics.recordAssessment(teacherId, solution, timestamp)
     gradeTable.addAssessment(Student(solution.studentId), Teacher(teacherId), solution, assessment)
   }

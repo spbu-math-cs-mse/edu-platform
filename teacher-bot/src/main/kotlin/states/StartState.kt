@@ -11,37 +11,37 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessa
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: TeacherCore) {
-    strictlyOn<StartState> { state ->
-        bot.sendSticker(state.context, Dialogues.greetingSticker)
-        if (core.getUserId(state.context.id) == null) {
-            bot.send(
-                state.context,
-                Dialogues.greetings() + Dialogues.askFirstName(),
-            )
-            val firstName = waitTextMessage().first().content.text
-            bot.send(
-                state.context,
-                Dialogues.askLastName(firstName),
-            )
-            val lastName = waitTextMessage().first().content.text
-            bot.send(
-                state.context,
-                Dialogues.askGrade(firstName, lastName),
-                replyMarkup = Keyboards.askGrade(),
-            )
-            val grade = waitDataCallbackQuery().first().data
-            //bot.send(
-            //    state.context,
-            //    Dialogues.askIdentifier(),
-            //)
-            //val identifier = waitTextMessage().first().content.text
-            core.setUserId(state.context.id)
-            return@strictlyOn MenuState(state.context)
-        }
-        bot.send(
-            state.context,
-            Dialogues.greetings(),
-        )
-        MenuState(state.context)
+  strictlyOn<StartState> { state ->
+    bot.sendSticker(state.context, Dialogues.greetingSticker)
+    if (core.getUserId(state.context.id) == null) {
+      bot.send(
+        state.context,
+        Dialogues.greetings() + Dialogues.askFirstName(),
+      )
+      val firstName = waitTextMessage().first().content.text
+      bot.send(
+        state.context,
+        Dialogues.askLastName(firstName),
+      )
+      val lastName = waitTextMessage().first().content.text
+      bot.send(
+        state.context,
+        Dialogues.askGrade(firstName, lastName),
+        replyMarkup = Keyboards.askGrade(),
+      )
+      val grade = waitDataCallbackQuery().first().data
+      // bot.send(
+      //    state.context,
+      //    Dialogues.askIdentifier(),
+      // )
+      // val identifier = waitTextMessage().first().content.text
+      core.setUserId(state.context.id)
+      return@strictlyOn MenuState(state.context)
     }
+    bot.send(
+      state.context,
+      Dialogues.greetings(),
+    )
+    MenuState(state.context)
+  }
 }

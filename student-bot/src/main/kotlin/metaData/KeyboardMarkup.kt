@@ -2,7 +2,6 @@ package com.github.heheteam.studentbot.metaData
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.studentbot.state.SendSolutionState
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
@@ -26,8 +25,9 @@ fun buildCoursesSendingSelector(availableCourses: MutableList<Pair<Course, Boole
     keyboard =
     matrix {
       availableCourses.forEach { (course, status) ->
-        if (!status)
+        if (!status) {
           row { dataButton(course.description, "${ButtonKey.COURSE_ID} ${course.id}") }
+        }
       }
       row { dataButton("Назад", ButtonKey.BACK) }
     },
@@ -41,7 +41,7 @@ fun buildSendSolutionSelector() =
       row { dataButton("Фото", SolutionType.PHOTOS.toString()) }
       row { dataButton("Файлик", SolutionType.DOCUMENT.toString()) }
       row { dataButton("Назад", ButtonKey.BACK) }
-    }
+    },
   )
 
 fun back() =

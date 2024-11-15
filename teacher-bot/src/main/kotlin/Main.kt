@@ -2,7 +2,6 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.MockUserIdRegistry
-import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel

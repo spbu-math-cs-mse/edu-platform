@@ -5,7 +5,6 @@ import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatsData
-import dev.inmo.tgbotapi.types.UserId
 
 class TeacherCore(
   private val solutionDistributor: SolutionDistributor,

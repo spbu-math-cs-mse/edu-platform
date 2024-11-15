@@ -7,9 +7,28 @@ import kotlin.time.DurationUnit
 import kotlin.time.toKotlinDuration
 
 class MockTeacherStatistics : TeacherStatistics {
-  private val teacherStats = mutableMapOf<String, MutableList<LocalDateTime>>()
-  private val solutionTimestamps = mutableListOf<LocalDateTime>()
-  private var uncheckedSolutions = 0 // TODO read list of unchecked solutions each time
+private val teacherStats = mutableMapOf(
+    "teacher1" to mutableListOf(
+        LocalDateTime.now().minusDays(1),
+        LocalDateTime.now().minusHours(2),
+        LocalDateTime.now().minusDays(3)
+    ),
+    "teacher2" to mutableListOf(
+        LocalDateTime.now().minusDays(2),
+        LocalDateTime.now().minusHours(3),
+        LocalDateTime.now().minusDays(4)
+    )
+)
+private val solutionTimestamps = mutableListOf(
+    LocalDateTime.now().minusDays(1).minusDays(5),
+    LocalDateTime.now().minusHours(3),
+    LocalDateTime.now().minusDays(3).minusHours(5),
+    LocalDateTime.now().minusDays(2).minusHours(6),
+    LocalDateTime.now().minusDays(0).minusHours(6),
+    LocalDateTime.now().minusDays(5).minusHours(3),
+    LocalDateTime.now().minusHours(1),
+) // TODO delete mock
+private var uncheckedSolutions = 2 // TODO read from database
 
   override fun recordNewSolution(timestamp: LocalDateTime) {
     solutionTimestamps.add(timestamp)

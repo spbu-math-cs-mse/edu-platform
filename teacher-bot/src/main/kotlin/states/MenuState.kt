@@ -57,12 +57,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
                         ${stats.lastAssessmentTime?.let { "Последняя проверка: $it" } ?: "Нет проверок"}
                         Непроверенных работ: ${stats.uncheckedSolutions}
                         ${stats.averageCheckTimeHours?.let { "Среднее время на проверку: %.1f часов".format(it) } ?: ""}
-                        ${stats.averageResponseTime?.let { "Среднее время ответа: ${it.toDouble(DurationUnit.HOURS)} часов" } ?: ""}
                         
                         📈 Общая статистика:
                         Среднее время проверки: %.1f часов
                         Всего непроверенных работ: %d
-                        Среднее время ответа: %.1f часов
                         """.trimIndent().format(
                             stats.averageAssessmentsPerDay,
                             globalStats.averageCheckTimeHours,

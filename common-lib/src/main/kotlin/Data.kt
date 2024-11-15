@@ -4,7 +4,6 @@ package com.github.heheteam.commonlib
 
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import dev.inmo.tgbotapi.types.UserId
 
 data class Student(
   val id: String,
@@ -40,6 +39,7 @@ data class Solution(
   val type: SolutionType,
   val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
+
 typealias Grade = Int
 
 class Course(
@@ -59,54 +59,3 @@ data class SolutionAssessment(
   val grade: Grade,
   val comments: String,
 )
-
-interface GradeTable {
-  fun addAssessment(
-    student: Student,
-    teacher: Teacher,
-    solution: Solution,
-    assessment: SolutionAssessment,
-  )
-
-  fun getGradeMap(): Map<Student, Map<Problem, Grade>>
-}
-
-interface SolutionDistributor {
-  fun inputSolution(
-    studentId: String,
-    chatId: RawChatId,
-    messageID: MessageId,
-    solutionContent: SolutionContent,
-  ): Solution
-
-  fun querySolution(teacherId: String): Solution?
-
-  fun assessSolution(
-    solution: Solution,
-    teacherId: String,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-    timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
-  )
-}
-
-interface CoursesDistributor {
-  fun addRecord(
-    studentId: String,
-    courseId: String,
-  )
-
-  fun getCourses(studentId: String): String
-
-  fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>>
-}
-
-interface UserIdRegistry {
-  fun getUserId(tgId: UserId): String?
-
-  fun setUserId(
-    tgId: UserId,
-  )
-
-  fun getRegistry(): Map<UserId, String>
-}

@@ -2,7 +2,6 @@ package com.github.heheteam.teacherbot.state
 
 import Dialogues
 import Keyboards
-import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -16,7 +15,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
       return@strictlyOn null
     }
     val username = state.context.username!!.username
-    if (!mockTeachers.containsKey(username)) {
+    if ("!mockTeachers.containsKey(username)".isEmpty()) {
       return@strictlyOn StartState(state.context)
     }
 

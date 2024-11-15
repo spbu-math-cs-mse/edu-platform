@@ -1,9 +1,12 @@
 package com.github.heheteam.studentbot.state
 
-import GradeTable
+import Solution
+import SolutionAssessment
+import SolutionContent
 import Student
-import com.github.heheteam.studentbot.data.CoursesDistributor
-import com.github.heheteam.studentbot.data.buildMock
+import Teacher
+import com.github.heheteam.commonlib.mockIncrementalSolutionId
+import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -15,17 +18,24 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
+import kotlin.random.Random
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
-  coursesDistributor: CoursesDistributor,
-  gradeTable: GradeTable,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
     val studentId = state.context.id.toString()
-    val courses = coursesDistributor.getListOfCourses(studentId)
+    val courses = core.getListOfCourses(studentId)
     // MOCK STUFF. Don't use in prod.
     // ---
-    gradeTable.buildMock(studentId, coursesDistributor)
+    for (problem in courses.flatMap { it.series }.flatMap { it.problems }) {
+      if (Random.nextBoolean()) {
+        core.addAssessment(
+          Student(studentId),
+          Teacher("0"),
+          Solution((mockIncrementalSolutionId++).toString(), problem, SolutionContent(), SolutionType.TEXT),
+          SolutionAssessment((0..problem.maxScore).random(), ""),
+        )
+      }
+    }
     // ---
 
     val chooseCourseMessage =
@@ -80,10 +90,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
       if (seriesId != null) {
         val exactSeries = series.find { it.id == seriesId }!!
         val grades =
-          if (!gradeTable.getGradeMap().containsKey(Student(studentId))) {
+          if (!core.getGradeMap().containsKey(Student(studentId))) {
             mapOf()
           } else {
-            gradeTable.getGradeMap()[Student(studentId)]!!.filter { it.key.seriesId == seriesId }
+            core.getGradeMap()[Student(studentId)]!!.filter { it.key.seriesId == seriesId }
           }
 
         var strGrades = "Оценки за серию ${exactSeries.description}:\n"

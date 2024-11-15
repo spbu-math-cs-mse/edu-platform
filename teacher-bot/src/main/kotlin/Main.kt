@@ -1,6 +1,8 @@
 package com.github.heheteam.teacherbot
 
+import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.teacherbot.state.*
+import com.github.heheteam.teacherbot.states.strictlyOnGettingSolutionState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -19,43 +21,42 @@ import kotlinx.coroutines.Dispatchers
  */
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
-    val botToken = args.first()
-    val gradeTable = MockGradeTable()
-    mockTgUsername = args[1]
-    telegramBot(botToken) {
-        logger =
-            KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-                println(defaultMessageFormatter(level, tag, message, throwable))
-            }
+  val botToken = args.first()
+  val core = TeacherCore(MockGradeTable())
+  mockTgUsername = args[1]
+  telegramBot(botToken) {
+    logger =
+      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+        println(defaultMessageFormatter(level, tag, message, throwable))
+      }
+  }
+
+  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
+    botToken,
+    CoroutineScope(Dispatchers.IO),
+    onStateHandlingErrorHandler = { state, e ->
+      println("Thrown error on $state")
+      e.printStackTrace()
+      state
+    },
+  ) {
+    println(getMe())
+
+    command(
+      "start",
+    ) {
+      if (it.from != null) {
+        startChain(StartState(it.from!!))
+      }
     }
 
-    telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
-        botToken,
-        CoroutineScope(Dispatchers.IO),
-        onStateHandlingErrorHandler = { state, e ->
-            println("Thrown error on $state")
-            e.printStackTrace()
-            state
-        },
-    ) {
-        println(getMe())
+    strictlyOnStartState()
+    strictlyOnMenuState()
+    strictlyOnGettingSolutionState(core)
+    strictlyOnCheckGradesState(core)
 
-        command(
-            "start",
-        ) {
-            if (it.from != null) {
-                startChain(StartState(it.from!!))
-            }
-        }
-
-        strictlyOnStartState()
-        strictlyOnMenuState()
-//    strictlyOnTestSendingSolutionState()
-        strictlyOnGettingSolutionState()
-        strictlyOnCheckGradesState(gradeTable)
-
-        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-            println(it)
-        }
-    }.second.join()
+    allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
+      println(it)
+    }
+  }.second.join()
 }

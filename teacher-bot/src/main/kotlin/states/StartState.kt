@@ -2,8 +2,6 @@ package com.github.heheteam.teacherbot.state
 
 import Dialogues
 import Keyboards
-import Teacher
-import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -18,7 +16,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
       return@strictlyOn null
     }
     val username = state.context.username!!.username
-    if (!mockTeachers.containsKey(username)) {
+    if ("!mockTeachers.containsKey(username)".isEmpty()) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),
@@ -36,7 +34,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
       )
       val grade = waitDataCallbackQuery().first().data
       if (grade == "Другое") {
-        mockTeachers[username] = Teacher((mockTeachers.size + 1).toString())
+//        mockTeachers[username] = Teacher((mockTeachers.size + 1).toString())
       }
       return@strictlyOn MenuState(state.context)
     }

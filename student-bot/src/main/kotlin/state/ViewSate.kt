@@ -1,6 +1,6 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.studentbot.data.CoursesDistributor
+import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -8,10 +8,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(coursesDistributor: CoursesDistributor) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(core: StudentCore) {
   strictlyOn<ViewState> { state ->
     val studentId = state.context.id
-    val studentCourses = coursesDistributor.getCourses(studentId.toString())
+    val studentCourses = core.getCourses(studentId.toString())
 
     val initialMessage =
       bot.send(

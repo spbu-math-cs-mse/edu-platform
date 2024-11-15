@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.studentbot.data.MockCoursesDistributor
-import com.github.heheteam.studentbot.data.MockGradeTable
+import com.github.heheteam.commonlib.MockCoursesDistributor
+import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -18,8 +18,7 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
-  val coursesDistributor = MockCoursesDistributor()
-  val gradeTable = MockGradeTable()
+  val core = StudentCore(MockCoursesDistributor(), MockGradeTable())
   val botToken = args.first()
   telegramBot(botToken) {
     logger =
@@ -48,9 +47,9 @@ suspend fun main(vararg args: String) {
     }
 
     strictlyOnMenuState()
-    strictlyOnViewState(coursesDistributor)
-    strictlyOnSignUpState(coursesDistributor)
-    strictlyOnCheckGradesState(coursesDistributor, gradeTable)
+    strictlyOnViewState(core)
+    strictlyOnSignUpState(core)
+    strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import Course
-import com.github.heheteam.studentbot.data.CoursesDistributor
+import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 
@@ -18,8 +18,8 @@ data class ViewState(
 data class SignUpState(
   override val context: User,
 ) : BotState {
-  fun getAvailableCourses(coursesDistributor: CoursesDistributor): MutableList<Pair<Course, Boolean>> =
-    coursesDistributor.getAvailableCourses(context.id.toString())
+  fun getAvailableCourses(core: StudentCore): MutableList<Pair<Course, Boolean>> =
+    core.getAvailableCourses(context.id.toString())
 
   val chosenCourses = mutableListOf<String>()
 }

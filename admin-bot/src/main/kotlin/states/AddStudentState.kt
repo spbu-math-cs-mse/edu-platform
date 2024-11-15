@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
-import Student
 import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage

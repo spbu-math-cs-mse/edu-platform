@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import Course
+import com.github.heheteam.commonlib.Course
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 import java.time.LocalDate

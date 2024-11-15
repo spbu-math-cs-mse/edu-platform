@@ -1,9 +1,9 @@
 package com.github.heheteam.adminbot
 
-import Course
-import GradeTable
-import Student
-import Teacher
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.GradeTable
+import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.Teacher
 import dev.inmo.tgbotapi.types.Username
 
 class AdminCore(

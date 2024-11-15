@@ -1,34 +1,42 @@
 package com.github.heheteam.adminbot
 
-import Course
-import MockGradeTable
-import Student
-import Teacher
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.MockGradeTable
+import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.Teacher
 import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 
 val mockGradeTable = MockGradeTable()
 
-val mockCoursesTable: MutableMap<String, Course> = mutableMapOf(
-  "Геома 1" to Course(
-    mutableListOf(Teacher("1")), mutableListOf(Student("1")),
-    "какое-то описание", mockGradeTable,
-  ),
-)
+val mockCoursesTable: MutableMap<String, Course> =
+  mutableMapOf(
+    "Геома 1" to
+      Course(
+        "1",
+        mutableListOf(Teacher("1")),
+        mutableListOf(Student("1")),
+        "какое-то описание",
+        mockGradeTable,
+      ),
+  )
 
-val mockStudentsTable: MutableMap<String, Student> = mutableMapOf(
-  "1" to Student("1"),
-  "2" to Student("2"),
-)
+val mockStudentsTable: MutableMap<String, Student> =
+  mutableMapOf(
+    "1" to Student("1"),
+    "2" to Student("2"),
+  )
 
-val mockTeachersTable: MutableMap<String, Teacher> = mutableMapOf(
-  "3" to Teacher("3"),
-  "4" to Teacher("4"),
-)
+val mockTeachersTable: MutableMap<String, Teacher> =
+  mutableMapOf(
+    "3" to Teacher("3"),
+    "4" to Teacher("4"),
+  )
 
-val mockAdminsTable: List<Username> = listOf(
-  Username("@schindleria_praematurus"),
-)
+val mockAdminsTable: List<Username> =
+  listOf(
+    Username("@schindleria_praematurus"),
+  )
 
 class MockScheduledMessagesDistributor(
   private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf(),

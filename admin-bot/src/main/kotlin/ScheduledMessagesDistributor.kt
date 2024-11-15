@@ -1,9 +1,13 @@
 package com.github.heheteam.adminbot
 
-import Course
+import com.github.heheteam.commonlib.Course
 import java.time.LocalDateTime
 
-data class ScheduledMessage(val course: Course, val date: LocalDateTime, val message: String)
+data class ScheduledMessage(
+  val course: Course,
+  val date: LocalDateTime,
+  val message: String,
+)
 
 interface ScheduledMessagesDistributor {
   fun addMessage(message: ScheduledMessage)

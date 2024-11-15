@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.teacherbot.Dialogues
+import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
-import Keyboards
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -56,16 +56,16 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
               bot.send(
                 state.context,
                 """
-                        📊 Ваша статистика проверок:
-                        
-                        Всего проверено: ${stats.totalAssessments}
-                        Среднее число проверок в день: %.2f
-                        ${stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"}
-                        ${stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format(it / 60 / 60) } ?: ""}
-                        
-                        📈 Общая статистика:
-                        Среднее время проверки: %.1f часов
-                        Всего непроверенных работ: %d
+                📊 Ваша статистика проверок:
+                
+                Всего проверено: ${stats.totalAssessments}
+                Среднее число проверок в день: %.2f
+                ${stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"}
+                ${stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format(it / 60 / 60) } ?: ""}
+                
+                📈 Общая статистика:
+                Среднее время проверки: %.1f часов
+                Всего непроверенных работ: %d
                 """.trimIndent().format(
                   stats.averageAssessmentsPerDay,
                   globalStats.averageCheckTimeHours,

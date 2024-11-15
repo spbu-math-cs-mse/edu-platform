@@ -53,6 +53,7 @@ class Course(
   val teachers: MutableList<Teacher> = mutableListOf(),
   val students: MutableList<Student> = mutableListOf(),
   var description: String,
+  val gradeTable: GradeTable,
   val series: MutableList<Series> = mutableListOf(),
 )
 

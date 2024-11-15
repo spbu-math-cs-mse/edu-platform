@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.MockCoursesDistributor
+import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.MockUserIdRegistry
 import com.github.heheteam.studentbot.state.*
@@ -20,8 +21,7 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val coursesDistributor = MockCoursesDistributor()
-  val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry())
-  val core = StudentCore(MockCoursesDistributor(), MockGradeTable()) // TODO merge mocks
+  val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry(), MockGradeTable())
   val botToken = args.first()
   telegramBot(botToken) {
     logger =

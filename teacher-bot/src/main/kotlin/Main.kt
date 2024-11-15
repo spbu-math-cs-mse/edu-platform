@@ -1,7 +1,10 @@
 package com.github.heheteam.teacherbot
 
+import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.MockUserIdRegistry
+import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -15,8 +18,6 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import strictlyOnMenuState
-import strictlyOnStartState
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -25,8 +26,7 @@ import strictlyOnStartState
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
-  val core = TeacherCore(MockGradeTable()) // TODO merge mocks
-  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry())
+  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry(), MockTeacherStatistics(), MockGradeTable())
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->

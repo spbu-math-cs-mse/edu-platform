@@ -9,7 +9,6 @@ import kotlin.collections.mutableListOf
 class MockSolutionDistributor(
   private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
 ) : SolutionDistributor {
-
   private val solutions = mutableListOf<Solution>()
   private var solutionId = 1
 
@@ -19,21 +18,23 @@ class MockSolutionDistributor(
     messageId: MessageId,
     solutionContent: SolutionContent,
   ): Solution {
-    val solutionType = when (solutionContent.text) {
-      SolutionType.PHOTOS.toString() -> SolutionType.PHOTOS
-      SolutionType.PHOTO.toString() -> SolutionType.PHOTO
-      SolutionType.DOCUMENT.toString() -> SolutionType.DOCUMENT
-      else -> SolutionType.TEXT
-    }
-    val solution = Solution(
-      (solutionId++).toString(),
-      studentId,
-      chatId,
-      messageId,
-      Problem(""),
-      solutionContent,
-      solutionType,
-    )
+    val solutionType =
+      when (solutionContent.text) {
+        SolutionType.PHOTOS.toString() -> SolutionType.PHOTOS
+        SolutionType.PHOTO.toString() -> SolutionType.PHOTO
+        SolutionType.DOCUMENT.toString() -> SolutionType.DOCUMENT
+        else -> SolutionType.TEXT
+      }
+    val solution =
+      Solution(
+        (solutionId++).toString(),
+        studentId,
+        chatId,
+        messageId,
+        Problem("", "", "", 0, ""),
+        solutionContent,
+        solutionType,
+      )
     solutions.add(solution)
     return solution
   }

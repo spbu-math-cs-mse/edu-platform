@@ -1,19 +1,19 @@
 package com.github.heheteam.teacherbot.state
 
-import Grade
-import Keyboards.returnBack
-import Problem
-import Solution
-import SolutionAssessment
-import SolutionContent
-import Teacher
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.teacherbot.*
+import com.github.heheteam.teacherbot.Keyboards.returnBack
+import com.github.heheteam.teacherbot.states.BotState
+import com.github.heheteam.teacherbot.states.CheckGradesState
+import com.github.heheteam.teacherbot.states.MenuState
+import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
+import dev.inmo.tgbotapi.types.MessageId
+import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
@@ -56,6 +56,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: Te
                   Teacher(if (course.teachers.map { it.id }.contains(userId)) userId else "0"),
                   Solution(
                     (mockIncrementalSolutionId++).toString(),
+                    "",
+                    RawChatId(0),
+                    MessageId(0),
                     problem,
                     SolutionContent(),
                     SolutionType.TEXT,

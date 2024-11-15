@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.states
 
-import Keyboards
 import com.github.heheteam.teacherbot.Dialogues
+import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send

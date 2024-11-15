@@ -1,7 +1,5 @@
 package com.github.heheteam.commonlib
 
-import Course
-
 interface CoursesDistributor {
   fun addRecord(
     studentId: String,

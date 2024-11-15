@@ -1,11 +1,6 @@
 package com.github.heheteam.studentbot.state
 
-import Solution
-import SolutionAssessment
-import SolutionContent
-import Student
-import Teacher
-import com.github.heheteam.commonlib.mockIncrementalSolutionId
+import com.github.heheteam.commonlib.*
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
@@ -14,6 +9,8 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
+import dev.inmo.tgbotapi.types.MessageId
+import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
@@ -31,7 +28,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
         core.addAssessment(
           Student(studentId),
           Teacher("0"),
-          Solution((mockIncrementalSolutionId++).toString(), problem, SolutionContent(), SolutionType.TEXT),
+          Solution((mockIncrementalSolutionId++).toString(), "", RawChatId(0), MessageId(0), problem, SolutionContent(), SolutionType.TEXT),
           SolutionAssessment((0..problem.maxScore).random(), ""),
         )
       }

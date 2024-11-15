@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.studentbot.metaData.*
+import com.github.heheteam.studentbot.metaData.ButtonKey
+import com.github.heheteam.studentbot.metaData.menuKeyboard
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -9,11 +10,12 @@ import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
   strictlyOn<MenuState> { state ->
-    val initialMessage = bot.send(
-      state.context,
-      text = "Мне нужно...",
-      replyMarkup = menuKeyboard(),
-    )
+    val initialMessage =
+      bot.send(
+        state.context,
+        text = "Мне нужно...",
+        replyMarkup = menuKeyboard(),
+      )
 
     val callback = waitDataCallbackQuery().first()
     when (callback.data) {
@@ -32,7 +34,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
         SendSolutionState(state.context)
       }
 
-      "checkGrades" -> { // TODO: refactoring
+      ButtonKey.CHECK_GRADES -> {
         deleteMessage(state.context.id, initialMessage.messageId)
         CheckGradesState(state.context)
       }

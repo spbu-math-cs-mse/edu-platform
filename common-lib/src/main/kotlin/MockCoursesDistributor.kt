@@ -14,7 +14,7 @@ class MockCoursesDistributor : CoursesDistributor {
       "0" to Course("0", mutableListOf(), mutableListOf(), "Начала мат. анализа", MockGradeTable()),
       "1" to Course("1", mutableListOf(), mutableListOf(), "Теория вероятности", MockGradeTable()),
       "2" to Course("2", mutableListOf(), mutableListOf(), "Линейная алгебра", MockGradeTable()),
-      "3" to Course("3", mutableListOf(), mutableListOf(), "ТФКП", MockGradeTable()), // TODO unite interfaces
+      "3" to Course("3", mutableListOf(), mutableListOf(), "ТФКП", MockGradeTable()),
     )
 
   private val available =

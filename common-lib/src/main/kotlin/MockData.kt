@@ -1,37 +1,44 @@
 package com.github.heheteam.commonlib
 
-import Course
-import Problem
-import Series
-import Student
-
 val mockCoursesTable =
   mutableMapOf(
     "0" to
       Course(
         "0",
         description = "Начала мат. анализа",
+        gradeTable = MockGradeTable(),
         series =
         mutableListOf(
-          Series("0", "Серия 1", mutableListOf(Problem("0", "1", "", 10, "0"), Problem("1", "2", "", 5, "0")), "0"),
+          Series(
+            "0",
+            "Серия 1",
+            mutableListOf(Problem("0", "1", "", 10, "0"), Problem("1", "2", "", 5, "0")),
+            "0",
+          ),
         ),
       ),
     "1" to
       Course(
         "1",
         description = "Теория вероятности",
+        gradeTable = MockGradeTable(),
         series = mutableListOf(Series("1", "Серия 1", mutableListOf(Problem("2", "1", "", 10, "1")), "1")),
       ),
     "2" to
       Course(
         "2",
         description = "Линейная алгебра",
+        gradeTable = MockGradeTable(),
         series =
         mutableListOf(
           Series(
             "2",
             "Серия 1",
-            mutableListOf(Problem("3", "1", "", 10, "2"), Problem("4", "2", "", 5, "2"), Problem("5", "3", "", 5, "2")),
+            mutableListOf(
+              Problem("3", "1", "", 10, "2"),
+              Problem("4", "2", "", 5, "2"),
+              Problem("5", "3", "", 5, "2"),
+            ),
             "2",
           ),
         ),
@@ -40,9 +47,15 @@ val mockCoursesTable =
       Course(
         "3",
         description = "Теория функции комплексной переменной",
+        gradeTable = MockGradeTable(),
         series =
         mutableListOf(
-          Series("3", "Серия 1", mutableListOf(Problem("6", "1", "", 1, "3"), Problem("7", "2", "", 5, "3")), "3"),
+          Series(
+            "3",
+            "Серия 1",
+            mutableListOf(Problem("6", "1", "", 1, "3"), Problem("7", "2", "", 5, "3")),
+            "3",
+          ),
         ),
       ),
   )

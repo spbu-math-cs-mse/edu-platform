@@ -1,21 +1,29 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
 import Course
-import com.github.heheteam.samplebot.data.CoursesDistributor
+import com.github.heheteam.studentbot.data.CoursesDistributor
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 
 sealed interface BotState : State
 
-data class MenuState(override val context: User) : BotState
+data class MenuState(
+  override val context: User,
+) : BotState
 
-data class ViewState(override val context: User) : BotState
+data class ViewState(
+  override val context: User,
+) : BotState
 
-data class SignUpState(override val context: User) : BotState {
+data class SignUpState(
+  override val context: User,
+) : BotState {
   fun getAvailableCourses(coursesDistributor: CoursesDistributor): MutableList<Pair<Course, Boolean>> =
     coursesDistributor.getAvailableCourses(context.id.toString())
 
   val chosenCourses = mutableListOf<String>()
 }
 
-data class CheckGradesState(override val context: User) : BotState
+data class CheckGradesState(
+  override val context: User,
+) : BotState

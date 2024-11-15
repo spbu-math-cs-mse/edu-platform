@@ -1,11 +1,11 @@
-package states
+package com.github.heheteam.teacherbot.state
 
 import Dialogues.noSolutionsToCheck
 import Dialogues.solutionInfo
 import Keyboards
 import SolutionType
-import com.github.heheteam.samplebot.mockSolutions
-import com.github.heheteam.samplebot.mockTeachers
+import com.github.heheteam.teacherbot.mockSolutions
+import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
@@ -45,30 +45,57 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState() {
       val getSolution: ContentMessage<*>
       var getMarkup: ContentMessage<*>? = null
       when (solution.type) {
-        SolutionType.TEXT -> getSolution = bot.send(
-          state.context,
-          solution.content.text!! + "\n\n\n" + solutionInfo(solution),
-          replyMarkup = Keyboards.solutionMenu(),
-        )
+        SolutionType.TEXT ->
+          getSolution =
+            bot.send(
+              state.context,
+              solution.content.text!! + "\n\n\n" + solutionInfo(solution),
+              replyMarkup = Keyboards.solutionMenu(),
+            )
 
-        SolutionType.PHOTO -> getSolution = bot.sendPhoto(
-          state.context,
-          InputFile.fromId(solution.content.fileIds!![0]),
-          text = if (solution.content.text == null) solutionInfo(solution) else solution.content.text + "\n\n\n" + solutionInfo(solution),
-          replyMarkup = Keyboards.solutionMenu(),
-        )
+        SolutionType.PHOTO ->
+          getSolution =
+            bot.sendPhoto(
+              state.context,
+              InputFile.fromId(solution.content.fileIds!![0]),
+              text =
+              if (solution.content.text ==
+                null
+              ) {
+                solutionInfo(solution)
+              } else {
+                solution.content.text + "\n\n\n" + solutionInfo(solution)
+              },
+              replyMarkup = Keyboards.solutionMenu(),
+            )
 
         SolutionType.PHOTOS -> {
-          getSolution = bot.sendMediaGroup(state.context, listOf(TelegramMediaPhoto(InputFile.fromId(solution.content.fileIds!![0]), solution.content.text)) + solution.content.fileIds!!.map { TelegramMediaPhoto(InputFile.fromId(it)) }.drop(1))
+          getSolution =
+            bot.sendMediaGroup(
+              state.context,
+              listOf(TelegramMediaPhoto(InputFile.fromId(solution.content.fileIds!![0]), solution.content.text)) +
+                solution.content.fileIds!!
+                  .map { TelegramMediaPhoto(InputFile.fromId(it)) }
+                  .drop(1),
+            )
           getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
         }
 
-        SolutionType.DOCUMENT -> getSolution = bot.sendDocument(
-          state.context,
-          InputFile.fromId(solution.content.fileIds!![0]),
-          text = if (solution.content.text == null) solutionInfo(solution) else solution.content.text + "\n\n\n" + solutionInfo(solution),
-          replyMarkup = Keyboards.solutionMenu(),
-        )
+        SolutionType.DOCUMENT ->
+          getSolution =
+            bot.sendDocument(
+              state.context,
+              InputFile.fromId(solution.content.fileIds!![0]),
+              text =
+              if (solution.content.text ==
+                null
+              ) {
+                solutionInfo(solution)
+              } else {
+                solution.content.text + "\n\n\n" + solutionInfo(solution)
+              },
+              replyMarkup = Keyboards.solutionMenu(),
+            )
       }
 
       when (val response = flowOf(waitDataCallbackQuery(), waitTextMessage()).flattenMerge().first()) {

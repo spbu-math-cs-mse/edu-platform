@@ -1,7 +1,7 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.samplebot.data.CoursesDistributor
-import com.github.heheteam.samplebot.metaData.back
+import com.github.heheteam.studentbot.data.CoursesDistributor
+import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -13,11 +13,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(coursesDistribu
     val studentId = state.context.id
     val studentCourses = coursesDistributor.getCourses(studentId.toString())
 
-    val initialMessage = bot.send(
-      state.context,
-      text = studentCourses,
-      replyMarkup = back(),
-    )
+    val initialMessage =
+      bot.send(
+        state.context,
+        text = studentCourses,
+        replyMarkup = back(),
+      )
 
     waitDataCallbackQuery().first()
     deleteMessage(state.context.id, initialMessage.messageId)

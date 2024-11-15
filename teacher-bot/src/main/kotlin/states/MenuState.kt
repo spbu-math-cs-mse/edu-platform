@@ -1,8 +1,8 @@
-package states
+package com.github.heheteam.teacherbot.state
 
 import Dialogues
 import Keyboards
-import com.github.heheteam.samplebot.mockTeachers
+import com.github.heheteam.teacherbot.mockTeachers
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send

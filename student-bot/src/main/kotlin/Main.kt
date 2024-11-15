@@ -1,8 +1,8 @@
-package com.github.heheteam.samplebot
+package com.github.heheteam.studentbot
 
-import com.github.heheteam.samplebot.data.MockCoursesDistributor
-import com.github.heheteam.samplebot.data.MockGradeTable
-import com.github.heheteam.samplebot.state.*
+import com.github.heheteam.studentbot.data.MockCoursesDistributor
+import com.github.heheteam.studentbot.data.MockGradeTable
+import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter

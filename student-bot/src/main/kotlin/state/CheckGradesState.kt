@@ -1,11 +1,11 @@
-package com.github.heheteam.samplebot.state
+package com.github.heheteam.studentbot.state
 
 import GradeTable
 import Student
-import com.github.heheteam.samplebot.data.CoursesDistributor
-import com.github.heheteam.samplebot.data.buildMock
-import com.github.heheteam.samplebot.metaData.ButtonKey
-import com.github.heheteam.samplebot.metaData.back
+import com.github.heheteam.studentbot.data.CoursesDistributor
+import com.github.heheteam.studentbot.data.buildMock
+import com.github.heheteam.studentbot.metaData.ButtonKey
+import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -28,16 +28,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     gradeTable.buildMock(studentId, coursesDistributor)
     // ---
 
-    val chooseCourseMessage = bot.send(
-      state.context,
-      text = "Выберите курс",
-      replyMarkup = InlineKeyboardMarkup(
-        keyboard = matrix {
-          courses.forEach { row { dataButton(it.description, "${ButtonKey.COURSE_ID} ${it.id}") } }
-          row { dataButton("Назад", ButtonKey.BACK) }
-        },
-      ),
-    )
+    val chooseCourseMessage =
+      bot.send(
+        state.context,
+        text = "Выберите курс",
+        replyMarkup =
+        InlineKeyboardMarkup(
+          keyboard =
+          matrix {
+            courses.forEach { row { dataButton(it.description, "${ButtonKey.COURSE_ID} ${it.id}") } }
+            row { dataButton("Назад", ButtonKey.BACK) }
+          },
+        ),
+      )
 
     var callback = waitDataCallbackQuery().first()
     deleteMessage(state.context.id, chooseCourseMessage.messageId)
@@ -51,16 +54,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     if (courseId != null) {
       val series = courses.find { it.id == courseId }!!.series
 
-      val chooseSeriesMessage = bot.send(
-        state.context,
-        text = "Выберите серию",
-        replyMarkup = InlineKeyboardMarkup(
-          keyboard = matrix {
-            series.forEach { row { dataButton(it.description, "${ButtonKey.SERIES_ID} ${it.id}") } }
-            row { dataButton("Назад", ButtonKey.BACK) }
-          },
-        ),
-      )
+      val chooseSeriesMessage =
+        bot.send(
+          state.context,
+          text = "Выберите серию",
+          replyMarkup =
+          InlineKeyboardMarkup(
+            keyboard =
+            matrix {
+              series.forEach { row { dataButton(it.description, "${ButtonKey.SERIES_ID} ${it.id}") } }
+              row { dataButton("Назад", ButtonKey.BACK) }
+            },
+          ),
+        )
 
       callback = waitDataCallbackQuery().first()
       deleteMessage(state.context.id, chooseSeriesMessage.messageId)
@@ -73,33 +79,36 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
 
       if (seriesId != null) {
         val exactSeries = series.find { it.id == seriesId }!!
-        val grades = if (!gradeTable.getGradeMap().containsKey(Student(studentId))) {
-          mapOf()
-        } else {
-          gradeTable.getGradeMap()[Student(studentId)]!!.filter { it.key.seriesId == seriesId }
-        }
+        val grades =
+          if (!gradeTable.getGradeMap().containsKey(Student(studentId))) {
+            mapOf()
+          } else {
+            gradeTable.getGradeMap()[Student(studentId)]!!.filter { it.key.seriesId == seriesId }
+          }
 
         var strGrades = "Оценки за серию ${exactSeries.description}:\n"
         for (problem in exactSeries.problems.sortedBy { it.number }) {
           val grade = grades[problem]
-          strGrades += "№${problem.number} — " + if (grade == null) {
-            "➖ не сдано"
-          } else {
-            when {
-              grade <= 0 -> "❌ 0/${problem.maxScore}"
-              grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-              else -> "✅ $grade/${problem.maxScore}"
+          strGrades += "№${problem.number} — " +
+            if (grade == null) {
+              "➖ не сдано"
+            } else {
+              when {
+                grade <= 0 -> "❌ 0/${problem.maxScore}"
+                grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+                else -> "✅ $grade/${problem.maxScore}"
+              }
             }
-          }
           strGrades += "\n"
         }
         strGrades.dropLast(1)
 
-        val gradesMessage = bot.send(
-          state.context,
-          text = strGrades,
-          replyMarkup = back(),
-        )
+        val gradesMessage =
+          bot.send(
+            state.context,
+            text = strGrades,
+            replyMarkup = back(),
+          )
 
         waitDataCallbackQuery().first()
         deleteMessage(state.context.id, gradesMessage.messageId)

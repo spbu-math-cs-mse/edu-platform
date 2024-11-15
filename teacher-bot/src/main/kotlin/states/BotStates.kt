@@ -1,4 +1,4 @@
-package states
+package com.github.heheteam.teacherbot.state
 
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User

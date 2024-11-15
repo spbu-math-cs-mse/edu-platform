@@ -27,29 +27,31 @@ val mockTeachersTable: MutableMap<String, Teacher> = mutableMapOf(
 )
 
 val mockAdminsTable: List<Username> = listOf(
-  Username("@schindleria_praematurus")
+  Username("@schindleria_praematurus"),
 )
 
-class mockScheduledMessagesDistributor(
-  private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf()
+class MockScheduledMessagesDistributor(
+  private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf(),
 ) : ScheduledMessagesDistributor {
   override fun addMessage(message: ScheduledMessage) {
-      messages[message] = false
+    messages[message] = false
   }
 
   override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> {
     val res = mutableListOf<ScheduledMessage>()
-    for(message in messages) {
-      if(!message.value && date.isAfter(message.key.date))
+    for (message in messages) {
+      if (!message.value && date.isAfter(message.key.date)) {
         res.addLast(message.key)
+      }
     }
     return res.toList()
   }
 
   override fun markMessagesUpToDateAsSent(date: LocalDateTime) {
-    for(message in messages) {
-      if(!message.value && date.isAfter(message.key.date))
+    for (message in messages) {
+      if (!message.value && date.isAfter(message.key.date)) {
         messages[message.key] = true
+      }
     }
   }
 }

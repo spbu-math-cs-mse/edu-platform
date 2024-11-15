@@ -1,5 +1,8 @@
 package com.github.heheteam.commonlib
 
+import Course
+import Student
+
 class MockCoursesDistributor : CoursesDistributor {
   private val students = mockStudentsTable
   private val courses = mockCoursesTable

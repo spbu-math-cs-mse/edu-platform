@@ -1,10 +1,11 @@
-package com.github.heheteam.studentbot
+package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.MockCoursesDistributor
 import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.MockUserIdRegistry
-import com.github.heheteam.studentbot.state.*
+import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
+import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -18,11 +19,14 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
+/**
+ * @param args bot token and telegram @username for mocking data.
+ */
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
-  val coursesDistributor = MockCoursesDistributor()
-  val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry(), MockGradeTable())
   val botToken = args.first()
+  mockTgUsername = args[1]
+  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry(), MockTeacherStatistics(), MockGradeTable())
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -30,7 +34,7 @@ suspend fun main(vararg args: String) {
       }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
     botToken,
     CoroutineScope(Dispatchers.IO),
     onStateHandlingErrorHandler = { state, e ->
@@ -50,10 +54,9 @@ suspend fun main(vararg args: String) {
     }
 
     strictlyOnStartState(core)
-    strictlyOnMenuState()
-    strictlyOnViewState(core)
-    strictlyOnSignUpState(core)
-    strictlyOnSendSolutionState(core)
+    strictlyOnMenuState(core)
+    strictlyOnGettingSolutionState(core)
+    strictlyOnGettingSolutionState(core)
     strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {

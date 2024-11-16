@@ -16,16 +16,17 @@ class MockTeacherStatisticsTest {
   private val now = LocalDateTime.now()
   private val teacher1Id = "teacher1"
 
-  private fun makeSolution(timestamp: LocalDateTime) = Solution(
-    "",
-    "",
-    RawChatId(0),
-    MessageId(0),
-    Problem(""),
-    SolutionContent(),
-    SolutionType.TEXT,
-    timestamp,
-  )
+  private fun makeSolution(timestamp: LocalDateTime) =
+    Solution(
+      "",
+      "",
+      RawChatId(0),
+      MessageId(0),
+      Problem("", "", "", 1, ""),
+      SolutionContent(),
+      SolutionType.TEXT,
+      timestamp,
+    )
 
   @BeforeEach
   fun setUp() {
@@ -85,4 +86,4 @@ class MockTeacherStatisticsTest {
     assertEquals(0, globalStats.totalUncheckedSolutions)
     assertTrue(globalStats.averageCheckTimeHours > 0)
   }
-} 
+}

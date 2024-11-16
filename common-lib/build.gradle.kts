@@ -1,11 +1,8 @@
 plugins {
     kotlin("jvm")
-    application
+    `java-library`
 }
 
-application {
-    mainClass.set("com.github.heheteam.samplebot.MainKt")
-}
 
 dependencies {
     testImplementation(kotlin("test"))

@@ -7,9 +7,9 @@ val mockCoursesTable =
         "0",
         description = "Начала мат. анализа",
         gradeTable = MockGradeTable(),
-        series =
+        assignments =
         mutableListOf(
-          Series(
+          Assignment(
             "0",
             "Серия 1",
             mutableListOf(Problem("0", "1", "", 10, "0"), Problem("1", "2", "", 5, "0")),
@@ -22,16 +22,16 @@ val mockCoursesTable =
         "1",
         description = "Теория вероятности",
         gradeTable = MockGradeTable(),
-        series = mutableListOf(Series("1", "Серия 1", mutableListOf(Problem("2", "1", "", 10, "1")), "1")),
+        assignments = mutableListOf(Assignment("1", "Серия 1", mutableListOf(Problem("2", "1", "", 10, "1")), "1")),
       ),
     "2" to
       Course(
         "2",
         description = "Линейная алгебра",
         gradeTable = MockGradeTable(),
-        series =
+        assignments =
         mutableListOf(
-          Series(
+          Assignment(
             "2",
             "Серия 1",
             mutableListOf(
@@ -48,9 +48,9 @@ val mockCoursesTable =
         "3",
         description = "Теория функции комплексной переменной",
         gradeTable = MockGradeTable(),
-        series =
+        assignments =
         mutableListOf(
-          Series(
+          Assignment(
             "3",
             "Серия 1",
             mutableListOf(Problem("6", "1", "", 1, "3"), Problem("7", "2", "", 5, "3")),
@@ -99,12 +99,12 @@ var wasMockGradeTableForTeacherBuilt = false
 // Teacher.id -> Set<(Course.id, boolean)>
 val MockDoesTeacherHaveAccessToCourse: MutableMap<String, MutableSet<Pair<String, Boolean>>> = mutableMapOf()
 
-fun Problem.getSeries(
-  series: MutableList<Series> =
+fun Problem.getAssignment(
+  assignments: MutableList<Assignment> =
     mockCoursesTable.values
       .flatMap {
-        it.series
+        it.assignments
       }.toMutableList(),
-): Series? = series.find { it.id == seriesId }
+): Assignment? = assignments.find { it.id == assignmentId }
 
-fun Series.getCourse(courses: MutableList<Course> = mockCoursesTable.values.toMutableList()): Course? = courses.find { it.id == courseId }
+fun Assignment.getCourse(courses: MutableList<Course> = mockCoursesTable.values.toMutableList()): Course? = courses.find { it.id == courseId }

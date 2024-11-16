@@ -48,8 +48,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: Te
           }
 
           val course = mockCoursesTable[courseId]!!
-          for (series in course.series) {
-            for (problem in series.problems) {
+          for (assignment in course.assignments) {
+            for (problem in assignment.problems) {
               if (Random.nextBoolean()) {
                 core.addAssessment(
                   student,
@@ -77,7 +77,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: Te
         .getGradeMap()
         .values
         .flatMap { it.keys }
-        .mapNotNull { it.getSeries() }
+        .mapNotNull { it.getAssignment() }
         .mapNotNull { it.getCourse() }
         .filter { it -> it.teachers.map { it.id }.contains(userId) }
         .associateBy { it.id }
@@ -107,13 +107,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: Te
     }
 
     if (courseId != null) {
-      val series = courses[courseId]!!.series
+      val assignments = courses[courseId]!!.assignments
       var strGrades = "Оценки учеников на курсе ${courses[courseId]!!.description}:\n"
 
       val gradeMap = core.getGradeMap()
 
       val maxGrade =
-        series
+        assignments
           .flatMap { paper ->
             paper.problems
           }.sumOf { it.maxScore }
@@ -124,7 +124,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: Te
         val grade =
           solvedProblems
             .filter { (problem: Problem, _: Grade) ->
-              series.map { it.id }.contains(problem.seriesId)
+              assignments.map { it.id }.contains(problem.assignmentId)
             }.map { (_: Problem, grade: Grade) -> grade }
             .sum()
 

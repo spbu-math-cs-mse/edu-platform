@@ -2,11 +2,11 @@
 .idea/
 common-lib/build/
 .gradle/8.10.2/
-sample-bot/.gradle/
-sample-bot/build/
 student-bot/build/
 teacher-bot/build/
 *.bin
 .kotlin/*
 /build/*
 /build/spotless/*
+**/build/*
+**/.gradle/*

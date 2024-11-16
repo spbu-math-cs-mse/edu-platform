@@ -23,7 +23,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
     val courses = core.getListOfCourses(studentId)
     // MOCK STUFF. Don't use in prod.
     // ---
-    for (problem in courses.flatMap { it.series }.flatMap { it.problems }) {
+    for (problem in courses.flatMap { it.assignments }.flatMap { it.problems }) {
       if (Random.nextBoolean()) {
         core.addAssessment(
           Student(studentId),
@@ -59,9 +59,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
     }
 
     if (courseId != null) {
-      val series = courses.find { it.id == courseId }!!.series
+      val assignments = courses.find { it.id == courseId }!!.assignments
 
-      val chooseSeriesMessage =
+      val chooseAssignmentMessage =
         bot.send(
           state.context,
           text = "Выберите серию",
@@ -69,32 +69,32 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
           InlineKeyboardMarkup(
             keyboard =
             matrix {
-              series.forEach { row { dataButton(it.description, "${ButtonKey.SERIES_ID} ${it.id}") } }
+              assignments.forEach { row { dataButton(it.description, "${ButtonKey.ASSIGNMENT_ID} ${it.id}") } }
               row { dataButton("Назад", ButtonKey.BACK) }
             },
           ),
         )
 
       callback = waitDataCallbackQuery().first()
-      deleteMessage(state.context.id, chooseSeriesMessage.messageId)
-      var seriesId: String? = null
+      deleteMessage(state.context.id, chooseAssignmentMessage.messageId)
+      var assignmentId: String? = null
       when {
-        callback.data.contains(ButtonKey.SERIES_ID) -> {
-          seriesId = callback.data.split(" ").last()
+        callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
+          assignmentId = callback.data.split(" ").last()
         }
       }
 
-      if (seriesId != null) {
-        val exactSeries = series.find { it.id == seriesId }!!
+      if (assignmentId != null) {
+        val exactAssignments = assignments.find { it.id == assignmentId }!!
         val grades =
           if (!core.getGradeMap().containsKey(Student(studentId))) {
             mapOf()
           } else {
-            core.getGradeMap()[Student(studentId)]!!.filter { it.key.seriesId == seriesId }
+            core.getGradeMap()[Student(studentId)]!!.filter { it.key.assignmentId == assignmentId }
           }
 
-        var strGrades = "Оценки за серию ${exactSeries.description}:\n"
-        for (problem in exactSeries.problems.sortedBy { it.number }) {
+        var strGrades = "Оценки за серию ${exactAssignments.description}:\n"
+        for (problem in exactAssignments.problems.sortedBy { it.number }) {
           val grade = grades[problem]
           strGrades += "№${problem.number} — " +
             if (grade == null) {

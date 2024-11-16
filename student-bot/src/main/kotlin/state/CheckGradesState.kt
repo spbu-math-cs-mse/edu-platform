@@ -19,20 +19,11 @@ import kotlin.random.Random
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
-    val studentId = state.context.id.toString()
-    val courses = core.getListOfCourses(studentId)
+    val studentId = core.userIdRegistry.getUserId(state.context.id)!!
+    val courses = core.coursesDistributor.getListOfCourses(studentId)
     // MOCK STUFF. Don't use in prod.
     // ---
-    for (problem in courses.flatMap { it.assignments }.flatMap { it.problems }) {
-      if (Random.nextBoolean()) {
-        core.addAssessment(
-          Student(studentId),
-          Teacher("0"),
-          Solution((mockIncrementalSolutionId++).toString(), "", RawChatId(0), MessageId(0), problem, SolutionContent(), SolutionType.TEXT),
-          SolutionAssessment((0..problem.maxScore).random(), ""),
-        )
-      }
-    }
+    addRandomAssessments(courses, core, studentId)
     // ---
 
     val chooseCourseMessage =
@@ -43,7 +34,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
         InlineKeyboardMarkup(
           keyboard =
           matrix {
-            courses.forEach { row { dataButton(it.description, "${ButtonKey.COURSE_ID} ${it.id}") } }
+            courses.forEach {
+              row {
+                dataButton(
+                  it.description,
+                  "${ButtonKey.COURSE_ID} ${it.id}"
+                )
+              }
+            }
             row { dataButton("Назад", ButtonKey.BACK) }
           },
         ),
@@ -57,10 +55,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
         courseId = callback.data.split(" ").last()
       }
     }
+    if (courseId == null) {
+      return@strictlyOn MenuState(state.context)
+    }
 
-    if (courseId != null) {
-      val assignments = courses.find { it.id == courseId }!!.assignments
-
+    val assignments = courses.find { it.id == courseId }!!.assignments
+    val assignmentId = run {
       val chooseAssignmentMessage =
         bot.send(
           state.context,
@@ -69,7 +69,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
           InlineKeyboardMarkup(
             keyboard =
             matrix {
-              assignments.forEach { row { dataButton(it.description, "${ButtonKey.ASSIGNMENT_ID} ${it.id}") } }
+              assignments.forEach {
+                row {
+                  dataButton(
+                    it.description,
+                    "${ButtonKey.ASSIGNMENT_ID} ${it.id}"
+                  )
+                }
+              }
               row { dataButton("Назад", ButtonKey.BACK) }
             },
           ),
@@ -77,51 +84,71 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
 
       callback = waitDataCallbackQuery().first()
       deleteMessage(state.context.id, chooseAssignmentMessage.messageId)
-      var assignmentId: String? = null
-      when {
+      val assignmentId = when {
         callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
-          assignmentId = callback.data.split(" ").last()
+          callback.data.split(" ").last()
         }
+
+        else -> null
       }
+      assignmentId
+    }
 
-      if (assignmentId != null) {
-        val exactAssignments = assignments.find { it.id == assignmentId }!!
-        val grades =
-          if (!core.getGradeMap().containsKey(Student(studentId))) {
-            mapOf()
-          } else {
-            core.getGradeMap()[Student(studentId)]!!.filter { it.key.assignmentId == assignmentId }
-          }
+    if (assignmentId != null) {
+      val assignment = assignments.find { it.id == assignmentId }!!
+      val grades = core.gradeTable.getGradeMap()[Student(studentId)]
+        ?.filter { it.key.assignmentId == assignmentId }!!
+      val strGrades = "Оценки за серию ${assignment.description}:\n" +
+        assignment.problems.sortedBy { it.number }.withGradesToText(grades)
 
-        var strGrades = "Оценки за серию ${exactAssignments.description}:\n"
-        for (problem in exactAssignments.problems.sortedBy { it.number }) {
-          val grade = grades[problem]
-          strGrades += "№${problem.number} — " +
-            if (grade == null) {
-              "➖ не сдано"
-            } else {
-              when {
-                grade <= 0 -> "❌ 0/${problem.maxScore}"
-                grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-                else -> "✅ $grade/${problem.maxScore}"
-              }
-            }
-          strGrades += "\n"
-        }
-        strGrades.dropLast(1)
+      val gradesMessage =
+        bot.send(
+          state.context,
+          text = strGrades,
+          replyMarkup = back(),
+        )
 
-        val gradesMessage =
-          bot.send(
-            state.context,
-            text = strGrades,
-            replyMarkup = back(),
-          )
-
-        waitDataCallbackQuery().first()
-        deleteMessage(state.context.id, gradesMessage.messageId)
-      }
+      waitDataCallbackQuery().first()
+      deleteMessage(state.context.id, gradesMessage.messageId)
     }
 
     MenuState(state.context)
+  }
+}
+
+fun List<Problem>.withGradesToText(grades: Map<Problem, Grade>) =
+  joinToString(separator = "\n") { problem ->
+    val grade = grades[problem]
+    "№${problem.number} — " + when {
+      grade == null -> "не сдано"
+      grade <= 0 -> "❌ 0/${problem.maxScore}"
+      grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+      else -> "✅ $grade/${problem.maxScore}"
+    }
+  }
+
+
+private fun addRandomAssessments(
+  courses: List<Course>,
+  core: StudentCore,
+  studentId: String
+) {
+  for (problem in courses.flatMap { it.assignments }.flatMap { it.problems }) {
+    if (Random.nextBoolean()) {
+      core.gradeTable.addAssessment(
+        Student(studentId),
+        Teacher("0"),
+        Solution(
+          (mockIncrementalSolutionId++).toString(),
+          "",
+          RawChatId(0),
+          MessageId(0),
+          problem,
+          SolutionContent(),
+          SolutionType.TEXT
+        ),
+        SolutionAssessment((0..problem.maxScore).random(), ""),
+      )
+    }
   }
 }

@@ -23,8 +23,6 @@ data class SignUpState(
   override val context: User,
 ) : BotState {
   val chosenCourses = mutableListOf<String>()
-
-  fun getAvailableCourses(core: StudentCore): MutableList<Pair<Course, Boolean>> = core.getAvailableCourses(context.id.toString())
 }
 
 data class SendSolutionState(

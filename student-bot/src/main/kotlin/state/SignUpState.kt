@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.first
 @OptIn(RiskFeature::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: StudentCore) {
   strictlyOn<SignUpState> { state ->
-    val studentId = core.getUserId(state.context.id)!!
-    val availableCourses = core.getAvailableCourses(studentId)
+    val studentId = core.userIdRegistry.getUserId(state.context.id)!!
+    val availableCourses = core.coursesDistributor.getAvailableCourses(studentId)
 
     var initialMessage =
       bot.send(
@@ -88,7 +88,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: Student
 
             return@strictlyOn SignUpState(state.context)
           } else {
-            state.chosenCourses.forEach { core.addRecord(studentId, it) }
+            state.chosenCourses.forEach { core.coursesDistributor.addRecord(studentId, it) }
 
             deleteMessage(state.context.id, initialMessage.messageId)
 

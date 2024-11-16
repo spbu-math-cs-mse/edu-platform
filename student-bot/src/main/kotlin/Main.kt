@@ -49,7 +49,7 @@ suspend fun main(vararg args: String) {
       }
     }
 
-    strictlyOnStartState(core)
+    strictlyOnStartState(core, false)
     strictlyOnMenuState()
     strictlyOnViewState(core)
     strictlyOnSignUpState(core)

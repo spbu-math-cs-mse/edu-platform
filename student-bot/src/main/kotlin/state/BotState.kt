@@ -1,7 +1,6 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 

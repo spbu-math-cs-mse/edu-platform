@@ -1,6 +1,9 @@
 package com.github.heheteam.commonlib
 
+const val PROBLEMS_PER_COURSE = 4
+
 class MockCoursesDistributor : CoursesDistributor {
+  val singleUserId = "0"
   private val students =
     mutableMapOf(
       "0" to Student("0"),
@@ -9,17 +12,47 @@ class MockCoursesDistributor : CoursesDistributor {
       "3" to Student("3"),
     )
 
+  /*
+  generates a course with dummy content with PROBLEMS_PER_COURSE problems
+   */
+  fun generateCourse(courseId: String, name: String): Course {
+    val singleAssignmentId = courseId + ".a1"
+    return Course(
+      courseId,
+      mutableListOf(),
+      mutableListOf(),
+      name,
+      MockGradeTable(),
+      assignments = mutableListOf(
+        Assignment(
+          singleAssignmentId,
+          "sample assignment",
+          problems = (1..PROBLEMS_PER_COURSE).map {
+            Problem(
+              id = singleAssignmentId + "p$it",
+              number = it.toString(),
+              description = "",
+              assignmentId = singleAssignmentId,
+              maxScore = 1,
+            )
+          }.toMutableList(),
+          courseId = "0",
+        ),
+      ),
+    )
+  }
+
   private val courses =
     mutableMapOf(
-      "0" to Course("0", mutableListOf(), mutableListOf(), "Начала мат. анализа", MockGradeTable()),
-      "1" to Course("1", mutableListOf(), mutableListOf(), "Теория вероятности", MockGradeTable()),
-      "2" to Course("2", mutableListOf(), mutableListOf(), "Линейная алгебра", MockGradeTable()),
-      "3" to Course("3", mutableListOf(), mutableListOf(), "ТФКП", MockGradeTable()),
+      "0" to generateCourse("0", "Начала мат. анализа"),
+      "1" to generateCourse("1", "Теория вероятностей"),
+      "2" to generateCourse("2", "Линейная алгебра"),
+      "3" to generateCourse("3", "ТФКП"),
     )
 
   private val available =
     mutableMapOf(
-      "0" to
+      singleUserId to
         mutableMapOf(
           "0" to Pair(courses["0"]!!, true),
           "1" to Pair(courses["1"]!!, false),
@@ -28,11 +61,10 @@ class MockCoursesDistributor : CoursesDistributor {
         ),
     )
 
-  private val data =
-    mutableMapOf(
-      "0" to mutableListOf("1", "2"),
-      "1" to mutableListOf("0", "3"),
-    )
+  private val data = mutableMapOf(
+    singleUserId to mutableListOf("0", "2"),
+    "1" to mutableListOf("1", "3"),
+  )
 
   override fun addRecord(
     studentId: String,
@@ -49,14 +81,15 @@ class MockCoursesDistributor : CoursesDistributor {
     data[studentId]!!.add(courseId)
   }
 
-  override fun getCourses(studentId: String): String {
+  override fun getCoursesBulletList(studentId: String): String {
     if (!data.containsKey(studentId)) {
       return "Вы не записаны ни на один курс!"
     }
-    return data[studentId]!!.map { courses[it]!!.description }.joinToString(separator = "\n") { "- $it" }
+    return data[studentId]!!.map { courses[it]!!.description }
+      .joinToString(separator = "\n") { "- $it" }
   }
 
-  override fun getListOfCourses(studentId: String): List<Course> {
+  override fun getCourses(studentId: String): List<Course> {
     if (!data.containsKey(studentId)) {
       return listOf()
     }

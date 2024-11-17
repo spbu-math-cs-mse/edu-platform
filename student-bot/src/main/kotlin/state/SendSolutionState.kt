@@ -119,16 +119,17 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
             } else if (photoSolution != null) {
               SolutionContent(
                 text = SolutionType.PHOTO.toString(),
-                fileIds = listOf(photoSolution.media.fileId.fileId)
+                fileIds = listOf(photoSolution.media.fileId.fileId),
               )
             } else if (photosSolution != null) {
               SolutionContent(
                 text = SolutionType.PHOTOS.toString(),
-                fileIds = photosSolution.map { it!!.media.fileId.fileId })
+                fileIds = photosSolution.map { it.media.fileId.fileId },
+              )
             } else if (documentSolution != null) {
               SolutionContent(
                 text = SolutionType.DOCUMENT.toString(),
-                fileIds = listOf(documentSolution.media.fileId.fileId)
+                fileIds = listOf(documentSolution.media.fileId.fileId),
               )
             } else {
               deleteMessage(state.context.id, initialMessage.messageId)
@@ -140,7 +141,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
                 )
               deleteMessage(
                 state.context.id,
-                invalidSolutionTypePrompt.messageId
+                invalidSolutionTypePrompt.messageId,
               )
               waitDataCallbackQuery().first()
               initialMessage =
@@ -156,7 +157,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
             studentId,
             state.context.id.chatId,
             messageId,
-            solutionContent
+            solutionContent,
           )
 
           deleteMessage(state.context.id, initialMessage.messageId)

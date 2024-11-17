@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
   core: StudentCore,
-  showHello: Boolean
+  isDeveloperRun: Boolean,
 ) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
@@ -20,7 +20,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       return@strictlyOn null
     }
 
-    val (firstName, lastName) = if (showHello) {
+    val (firstName, lastName) = if (!isDeveloperRun) {
       bot.send(state.context, Dialogues.greetings())
       bot.send(state.context, Dialogues.askFirstName())
 
@@ -38,11 +38,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       Dialogues.askGrade(firstName, lastName),
       replyMarkup = Keyboards.askGrade(),
     )
+    if (!isDeveloperRun) {
+      // if developer run, userId is preser
+      core.userIdRegistry.setUserId(state.context.id)
+      core.userId = core.userIdRegistry.getUserId(state.context.id)!!
+    }
 
-    core.userIdRegistry.setUserId(state.context.id)
-
-    val grade = waitDataCallbackQuery().first().data
-    // Store student data here if needed
+    // discard student class data
+    waitDataCallbackQuery().first().data
 
     MenuState(state.context)
   }

@@ -20,8 +20,6 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
-  val coursesDistributor = MockCoursesDistributor()
-  val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry(), MockGradeTable())
   val botToken = args.first()
   telegramBot(botToken) {
     logger =
@@ -41,15 +39,30 @@ suspend fun main(vararg args: String) {
   ) {
     println(getMe())
 
-    command(
-      "start",
-    ) {
+    command("start") {
       if (it.from != null) {
         startChain(StartState(it.from!!))
       }
     }
+    val mockCoursesDistributor = MockCoursesDistributor()
 
-    strictlyOnStartState(core, false)
+    val core = StudentCore(
+      MockSolutionDistributor(),
+      mockCoursesDistributor,
+      MockUserIdRegistry(),
+      mockCoursesDistributor.singleUserId,
+    )
+    run {
+      // fill with mock data
+      val firstCourse = core.getAvailableCourses().first()
+      val firstAssignment = firstCourse.assignments.first()
+      (firstCourse.gradeTable as MockGradeTable).addMockFilling(
+        firstAssignment,
+        core.userId!!,
+      )
+    }
+
+    strictlyOnStartState(core, isDeveloperRun = true)
     strictlyOnMenuState()
     strictlyOnViewState(core)
     strictlyOnSignUpState(core)

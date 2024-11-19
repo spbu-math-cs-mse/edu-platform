@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -12,9 +13,12 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
 @OptIn(RiskFeature::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: StudentCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
+  userIdRegistry: UserIdRegistry,
+  core: StudentCore,
+) {
   strictlyOn<SignUpState> { state ->
-    val studentId = core.userIdRegistry.getUserId(state.context.id)!!
+    val studentId = userIdRegistry.getUserId(state.context.id)!!
     val availableCourses = core.coursesDistributor.getAvailableCourses(studentId)
 
     var initialMessage =

@@ -2,19 +2,19 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.*
 
+// this class represents a service given by the bot;
+// students ids are parameters in this class
 class StudentCore(
   val solutionDistributor: SolutionDistributor,
   val coursesDistributor: CoursesDistributor,
-  val userIdRegistry: UserIdRegistry,
-  // is initialized once in the start bot
-  var userId: String? = null,
 ) {
   fun getGradingForAssignment(
     assignment: Assignment,
     course: Course,
+    studentId: String,
   ): List<Pair<Problem, Grade?>> {
     assert(assignment in course.assignments)
-    val grades = course.gradeTable.getGradeMap()[Student(userId!!)]
+    val grades = course.gradeTable.getGradeMap()[Student(studentId)]
       ?.filter { it.key.assignmentId == assignment.id }
     val gradedProblems = assignment.problems
       .sortedBy { problem -> problem.number }
@@ -22,7 +22,7 @@ class StudentCore(
     return gradedProblems
   }
 
-  fun getAvailableCourses(): List<Course> {
-    return coursesDistributor.getCourses(userId!!)
+  fun getAvailableCourses(studentId: String): List<Course> {
+    return coursesDistributor.getCourses(studentId)
   }
 }

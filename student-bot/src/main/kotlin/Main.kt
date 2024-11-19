@@ -45,29 +45,27 @@ suspend fun main(vararg args: String) {
       }
     }
     val mockCoursesDistributor = MockCoursesDistributor()
-
+    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
     val core = StudentCore(
       MockSolutionDistributor(),
       mockCoursesDistributor,
-      MockUserIdRegistry(),
-      mockCoursesDistributor.singleUserId,
     )
     run {
       // fill with mock data
-      val firstCourse = core.getAvailableCourses().first()
+      val firstCourse = core.getAvailableCourses(mockCoursesDistributor.singleUserId).first()
       val firstAssignment = firstCourse.assignments.first()
       (firstCourse.gradeTable as MockGradeTable).addMockFilling(
         firstAssignment,
-        core.userId!!,
+        mockCoursesDistributor.singleUserId,
       )
     }
 
-    strictlyOnStartState(core, isDeveloperRun = true)
+    strictlyOnStartState(isDeveloperRun = true)
     strictlyOnMenuState()
-    strictlyOnViewState(core)
-    strictlyOnSignUpState(core)
-    strictlyOnSendSolutionState(core)
-    strictlyOnCheckGradesState(core)
+    strictlyOnViewState(userIdRegistry, core)
+    strictlyOnSignUpState(userIdRegistry, core)
+    strictlyOnSendSolutionState(userIdRegistry, core)
+    strictlyOnCheckGradesState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

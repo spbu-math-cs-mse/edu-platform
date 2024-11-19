@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
@@ -30,9 +31,12 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: StudentCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
+  userIdRegistry: UserIdRegistry,
+  core: StudentCore,
+) {
   strictlyOn<SendSolutionState> { state ->
-    val studentId = core.userIdRegistry.getUserId(state.context.id)!!
+    val studentId = userIdRegistry.getUserId(state.context.id)!!
     val courses =
       core.coursesDistributor
         .getAvailableCourses(studentId)

@@ -15,9 +15,13 @@ import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
+  userIdRegistry: UserIdRegistry,
+  core: StudentCore,
+) {
   strictlyOn<CheckGradesState> { state ->
-    val courses = core.getAvailableCourses()
+    val courses =
+      core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
     val courseId: String = queryCourseFromUser(state, courses)
       ?: return@strictlyOn MenuState(state.context)
     val course = courses.find { it.id == courseId }!!
@@ -27,7 +31,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
       ?: return@strictlyOn MenuState(state.context)
     val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
 
-    val gradedProblems = core.getGradingForAssignment(assignment, course)
+    val gradedProblems = core.getGradingForAssignment(
+      assignment,
+      course,
+      userIdRegistry.getUserId(state.context.id)!!,
+    )
     val strGrades = "Оценки за серию ${assignment.description}:\n" +
       gradedProblems
         .withGradesToText()

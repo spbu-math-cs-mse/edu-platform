@@ -1,16 +1,28 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.CoursesDistributor
-import com.github.heheteam.commonlib.GradeTable
-import com.github.heheteam.commonlib.SolutionDistributor
-import com.github.heheteam.commonlib.UserIdRegistry
+import com.github.heheteam.commonlib.*
 
+// this class represents a service given by the bot;
+// students ids are parameters in this class
 class StudentCore(
-  private val solutionDistributor: SolutionDistributor,
-  private val coursesDistributor: CoursesDistributor,
-  private val userIdRegistry: UserIdRegistry,
-  private val gradeTable: GradeTable,
-) : GradeTable by gradeTable,
-  UserIdRegistry by userIdRegistry,
-  CoursesDistributor by coursesDistributor,
-  SolutionDistributor by solutionDistributor
+  val solutionDistributor: SolutionDistributor,
+  val coursesDistributor: CoursesDistributor,
+) {
+  fun getGradingForAssignment(
+    assignment: Assignment,
+    course: Course,
+    studentId: String,
+  ): List<Pair<Problem, Grade?>> {
+    assert(assignment in course.assignments)
+    val grades = course.gradeTable.getGradeMap()[Student(studentId)]
+      ?.filter { it.key.assignmentId == assignment.id }
+    val gradedProblems = assignment.problems
+      .sortedBy { problem -> problem.number }
+      .map { problem -> problem to grades?.get(problem) }
+    return gradedProblems
+  }
+
+  fun getAvailableCourses(studentId: String): List<Course> {
+    return coursesDistributor.getCourses(studentId)
+  }
+}

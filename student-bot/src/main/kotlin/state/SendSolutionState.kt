@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
@@ -30,11 +31,14 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: StudentCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
+  userIdRegistry: UserIdRegistry,
+  core: StudentCore,
+) {
   strictlyOn<SendSolutionState> { state ->
-    val studentId = core.getUserId(state.context.id)!!
+    val studentId = userIdRegistry.getUserId(state.context.id)!!
     val courses =
-      core
+      core.coursesDistributor
         .getAvailableCourses(studentId)
         .filter { !it.second }
 
@@ -117,11 +121,20 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
             if (textSolution != null) {
               SolutionContent(text = textSolution.text)
             } else if (photoSolution != null) {
-              SolutionContent(text = SolutionType.PHOTO.toString(), fileIds = listOf(photoSolution.media.fileId.fileId))
+              SolutionContent(
+                text = SolutionType.PHOTO.toString(),
+                fileIds = listOf(photoSolution.media.fileId.fileId),
+              )
             } else if (photosSolution != null) {
-              SolutionContent(text = SolutionType.PHOTOS.toString(), fileIds = photosSolution.map { it!!.media.fileId.fileId })
+              SolutionContent(
+                text = SolutionType.PHOTOS.toString(),
+                fileIds = photosSolution.map { it.media.fileId.fileId },
+              )
             } else if (documentSolution != null) {
-              SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution.media.fileId.fileId))
+              SolutionContent(
+                text = SolutionType.DOCUMENT.toString(),
+                fileIds = listOf(documentSolution.media.fileId.fileId),
+              )
             } else {
               deleteMessage(state.context.id, initialMessage.messageId)
               val invalidSolutionTypePrompt =
@@ -130,7 +143,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
                   Dialogues.tellSolutionTypeIsInvalid(),
                   replyMarkup = back(),
                 )
-              deleteMessage(state.context.id, invalidSolutionTypePrompt.messageId)
+              deleteMessage(
+                state.context.id,
+                invalidSolutionTypePrompt.messageId,
+              )
               waitDataCallbackQuery().first()
               initialMessage =
                 bot.send(
@@ -141,7 +157,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(core: S
               continue
             }
 
-          core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent!!)
+          core.solutionDistributor.inputSolution(
+            studentId,
+            state.context.id.chatId,
+            messageId,
+            solutionContent,
+          )
 
           deleteMessage(state.context.id, initialMessage.messageId)
 

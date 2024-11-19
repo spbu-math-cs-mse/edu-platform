@@ -7,6 +7,6 @@ object ButtonKey {
   const val BACK = "back"
   const val APPLY = "apply"
   const val COURSE_ID = "courseId"
-  const val SERIES_ID = "seriesId"
+  const val ASSIGNMENT_ID = "assignmentId"
   const val CHECK_GRADES = "checkGrades"
 }

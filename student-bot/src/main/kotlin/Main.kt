@@ -20,8 +20,6 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
-  val coursesDistributor = MockCoursesDistributor()
-  val core = StudentCore(MockSolutionDistributor(), coursesDistributor, MockUserIdRegistry(), MockGradeTable())
   val botToken = args.first()
   telegramBot(botToken) {
     logger =
@@ -41,20 +39,33 @@ suspend fun main(vararg args: String) {
   ) {
     println(getMe())
 
-    command(
-      "start",
-    ) {
+    command("start") {
       if (it.from != null) {
         startChain(StartState(it.from!!))
       }
     }
+    val mockCoursesDistributor = MockCoursesDistributor()
+    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
+    val core = StudentCore(
+      MockSolutionDistributor(),
+      mockCoursesDistributor,
+    )
+    run {
+      // fill with mock data
+      val firstCourse = core.getAvailableCourses(mockCoursesDistributor.singleUserId).first()
+      val firstAssignment = firstCourse.assignments.first()
+      (firstCourse.gradeTable as MockGradeTable).addMockFilling(
+        firstAssignment,
+        mockCoursesDistributor.singleUserId,
+      )
+    }
 
-    strictlyOnStartState(core)
+    strictlyOnStartState(isDeveloperRun = true)
     strictlyOnMenuState()
-    strictlyOnViewState(core)
-    strictlyOnSignUpState(core)
-    strictlyOnSendSolutionState(core)
-    strictlyOnCheckGradesState(core)
+    strictlyOnViewState(userIdRegistry, core)
+    strictlyOnSignUpState(userIdRegistry, core)
+    strictlyOnSendSolutionState(userIdRegistry, core)
+    strictlyOnCheckGradesState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

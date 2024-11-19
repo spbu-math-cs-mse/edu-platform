@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
-  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry(), MockTeacherStatistics(), MockGradeTable())
+  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry("0"), MockTeacherStatistics(), MockGradeTable())
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->

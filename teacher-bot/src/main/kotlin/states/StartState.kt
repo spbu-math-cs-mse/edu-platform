@@ -29,10 +29,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: TeacherC
         Dialogues.askGrade(firstName, lastName),
         replyMarkup = Keyboards.askGrade(),
       )
-      val grade = waitDataCallbackQuery().first().data
-      if (grade == "Другое") {
-        core.setUserId(state.context.id)
-      }
+      waitDataCallbackQuery().first().data // discard class
       return@strictlyOn MenuState(state.context)
     }
     bot.send(

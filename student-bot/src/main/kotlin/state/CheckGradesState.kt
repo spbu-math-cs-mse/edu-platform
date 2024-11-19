@@ -6,122 +6,137 @@ import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
-import kotlin.random.Random
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
+  userIdRegistry: UserIdRegistry,
+  core: StudentCore,
+) {
   strictlyOn<CheckGradesState> { state ->
-    val studentId = state.context.id.toString()
-    val courses = core.getListOfCourses(studentId)
-    // MOCK STUFF. Don't use in prod.
-    // ---
-    for (problem in courses.flatMap { it.series }.flatMap { it.problems }) {
-      if (Random.nextBoolean()) {
-        core.addAssessment(
-          Student(studentId),
-          Teacher("0"),
-          Solution((mockIncrementalSolutionId++).toString(), "", RawChatId(0), MessageId(0), problem, SolutionContent(), SolutionType.TEXT),
-          SolutionAssessment((0..problem.maxScore).random(), ""),
-        )
-      }
-    }
-    // ---
+    val courses =
+      core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
+    val courseId: String = queryCourseFromUser(state, courses)
+      ?: return@strictlyOn MenuState(state.context)
+    val course = courses.find { it.id == courseId }!!
 
-    val chooseCourseMessage =
-      bot.send(
-        state.context,
-        text = "Выберите курс",
-        replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-          matrix {
-            courses.forEach { row { dataButton(it.description, "${ButtonKey.COURSE_ID} ${it.id}") } }
-            row { dataButton("Назад", ButtonKey.BACK) }
-          },
-        ),
-      )
+    val assignmentsFromCourse = course.assignments
+    val assignmentId = queryAssignmentFromUser(state, assignmentsFromCourse)
+      ?: return@strictlyOn MenuState(state.context)
+    val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
 
-    var callback = waitDataCallbackQuery().first()
-    deleteMessage(state.context.id, chooseCourseMessage.messageId)
-    var courseId: String? = null
-    when {
-      callback.data.contains(ButtonKey.COURSE_ID) -> {
-        courseId = callback.data.split(" ").last()
-      }
-    }
-
-    if (courseId != null) {
-      val series = courses.find { it.id == courseId }!!.series
-
-      val chooseSeriesMessage =
-        bot.send(
-          state.context,
-          text = "Выберите серию",
-          replyMarkup =
-          InlineKeyboardMarkup(
-            keyboard =
-            matrix {
-              series.forEach { row { dataButton(it.description, "${ButtonKey.SERIES_ID} ${it.id}") } }
-              row { dataButton("Назад", ButtonKey.BACK) }
-            },
-          ),
-        )
-
-      callback = waitDataCallbackQuery().first()
-      deleteMessage(state.context.id, chooseSeriesMessage.messageId)
-      var seriesId: String? = null
-      when {
-        callback.data.contains(ButtonKey.SERIES_ID) -> {
-          seriesId = callback.data.split(" ").last()
-        }
-      }
-
-      if (seriesId != null) {
-        val exactSeries = series.find { it.id == seriesId }!!
-        val grades =
-          if (!core.getGradeMap().containsKey(Student(studentId))) {
-            mapOf()
-          } else {
-            core.getGradeMap()[Student(studentId)]!!.filter { it.key.seriesId == seriesId }
-          }
-
-        var strGrades = "Оценки за серию ${exactSeries.description}:\n"
-        for (problem in exactSeries.problems.sortedBy { it.number }) {
-          val grade = grades[problem]
-          strGrades += "№${problem.number} — " +
-            if (grade == null) {
-              "➖ не сдано"
-            } else {
-              when {
-                grade <= 0 -> "❌ 0/${problem.maxScore}"
-                grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-                else -> "✅ $grade/${problem.maxScore}"
-              }
-            }
-          strGrades += "\n"
-        }
-        strGrades.dropLast(1)
-
-        val gradesMessage =
-          bot.send(
-            state.context,
-            text = strGrades,
-            replyMarkup = back(),
-          )
-
-        waitDataCallbackQuery().first()
-        deleteMessage(state.context.id, gradesMessage.messageId)
-      }
-    }
-
+    val gradedProblems = core.getGradingForAssignment(
+      assignment,
+      course,
+      userIdRegistry.getUserId(state.context.id)!!,
+    )
+    val strGrades = "Оценки за серию ${assignment.description}:\n" +
+      gradedProblems
+        .withGradesToText()
+    respondWithGrades(state, strGrades)
     MenuState(state.context)
   }
 }
+
+private suspend fun BehaviourContext.respondWithGrades(
+  state: CheckGradesState,
+  strGrades: String,
+) {
+  val gradesMessage =
+    bot.send(
+      state.context,
+      text = strGrades,
+      replyMarkup = back(),
+    )
+  waitDataCallbackQuery().first()
+  deleteMessage(state.context.id, gradesMessage.messageId)
+}
+
+private suspend fun BehaviourContext.queryAssignmentFromUser(
+  state: CheckGradesState,
+  assignments: MutableList<Assignment>,
+): String? {
+  val chooseAssignmentMessage =
+    bot.send(
+      state.context,
+      text = "Выберите серию",
+      replyMarkup =
+      InlineKeyboardMarkup(
+        keyboard =
+        matrix {
+          assignments.forEach {
+            row {
+              dataButton(
+                it.description,
+                "${ButtonKey.ASSIGNMENT_ID} ${it.id}",
+              )
+            }
+          }
+          row { dataButton("Назад", ButtonKey.BACK) }
+        },
+      ),
+    )
+
+  val callback = waitDataCallbackQuery().first()
+  deleteMessage(state.context.id, chooseAssignmentMessage.messageId)
+  val assignmentId = when {
+    callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
+      callback.data.split(" ").last()
+    }
+
+    else -> null
+  }
+  return assignmentId
+}
+
+private suspend fun BehaviourContext.queryCourseFromUser(
+  state: CheckGradesState,
+  courses: List<Course>,
+): String? {
+  val chooseCourseMessage =
+    bot.send(
+      state.context,
+      text = "Выберите курс",
+      replyMarkup =
+      InlineKeyboardMarkup(
+        keyboard =
+        matrix {
+          courses.forEach {
+            row {
+              dataButton(
+                it.description,
+                "${ButtonKey.COURSE_ID} ${it.id}",
+              )
+            }
+          }
+          row { dataButton("Назад", ButtonKey.BACK) }
+        },
+      ),
+    )
+
+  val callback = waitDataCallbackQuery().first()
+  deleteMessage(state.context.id, chooseCourseMessage.messageId)
+  var courseId: String? = null
+  when {
+    callback.data.contains(ButtonKey.COURSE_ID) -> {
+      courseId = callback.data.split(" ").last()
+    }
+  }
+  return courseId
+}
+
+fun List<Pair<Problem, Grade?>>.withGradesToText() =
+  joinToString(separator = "\n") { (problem, grade) ->
+    "№${problem.number} — " + when {
+      grade == null -> "не сдано"
+      grade <= 0 -> "❌ 0/${problem.maxScore}"
+      grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+      else -> "✅ $grade/${problem.maxScore}"
+    }
+  }

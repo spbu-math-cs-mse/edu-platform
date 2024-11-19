@@ -27,7 +27,7 @@ data class Problem(
   val number: String,
   val description: String,
   val maxScore: Grade,
-  val seriesId: String,
+  val assignmentId: String,
 )
 
 enum class SolutionType {
@@ -54,10 +54,10 @@ class Course(
   val students: MutableList<Student> = mutableListOf(),
   var description: String,
   val gradeTable: GradeTable,
-  val series: MutableList<Series> = mutableListOf(),
+  val assignments: MutableList<Assignment> = mutableListOf(),
 )
 
-data class Series(
+data class Assignment(
   val id: String,
   val description: String,
   val problems: MutableList<Problem>,

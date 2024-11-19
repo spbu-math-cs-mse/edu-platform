@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+// bound to a course
 interface GradeTable {
   fun addAssessment(
     student: Student,

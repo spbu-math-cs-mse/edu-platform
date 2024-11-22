@@ -19,7 +19,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 ) {
   strictlyOn<SignUpState> { state ->
     val studentId = userIdRegistry.getUserId(state.context.id)!!
-    val availableCourses = core.coursesDistributor.getAvailableCourses(studentId)
+    val availableCourses = core.getAvailableCourses(studentId).toMutableList()
 
     var initialMessage =
       bot.send(
@@ -38,7 +38,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
           val index = availableCourses.indexOfFirst { it.first.id == courseId }
 
           if (!availableCourses[index].second) {
-            deleteMessage(state.context.id, initialMessage.messageId)
+            deleteMessage(initialMessage)
 
             val lastMessage =
               bot.send(
@@ -49,7 +49,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 
             waitDataCallbackQuery().first()
 
-            deleteMessage(state.context.id, lastMessage.messageId)
+            deleteMessage(initialMessage)
 
             initialMessage =
               bot.send(
@@ -72,13 +72,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
         }
 
         callbackData == ButtonKey.BACK -> {
-          deleteMessage(state.context.id, initialMessage.messageId)
+          deleteMessage(initialMessage)
           break
         }
 
         callbackData == ButtonKey.APPLY -> {
           if (state.chosenCourses.isEmpty()) {
-            deleteMessage(state.context.id, initialMessage.messageId)
+            deleteMessage(initialMessage)
 
             val lastMessage =
               bot.send(
@@ -88,13 +88,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
               )
 
             waitDataCallbackQuery().first()
-            deleteMessage(state.context.id, lastMessage.messageId)
+            deleteMessage(initialMessage)
 
             return@strictlyOn SignUpState(state.context)
           } else {
-            state.chosenCourses.forEach { core.coursesDistributor.addRecord(studentId, it) }
+            state.chosenCourses.forEach { courseId -> core.addRecord(studentId, courseId) }
 
-            deleteMessage(state.context.id, initialMessage.messageId)
+            deleteMessage(initialMessage)
 
             val lastMessage =
               bot.send(
@@ -104,7 +104,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
               )
 
             waitDataCallbackQuery().first()
-            deleteMessage(state.context.id, lastMessage.messageId)
+            deleteMessage(initialMessage)
 
             break
           }

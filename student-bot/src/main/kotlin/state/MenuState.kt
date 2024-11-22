@@ -20,26 +20,27 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
     val callback = waitDataCallbackQuery().first()
     when (callback.data) {
       ButtonKey.VIEW -> {
-        deleteMessage(state.context.id, initialMessage.messageId)
+        deleteMessage(initialMessage)
         ViewState(state.context)
       }
 
       ButtonKey.SIGN_UP -> {
-        deleteMessage(state.context.id, initialMessage.messageId)
+        deleteMessage(initialMessage)
         SignUpState(state.context)
       }
 
       ButtonKey.SEND_SOLUTION -> {
-        deleteMessage(state.context.id, initialMessage.messageId)
+        deleteMessage(initialMessage)
         SendSolutionState(state.context)
       }
 
       ButtonKey.CHECK_GRADES -> {
-        deleteMessage(state.context.id, initialMessage.messageId)
+        deleteMessage(initialMessage)
         CheckGradesState(state.context)
       }
 
       else -> {
+        deleteMessage(initialMessage)
         MenuState(state.context)
       }
     }

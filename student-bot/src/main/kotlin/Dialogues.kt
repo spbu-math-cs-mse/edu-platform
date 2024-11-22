@@ -28,7 +28,7 @@ object Dialogues {
 
   fun tellValidSolutionTypes(): String = "Отправь фото, файл или напиши решение текстом, и я отошлю его на проверку!"
 
-  fun tellSolutionTypeIsInvalid(): String = "Данный формат не подходит, попробуй другой!"
+  fun tellSolutionTypeIsInvalid(): String = "Данный формат не подходит, попробуй другой!\n" + tellValidSolutionTypes()
 
   fun tellToApplyForCourses(): String = "Сначала запишитесь на курсы!"
 }

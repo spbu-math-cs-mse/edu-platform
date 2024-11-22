@@ -10,6 +10,7 @@ import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildCoursesSendingSelector
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
+import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -37,12 +38,18 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
     val studentId = userIdRegistry.getUserId(state.context.id)!!
     val courses = core.getStudentCourses(studentId)
 
+    val stickerMessage = bot.sendSticker(state.context, Dialogues.nerdSticker)
+
     if (courses.isEmpty()) {
       suggestToApplyForCourses(state)
       return@strictlyOn MenuState(state.context)
     }
 
-    val course = queryCourse(state, courses) ?: return@strictlyOn MenuState(state.context)
+    val course = queryCourse(state, courses)
+    if (course == null) {
+      deleteMessage(stickerMessage)
+      return@strictlyOn MenuState(state.context)
+    }
 
     state.selectedCourse = course
 
@@ -59,6 +66,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
       if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
         deleteMessage(botMessage)
+        deleteMessage(stickerMessage)
         return@strictlyOn MenuState(state.context)
       }
 
@@ -76,12 +84,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
         core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent)
 
         deleteMessage(botMessage)
-
+        deleteMessage(stickerMessage)
+        bot.sendSticker(state.context, Dialogues.okSticker)
         bot.send(state.context, Dialogues.tellSolutionIsSent())
         break
       }
     }
-
     MenuState(state.context)
   }
 }

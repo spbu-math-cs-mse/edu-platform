@@ -96,6 +96,10 @@ class MockCoursesDistributor : CoursesDistributor {
     return data[studentId]!!.map { courses[it]!! }
   }
 
+  override fun getTeacherCourses(teacherId: String): List<Course> {
+    return courses.values.filter { course -> course.teachers.map { it.id }.contains(teacherId) }
+  }
+
   override fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>> {
     buildCoursesForStudent(studentId)
     return available[studentId]!!.values.toMutableList()

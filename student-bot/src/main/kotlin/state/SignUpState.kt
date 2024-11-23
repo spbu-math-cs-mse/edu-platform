@@ -40,12 +40,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
           if (!availableCourses[index].second) {
             deleteMessage(initialMessage)
 
-            val lastMessage =
-              bot.send(
-                state.context,
-                text = "Вы уже записаны на этот курс!",
-                replyMarkup = back(),
-              )
+            initialMessage = bot.send(
+              state.context,
+              text = "Вы уже записаны на этот курс!",
+              replyMarkup = back(),
+            )
 
             waitDataCallbackQuery().first()
 
@@ -80,12 +79,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
           if (state.chosenCourses.isEmpty()) {
             deleteMessage(initialMessage)
 
-            val lastMessage =
-              bot.send(
-                state.context,
-                text = "Вы не выбрали ни одного курса!",
-                replyMarkup = back(),
-              )
+            initialMessage = bot.send(
+              state.context,
+              text = "Вы не выбрали ни одного курса!",
+              replyMarkup = back(),
+            )
 
             waitDataCallbackQuery().first()
             deleteMessage(initialMessage)
@@ -96,12 +94,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 
             deleteMessage(initialMessage)
 
-            val lastMessage =
-              bot.send(
-                state.context,
-                text = "Вы успешно записались на курсы!",
-                replyMarkup = back(),
-              )
+            initialMessage = bot.send(
+              state.context,
+              text = "Вы успешно записались на курсы!",
+              replyMarkup = back(),
+            )
 
             waitDataCallbackQuery().first()
             deleteMessage(initialMessage)

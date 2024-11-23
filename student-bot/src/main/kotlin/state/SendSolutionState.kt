@@ -67,7 +67,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
-        return@strictlyOn MenuState(state.context)
+        return@strictlyOn SendSolutionState(state.context)
       }
 
       if (content is CommonMessage<*>) {

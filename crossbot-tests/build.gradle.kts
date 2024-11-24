@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":student-bot"))
     implementation(project(":teacher-bot"))
     implementation(project(":admin-bot"))
+    implementation("dev.inmo:tgbotapi:18.2.1")
 }
 
 tasks.test {

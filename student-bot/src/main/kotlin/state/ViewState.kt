@@ -15,8 +15,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
 ) {
   strictlyOn<ViewState> { state ->
     val studentId = state.context.id
-    val studentCourses = core.coursesDistributor
-      .getCoursesBulletList(userIdRegistry.getUserId(studentId)!!)
+    val studentCourses = core.getCoursesBulletList(userIdRegistry.getUserId(studentId)!!)
     val initialMessage =
       bot.send(
         state.context,
@@ -24,7 +23,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
         replyMarkup = back(),
       )
     waitDataCallbackQuery().first()
-    deleteMessage(state.context.id, initialMessage.messageId)
+    deleteMessage(initialMessage)
     MenuState(state.context)
   }
 }

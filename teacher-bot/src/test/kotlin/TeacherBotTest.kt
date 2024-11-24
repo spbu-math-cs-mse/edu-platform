@@ -1,17 +1,18 @@
-package com.github.heheteam.commonlib.statistics
-
+import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class MockTeacherStatisticsTest {
+class TeacherBotTest {
   private lateinit var statistics: MockTeacherStatistics
   private val now = LocalDateTime.now()
   private val teacher1Id = "teacher1"
@@ -85,5 +86,19 @@ class MockTeacherStatisticsTest {
     val globalStats = statistics.getGlobalStats()
     assertEquals(0, globalStats.totalUncheckedSolutions)
     assertTrue(globalStats.averageCheckTimeHours > 0)
+  }
+
+  @Test
+  fun `teacher gets user solution TEXT`() {
+    val studentId = "student"
+    val teacherId = "teacher"
+    val mockSolutionDistributor = MockSolutionDistributor()
+    mockSolutionDistributor.inputSolution(studentId, RawChatId(0), MessageId(0), SolutionContent(text = "test"))
+    val solution = mockSolutionDistributor.querySolution(teacherId)!!
+    assertEquals(studentId, solution.studentId)
+    assertEquals(SolutionContent(text = "test"), solution.content)
+    assertEquals(SolutionType.TEXT, solution.type)
+    assertEquals(MessageId(0), solution.messageId)
+    assertEquals(RawChatId(0), solution.chatId)
   }
 }

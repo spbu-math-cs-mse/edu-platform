@@ -20,34 +20,40 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
   core: StudentCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
-    val courses =
-      core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
-    val courseId: String = queryCourseFromUser(state, courses)
-      ?: return@strictlyOn MenuState(state.context)
+    val courses = core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
+    val courseId: String =
+      queryCourseFromUser(state, courses)
+        ?: return@strictlyOn MenuState(state.context)
     val course = courses.find { it.id == courseId }!!
 
     val assignmentsFromCourse = course.assignments
-    val assignmentId = queryAssignmentFromUser(state, assignmentsFromCourse)
-      ?: return@strictlyOn MenuState(state.context)
+    val assignmentId =
+      queryAssignmentFromUser(state, assignmentsFromCourse)
+        ?: return@strictlyOn CheckGradesState(state.context)
     val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
 
-    val gradedProblems = core.getGradingForAssignment(
-      assignment,
-      course,
-      userIdRegistry.getUserId(state.context.id)!!,
-    )
-    val strGrades = "Оценки за серию ${assignment.description}:\n" +
-      gradedProblems
-        .withGradesToText()
-    respondWithGrades(state, strGrades)
+    val gradedProblems =
+      core.getGradingForAssignment(
+        assignment,
+        course,
+        userIdRegistry.getUserId(state.context.id)!!,
+      )
+
+    respondWithGrades(state, assignment, gradedProblems)
     MenuState(state.context)
   }
 }
 
 private suspend fun BehaviourContext.respondWithGrades(
   state: CheckGradesState,
-  strGrades: String,
+  assignment: Assignment,
+  gradedProblems: List<Pair<Problem, Grade?>>,
 ) {
+  val strGrades =
+    "Оценки за серию ${assignment.description}:\n" +
+      gradedProblems
+        .withGradesToText()
+
   val gradesMessage =
     bot.send(
       state.context,
@@ -55,7 +61,7 @@ private suspend fun BehaviourContext.respondWithGrades(
       replyMarkup = back(),
     )
   waitDataCallbackQuery().first()
-  deleteMessage(state.context.id, gradesMessage.messageId)
+  deleteMessage(gradesMessage)
 }
 
 private suspend fun BehaviourContext.queryAssignmentFromUser(
@@ -84,14 +90,15 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
     )
 
   val callback = waitDataCallbackQuery().first()
-  deleteMessage(state.context.id, chooseAssignmentMessage.messageId)
-  val assignmentId = when {
-    callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
-      callback.data.split(" ").last()
-    }
+  deleteMessage(chooseAssignmentMessage)
+  val assignmentId =
+    when {
+      callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
+        callback.data.split(" ").last()
+      }
 
-    else -> null
-  }
+      else -> null
+    }
   return assignmentId
 }
 
@@ -121,7 +128,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
     )
 
   val callback = waitDataCallbackQuery().first()
-  deleteMessage(state.context.id, chooseCourseMessage.messageId)
+  deleteMessage(chooseCourseMessage)
   var courseId: String? = null
   when {
     callback.data.contains(ButtonKey.COURSE_ID) -> {
@@ -133,10 +140,11 @@ private suspend fun BehaviourContext.queryCourseFromUser(
 
 fun List<Pair<Problem, Grade?>>.withGradesToText() =
   joinToString(separator = "\n") { (problem, grade) ->
-    "№${problem.number} — " + when {
-      grade == null -> "не сдано"
-      grade <= 0 -> "❌ 0/${problem.maxScore}"
-      grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-      else -> "✅ $grade/${problem.maxScore}"
-    }
+    "№${problem.number} — " +
+      when {
+        grade == null -> "не сдано"
+        grade <= 0 -> "❌ 0/${problem.maxScore}"
+        grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+        else -> "✅ $grade/${problem.maxScore}"
+      }
   }

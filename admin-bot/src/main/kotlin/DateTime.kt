@@ -3,17 +3,17 @@ package com.github.heheteam.adminbot
 import java.time.DayOfWeek
 import java.time.format.DateTimeFormatter
 
-val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 fun toRussian(d: DayOfWeek): String {
-  when (d.getValue()) {
-    1 -> return "понедельник"
-    2 -> return "вторник"
-    3 -> return "среда"
-    4 -> return "четверг"
-    5 -> return "пятница"
-    6 -> return "суббота"
-    else -> return "воскресенье"
+  return when (d.value) {
+    1 -> "понедельник"
+    2 -> "вторник"
+    3 -> "среда"
+    4 -> "четверг"
+    5 -> "пятница"
+    6 -> "суббота"
+    else -> "воскресенье"
   }
 }

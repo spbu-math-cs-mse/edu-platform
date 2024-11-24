@@ -23,14 +23,15 @@ suspend fun main(vararg args: String) {
         }
     }
 
-  val core = AdminCore(
-    mockGradeTable,
-    MockScheduledMessagesDistributor(),
-    mockCoursesTable,
-    mockStudentsTable,
-    mockTeachersTable,
-    mockAdminsTable,
-  )
+  val core =
+    AdminCore(
+      mockGradeTable,
+      MockScheduledMessagesDistributor(),
+      mockCoursesTable,
+      mockStudentsTable,
+      mockTeachersTable,
+      mockAdminsTable,
+    )
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
     botToken,
@@ -53,17 +54,13 @@ suspend fun main(vararg args: String) {
     strictlyOnNotAdminState()
     strictlyOnMenuState(core)
     strictlyOnCreateCourseState(core)
-    strictlyOnPickACourseState(core)
     strictlyOnEditCourseState()
     strictlyOnAddStudentState(core)
     strictlyOnRemoveStudentState(core)
     strictlyOnAddTeacherState(core)
     strictlyOnRemoveTeacherState(core)
     strictlyOnEditDescriptionState()
-    strictlyOnAddScheduledMessageState()
-    strictlyOnScheduleMessageSelectDateState()
-    strictlyOnScheduleMessageEnterDateState()
-    strictlyOnScheduleMessageEnterTimeState(core)
+    strictlyOnAddScheduledMessageState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

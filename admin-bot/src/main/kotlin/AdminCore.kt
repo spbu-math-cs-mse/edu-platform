@@ -12,21 +12,11 @@ class AdminCore(
   private val teachersTable: MutableMap<String, Teacher>,
   private val adminsTable: List<Username>,
 ) : GradeTable, ScheduledMessagesDistributor {
-  fun studentExists(id: String) = studentsTable.containsKey(id)
+  override fun addAssessment(student: Student, teacher: Teacher, solution: Solution, assessment: SolutionAssessment) =
+    gradeTable.addAssessment(student, teacher, solution, assessment)
 
-  fun teacherExists(id: String) = teachersTable.containsKey(id)
-
-  fun courseExists(courseTitle: String) = coursesTable.containsKey(courseTitle)
-
-  fun addCourse(courseTitle: String, course: Course) {
-    coursesTable[courseTitle] = course
-  }
-
-  fun getCourse(courseTitle: String) = coursesTable[courseTitle]
-
-  fun getCourses() = coursesTable.toMap()
-
-  fun isAdmin(username: Username) = adminsTable.contains(username)
+  override fun getGradeMap(): Map<Student, Map<Problem, Grade>> =
+    gradeTable.getGradeMap()
 
   override fun addMessage(message: ScheduledMessage) =
     scheduledMessagesDistributor.addMessage(message)
@@ -37,8 +27,19 @@ class AdminCore(
   override fun markMessagesUpToDateAsSent(date: LocalDateTime) =
     scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
-  override fun addAssessment(student: Student, teacher: Teacher, solution: Solution, assessment: SolutionAssessment) =
-    gradeTable.addAssessment(student, teacher, solution, assessment)
-  override fun getGradeMap(): Map<Student, Map<Problem, Grade>> =
-    gradeTable.getGradeMap()
+  fun courseExists(courseName: String) = coursesTable.containsKey(courseName)
+
+  fun addCourse(courseName: String, course: Course) {
+    coursesTable[courseName] = course
+  }
+
+  fun getCourse(courseName: String) = coursesTable[courseName]
+
+  fun getCourses() = coursesTable.toMap()
+
+  fun studentExists(id: String) = studentsTable.containsKey(id)
+
+  fun teacherExists(id: String) = teachersTable.containsKey(id)
+
+  fun isAdmin(username: Username) = adminsTable.contains(username)
 }

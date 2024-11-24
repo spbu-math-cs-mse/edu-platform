@@ -33,15 +33,15 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: AdminCore
           state.context,
           "Выберите курс, который хотите изменить:",
           replyMarkup =
-            replyKeyboard {
-              for ((name, _) in core.getCourses()) {
-                row {
-                  simpleButton(
-                    text = name,
-                  )
-                }
+          replyKeyboard {
+            for ((name, _) in core.getCourses()) {
+              row {
+                simpleButton(
+                  text = name,
+                )
               }
-            },
+            }
+          },
         )
 
         val message = waitTextMessage().first()

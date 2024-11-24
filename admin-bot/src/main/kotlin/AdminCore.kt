@@ -11,8 +11,7 @@ class AdminCore(
   private val studentsTable: MutableMap<String, Student>,
   private val teachersTable: MutableMap<String, Teacher>,
   private val adminsTable: List<Username>,
-) : GradeTable, ScheduledMessagesDistributor
-{
+) : GradeTable, ScheduledMessagesDistributor {
   fun studentExists(id: String) = studentsTable.containsKey(id)
 
   fun teacherExists(id: String) = teachersTable.containsKey(id)

@@ -38,9 +38,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   strictlyOn<SendSolutionState> { state ->
     val studentId = userIdRegistry.getUserId(state.context.id)!!
     val courses =
-      core.coursesDistributor
-        .getAvailableCourses(studentId)
-        .filter { !it.second }
+      core.getAvailableCourses(studentId)
 
     if (courses.isEmpty()) {
       val message =
@@ -58,7 +56,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       bot.send(
         state.context,
         Dialogues.askCourseForSolution(),
-        replyMarkup = buildCoursesSendingSelector(courses.toMutableList()),
+        replyMarkup = buildCoursesSendingSelector(courses),
       )
 
     while (true) {
@@ -72,7 +70,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (callbackData.contains(ButtonKey.COURSE_ID)) {
         val courseId = callbackData.split(" ").last()
 
-        state.selectedCourse = courses.first { it.first.id == courseId }.first
+        state.selectedCourse = courses.first { it.id == courseId }
 
         deleteMessage(state.context.id, initialMessage.messageId)
 

@@ -26,7 +26,7 @@ class StudentBotTest {
     // check first input correctness
     val availableCourses = studentCore.getAvailableCourses(userId)
     assert(availableCourses.any { it.id == "0" })
-    val course = mockCoursesDistributor.getCourses("0").first()
+    val course = mockCoursesDistributor.getStudentCourses("0").first()
     val assignment = course.assignments.first()
     val grading = studentCore.getGradingForAssignment(
       assignment,

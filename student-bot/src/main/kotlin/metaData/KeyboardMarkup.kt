@@ -7,12 +7,12 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
-fun buildCoursesSelector(availableCourses: MutableList<Pair<Course, Boolean>>) =
+fun buildCoursesSelector(availableCourses: List<Pair<Course, Boolean>>) =
   InlineKeyboardMarkup(
     keyboard =
     matrix {
       availableCourses.forEach { (course, status) ->
-        val description = if (status) course.description else "${course.description} \u2705"
+        val description = if (status) "${course.description} ✅" else course.description
         row { dataButton(description, "${ButtonKey.COURSE_ID} ${course.id}") }
       }
       row { dataButton("Записаться", ButtonKey.APPLY) }
@@ -20,14 +20,12 @@ fun buildCoursesSelector(availableCourses: MutableList<Pair<Course, Boolean>>) =
     },
   )
 
-fun buildCoursesSendingSelector(availableCourses: MutableList<Pair<Course, Boolean>>) =
+fun buildCoursesSendingSelector(availableCourses: List<Course>) =
   InlineKeyboardMarkup(
     keyboard =
     matrix {
-      availableCourses.forEach { (course, status) ->
-        if (!status) {
-          row { dataButton(course.description, "${ButtonKey.COURSE_ID} ${course.id}") }
-        }
+      availableCourses.forEach { course ->
+        row { dataButton(course.description, "${ButtonKey.COURSE_ID} ${course.id}") }
       }
       row { dataButton("Назад", ButtonKey.BACK) }
     },

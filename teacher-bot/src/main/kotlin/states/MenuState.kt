@@ -1,5 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
@@ -10,14 +11,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(userIdRegistry: UserIdRegistry, core: TeacherCore) {
   strictlyOn<MenuState> { state ->
     if (state.context.username == null) {
       return@strictlyOn null
     }
-    if (core.getUserId(state.context.id) == null) {
-      return@strictlyOn StartState(state.context)
-    }
+    val userId = userIdRegistry.getUserId(state.context.id) ?: return@strictlyOn StartState(state.context)
 
     val stickerMessage =
       bot.sendSticker(
@@ -47,33 +46,30 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCo
         }
 
         Keyboards.viewStats -> {
-          val userId = core.getUserId(state.context.id)
-          if (userId != null) {
-            val stats = core.getTeacherStats(userId)
-            if (stats != null) {
-              val globalStats = core.getGlobalStats()
+          val stats = core.getTeacherStats(userId)
+          if (stats != null) {
+            val globalStats = core.getGlobalStats()
 
-              bot.send(
-                state.context,
-                """
-                📊 Ваша статистика проверок:
-                
-                Всего проверено: ${stats.totalAssessments}
-                Среднее число проверок в день: %.2f
-                ${stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"}
-                ${stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format(it / 60 / 60) } ?: ""}
-                
-                📈 Общая статистика:
-                Среднее время проверки: %.1f часов
-                Всего непроверенных работ: %d
-                """.trimIndent().format(
-                  stats.averageAssessmentsPerDay,
-                  globalStats.averageCheckTimeHours,
-                  globalStats.totalUncheckedSolutions,
-                ),
-                replyMarkup = Keyboards.returnBack(),
-              )
-            }
+            bot.send(
+              state.context,
+              """
+              📊 Ваша статистика проверок:
+              
+              Всего проверено: ${stats.totalAssessments}
+              Среднее число проверок в день: %.2f
+              ${stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"}
+              ${stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format(it / 60 / 60) } ?: ""}
+              
+              📈 Общая статистика:
+              Среднее время проверки: %.1f часов
+              Всего непроверенных работ: %d
+              """.trimIndent().format(
+                stats.averageAssessmentsPerDay,
+                globalStats.averageCheckTimeHours,
+                globalStats.totalUncheckedSolutions,
+              ),
+              replyMarkup = Keyboards.returnBack(),
+            )
           }
           return@strictlyOn MenuState(state.context)
         }

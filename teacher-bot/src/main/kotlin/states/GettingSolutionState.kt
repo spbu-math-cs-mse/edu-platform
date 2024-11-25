@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(userIdRegistry: UserIdRegistry, core: TeacherCore) {
   strictlyOn<GettingSolutionState> { state ->
+    val userId = userIdRegistry.getUserId(state.context.id)!!
     val solution = core.querySolution(userIdRegistry.getUserId(state.context.id)!!)
     if (solution == null) {
       bot.send(
@@ -118,7 +119,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(user
 
               core.assessSolution(
                 solution,
-                core.getUserId(state.context.id)!!,
+                userId,
                 SolutionAssessment(5, ""),
                 MockGradeTable(),
               )
@@ -136,7 +137,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(user
 
               core.assessSolution(
                 solution,
-                core.getUserId(state.context.id)!!,
+                userId,
                 SolutionAssessment(2, ""),
                 MockGradeTable(),
               )

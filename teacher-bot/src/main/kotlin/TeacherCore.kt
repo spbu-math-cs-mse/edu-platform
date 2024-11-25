@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.statistics.TeacherStatsData
 class TeacherCore(
   private val teacherStatistics: TeacherStatistics,
   private val coursesDistributor: CoursesDistributor,
+  private val solutionDistributor: SolutionDistributor,
 ) {
   fun getTeacherStats(teacherId: String): TeacherStatsData? = teacherStatistics.getTeacherStats(teacherId)
 
@@ -16,6 +17,20 @@ class TeacherCore(
 
   fun getAvailableCourses(teacherId: String): List<Course> {
     return coursesDistributor.getTeacherCourses(teacherId)
+  }
+
+  fun querySolution(teacherId: String): Solution? {
+    return solutionDistributor.querySolution(teacherId)
+  }
+
+  fun assessSolution(
+    solution: Solution,
+    teacherId: String,
+    assessment: SolutionAssessment,
+    gradeTable: GradeTable,
+    timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+  ) {
+    solutionDistributor.assessSolution(solution,teacherId,assessment, gradeTable, timestamp)
   }
 
   fun getGrading(course: Course): List<Pair<Student, Grade?>> {

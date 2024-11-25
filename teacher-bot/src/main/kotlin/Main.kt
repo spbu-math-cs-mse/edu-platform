@@ -53,12 +53,11 @@ suspend fun main(vararg args: String) {
     }
     val mockCoursesDistributor = MockCoursesDistributor()
     val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
-    val core = TeacherCore(MockTeacherStatistics(), mockCoursesDistributor)
+    val core = TeacherCore(MockTeacherStatistics(), mockCoursesDistributor, MockSolutionDistributor())
 
-    strictlyOnStartState(core)
-    strictlyOnMenuState(core)
-    strictlyOnGettingSolutionState(core)
-    strictlyOnGettingSolutionState(core)
+    strictlyOnStartState(userIdRegistry)
+    strictlyOnMenuState(userIdRegistry, core)
+    strictlyOnGettingSolutionState(userIdRegistry,core)
     strictlyOnCheckGradesState(userIdRegistry,core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {

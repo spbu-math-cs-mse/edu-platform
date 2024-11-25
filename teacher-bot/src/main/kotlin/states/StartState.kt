@@ -1,5 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
@@ -10,10 +11,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallb
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: TeacherCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry: UserIdRegistry) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
-    if (core.getUserId(state.context.id) == null) {
+    if (userIdRegistry.getUserId(state.context.id) == null) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),

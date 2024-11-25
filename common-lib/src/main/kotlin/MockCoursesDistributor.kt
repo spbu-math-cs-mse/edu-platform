@@ -51,8 +51,8 @@ class MockCoursesDistributor : CoursesDistributor {
     )
 
   private val data = mutableMapOf(
-    singleUserId to mutableListOf("0", "2"),
-    "1" to mutableListOf("1", "3"),
+    singleUserId to mutableSetOf("0", "2"),
+    "1" to mutableSetOf("1", "3"),
   )
 
   override fun addRecord(
@@ -63,7 +63,7 @@ class MockCoursesDistributor : CoursesDistributor {
       students[studentId] = Student(studentId)
     }
     if (!data.containsKey(studentId)) {
-      data[studentId] = mutableListOf()
+      data[studentId] = mutableSetOf()
     }
     data[studentId]!!.add(courseId)
   }
@@ -76,14 +76,14 @@ class MockCoursesDistributor : CoursesDistributor {
       .joinToString(separator = "\n") { "- $it" }
   }
 
-  override fun getCourses(studentId: String): List<Course> {
+  override fun getStudentCourses(studentId: String): List<Course> {
     if (!data.containsKey(studentId)) {
       return listOf()
     }
     return data[studentId]!!.map { courses[it]!! }
   }
 
-  override fun getTeacherCourses(teacherId: String): List<Course> {
-    return courses.values.filter { course -> course.teachers.map { it.id }.contains(teacherId) }
-  }
+  override fun getCourses(): List<Course> = courses.values.toList()
+
+  override fun getTeacherCourses(teacherId: String): List<Course> = courses.values.filter { course -> course.teachers.map { it.id }.contains(teacherId) }
 }

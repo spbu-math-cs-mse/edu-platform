@@ -21,7 +21,6 @@ data class ViewState(
 data class SignUpState(
   override val context: User,
 ) : BotState {
-  val chosenCourses = mutableListOf<String>()
 }
 
 data class SendSolutionState(

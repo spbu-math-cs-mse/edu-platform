@@ -19,13 +19,15 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 ) {
   strictlyOn<SignUpState> { state ->
     val studentId = userIdRegistry.getUserId(state.context.id)!!
-    val availableCourses = core.coursesDistributor.getAvailableCourses(studentId)
+    val courses = core.getCourses()
+    val availableCourses = core.getAvailableCourses(studentId).toMutableList()
+    val coursesToAvailability = courses.map { it to availableCourses.contains(it) }
 
     var initialMessage =
       bot.send(
         state.context,
         text = "Вот доступные курсы",
-        replyMarkup = buildCoursesSelector(availableCourses),
+        replyMarkup = buildCoursesSelector(coursesToAvailability),
       )
 
     while (true) {
@@ -35,9 +37,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
         callbackData.contains(ButtonKey.COURSE_ID) -> {
           val courseId = callbackData.split(" ").last()
 
-          val index = availableCourses.indexOfFirst { it.first.id == courseId }
+          val index = courses.indexOfFirst { it.id == courseId }
 
-          if (!availableCourses[index].second) {
+          if (availableCourses.contains(courses[index])) {
             deleteMessage(state.context.id, initialMessage.messageId)
 
             val lastMessage =
@@ -55,19 +57,17 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
               bot.send(
                 state.context.id,
                 text = initialMessage.text.toString(),
-                replyMarkup = buildCoursesSelector(availableCourses),
+                replyMarkup = buildCoursesSelector(coursesToAvailability),
               )
             continue
           }
 
-          state.chosenCourses.add(courseId)
-
-          availableCourses[index] = Pair(availableCourses[index].first, false)
+          availableCourses.add(courses[index])
 
           bot.editMessageReplyMarkup(
             state.context.id,
             initialMessage.messageId,
-            replyMarkup = buildCoursesSelector(availableCourses),
+            replyMarkup = buildCoursesSelector(coursesToAvailability),
           )
         }
 
@@ -77,7 +77,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
         }
 
         callbackData == ButtonKey.APPLY -> {
-          if (state.chosenCourses.isEmpty()) {
+          if (availableCourses.isEmpty()) {
             deleteMessage(state.context.id, initialMessage.messageId)
 
             val lastMessage =
@@ -92,7 +92,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 
             return@strictlyOn SignUpState(state.context)
           } else {
-            state.chosenCourses.forEach { core.coursesDistributor.addRecord(studentId, it) }
+            availableCourses.forEach { core.addRecord(studentId, it.id) }
 
             deleteMessage(state.context.id, initialMessage.messageId)
 

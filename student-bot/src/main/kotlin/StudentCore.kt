@@ -23,6 +23,14 @@ class StudentCore(
   }
 
   fun getAvailableCourses(studentId: String): List<Course> {
-    return coursesDistributor.getCourses(studentId)
+    return coursesDistributor.getStudentCourses(studentId)
+  }
+
+  fun addRecord(studentId: String,courseId: String) {
+    coursesDistributor.addRecord(studentId,courseId)
+  }
+
+  fun getCourses(): List<Course> {
+    return coursesDistributor.getCourses()
   }
 }

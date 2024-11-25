@@ -11,6 +11,4 @@ interface CoursesDistributor {
   fun getCourses(studentId: String): List<Course>
 
   fun getTeacherCourses(teacherId: String): List<Course>
-
-  fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>>
 }

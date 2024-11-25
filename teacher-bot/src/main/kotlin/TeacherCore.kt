@@ -12,6 +12,8 @@ class TeacherCore(
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
+  fun getQueryStats() = teacherStatistics.getGlobalStats()
+
   fun getAvailableCourses(teacherId: String): List<Course> {
     return coursesDistributor.getTeacherCourses(teacherId)
   }

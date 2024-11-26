@@ -10,7 +10,7 @@ interface SolutionDistributor {
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
-  ): Solution
+  )
 
   fun querySolution(teacherId: String): Solution?
 

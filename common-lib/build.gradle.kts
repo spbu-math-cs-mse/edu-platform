@@ -4,6 +4,7 @@ plugins {
 }
 
 val exposedVersion: String by project
+val postgresDriverVersion: String by project
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -16,6 +17,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-money:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
+    implementation("org.postgresql:postgresql:$postgresDriverVersion")
 }
 
 tasks.test {

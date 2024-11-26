@@ -1,7 +1,7 @@
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CoursesDistributor
-import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.CourseStudents
+import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.toIntIdHack
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert

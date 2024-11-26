@@ -14,7 +14,7 @@ class MockSolutionDistributor() : SolutionDistributor {
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
-  ): Solution {
+  ) {
     val solutionType =
       when (solutionContent.text) {
         SolutionType.PHOTOS.toString() -> SolutionType.PHOTOS
@@ -33,7 +33,6 @@ class MockSolutionDistributor() : SolutionDistributor {
         solutionType,
       )
     solutions.add(solution)
-    return solution
   }
 
   override fun querySolution(teacherId: String): Solution? {

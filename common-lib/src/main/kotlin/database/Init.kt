@@ -28,6 +28,8 @@ fun main(args: Array<String>) {
       SolutionTable,
       StudentTable,
       TeacherTable,
+      AdminTable,
+      ParentTable,
     )
     create(
       AssessmentTable,
@@ -38,6 +40,8 @@ fun main(args: Array<String>) {
       SolutionTable,
       StudentTable,
       TeacherTable,
+      AdminTable,
+      ParentTable,
     )
   }
 }

@@ -9,12 +9,17 @@ import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: AdminCore) {
   strictlyOn<AddTeacherState> { state ->
+    send(
+      state.context,
+    ) {
+      +"Введите ID преподавателя, которого хотите добавить на курс ${state.courseName}"
+    }
     val message = waitTextMessage().first()
     val id = message.content.text
     when {
       id == "/stop" -> StartState(state.context)
 
-      !core.teachersTable.containsKey(id) -> {
+      !core.teacherExists(id) -> {
         send(
           state.context,
           "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",

@@ -9,12 +9,17 @@ import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveStudentState(core: AdminCore) {
   strictlyOn<RemoveStudentState> { state ->
+    send(
+      state.context,
+    ) {
+      +"Введите ID ученика, которого хотите убрать с курса ${state.courseName}"
+    }
     val message = waitTextMessage().first()
     val id = message.content.text
     when {
       id == "/stop" -> StartState(state.context)
 
-      !core.studentsTable.containsKey(id) -> {
+      !core.studentExists(id) -> {
         send(
           state.context,
           "Ученика с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",

@@ -16,7 +16,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: A
       answer == "/stop" ->
         StartState(state.context)
 
-      core.coursesTable.containsKey(answer) -> {
+      core.courseExists(answer) -> {
         send(
           state.context,
         ) {
@@ -26,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: A
       }
 
       else -> {
-        core.coursesTable[answer] = Course("", mutableListOf(), mutableListOf(), "", core)
+        core.addCourse(answer, Course("", mutableListOf(), mutableListOf(), "", core))
 
         send(
           state.context,

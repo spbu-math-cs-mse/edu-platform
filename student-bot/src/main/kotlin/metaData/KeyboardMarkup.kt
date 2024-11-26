@@ -41,6 +41,7 @@ fun buildSendSolutionSelector() =
       row { dataButton("Назад", ButtonKey.BACK) }
     },
   )
+
 fun back() =
   InlineKeyboardMarkup(
     keyboard =

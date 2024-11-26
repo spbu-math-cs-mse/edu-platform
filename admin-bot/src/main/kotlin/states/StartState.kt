@@ -15,7 +15,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: AdminCor
       return@strictlyOn null
     }
     val username = state.context.username!!.username
-    if (core.adminsTable.contains(Username(username))) {
+    if (core.isAdmin(Username(username))) {
       bot.send(
         state.context,
         "Главное меню:",

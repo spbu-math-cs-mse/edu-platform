@@ -3,7 +3,6 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.commonlib.Course
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
-import java.time.LocalDate
 
 sealed interface BotState : State
 
@@ -20,10 +19,6 @@ data class MenuState(
 ) : BotState
 
 data class CreateCourseState(
-  override val context: User,
-) : BotState
-
-data class PickACourseState(
   override val context: User,
 ) : BotState
 
@@ -67,26 +62,4 @@ data class AddScheduledMessageState(
   override val context: User,
   val course: Course,
   val courseName: String,
-) : BotState
-
-data class ScheduleMessageSelectDateState(
-  override val context: User,
-  val course: Course,
-  val courseName: String,
-  val text: String,
-) : BotState
-
-data class ScheduleMessageEnterDateState(
-  override val context: User,
-  val course: Course,
-  val courseName: String,
-  val text: String,
-) : BotState
-
-data class ScheduleMessageEnterTimeState(
-  override val context: User,
-  val course: Course,
-  val courseName: String,
-  val text: String,
-  val date: LocalDate,
 ) : BotState

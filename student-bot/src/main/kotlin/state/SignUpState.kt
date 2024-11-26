@@ -34,8 +34,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
         replyMarkup = buildCoursesSelector(coursesToAvailability),
       )
 
-
-    val signingUpState = SigningUpState(state,courses,studentCourses, coursesToAvailability, core, studentId)
+    val signingUpState = SigningUpState(state, courses, studentCourses, coursesToAvailability, core, studentId)
     signingUpState.run {
       signUp(initialMessage)
     }
@@ -116,7 +115,7 @@ class SigningUpState(
 
     studentCourses.add(courses[index])
     coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }] = courses[index] to true
-    core.addRecord(studentId,courseId)
+    core.addRecord(studentId, courseId)
 
     bot.editMessageReplyMarkup(
       state.context.id,

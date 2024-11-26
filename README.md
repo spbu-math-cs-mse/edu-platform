@@ -7,3 +7,31 @@
 - Если несколько преподавателей на одну группу учеников, не нужно чёткого разделения учеников между преподавателями — решение ученика проверяет не закреплённый за ним заранее преподаватель, а первый, который запросит решение на проверку. Так ученикам быстрее приходит фидбэк.
 
 - Преподаватель может запрашивать решение, проверять его, отправлять фидбэк ученику и проставлять ему баллы в одном и том же чате с ботом. (Баллы автоматически проставляются ботом в гугл-таблицу). Всё это должно быть удобно делать, в том числе с телефона. Это упростит процесс проверки решений преподавателями и ускорит получение фидбэка учениками.
+
+Схема базы данных:
+```
+Teacher(tgId)
+Student(tgId)
+Course(description: varchar)
+Assignment(description: varchar, courseId)
+Problem(description: varchar, maxScore: integer, assignmentId)
+Solution(
+    studentId, 
+    problemId, 
+    chatId: integer, 
+    messageId: integer, 
+    content: varchar, 
+    timestamp: datetime
+)
+Assessment(
+    solutionId,
+    teacherId,
+    grade: integer,
+    timestamp: datetime
+)
+
+CourseStudent(courseId, studentId)
+CourseTeacher(courseId, teacherId)
+
+
+```

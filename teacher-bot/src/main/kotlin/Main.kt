@@ -54,6 +54,15 @@ suspend fun main(vararg args: String) {
     val mockCoursesDistributor = MockCoursesDistributor()
     val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
     val core = TeacherCore(MockTeacherStatistics(), mockCoursesDistributor, MockSolutionDistributor())
+    run {
+      // fill with mock data
+      val firstCourse = core.getAvailableCourses(mockCoursesDistributor.singleUserId).first()
+      val firstAssignment = firstCourse.assignments.first()
+      (firstCourse.gradeTable as MockGradeTable).addMockFilling(
+        firstAssignment,
+        mockCoursesDistributor.singleUserId,
+      )
+    }
 
     strictlyOnStartState(userIdRegistry)
     strictlyOnMenuState(userIdRegistry, core)

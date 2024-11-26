@@ -21,7 +21,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
     val studentId = userIdRegistry.getUserId(state.context.id)!!
     val courses = core.getCourses()
     val availableCourses = core.getAvailableCourses(studentId).toMutableList()
-    val coursesToAvailability = courses.map { it to availableCourses.contains(it) }
+    val coursesToAvailability = courses.map { it to availableCourses.contains(it) }.toMutableList()
 
     var initialMessage =
       bot.send(
@@ -63,6 +63,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
           }
 
           availableCourses.add(courses[index])
+          coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }]=courses[index] to true
 
           bot.editMessageReplyMarkup(
             state.context.id,

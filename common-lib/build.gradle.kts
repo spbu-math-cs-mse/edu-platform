@@ -18,6 +18,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-money:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
     implementation("org.postgresql:postgresql:$postgresDriverVersion")
+    implementation("com.h2database:h2:2.2.224")
 }
 
 tasks.test {

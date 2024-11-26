@@ -1,9 +1,9 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.mock.MockGradeTable
 import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 

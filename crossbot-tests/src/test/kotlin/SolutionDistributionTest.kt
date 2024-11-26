@@ -1,5 +1,9 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.mock.MockCoursesDistributor
+import com.github.heheteam.commonlib.mock.MockGradeTable
+import com.github.heheteam.commonlib.mock.MockSolutionDistributor
+import com.github.heheteam.commonlib.mock.MockUserIdRegistry
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore

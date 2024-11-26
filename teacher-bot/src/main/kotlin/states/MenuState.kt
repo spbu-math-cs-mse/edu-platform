@@ -1,6 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.UserIdRegistry
+import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore

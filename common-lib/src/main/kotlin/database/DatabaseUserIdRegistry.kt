@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.UserIdRegistry
+import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.heheteam.commonlib.database.tables.TeacherTable
 import dev.inmo.tgbotapi.types.UserId

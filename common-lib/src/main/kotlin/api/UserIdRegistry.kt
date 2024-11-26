@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.api
 
 import dev.inmo.tgbotapi.types.UserId
 

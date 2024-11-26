@@ -1,5 +1,8 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.mock
 
+import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId

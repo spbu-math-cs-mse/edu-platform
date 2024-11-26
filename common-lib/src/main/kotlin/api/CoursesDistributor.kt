@@ -1,12 +1,12 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.api
+
+import com.github.heheteam.commonlib.Course
 
 interface CoursesDistributor {
   fun addRecord(
     studentId: String,
     courseId: String,
   )
-
-  fun getCoursesBulletList(studentId: String): String
 
   fun getStudentCourses(studentId: String): List<Course>
 

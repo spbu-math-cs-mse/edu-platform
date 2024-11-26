@@ -1,7 +1,9 @@
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
-import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.CourseStudents
+import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.ProblemTable
 import com.github.heheteam.commonlib.database.toIntIdHack
 import org.jetbrains.exposed.dao.id.EntityID
@@ -10,7 +12,10 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
+class DatabaseCoursesDistributor(
+  val database: Database,
+  val gradeTable: GradeTable,
+) : CoursesDistributor {
   override fun addRecord(studentId: String, courseId: String) {
     transaction(database) {
       CourseStudents.insert {
@@ -20,11 +25,15 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
     }
   }
 
-  override fun getCoursesBulletList(studentId: String): String {
-    return getCourses(studentId).joinToString("\n") { course: Course -> "-" + course.description }
+  override fun getCourses(): List<Course> {
+    TODO("Not yet implemented")
   }
 
-  override fun getCourses(studentId: String): List<Course> {
+  override fun getTeacherCourses(teacherId: String): List<Course> {
+    TODO("Not yet implemented")
+  }
+
+  override fun getStudentCourses(studentId: String): List<Course> {
     val courses = transaction {
       val courseIds = CourseStudents.selectAll()
         .where { CourseStudents.studentId eq studentId.toIntIdHack() }
@@ -47,8 +56,8 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           mutableListOf(),
           mutableListOf(),
           courseDescription,
-          MockGradeTable(),
-          assignments.toMutableList()
+          gradeTable,
+          assignments.toMutableList(),
         )
       }
       courses
@@ -59,7 +68,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   private fun queryAssignment(
     assignmentId: EntityID<Int>,
     assignmentDescription: String,
-    courseId: EntityID<Int>
+    courseId: EntityID<Int>,
   ): Assignment {
     val problems = ProblemTable.selectAll()
       .where { ProblemTable.assignment eq assignmentId }
@@ -69,18 +78,14 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           it[ProblemTable.id].toString(),
           it[ProblemTable.description],
           it[ProblemTable.maxScore],
-          assignmentId.toString()
+          assignmentId.toString(),
         )
       }
     return Assignment(
       assignmentId.toString(),
       assignmentDescription,
       problems.toMutableList(),
-      courseId.toString()
+      courseId.toString(),
     )
-  }
-
-  override fun getAvailableCourses(studentId: String): List<Pair<Course, Boolean>> {
-    TODO("Not yet implemented")
   }
 }

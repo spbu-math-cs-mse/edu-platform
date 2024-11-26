@@ -1,8 +1,8 @@
-import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.mock.MockSolutionDistributor
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId

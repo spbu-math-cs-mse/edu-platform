@@ -1,10 +1,10 @@
-import com.github.heheteam.commonlib.MockCoursesDistributor
-import com.github.heheteam.commonlib.MockGradeTable
-import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.mock.MockCoursesDistributor
+import com.github.heheteam.commonlib.mock.MockGradeTable
+import com.github.heheteam.commonlib.mock.MockSolutionDistributor
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId

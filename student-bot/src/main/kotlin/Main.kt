@@ -1,9 +1,9 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.MockCoursesDistributor
-import com.github.heheteam.commonlib.MockGradeTable
-import com.github.heheteam.commonlib.MockSolutionDistributor
-import com.github.heheteam.commonlib.MockUserIdRegistry
+import com.github.heheteam.commonlib.mock.MockCoursesDistributor
+import com.github.heheteam.commonlib.mock.MockGradeTable
+import com.github.heheteam.commonlib.mock.MockSolutionDistributor
+import com.github.heheteam.commonlib.mock.MockUserIdRegistry
 import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel

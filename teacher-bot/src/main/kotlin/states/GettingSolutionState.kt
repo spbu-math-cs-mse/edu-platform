@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.UserIdRegistry
+import com.github.heheteam.commonlib.api.UserIdRegistry
+import com.github.heheteam.commonlib.mock.MockGradeTable
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards

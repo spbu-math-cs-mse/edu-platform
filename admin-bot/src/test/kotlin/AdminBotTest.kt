@@ -2,8 +2,6 @@ import com.github.heheteam.adminbot.*
 import com.github.heheteam.adminbot.mockCoursesTable
 import com.github.heheteam.adminbot.mockStudentsTable
 import com.github.heheteam.commonlib.*
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,27 +27,6 @@ class AdminBotTest {
       "",
       core,
     )
-
-  @Test
-  fun gradeTableTest() {
-    val problem = Problem("1", "1", "", 10, "1")
-    val solution =
-      Solution(
-        "1",
-        "1",
-        RawChatId(0),
-        MessageId(0),
-        problem,
-        SolutionContent(),
-        SolutionType.TEXT,
-      )
-    val grade = 10
-    val assessment = SolutionAssessment(grade, "")
-
-    assertEquals(mapOf(), core.getGradeMap())
-    core.addAssessment(student, teacher, solution, assessment)
-    assertEquals(mapOf(student to mapOf(problem to grade)), core.getGradeMap())
-  }
 
   @Test
   fun scheduledMessagesDistributorTest() {

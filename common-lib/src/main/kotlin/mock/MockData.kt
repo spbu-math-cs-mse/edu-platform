@@ -1,4 +1,9 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.mock
+
+import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Student
 
 val mockCoursesTable =
   mutableMapOf(
@@ -22,7 +27,15 @@ val mockCoursesTable =
         "1",
         description = "Теория вероятности",
         gradeTable = MockGradeTable(),
-        assignments = mutableListOf(Assignment("1", "Серия 1", mutableListOf(Problem("2", "1", "", 10, "1")), "1")),
+        assignments = mutableListOf(
+          Assignment(
+            "1", "Серия 1",
+            mutableListOf(
+              Problem("2", "1", "", 10, "1"),
+            ),
+            "1",
+          ),
+        ),
       ),
     "2" to
       Course(
@@ -74,9 +87,6 @@ val mockStudentsAndCourses =
     "0" to mutableListOf("1", "2"),
     "1" to mutableListOf("0", "3"),
   )
-
-var mockIncrementalSolutionId = 0
-var wasMockGradeTableForTeacherBuilt = false
 
 // Teacher.id -> Set<(Course.id, boolean)>
 val MockDoesTeacherHaveAccessToCourse: MutableMap<String, MutableSet<Pair<String, Boolean>>> = mutableMapOf()

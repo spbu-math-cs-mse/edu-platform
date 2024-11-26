@@ -1,6 +1,7 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.GradeTable
 import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 
@@ -15,8 +16,8 @@ class AdminCore(
   override fun addAssessment(student: Student, teacher: Teacher, solution: Solution, assessment: SolutionAssessment) =
     gradeTable.addAssessment(student, teacher, solution, assessment)
 
-  override fun getGradeMap(): Map<Student, Map<Problem, Grade>> =
-    gradeTable.getGradeMap()
+  override fun getStudentPerformance(studentId: String): Map<Problem, Grade> =
+    gradeTable.getStudentPerformance(studentId)
 
   override fun addMessage(message: ScheduledMessage) =
     scheduledMessagesDistributor.addMessage(message)

@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.MockCoursesDistributor
-import com.github.heheteam.commonlib.MockSolutionDistributor
-import com.github.heheteam.commonlib.MockUserIdRegistry
+import com.github.heheteam.commonlib.mock.MockCoursesDistributor
+import com.github.heheteam.commonlib.mock.MockSolutionDistributor
+import com.github.heheteam.commonlib.mock.MockUserIdRegistry
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.*

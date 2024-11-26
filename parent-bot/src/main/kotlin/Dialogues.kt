@@ -1,5 +1,5 @@
-import com.github.heheteam.commonlib.GradeTable
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.api.GradeTable
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {
@@ -47,10 +47,8 @@ object Dialogues {
   ) = "Успеваемость ребенка $child:\n\n" +
     (
       gradeTable
-        .getGradeMap()
-        .firstNotNullOfOrNull { if (it.key.id == child.id) it.value else null }
-        ?.map { "Задача ${it.key.id} решена на ${it.value} баллов" }
-        ?.joinToString("\n")
-        ?: "Пока нет решенных задач"
+        .getStudentPerformance(child.id)
+        .map { "Задача ${it.key.id} решена на ${it.value} баллов" }
+        .joinToString("\n")
       )
 }

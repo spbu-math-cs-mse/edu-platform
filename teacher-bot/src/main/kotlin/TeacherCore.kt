@@ -1,6 +1,9 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatsData
 
@@ -9,7 +12,8 @@ class TeacherCore(
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
 ) {
-  fun getTeacherStats(teacherId: String): TeacherStatsData? = teacherStatistics.getTeacherStats(teacherId)
+  fun getTeacherStats(teacherId: String): TeacherStatsData? =
+    teacherStatistics.getTeacherStats(teacherId)
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
@@ -30,15 +34,22 @@ class TeacherCore(
     gradeTable: GradeTable,
     timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
   ) {
-    solutionDistributor.assessSolution(solution, teacherId, assessment, gradeTable, timestamp, teacherStatistics)
+    solutionDistributor.assessSolution(
+      solution,
+      teacherId,
+      assessment,
+      gradeTable,
+      timestamp,
+      teacherStatistics,
+    )
   }
 
   fun getGrading(course: Course): List<Pair<Student, Grade?>> {
-    return course.gradeTable.getGradeMap().map { (student, solvedProblems) ->
-      student to solvedProblems.filter { (problem: Problem, _: Grade) ->
-        course.assignments.map { it.id }.contains(problem.assignmentId)
-      }.map { (_: Problem, grade: Grade) -> grade }.sum()
+    val students = course.students
+    val grades = students.map { student ->
+      student to course.gradeTable.getStudentPerformance(student.id).values.sum()
     }
+    return grades
   }
 
   fun getMaxGrade(course: Course): Grade {

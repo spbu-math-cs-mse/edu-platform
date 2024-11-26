@@ -1,4 +1,7 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.mock
+
+import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.CoursesDistributor
 
 const val PROBLEMS_PER_COURSE = 4
 
@@ -66,14 +69,6 @@ class MockCoursesDistributor : CoursesDistributor {
       data[studentId] = mutableSetOf()
     }
     data[studentId]!!.add(courseId)
-  }
-
-  override fun getCoursesBulletList(studentId: String): String {
-    if (!data.containsKey(studentId)) {
-      return "Вы не записаны ни на один курс!"
-    }
-    return data[studentId]!!.map { courses[it]!!.description }
-      .joinToString(separator = "\n") { "- $it" }
   }
 
   override fun getStudentCourses(studentId: String): List<Course> {

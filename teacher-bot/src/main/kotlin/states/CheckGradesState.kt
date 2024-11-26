@@ -1,6 +1,7 @@
 package com.github.heheteam.teacherbot.state
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.teacherbot.*
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.states.BotState

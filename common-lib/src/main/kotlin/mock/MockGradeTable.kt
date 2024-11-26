@@ -1,5 +1,7 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.mock
 
+import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.GradeTable
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -10,6 +12,7 @@ class MockGradeTable : GradeTable {
     val third: C,
     val fourth: D,
   )
+  var mockIncrementalSolutionId = 0
 
   private val data: MutableList<Quadruple<Student, Teacher, Solution, SolutionAssessment>> =
     mutableListOf()
@@ -23,8 +26,11 @@ class MockGradeTable : GradeTable {
     data.add(Quadruple(student, teacher, solution, assessment))
   }
 
-  override fun getGradeMap(): Map<Student, Map<Problem, Grade>> {
-    val result = mutableMapOf<Student, MutableMap<Problem, Grade>>()
+  override fun getStudentPerformance(studentId: String): Map<Problem, Grade> =
+    getGradeMap()[studentId] ?: mapOf()
+
+  fun getGradeMap(): Map<String, Map<Problem, Grade>> {
+    val result = mutableMapOf<String, MutableMap<Problem, Grade>>()
     for (quadruple in data) {
       val student = quadruple.first
       val solution = quadruple.third
@@ -33,7 +39,7 @@ class MockGradeTable : GradeTable {
       val problem = solution.problem
       val grade = solutionAssessment.grade
 
-      val studentGrades = result.getOrPut(student) { mutableMapOf() }
+      val studentGrades = result.getOrPut(student.id) { mutableMapOf() }
       studentGrades[problem] = grade
     }
     return result

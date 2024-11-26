@@ -3,7 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.UserIdRegistry
+import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey

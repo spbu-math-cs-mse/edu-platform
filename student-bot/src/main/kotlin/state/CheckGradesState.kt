@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back

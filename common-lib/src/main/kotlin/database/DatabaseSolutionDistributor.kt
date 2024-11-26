@@ -1,8 +1,11 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
+import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
@@ -51,7 +54,7 @@ class DatabaseSolutionDistributor(
       solution[SolutionTable.studentId].value.toString(),
       RawChatId(solution[SolutionTable.chatId].absoluteValue),
       MessageId(solution[SolutionTable.messageId]),
-      Problem(solution[SolutionTable.problemId].value.toString(), "", "", 1, ""), // TODO: Remove problem from signature
+      Problem(solution[SolutionTable.problemId].value.toString(), "", "", 1, ""),
       SolutionContent(listOf(), solution[SolutionTable.content]),
       SolutionType.TEXT,
     )
@@ -62,7 +65,8 @@ class DatabaseSolutionDistributor(
     teacherId: String,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: LocalDateTime, // TODO: It might be useless
+    timestamp: LocalDateTime,
+    teacherStatistics: TeacherStatistics,
   ) {
     transaction(database) {
       AssessmentTable.insert {

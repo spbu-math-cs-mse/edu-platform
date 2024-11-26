@@ -2,6 +2,7 @@
 
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.api.GradeTable
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 

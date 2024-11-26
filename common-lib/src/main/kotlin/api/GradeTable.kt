@@ -1,4 +1,6 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.api
+
+import com.github.heheteam.commonlib.*
 
 // bound to a course
 interface GradeTable {
@@ -8,6 +10,5 @@ interface GradeTable {
     solution: Solution,
     assessment: SolutionAssessment,
   )
-
-  fun getGradeMap(): Map<Student, Map<Problem, Grade>>
+  fun getStudentPerformance(studentId: String): Map<Problem, Grade>
 }

@@ -1,14 +1,11 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import kotlin.collections.mutableListOf
 
-class MockSolutionDistributor(
-  private val teacherStatistics: TeacherStatistics = MockTeacherStatistics(),
-) : SolutionDistributor {
+class MockSolutionDistributor() : SolutionDistributor {
   private val solutions = mutableListOf<Solution>()
   private var solutionId = 1
 
@@ -52,6 +49,7 @@ class MockSolutionDistributor(
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     timestamp: java.time.LocalDateTime,
+    teacherStatistics: TeacherStatistics,
   ) {
     solutions.removeIf { it == solution }
     teacherStatistics.recordAssessment(teacherId, solution, timestamp)

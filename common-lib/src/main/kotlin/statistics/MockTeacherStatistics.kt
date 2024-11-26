@@ -39,7 +39,7 @@ class MockTeacherStatistics : TeacherStatistics {
         )
 
     val averageCheckTime = assessments.sumOf {
-      ChronoUnit.SECONDS.between(it.solutionSent, it.solutionReviewed).toDouble() / assessments.size
+      ChronoUnit.HOURS.between(it.solutionSent, it.solutionReviewed).toDouble() / assessments.size
     }
 
     return TeacherStatsData(
@@ -67,5 +67,9 @@ class MockTeacherStatistics : TeacherStatistics {
   override fun getAllTeachersStats(): Map<String, TeacherStatsData> {
     return teacherStats.keys.associateWith { getTeacherStats(it) }
       .filterValues { it != null } as Map<String, TeacherStatsData>
+  }
+
+  fun addMockFilling(teacherId: String) {
+    teacherStats.getOrPut(teacherId) { mutableListOf() }.add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
   }
 }

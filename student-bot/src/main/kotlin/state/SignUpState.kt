@@ -63,7 +63,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
           }
 
           availableCourses.add(courses[index])
-          coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }]=courses[index] to true
+          coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }] = courses[index] to true
 
           bot.editMessageReplyMarkup(
             state.context.id,

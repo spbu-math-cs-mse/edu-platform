@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -19,5 +20,6 @@ interface SolutionDistributor {
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+    teacherStatistics: TeacherStatistics,
   )
 }

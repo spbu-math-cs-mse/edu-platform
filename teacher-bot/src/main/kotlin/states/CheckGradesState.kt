@@ -6,24 +6,20 @@ import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.states.BotState
 import com.github.heheteam.teacherbot.states.CheckGradesState
 import com.github.heheteam.teacherbot.states.MenuState
-import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
-import kotlin.random.Random
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
   userIdRegistry: UserIdRegistry,
-  core: TeacherCore
+  core: TeacherCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
@@ -65,20 +61,20 @@ private suspend fun BehaviourContext.queryCourseFromUser(
       state.context,
       text = "Выберите курс",
       replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-            matrix {
-              courses.forEach {
-                row {
-                  dataButton(
-                    it.description,
-                    "courseId ${it.id}",
-                  )
-                }
-              }
-              row { dataButton("Назад", returnBack) }
-            },
-        ),
+      InlineKeyboardMarkup(
+        keyboard =
+        matrix {
+          courses.forEach {
+            row {
+              dataButton(
+                it.description,
+                "courseId ${it.id}",
+              )
+            }
+          }
+          row { dataButton("Назад", returnBack) }
+        },
+      ),
     )
 
   val callback = waitDataCallbackQuery().first()

@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.MockCoursesDistributor
-import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.MockUserIdRegistry
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
@@ -53,21 +52,17 @@ suspend fun main(vararg args: String) {
     }
     val mockCoursesDistributor = MockCoursesDistributor()
     val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
-    val core = TeacherCore(MockTeacherStatistics(), mockCoursesDistributor, MockSolutionDistributor())
+    val mockTeacherStatistics = MockTeacherStatistics()
     run {
       // fill with mock data
-      val firstCourse = core.getAvailableCourses(mockCoursesDistributor.singleUserId).first()
-      val firstAssignment = firstCourse.assignments.first()
-      (firstCourse.gradeTable as MockGradeTable).addMockFilling(
-        firstAssignment,
-        mockCoursesDistributor.singleUserId,
-      )
+      mockTeacherStatistics.addMockFilling(mockCoursesDistributor.singleUserId)
     }
+    val core = TeacherCore(mockTeacherStatistics, mockCoursesDistributor, MockSolutionDistributor())
 
     strictlyOnStartState(userIdRegistry)
     strictlyOnMenuState(userIdRegistry, core)
-    strictlyOnGettingSolutionState(userIdRegistry,core)
-    strictlyOnCheckGradesState(userIdRegistry,core)
+    strictlyOnGettingSolutionState(userIdRegistry, core)
+    strictlyOnCheckGradesState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

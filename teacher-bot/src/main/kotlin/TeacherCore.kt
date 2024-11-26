@@ -30,7 +30,7 @@ class TeacherCore(
     gradeTable: GradeTable,
     timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
   ) {
-    solutionDistributor.assessSolution(solution,teacherId,assessment, gradeTable, timestamp)
+    solutionDistributor.assessSolution(solution, teacherId, assessment, gradeTable, timestamp, teacherStatistics)
   }
 
   fun getGrading(course: Course): List<Pair<Student, Grade?>> {

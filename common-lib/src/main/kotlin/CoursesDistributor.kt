@@ -10,7 +10,7 @@ interface CoursesDistributor {
 
   fun getStudentCourses(studentId: String): List<Course>
 
-  fun getCourses() : List<Course>
+  fun getCourses(): List<Course>
 
   fun getTeacherCourses(teacherId: String): List<Course>
 }

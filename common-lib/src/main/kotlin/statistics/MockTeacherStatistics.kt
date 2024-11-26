@@ -39,7 +39,7 @@ class MockTeacherStatistics : TeacherStatistics {
         )
 
     val averageCheckTime = assessments.sumOf {
-      ChronoUnit.HOURS.between(it.solutionSent, it.solutionReviewed).toDouble() / assessments.size
+      ChronoUnit.SECONDS.between(it.solutionSent, it.solutionReviewed).toDouble() / assessments.size
     }
 
     return TeacherStatsData(
@@ -59,7 +59,7 @@ class MockTeacherStatistics : TeacherStatistics {
       ?.average() ?: 0.0
 
     return GlobalTeacherStats(
-      averageCheckTimeHours = avgCheckTime,
+      averageCheckTimeHours = avgCheckTime / 3600.0,
       totalUncheckedSolutions = uncheckedSolutions,
     )
   }

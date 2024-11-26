@@ -115,7 +115,6 @@ class SigningUpState(
 
     studentCourses.add(courses[index])
     coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }] = courses[index] to true
-    core.addRecord(studentId, courseId)
 
     bot.editMessageReplyMarkup(
       state.context.id,
@@ -153,7 +152,7 @@ class SigningUpState(
       }
 
       else -> {
-        studentCourses.forEach { courseId -> core.addRecord(studentId, courseId) }
+        studentCourses.forEach { core.addRecord(studentId, it.id) }
 
         deleteMessage(message)
 

@@ -16,8 +16,8 @@ class DatabaseGradeTable(
     assessment: SolutionAssessment,
   ) {
     AssessmentTable.insert {
-      it[AssessmentTable.solutionId] = solution.id.toIntIdHack()
-      it[AssessmentTable.teacherId] = teacher.id.toIntIdHack()
+      it[AssessmentTable.solutionId] = solution.id.toLongIdHack()
+      it[AssessmentTable.teacherId] = teacher.id.toLongIdHack()
       it[AssessmentTable.grade] = assessment.grade
     }
   }

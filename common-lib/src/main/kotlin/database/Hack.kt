@@ -1,3 +1,3 @@
 package com.github.heheteam.commonlib.database
 
-fun String.toIntIdHack() = this.hashCode()
+fun String.toLongIdHack(): Long = this.hashCode().toLong()

@@ -1,10 +1,10 @@
 package com.github.heheteam.commonlib.database.tables
 
-import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object SolutionTable : IntIdTable("solution") {
+object SolutionTable : LongIdTable("solution") {
   val studentId = reference("studentId", StudentTable.id)
   val problemId = reference("problemId", ProblemTable.id)
   val chatId = long("chatId")

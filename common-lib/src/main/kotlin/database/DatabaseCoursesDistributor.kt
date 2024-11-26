@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import com.github.heheteam.commonlib.database.tables.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.ProblemTable
-import com.github.heheteam.commonlib.database.toIntIdHack
+import com.github.heheteam.commonlib.database.toLongIdHack
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
@@ -19,8 +19,8 @@ class DatabaseCoursesDistributor(
   override fun addRecord(studentId: String, courseId: String) {
     transaction(database) {
       CourseStudents.insert {
-        it[CourseStudents.studentId] = studentId.toIntIdHack()
-        it[CourseStudents.courseId] = courseId.toIntIdHack()
+        it[CourseStudents.studentId] = studentId.toLongIdHack()
+        it[CourseStudents.courseId] = courseId.toLongIdHack()
       }
     }
   }
@@ -36,7 +36,7 @@ class DatabaseCoursesDistributor(
   override fun getStudentCourses(studentId: String): List<Course> {
     val courses = transaction {
       val courseIds = CourseStudents.selectAll()
-        .where { CourseStudents.studentId eq studentId.toIntIdHack() }
+        .where { CourseStudents.studentId eq studentId.toLongIdHack() }
         .map { it[CourseStudents.courseId] }
       val courses = courseIds.map { courseId ->
         val courseRow =
@@ -66,9 +66,9 @@ class DatabaseCoursesDistributor(
   }
 
   private fun queryAssignment(
-    assignmentId: EntityID<Int>,
+    assignmentId: EntityID<Long>,
     assignmentDescription: String,
-    courseId: EntityID<Int>,
+    courseId: EntityID<Long>,
   ): Assignment {
     val problems = ProblemTable.selectAll()
       .where { ProblemTable.assignment eq assignmentId }

@@ -28,7 +28,7 @@ class DatabaseSolutionDistributor(
     val solutionId =
       transaction(database) {
         SolutionTable.insert {
-          it[SolutionTable.studentId] = studentId.toIntIdHack()
+          it[SolutionTable.studentId] = studentId.toLongIdHack()
           it[SolutionTable.chatId] = chatId.toChatId().chatId.long
           it[SolutionTable.messageId] = messageId.long
           it[SolutionTable.problemId] = 0 // TODO: Add this to the method arguments
@@ -70,8 +70,8 @@ class DatabaseSolutionDistributor(
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solution.id.toIntIdHack()
-        it[AssessmentTable.teacherId] = teacherId.toIntIdHack()
+        it[AssessmentTable.solutionId] = solution.id.toLongIdHack()
+        it[AssessmentTable.teacherId] = teacherId.toLongIdHack()
         it[AssessmentTable.grade] = assessment.grade
       }
     }

@@ -1,6 +1,6 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.MockGradeTable
+import com.github.heheteam.commonlib.MockCoursesDistributor
 import com.github.heheteam.commonlib.MockSolutionDistributor
 import com.github.heheteam.commonlib.MockUserIdRegistry
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
@@ -25,8 +25,6 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
-  mockTgUsername = args[1]
-  val core = TeacherCore(MockSolutionDistributor(), MockUserIdRegistry("0"), MockTeacherStatistics(), MockGradeTable())
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -52,12 +50,19 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
+    val mockCoursesDistributor = MockCoursesDistributor()
+    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
+    val mockTeacherStatistics = MockTeacherStatistics()
+    run {
+      // fill with mock data
+      mockTeacherStatistics.addMockFilling(mockCoursesDistributor.singleUserId)
+    }
+    val core = TeacherCore(mockTeacherStatistics, mockCoursesDistributor, MockSolutionDistributor())
 
-    strictlyOnStartState(core)
-    strictlyOnMenuState(core)
-    strictlyOnGettingSolutionState(core)
-    strictlyOnGettingSolutionState(core)
-    strictlyOnCheckGradesState(core)
+    strictlyOnStartState(userIdRegistry)
+    strictlyOnMenuState(userIdRegistry, core)
+    strictlyOnGettingSolutionState(userIdRegistry, core)
+    strictlyOnCheckGradesState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

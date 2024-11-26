@@ -3,6 +3,7 @@ package com.github.heheteam.teacherbot.states
 import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.UserIdRegistry
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
@@ -29,17 +30,10 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core: TeacherCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(userIdRegistry: UserIdRegistry, core: TeacherCore) {
   strictlyOn<GettingSolutionState> { state ->
-    if (state.context.username == null) {
-      return@strictlyOn null
-    }
-    val userId = core.getUserId(state.context.id)
-    if (userId == null) {
-      return@strictlyOn StartState(state.context)
-    }
-
-    val solution = core.querySolution(userId)
+    val userId = userIdRegistry.getUserId(state.context.id)!!
+    val solution = core.querySolution(userIdRegistry.getUserId(state.context.id)!!)
     if (solution == null) {
       bot.send(
         state.context,
@@ -125,7 +119,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core
 
               core.assessSolution(
                 solution,
-                core.getUserId(state.context.id)!!,
+                userId,
                 SolutionAssessment(5, ""),
                 MockGradeTable(),
               )
@@ -143,7 +137,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core
 
               core.assessSolution(
                 solution,
-                core.getUserId(state.context.id)!!,
+                userId,
                 SolutionAssessment(2, ""),
                 MockGradeTable(),
               )

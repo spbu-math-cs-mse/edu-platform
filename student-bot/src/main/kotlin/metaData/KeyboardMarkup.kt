@@ -12,7 +12,7 @@ fun buildCoursesSelector(availableCourses: List<Pair<Course, Boolean>>) =
     keyboard =
     matrix {
       availableCourses.forEach { (course, status) ->
-        val description = if (status) course.description else "${course.description} \u2705"
+        val description = if (status) "${course.description} ✅" else course.description
         row { dataButton(description, "${ButtonKey.COURSE_ID} ${course.id}") }
       }
       row { dataButton("Записаться", ButtonKey.APPLY) }

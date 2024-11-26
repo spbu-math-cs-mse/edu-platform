@@ -5,10 +5,12 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.junit.jupiter.api.BeforeEach
+import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -43,7 +45,7 @@ class StudentBotTest {
     // check first input correctness
     val availableCourses = studentCore.getStudentCourses(userId)
     assert(availableCourses.any { it.id == "0" })
-    val course = mockCoursesDistributor.getCourses("0").first()
+    val course = mockCoursesDistributor.getStudentCourses("0").first()
     val assignment = course.assignments.first()
     val grading =
       studentCore.getGradingForAssignment(
@@ -58,10 +60,6 @@ class StudentBotTest {
   @Test
   fun `new student courses assignment test`() {
     val studentId = "rA9"
-
-    val availableCourses = studentCore.getAvailableCourses(studentId)
-    assertEquals(4, availableCourses.size)
-    assertEquals((1..4).map { true }.toList(), availableCourses.map { it.second }.toList())
 
     val studentCourses = studentCore.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.toInt() })
@@ -115,6 +113,8 @@ class StudentBotTest {
             teacherId,
             SolutionAssessment(5, "comment"),
             gradeTable,
+            LocalDateTime.now(),
+            MockTeacherStatistics(),
           )
         }
       }

@@ -6,145 +6,89 @@ import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.states.BotState
 import com.github.heheteam.teacherbot.states.CheckGradesState
 import com.github.heheteam.teacherbot.states.MenuState
-import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
-import kotlin.random.Random
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: TeacherCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
+  userIdRegistry: UserIdRegistry,
+  core: TeacherCore,
+) {
   strictlyOn<CheckGradesState> { state ->
-    if (state.context.username == null) {
-      return@strictlyOn null
-    }
-    val userId = core.getUserId(state.context.id)
-    if (userId == null) {
-      return@strictlyOn StartState(state.context)
-    }
+    val courses = core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
 
-    // MOCK STUFF. Don't use in prod.
-    // ---
-    if (!wasMockGradeTableForTeacherBuilt) {
-      wasMockGradeTableForTeacherBuilt = true
-      val coursesProcessed = mutableSetOf<String>()
-      for (studentCourses in mockStudentsAndCourses) {
-        val student = mockStudentsTable[studentCourses.key]!!
-        val courses = studentCourses.value
+    val courseId: String = queryCourseFromUser(state, courses)
+      ?: return@strictlyOn MenuState(state.context)
+    val course = courses.find { it.id == courseId }!!
 
-        for (courseId in courses) {
-          if (!coursesProcessed.contains(courseId)) {
-            coursesProcessed.add(courseId)
-            if (Random.nextBoolean()) {
-              mockCoursesTable[courseId]!!.teachers.add(Teacher(userId))
-            }
-          }
-
-          val course = mockCoursesTable[courseId]!!
-          for (assignment in course.assignments) {
-            for (problem in assignment.problems) {
-              if (Random.nextBoolean()) {
-                core.addAssessment(
-                  student,
-                  Teacher(if (course.teachers.map { it.id }.contains(userId)) userId else "0"),
-                  Solution(
-                    (mockIncrementalSolutionId++).toString(),
-                    "",
-                    RawChatId(0),
-                    MessageId(0),
-                    problem,
-                    SolutionContent(),
-                    SolutionType.TEXT,
-                  ),
-                  SolutionAssessment((0..problem.maxScore).random(), ""),
-                )
-              }
-            }
-          }
-        }
-      }
-    }
-    // TODO: use DB (course - user) in the future to fix this crap
-    val courses =
-      core
-        .getGradeMap()
-        .values
-        .flatMap { it.keys }
-        .mapNotNull { it.getAssignment() }
-        .mapNotNull { it.getCourse() }
-        .filter { it -> it.teachers.map { it.id }.contains(userId) }
-        .associateBy { it.id }
-    // ---
-
-    val chooseCourseMessage =
-      bot.send(
-        state.context,
-        text = "Выберите курс",
-        replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-          matrix {
-            courses.forEach { row { dataButton(it.value.description, "courseId ${it.value.id}") } }
-            row { dataButton("Назад \uD83D\uDD19", returnBack) }
-          },
-        ),
-      )
-
-    val callback = waitDataCallbackQuery().first()
-    deleteMessage(state.context.id, chooseCourseMessage.messageId)
-    var courseId: String? = null
-    when {
-      callback.data.contains("courseId") -> {
-        courseId = callback.data.split(" ").last()
-      }
-    }
-
-    if (courseId != null) {
-      val assignments = courses[courseId]!!.assignments
-      var strGrades = "Оценки учеников на курсе ${courses[courseId]!!.description}:\n"
-
-      val gradeMap = core.getGradeMap()
-
-      val maxGrade =
-        assignments
-          .flatMap { paper ->
-            paper.problems
-          }.sumOf { it.maxScore }
-
-      gradeMap.forEach { studentMapEntry ->
-        val student = studentMapEntry.key
-        val solvedProblems = studentMapEntry.value
-        val grade =
-          solvedProblems
-            .filter { (problem: Problem, _: Grade) ->
-              assignments.map { it.id }.contains(problem.assignmentId)
-            }.map { (_: Problem, grade: Grade) -> grade }
-            .sum()
-
-        strGrades +=
-          "${if (student.name.isEmpty() || student.surname.isEmpty()) "Ученик ${student.id}" else "${student.name} ${student.surname}"}: $grade/$maxGrade"
-        strGrades += "\n"
-      }
-      strGrades.dropLast(1)
-
-      val gradesMessage =
-        bot.send(
-          state.context,
-          text = strGrades,
-          replyMarkup = returnBack(),
-        )
-
-      waitDataCallbackQuery().first()
-      deleteMessage(state.context.id, gradesMessage.messageId)
-    }
-
+    val gradedProblems = core.getGrading(course)
+    val maxGrade = core.getMaxGrade(course)
+    val strGrades = "Оценки учеников на курсе ${course.description}:\n" +
+      gradedProblems
+        .withGradesToText(maxGrade)
+    respondWithGrades(state, strGrades)
     MenuState(state.context)
   }
 }
+
+private suspend fun BehaviourContext.respondWithGrades(
+  state: CheckGradesState,
+  strGrades: String,
+) {
+  val gradesMessage =
+    bot.send(
+      state.context,
+      text = strGrades,
+      replyMarkup = returnBack(),
+    )
+  waitDataCallbackQuery().first()
+  deleteMessage(state.context.id, gradesMessage.messageId)
+}
+
+private suspend fun BehaviourContext.queryCourseFromUser(
+  state: CheckGradesState,
+  courses: List<Course>,
+): String? {
+  val chooseCourseMessage =
+    bot.send(
+      state.context,
+      text = "Выберите курс",
+      replyMarkup =
+      InlineKeyboardMarkup(
+        keyboard =
+        matrix {
+          courses.forEach {
+            row {
+              dataButton(
+                it.description,
+                "courseId ${it.id}",
+              )
+            }
+          }
+          row { dataButton("Назад", returnBack) }
+        },
+      ),
+    )
+
+  val callback = waitDataCallbackQuery().first()
+  deleteMessage(state.context.id, chooseCourseMessage.messageId)
+  var courseId: String? = null
+  when {
+    callback.data.contains("courseId") -> {
+      courseId = callback.data.split(" ").last()
+    }
+  }
+  return courseId
+}
+
+fun List<Pair<Student, Grade?>>.withGradesToText(maxGrade: Grade) =
+  joinToString(separator = "\n") { (student, grade) ->
+    "${if (student.name.isEmpty() || student.surname.isEmpty()) "Ученик ${student.id}" else "${student.name} ${student.surname}"}: $grade/$maxGrade"
+  }

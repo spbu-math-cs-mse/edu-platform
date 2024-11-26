@@ -41,14 +41,10 @@ class SolutionDistributionTest {
   fun `solution distribution with existing student test`() {
     val teacherId = "0"
 
-    userIdRegistry = MockUserIdRegistry(teacherId)
-
     teacherCore =
       TeacherCore(
-        solutionDistributor,
-        userIdRegistry,
         teacherStatistics,
-        gradeTable,
+        coursesDistributor, solutionDistributor,
       )
 
     val userId = coursesDistributor.singleUserId
@@ -96,14 +92,10 @@ class SolutionDistributionTest {
   fun `solution distribution with new student test`() {
     val teacherId = "SF9"
 
-    userIdRegistry = MockUserIdRegistry(teacherId)
-
     teacherCore =
       TeacherCore(
-        solutionDistributor,
-        userIdRegistry,
         teacherStatistics,
-        gradeTable,
+        coursesDistributor, solutionDistributor,
       )
 
     val userId = "WEi"
@@ -146,23 +138,17 @@ class SolutionDistributionTest {
     val teacherId = "CIX"
     val teacherId2 = "1"
 
-    userIdRegistry = MockUserIdRegistry(teacherId)
-    val userIdRegistry2 = MockUserIdRegistry(teacherId2)
-
     teacherCore =
       TeacherCore(
-        solutionDistributor,
-        userIdRegistry,
         teacherStatistics,
-        gradeTable,
+        coursesDistributor, solutionDistributor,
       )
 
     val teacherCore2 =
       TeacherCore(
-        solutionDistributor,
-        userIdRegistry2,
         teacherStatistics,
-        gradeTable,
+        coursesDistributor,
+        solutionDistributor,
       )
 
     val userId1 = coursesDistributor.singleUserId

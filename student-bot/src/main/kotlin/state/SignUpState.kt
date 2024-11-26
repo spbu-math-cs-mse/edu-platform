@@ -23,16 +23,18 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 ) {
   strictlyOn<SignUpState> { state ->
     val studentId = userIdRegistry.getUserId(state.context.id)!!
-    val availableCourses = core.getAvailableCourses(studentId).toMutableList()
+    val courses = core.getCourses()
+    val studentCourses = core.getStudentCourses(studentId).toMutableList()
+    val coursesToAvailability = courses.map { it to studentCourses.contains(it) }.toMutableList()
 
     val initialMessage =
       bot.send(
         state.context,
         text = "Вот доступные курсы",
-        replyMarkup = buildCoursesSelector(availableCourses),
+        replyMarkup = buildCoursesSelector(coursesToAvailability),
       )
 
-    val signingUpState = SigningUpState(state, availableCourses, core, studentId)
+    val signingUpState = SigningUpState(state, courses, studentCourses, coursesToAvailability, core, studentId)
     signingUpState.run {
       signUp(initialMessage)
     }
@@ -43,7 +45,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
 
 class SigningUpState(
   private val state: SignUpState,
-  private val availableCourses: MutableList<Pair<Course, Boolean>>,
+  private val courses: List<Course>,
+  private val studentCourses: MutableList<Course>,
+  private val coursesToAvailability: MutableList<Pair<Course, Boolean>>,
   private val core: StudentCore,
   private val studentId: String,
 ) {
@@ -66,7 +70,7 @@ class SigningUpState(
     val index = when {
       callbackData.contains(ButtonKey.COURSE_ID) -> {
         val courseId = callbackData.split(" ").last()
-        availableCourses.indexOfFirst { it.first.id == courseId }
+        courses.indexOfFirst { it.id == courseId }
       }
 
       else -> {
@@ -88,7 +92,7 @@ class SigningUpState(
       return
     }
 
-    if (!availableCourses[index].second) {
+    if (studentCourses.contains(courses[index])) {
       deleteMessage(message)
 
       val botMessage = bot.send(
@@ -103,19 +107,19 @@ class SigningUpState(
       val newMessage = bot.send(
         state.context,
         text = message.text.toString(),
-        replyMarkup = buildCoursesSelector(availableCourses),
+        replyMarkup = buildCoursesSelector(coursesToAvailability),
       )
 
       return courseIndex(newMessage)
     }
 
-    state.chosenCourses.add(courseId)
-    availableCourses[index] = Pair(availableCourses[index].first, false)
+    studentCourses.add(courses[index])
+    coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }] = courses[index] to true
 
     bot.editMessageReplyMarkup(
       state.context.id,
       message.messageId,
-      replyMarkup = buildCoursesSelector(availableCourses),
+      replyMarkup = buildCoursesSelector(coursesToAvailability),
     )
 
     return courseIndex(message)
@@ -126,7 +130,7 @@ class SigningUpState(
     message: ContentMessage<*>,
   ) {
     when {
-      state.chosenCourses.isEmpty() -> {
+      studentCourses.isEmpty() -> {
         deleteMessage(message)
 
         val botMessage = bot.send(
@@ -148,7 +152,7 @@ class SigningUpState(
       }
 
       else -> {
-        state.chosenCourses.forEach { courseId -> core.addRecord(studentId, courseId) }
+        studentCourses.forEach { core.addRecord(studentId, it.id) }
 
         deleteMessage(message)
 

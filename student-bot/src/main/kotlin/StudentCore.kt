@@ -27,10 +27,17 @@ class StudentCore(
     return gradedProblems
   }
 
-  fun getAvailableCourses(studentId: String): List<Pair<Course, Boolean>> = coursesDistributor.getAvailableCourses(studentId)
+  fun getStudentCourses(studentId: String): List<Course> {
+    return coursesDistributor.getStudentCourses(studentId)
+  }
 
-  fun getStudentCourses(studentId: String): List<Course> = coursesDistributor.getCourses(studentId)
+  fun addRecord(studentId: String, courseId: String) {
+    coursesDistributor.addRecord(studentId, courseId)
+  }
 
+  fun getCourses(): List<Course> {
+    return coursesDistributor.getCourses()
+  }
   fun inputSolution(
     studentId: String,
     chatId: RawChatId,
@@ -38,13 +45,6 @@ class StudentCore(
     solutionContent: SolutionContent,
   ) {
     solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent)
-  }
-
-  fun addRecord(
-    studentId: String,
-    courseId: String,
-  ) {
-    coursesDistributor.addRecord(studentId, courseId)
   }
 
   fun getCoursesBulletList(userId: String): String = coursesDistributor.getCoursesBulletList(userId)

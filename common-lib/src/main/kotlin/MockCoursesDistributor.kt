@@ -50,20 +50,9 @@ class MockCoursesDistributor : CoursesDistributor {
       "3" to generateCourse("3", "ТФКП"),
     )
 
-  private val available =
-    mutableMapOf(
-      singleUserId to
-        mutableMapOf(
-          "0" to Pair(courses["0"]!!, true),
-          "1" to Pair(courses["1"]!!, false),
-          "2" to Pair(courses["2"]!!, false),
-          "3" to Pair(courses["3"]!!, true),
-        ),
-    )
-
   private val data = mutableMapOf(
-    singleUserId to mutableListOf("0", "2"),
-    "1" to mutableListOf("1", "3"),
+    singleUserId to mutableSetOf("0", "2"),
+    "1" to mutableSetOf("1", "3"),
   )
 
   override fun addRecord(
@@ -74,10 +63,8 @@ class MockCoursesDistributor : CoursesDistributor {
       students[studentId] = Student(studentId)
     }
     if (!data.containsKey(studentId)) {
-      data[studentId] = mutableListOf()
+      data[studentId] = mutableSetOf()
     }
-    buildCoursesForStudent(studentId)
-    available[studentId]!![courseId] = Pair(courses[courseId]!!, false)
     data[studentId]!!.add(courseId)
   }
 
@@ -89,26 +76,14 @@ class MockCoursesDistributor : CoursesDistributor {
       .joinToString(separator = "\n") { "- $it" }
   }
 
-  override fun getCourses(studentId: String): List<Course> {
+  override fun getStudentCourses(studentId: String): List<Course> {
     if (!data.containsKey(studentId)) {
       return listOf()
     }
     return data[studentId]!!.map { courses[it]!! }
   }
 
-  override fun getAvailableCourses(studentId: String): MutableList<Pair<Course, Boolean>> {
-    buildCoursesForStudent(studentId)
-    return available[studentId]!!.values.toMutableList()
-  }
+  override fun getCourses(): List<Course> = courses.values.toList()
 
-  private fun buildCoursesForStudent(studentId: String) {
-    if (!available.containsKey(studentId)) {
-      available[studentId] =
-        mutableMapOf<String, Pair<Course, Boolean>>().apply {
-          courses.forEach { (key, course) ->
-            this[key] = Pair(course, true)
-          }
-        }
-    }
-  }
+  override fun getTeacherCourses(teacherId: String): List<Course> = courses.values.filter { course -> course.teachers.map { it.id }.contains(teacherId) }
 }

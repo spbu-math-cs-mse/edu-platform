@@ -59,7 +59,7 @@ class MockTeacherStatistics : TeacherStatistics {
       ?.average() ?: 0.0
 
     return GlobalTeacherStats(
-      averageCheckTimeHours = avgCheckTime,
+      averageCheckTimeHours = avgCheckTime / 3600.0,
       totalUncheckedSolutions = uncheckedSolutions,
     )
   }
@@ -67,5 +67,9 @@ class MockTeacherStatistics : TeacherStatistics {
   override fun getAllTeachersStats(): Map<String, TeacherStatsData> {
     return teacherStats.keys.associateWith { getTeacherStats(it) }
       .filterValues { it != null } as Map<String, TeacherStatsData>
+  }
+
+  fun addMockFilling(teacherId: String) {
+    teacherStats.getOrPut(teacherId) { mutableListOf() }.add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
   }
 }

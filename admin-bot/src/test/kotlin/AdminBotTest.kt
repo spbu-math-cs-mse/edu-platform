@@ -10,7 +10,7 @@ class AdminBotTest {
   private val core =
     AdminCore(
       mockGradeTable,
-      MockScheduledMessagesDistributor(),
+      InMemoryScheduledMessagesDistributor(),
       mockCoursesTable,
       mockStudentsTable,
       mockTeachersTable,

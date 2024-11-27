@@ -26,7 +26,7 @@ suspend fun main(vararg args: String) {
   val core =
     AdminCore(
       mockGradeTable,
-      MockScheduledMessagesDistributor(),
+      InMemoryScheduledMessagesDistributor(),
       mockCoursesTable,
       mockStudentsTable,
       mockTeachersTable,

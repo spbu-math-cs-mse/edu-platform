@@ -5,10 +5,14 @@ import com.github.heheteam.commonlib.*
 // bound to a course
 interface GradeTable {
   fun addAssessment(
-    student: Student,
-    teacher: Teacher,
-    solution: Solution,
+    teacherId: TeacherId,
+    solutionId: SolutionId,
     assessment: SolutionAssessment,
   )
-  fun getStudentPerformance(studentId: Long): Map<Problem, Grade>
+
+  // maps student problem ids to grades
+  fun getStudentPerformance(
+    studentId: StudentId,
+    solutionDistributor: SolutionDistributor,
+  ): Map<ProblemId, Grade>
 }

@@ -2,6 +2,7 @@ package com.github.heheteam.parentbot.states
 
 import Dialogues
 import Keyboards
+import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.parentbot.MockGradeTable
 import com.github.heheteam.parentbot.mockParents
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -10,7 +11,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(mockGradeTable: MockGradeTable) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(
+  mockGradeTable: MockGradeTable,
+  solutionDistributor: SolutionDistributor,
+) {
   strictlyOn<ChildPerformanceState> { state ->
     if (state.context.username == null) {
       return@strictlyOn null
@@ -23,7 +27,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(moc
     bot.sendSticker(state.context, Dialogues.nerdSticker)
     bot.send(
       state.context,
-      Dialogues.childPerformance(mockGradeTable, state.child),
+      Dialogues.childPerformance(mockGradeTable, state.child, solutionDistributor),
       replyMarkup = Keyboards.returnBack(),
     )
 

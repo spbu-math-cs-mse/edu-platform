@@ -22,10 +22,12 @@ class TeacherCore(
 
   fun getAvailableCourses(teacherId: Long): List<Course> {
     return coursesDistributor.getTeacherCourses(teacherId)
+      .map { coursesDistributor.resolveCourse(it)!! }
   }
 
   fun querySolution(teacherId: Long): Solution? {
     return solutionDistributor.querySolution(teacherId)
+      ?.let { solutionDistributor.resolveSolution(it) }
   }
 
   fun assessSolution(
@@ -36,7 +38,7 @@ class TeacherCore(
     timestamp: LocalDateTime = LocalDateTime.now(),
   ) {
     solutionDistributor.assessSolution(
-      solution,
+      solution.id,
       teacherId,
       assessment,
       gradeTable,
@@ -48,7 +50,7 @@ class TeacherCore(
   fun getGrading(course: Course): List<Pair<Student, Grade?>> {
     val students = course.students
     val grades = students.map { student ->
-      student to course.gradeTable.getStudentPerformance(student.id).values.sum()
+      student to course.gradeTable.getStudentPerformance(student.id, solutionDistributor).values.sum()
     }
     return grades
   }

@@ -1,10 +1,10 @@
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
 import com.github.heheteam.commonlib.mock.MockCoursesDistributor
 import com.github.heheteam.commonlib.mock.MockGradeTable
-import com.github.heheteam.commonlib.mock.MockSolutionDistributor
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -16,17 +16,21 @@ import kotlin.test.assertEquals
 
 class StudentBotTest {
   private lateinit var mockCoursesDistributor: MockCoursesDistributor
-  private lateinit var mockSolutionDistributor: MockSolutionDistributor
+  private lateinit var mockSolutionDistributor: InMemorySolutionDistributor
   private lateinit var studentCore: StudentCore
 
   @BeforeEach
   fun setup() {
+    val problemStorage = TODO()
+    val assignmentStorage = TODO()
     mockCoursesDistributor = MockCoursesDistributor()
-    mockSolutionDistributor = MockSolutionDistributor()
+    mockSolutionDistributor = InMemorySolutionDistributor()
     studentCore =
       StudentCore(
         mockSolutionDistributor,
         mockCoursesDistributor,
+        problemStorage,
+        assignmentStorage,
       )
   }
 
@@ -45,12 +49,12 @@ class StudentBotTest {
     // check first input correctness
     val availableCourses = studentCore.getStudentCourses(userId)
     assert(availableCourses.any { it.id == 0L })
-    val course = mockCoursesDistributor.getStudentCourses(0L).first()
-    val assignment = course.assignments.first()
+    val courseId = mockCoursesDistributor.getStudentCourses(0L).first()
+    val course = mockCoursesDistributor.resolveCourse(courseId)
+    val assignment = course!!.assignments.first()
     val grading =
       studentCore.getGradingForAssignment(
-        assignment,
-        course,
+        assignment.id,
         userId,
       )
     // check output correctness
@@ -64,7 +68,10 @@ class StudentBotTest {
     val studentCourses = studentCore.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.toInt() })
 
-    assertEquals("Вы не записаны ни на один курс!", studentCore.getCoursesBulletList(studentId))
+    assertEquals(
+      "Вы не записаны ни на один курс!",
+      studentCore.getCoursesBulletList(studentId),
+    )
   }
 
   @Test
@@ -78,15 +85,21 @@ class StudentBotTest {
 
     val studentCourses = studentCore.getStudentCourses(studentId)
 
-    assertEquals(listOf(0L, 3L), studentCourses.map { it.id }.sortedBy { it.toInt() })
+    assertEquals(
+      listOf(0L, 3L),
+      studentCourses.map { it.id }.sortedBy { it.toInt() },
+    )
     assertEquals("Начала мат. анализа", studentCourses.first().description)
 
-    assertEquals("- Начала мат. анализа\n- ТФКП", studentCore.getCoursesBulletList(studentId))
+    assertEquals(
+      "- Начала мат. анализа\n- ТФКП",
+      studentCore.getCoursesBulletList(studentId),
+    )
   }
 
   @Test
   fun `send solution test`() {
-    val solutions = mutableListOf<Solution>()
+    val solutions = mutableListOf<SolutionId>()
     val chatId = RawChatId(0)
 
     run {
@@ -120,13 +133,18 @@ class StudentBotTest {
       }
     }
 
-    val firstSolution = solutions.first()
+    val firstSolution =
+      mockSolutionDistributor.resolveSolution(solutions.first())
     assertEquals(SolutionType.TEXT, firstSolution.type)
     assertEquals("sample0", firstSolution.content.text)
 
-    val lastSolution = solutions.last()
+    val lastSolution = mockSolutionDistributor.resolveSolution(solutions.last())
     assertEquals(5L, lastSolution.id)
 
-    assertEquals(solutions.map { it.chatId }.toSet(), setOf(chatId))
+    assertEquals(
+      solutions.map { mockSolutionDistributor.resolveSolution(it).chatId }
+        .toSet(),
+      setOf(chatId),
+    )
   }
 }

@@ -1,15 +1,14 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 import kotlin.collections.mutableListOf
 
-class MockSolutionDistributor() : SolutionDistributor {
+class InMemorySolutionDistributor() : SolutionDistributor {
   private val solutions = mutableListOf<Solution>()
   private var solutionId = 1L
 
@@ -18,7 +17,8 @@ class MockSolutionDistributor() : SolutionDistributor {
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
-  ) {
+    problemId: ProblemId,
+  ): SolutionId {
     val solutionType =
       when (solutionContent.text) {
         SolutionType.PHOTOS.toString() -> SolutionType.PHOTOS
@@ -32,30 +32,31 @@ class MockSolutionDistributor() : SolutionDistributor {
         studentId,
         chatId,
         messageId,
-        Problem(0L, "", "", 0, 0L),
+        0L,
         solutionContent,
         solutionType,
       )
     solutions.add(solution)
+    return solution.id
   }
 
-  override fun querySolution(teacherId: Long): Solution? {
-    if (solutions.isEmpty()) {
-      return null
-    }
-    return solutions.first()
+  override fun querySolution(teacherId: Long): SolutionId? =
+    solutions.firstOrNull()?.id
+
+  override fun resolveSolution(solutionId: SolutionId): Solution {
+    TODO("Not yet implemented")
   }
 
   override fun assessSolution(
-    solution: Solution,
-    teacherId: Long,
+    solutionId: SolutionId,
+    teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     timestamp: LocalDateTime,
     teacherStatistics: TeacherStatistics,
   ) {
-    solutions.removeIf { it == solution }
-    teacherStatistics.recordAssessment(teacherId, solution, timestamp)
-    gradeTable.addAssessment(Student(solution.studentId), Teacher(teacherId), solution, assessment)
+    solutions.removeIf { it.id == solutionId }
+//    teacherStatistics.recordAssessment(teacherId, solutionId, timestamp)
+    gradeTable.addAssessment(teacherId, solutionId, assessment)
   }
 }

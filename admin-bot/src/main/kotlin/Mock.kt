@@ -38,7 +38,7 @@ val mockAdminsTable: List<Username> =
     Username("@schindleria_praematurus"),
   )
 
-class MockScheduledMessagesDistributor(
+class InMemoryScheduledMessagesDistributor(
   private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf(),
 ) : ScheduledMessagesDistributor {
   override fun addMessage(message: ScheduledMessage) {

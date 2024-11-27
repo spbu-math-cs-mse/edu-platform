@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot
 
+import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
 import com.github.heheteam.commonlib.mock.MockCoursesDistributor
-import com.github.heheteam.commonlib.mock.MockSolutionDistributor
 import com.github.heheteam.commonlib.mock.MockUserIdRegistry
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
@@ -57,7 +57,7 @@ suspend fun main(vararg args: String) {
       // fill with mock data
       mockTeacherStatistics.addMockFilling(mockCoursesDistributor.singleUserId)
     }
-    val core = TeacherCore(mockTeacherStatistics, mockCoursesDistributor, MockSolutionDistributor())
+    val core = TeacherCore(mockTeacherStatistics, mockCoursesDistributor, InMemorySolutionDistributor())
 
     strictlyOnStartState(userIdRegistry)
     strictlyOnMenuState(userIdRegistry, core)

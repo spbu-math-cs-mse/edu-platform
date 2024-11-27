@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 
 class MockCoursesDistributor : CoursesDistributor {
@@ -75,17 +76,25 @@ class MockCoursesDistributor : CoursesDistributor {
     studentsToCourseIds[studentId]!!.add(courseId)
   }
 
-  override fun getStudentCourses(studentId: Long): List<Course> {
+  override fun getStudentCourses(studentId: Long): List<CourseId> {
     if (!studentsToCourseIds.containsKey(studentId)) {
       return listOf()
     }
-    return studentsToCourseIds[studentId]!!.map { courses[it]!! }
+    return studentsToCourseIds[studentId]!!.map { it }
   }
 
-  override fun getCourses(): List<Course> = courses.values.toList()
+  override fun getCourses(): List<CourseId> = courses.keys.toList()
 
-  override fun getTeacherCourses(teacherId: Long): List<Course> =
+  override fun getTeacherCourses(teacherId: Long): List<CourseId> =
     courses.values.filter { course ->
       course.teachers.map { it.id }.contains(teacherId)
-    }
+    }.map { it.id }
+
+  override fun resolveCourse(id: CourseId): Course? {
+    return courses[id]
+  }
+
+  override fun createCourse(description: Int): CourseId {
+    TODO("Not yet implemented")
+  }
 }

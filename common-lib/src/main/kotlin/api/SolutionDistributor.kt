@@ -10,17 +10,20 @@ import java.time.LocalDateTime
 
 interface SolutionDistributor {
   fun inputSolution(
-    studentId: Long,
+    studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
-  )
+    problemId: ProblemId,
+  ): SolutionId
 
-  fun querySolution(teacherId: Long): Solution?
+  fun querySolution(teacherId: Long): SolutionId?
+
+  fun resolveSolution(solutionId: SolutionId): Solution
 
   fun assessSolution(
-    solution: Solution,
-    teacherId: Long,
+    solutionId: SolutionId,
+    teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     timestamp: LocalDateTime = LocalDateTime.now(),

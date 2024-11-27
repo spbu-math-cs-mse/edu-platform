@@ -1,8 +1,10 @@
 package com.github.heheteam.studentbot
 
+import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
 import com.github.heheteam.commonlib.mock.MockCoursesDistributor
 import com.github.heheteam.commonlib.mock.MockGradeTable
-import com.github.heheteam.commonlib.mock.MockSolutionDistributor
 import com.github.heheteam.commonlib.mock.MockUserIdRegistry
 import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
@@ -46,14 +48,19 @@ suspend fun main(vararg args: String) {
     }
     val mockCoursesDistributor = MockCoursesDistributor()
     val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
+    val problemStorage: ProblemStorage = TODO()
+    val assignmentStorage: AssignmentStorage = TODO()
     val core =
       StudentCore(
-        MockSolutionDistributor(),
+        InMemorySolutionDistributor(),
         mockCoursesDistributor,
+        problemStorage,
+        assignmentStorage,
       )
     run {
       // fill with mock data
-      val firstCourse = core.getStudentCourses(mockCoursesDistributor.singleUserId).first()
+      val firstCourse =
+        core.getStudentCourses(mockCoursesDistributor.singleUserId).first()
       val firstAssignment = firstCourse.assignments.first()
       (firstCourse.gradeTable as MockGradeTable).addMockFilling(
         firstAssignment,

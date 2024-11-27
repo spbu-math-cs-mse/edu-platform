@@ -4,7 +4,6 @@ import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.Username
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
@@ -15,7 +14,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(core: AdminCor
       return@strictlyOn null
     }
     val username = state.context.username!!.username
-    if (core.isAdmin(Username(username))) {
+    if (true) {
       bot.send(
         state.context,
         "Главное меню:",

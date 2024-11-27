@@ -1,7 +1,7 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.*
 
 class MockGradeTable(
   val constGradeMap: Map<Long, Map<Problem, Int>> =
@@ -20,15 +20,17 @@ class MockGradeTable(
     ),
 ) : GradeTable {
   override fun addAssessment(
-    student: Student,
-    teacher: Teacher,
-    solution: Solution,
+    teacherId: TeacherId,
+    solutionId: SolutionId,
     assessment: SolutionAssessment,
   ) {
   }
 
-  override fun getStudentPerformance(studentId: Long): Map<Problem, Grade> =
-    constGradeMap[studentId] ?: mapOf()
+  override fun getStudentPerformance(
+    studentId: StudentId,
+    solutionDistributor: SolutionDistributor,
+  ): Map<ProblemId, Grade> =
+    constGradeMap[studentId]?.mapKeys { it.key.id } ?: mapOf()
 }
 
 var mockTgUsername: String = ""

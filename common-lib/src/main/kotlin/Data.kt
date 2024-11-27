@@ -2,7 +2,9 @@
 
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.ProblemId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -43,14 +45,14 @@ data class Solution(
   val studentId: Long,
   val chatId: RawChatId,
   val messageId: MessageId,
-  val problem: Problem,
+  val problemId: ProblemId,
   val content: SolutionContent,
   val type: SolutionType,
   val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
 
 class Course(
-  val id: Long,
+  val id: CourseId,
   val teachers: MutableList<Teacher> = mutableListOf(),
   val students: MutableList<Student> = mutableListOf(),
   var description: String,

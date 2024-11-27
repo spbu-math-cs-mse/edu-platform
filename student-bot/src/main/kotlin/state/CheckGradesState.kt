@@ -35,8 +35,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
 
     val gradedProblems =
       core.getGradingForAssignment(
-        assignment,
-        course,
+        assignment.id,
         userIdRegistry.getUserId(state.context.id)!!,
       )
 
@@ -97,7 +96,6 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
       callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
         callback.data.split(" ").last()
       }
-
       else -> null
     }
   return assignmentId?.toLong()

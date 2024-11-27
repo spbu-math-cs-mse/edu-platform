@@ -1,5 +1,6 @@
 package com.github.heheteam.parentbot
 
+import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.parentbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -22,6 +23,7 @@ suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
   val mockGradeTable = MockGradeTable()
+  val solutionDistributor: SolutionDistributor = TODO()
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -51,7 +53,7 @@ suspend fun main(vararg args: String) {
     strictlyOnStartState()
     strictlyOnMenuState()
     strictlyOnGivingFeedbackState()
-    strictlyOnChildPerformanceState(mockGradeTable)
+    strictlyOnChildPerformanceState(mockGradeTable, solutionDistributor)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

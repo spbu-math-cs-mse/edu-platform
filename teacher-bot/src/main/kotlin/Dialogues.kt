@@ -30,7 +30,7 @@ object Dialogues {
   fun solutionNotSent(): String = "Ошибка, попробуйте ещё раз..."
 
   // TODO: add more of student and problem info
-  fun solutionInfo(solution: Solution): String = "Ученик отправил задачу ${solution.problem.id}"
+  fun solutionInfo(solution: Solution): String = "Ученик отправил задачу ${solution.problemId}"
 
   fun menu(): String = "\u2705 Главное меню"
 

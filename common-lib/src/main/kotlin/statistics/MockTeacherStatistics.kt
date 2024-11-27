@@ -1,6 +1,8 @@
 package com.github.heheteam.commonlib.statistics
 
-import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.SolutionId
+import dev.inmo.tgbotapi.utils.mapNotNullValues
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -13,11 +15,17 @@ class MockTeacherStatistics : TeacherStatistics {
   private val teacherStats: MutableMap<Long, MutableList<SolutionReview>> = mutableMapOf()
   private var uncheckedSolutions = 0
 
-  override fun recordNewSolution(solution: Solution) {
+  override fun recordNewSolution(solutionId: SolutionId) {
     uncheckedSolutions++
   }
 
-  override fun recordAssessment(teacherId: Long, solution: Solution, timestamp: LocalDateTime) {
+  override fun recordAssessment(
+    teacherId: Long,
+    solutionId: SolutionId,
+    timestamp: LocalDateTime,
+    solutionDistributor: SolutionDistributor,
+  ) {
+    val solution = solutionDistributor.resolveSolution(solutionId)
     teacherStats.getOrPut(teacherId) { mutableListOf() }
       .add(SolutionReview(solution.timestamp, timestamp))
     if (uncheckedSolutions > 0) {
@@ -66,7 +74,7 @@ class MockTeacherStatistics : TeacherStatistics {
 
   override fun getAllTeachersStats(): Map<Long, TeacherStatsData> {
     return teacherStats.keys.associateWith { getTeacherStats(it) }
-      .filterValues { it != null } as Map<Long, TeacherStatsData>
+      .mapNotNullValues()
   }
 
   fun addMockFilling(teacherId: Long) {

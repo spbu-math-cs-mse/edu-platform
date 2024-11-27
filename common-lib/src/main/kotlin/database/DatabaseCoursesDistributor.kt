@@ -1,4 +1,5 @@
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
@@ -24,15 +25,23 @@ class DatabaseCoursesDistributor(
     }
   }
 
-  override fun getCourses(): List<Course> {
+  override fun getCourses(): List<CourseId> {
     TODO("Not yet implemented")
   }
 
-  override fun getTeacherCourses(teacherId: Long): List<Course> {
+  override fun getTeacherCourses(teacherId: Long): List<CourseId> {
     TODO("Not yet implemented")
   }
 
-  override fun getStudentCourses(studentId: Long): List<Course> {
+  override fun resolveCourse(id: CourseId): Course {
+    TODO("Not yet implemented")
+  }
+
+  override fun createCourse(description: Int): CourseId {
+    TODO("Not yet implemented")
+  }
+
+  override fun getStudentCourses(studentId: Long): List<CourseId> {
     val courses = transaction {
       val courseIds = CourseStudents.selectAll()
         .where { CourseStudents.studentId eq studentId }
@@ -61,7 +70,7 @@ class DatabaseCoursesDistributor(
       }
       courses
     }
-    return courses
+    return courses.map { it.id }
   }
 
   private fun queryAssignment(

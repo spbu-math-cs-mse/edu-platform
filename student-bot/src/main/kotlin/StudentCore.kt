@@ -1,8 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.*
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -11,25 +10,29 @@ import dev.inmo.tgbotapi.types.RawChatId
 class StudentCore(
   private val solutionDistributor: SolutionDistributor,
   private val coursesDistributor: CoursesDistributor,
+  private val problemStorage: ProblemStorage,
+  private val assignmentStorage: AssignmentStorage,
 ) {
   fun getGradingForAssignment(
-    assignment: Assignment,
-    course: Course,
+    assignmentId: AssignmentId,
     studentId: Long,
   ): List<Pair<Problem, Grade?>> {
-    assert(assignment in course.assignments)
+    val assignment = assignmentStorage.resolveAssignment(assignmentId)
+    val course = coursesDistributor.resolveCourse(assignment.courseId)!!
+    assert(assignmentId in course.assignments.map { it.id })
     val grades =
-      course.gradeTable.getStudentPerformance(studentId)
-        .filter { it.key.assignmentId == assignment.id }
+      course.gradeTable.getStudentPerformance(studentId, solutionDistributor)
+        .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
       assignment.problems
         .sortedBy { problem -> problem.number }
-        .map { problem -> problem to grades[problem] }
+        .map { problem -> problem to grades[problem.id] }
     return gradedProblems
   }
 
   fun getStudentCourses(studentId: Long): List<Course> {
     return coursesDistributor.getStudentCourses(studentId)
+      .map { coursesDistributor.resolveCourse(it)!! }
   }
 
   fun addRecord(studentId: Long, courseId: Long) {
@@ -38,6 +41,7 @@ class StudentCore(
 
   fun getCourses(): List<Course> {
     return coursesDistributor.getCourses()
+      .map { coursesDistributor.resolveCourse(it)!! }
   }
 
   fun inputSolution(
@@ -46,20 +50,15 @@ class StudentCore(
     messageId: MessageId,
     solutionContent: SolutionContent,
   ) {
-    solutionDistributor.inputSolution(
-      studentId,
-      chatId,
-      messageId,
-      solutionContent,
-    )
+    TODO("Implement me")
   }
 
   fun getCoursesBulletList(userId: Long): String {
     val studentCourses = coursesDistributor.getStudentCourses(userId)
     val notRegisteredMessage = "Вы не записаны ни на один курс!"
-    return if (!studentCourses.isEmpty()) {
+    return if (studentCourses.isNotEmpty()) {
       studentCourses
-        .joinToString("\n") { course -> "- " + course.description }
+        .joinToString("\n") { courseId -> "- " + coursesDistributor.resolveCourse(courseId)!!.description }
     } else {
       notRegisteredMessage
     }

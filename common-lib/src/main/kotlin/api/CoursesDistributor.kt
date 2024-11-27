@@ -4,13 +4,17 @@ import com.github.heheteam.commonlib.Course
 
 interface CoursesDistributor {
   fun addRecord(
-    studentId: Long,
-    courseId: Long,
+    studentId: StudentId,
+    courseId: CourseId,
   )
 
-  fun getStudentCourses(studentId: Long): List<Course>
+  fun getStudentCourses(studentId: StudentId): List<CourseId>
 
-  fun getCourses(): List<Course>
+  fun getCourses(): List<CourseId>
 
-  fun getTeacherCourses(teacherId: Long): List<Course>
+  fun getTeacherCourses(teacherId: TeacherId): List<CourseId>
+
+  fun resolveCourse(id: CourseId): Course?
+
+  fun createCourse(description: Int): CourseId
 }

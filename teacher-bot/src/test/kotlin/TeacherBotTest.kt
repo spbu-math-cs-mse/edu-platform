@@ -1,8 +1,6 @@
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.mock.MockSolutionDistributor
+import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -16,17 +14,15 @@ class TeacherBotTest {
   private lateinit var statistics: MockTeacherStatistics
   private val now = LocalDateTime.now()
   private val teacher1Id = 1L
+  private val solutionDistributor = InMemorySolutionDistributor()
 
   private fun makeSolution(timestamp: LocalDateTime) =
-    Solution(
+    solutionDistributor.inputSolution(
       0L,
-      0L,
-      RawChatId(0),
-      MessageId(0),
-      Problem(0L, "", "", 1, 0L),
+      RawChatId(0L),
+      MessageId(0L),
       SolutionContent(),
-      SolutionType.TEXT,
-      timestamp,
+      0L,
     )
 
   @BeforeEach
@@ -48,7 +44,12 @@ class TeacherBotTest {
 
     assertEquals(2, statistics.getGlobalStats().totalUncheckedSolutions)
 
-    statistics.recordAssessment(teacher1Id, makeSolution(now.minusHours(2)), now)
+    statistics.recordAssessment(
+      teacher1Id,
+      makeSolution(now.minusHours(2)),
+      now,
+      solutionDistributor,
+    )
 
     val stats = statistics.getTeacherStats(teacher1Id)
     assertEquals(1, stats!!.totalAssessments)
@@ -63,9 +64,19 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol1)
     statistics.recordNewSolution(sol2)
     statistics.recordNewSolution(sol3)
-    statistics.recordAssessment(teacher1Id, sol1, now.minusHours(4))
-    statistics.recordAssessment(teacher1Id, sol2, now.minusHours(1))
-    statistics.recordAssessment(teacher1Id, sol3, now)
+    statistics.recordAssessment(
+      teacher1Id,
+      sol1,
+      now.minusHours(4),
+      solutionDistributor,
+    )
+    statistics.recordAssessment(
+      teacher1Id,
+      sol2,
+      now.minusHours(1),
+      solutionDistributor,
+    )
+    statistics.recordAssessment(teacher1Id, sol3, now, solutionDistributor)
 
     val stats = statistics.getTeacherStats(teacher1Id)
     assertEquals(1.0 * 60 * 60, stats!!.averageCheckTimeSeconds, 0.01)
@@ -80,8 +91,18 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol1)
     statistics.recordNewSolution(sol2)
 
-    statistics.recordAssessment(1L, sol1, now.minusHours(2))
-    statistics.recordAssessment(2L, sol2, now.minusHours(1))
+    statistics.recordAssessment(
+      1L,
+      sol1,
+      now.minusHours(2),
+      solutionDistributor,
+    )
+    statistics.recordAssessment(
+      2L,
+      sol2,
+      now.minusHours(1),
+      solutionDistributor,
+    )
 
     val globalStats = statistics.getGlobalStats()
     assertEquals(0, globalStats.totalUncheckedSolutions)
@@ -92,9 +113,17 @@ class TeacherBotTest {
   fun `teacher gets user solution TEXT`() {
     val studentId = 10L
     val teacherId = 139L
-    val mockSolutionDistributor = MockSolutionDistributor()
-    mockSolutionDistributor.inputSolution(studentId, RawChatId(0), MessageId(0), SolutionContent(text = "test"))
-    val solution = mockSolutionDistributor.querySolution(teacherId)!!
+    val inMemorySolutionDistributor = InMemorySolutionDistributor()
+    inMemorySolutionDistributor.inputSolution(
+      studentId,
+      RawChatId(0),
+      MessageId(0),
+      SolutionContent(text = "test"),
+      0L,
+    )
+    val solution = inMemorySolutionDistributor.resolveSolution(
+      inMemorySolutionDistributor.querySolution(teacherId)!!,
+    )
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(text = "test"), solution.content)
     assertEquals(SolutionType.TEXT, solution.type)

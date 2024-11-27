@@ -1,8 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
@@ -14,7 +13,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
-import kotlin.math.absoluteValue
 
 class DatabaseSolutionDistributor(
   val database: Database,
@@ -24,23 +22,26 @@ class DatabaseSolutionDistributor(
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
-  ) {
+    problemId: ProblemId,
+  ): SolutionId {
     val solutionId =
       transaction(database) {
         SolutionTable.insert {
           it[SolutionTable.studentId] = studentId
           it[SolutionTable.chatId] = chatId.toChatId().chatId.long
           it[SolutionTable.messageId] = messageId.long
-          it[SolutionTable.problemId] = 0 // TODO: Add this to the method arguments
+          it[SolutionTable.problemId] = problemId
           it[SolutionTable.content] = solutionContent.text
         } get SolutionTable.id
-      }.value.toString()
+      }.value
+    return solutionId
   }
 
-  override fun querySolution(teacherId: Long): Solution? {
+  override fun querySolution(teacherId: Long): SolutionId? {
     val solutions =
       transaction(database) {
-        val assessedSolutions = AssessmentTable.select(AssessmentTable.id).withDistinctOn(AssessmentTable.id)
+        val assessedSolutions = AssessmentTable.select(AssessmentTable.id)
+          .withDistinctOn(AssessmentTable.id)
 
         SolutionTable
           .selectAll()
@@ -49,20 +50,16 @@ class DatabaseSolutionDistributor(
       }
 
     val solution = solutions.firstOrNull() ?: return null
-    return Solution(
-      solution[SolutionTable.id].value,
-      solution[SolutionTable.studentId].value,
-      RawChatId(solution[SolutionTable.chatId].absoluteValue),
-      MessageId(solution[SolutionTable.messageId]),
-      Problem(solution[SolutionTable.problemId].value, "", "", 1, TODO()),
-      SolutionContent(listOf(), solution[SolutionTable.content]),
-      SolutionType.TEXT,
-    )
+    TODO("Not implemented")
+  }
+
+  override fun resolveSolution(solutionId: SolutionId): Solution {
+    TODO("Not yet implemented")
   }
 
   override fun assessSolution(
-    solution: Solution,
-    teacherId: Long,
+    solutionId: SolutionId,
+    teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     timestamp: LocalDateTime,
@@ -70,7 +67,7 @@ class DatabaseSolutionDistributor(
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solution.id
+        it[AssessmentTable.solutionId] = solutionId
         it[AssessmentTable.teacherId] = teacherId
         it[AssessmentTable.grade] = assessment.grade
       }

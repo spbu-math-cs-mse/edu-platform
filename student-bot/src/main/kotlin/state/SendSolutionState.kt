@@ -131,7 +131,7 @@ private suspend fun BehaviourContext.queryCourse(
   }
 
   val courseId = callbackData.split(" ").last()
-  return courses.first { it.id == courseId }
+  return courses.first { it.id == courseId.toLong() }
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {

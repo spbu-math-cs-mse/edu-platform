@@ -13,24 +13,24 @@ val mockCoursesTable: MutableMap<String, Course> =
   mutableMapOf(
     "Геома 1" to
       Course(
-        "1",
-        mutableListOf(Teacher("1")),
-        mutableListOf(Student("1")),
+        1L,
+        mutableListOf(Teacher(1L)),
+        mutableListOf(Student(1L)),
         "какое-то описание",
         mockGradeTable,
       ),
   )
 
-val mockStudentsTable: MutableMap<String, Student> =
+val mockStudentsTable: MutableMap<Long, Student> =
   mutableMapOf(
-    "1" to Student("1"),
-    "2" to Student("2"),
+    1L to Student(1L),
+    2L to Student(2L),
   )
 
-val mockTeachersTable: MutableMap<String, Teacher> =
+val mockTeachersTable: MutableMap<Long, Teacher> =
   mutableMapOf(
-    "3" to Teacher("3"),
-    "4" to Teacher("4"),
+    3L to Teacher(3L),
+    4L to Teacher(4L),
   )
 
 val mockAdminsTable: List<Username> =

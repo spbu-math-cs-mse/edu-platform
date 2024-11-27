@@ -6,14 +6,15 @@ import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import java.time.LocalDateTime
 import kotlin.collections.mutableListOf
 
 class MockSolutionDistributor() : SolutionDistributor {
   private val solutions = mutableListOf<Solution>()
-  private var solutionId = 1
+  private var solutionId = 1L
 
   override fun inputSolution(
-    studentId: String,
+    studentId: Long,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
@@ -27,18 +28,18 @@ class MockSolutionDistributor() : SolutionDistributor {
       }
     val solution =
       Solution(
-        (solutionId++).toString(),
+        solutionId++,
         studentId,
         chatId,
         messageId,
-        Problem("", "", "", 0, ""),
+        Problem(0L, "", "", 0, 0L),
         solutionContent,
         solutionType,
       )
     solutions.add(solution)
   }
 
-  override fun querySolution(teacherId: String): Solution? {
+  override fun querySolution(teacherId: Long): Solution? {
     if (solutions.isEmpty()) {
       return null
     }
@@ -47,10 +48,10 @@ class MockSolutionDistributor() : SolutionDistributor {
 
   override fun assessSolution(
     solution: Solution,
-    teacherId: String,
+    teacherId: Long,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: java.time.LocalDateTime,
+    timestamp: LocalDateTime,
     teacherStatistics: TeacherStatistics,
   ) {
     solutions.removeIf { it == solution }

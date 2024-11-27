@@ -14,11 +14,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
       "Введите ID ученика, которого хотите добавить на курс ${state.courseName}",
     )
     val message = waitTextMessage().first()
-    val id = message.content.text
+    val input = message.content.text
+    val id = input.toLongOrNull()
     when {
-      id == "/stop" -> StartState(state.context)
+      input == "/stop" -> StartState(state.context)
 
-      !core.studentExists(id) -> {
+      id == null || !core.studentExists(id) -> {
         send(
           state.context,
           "Ученика с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",

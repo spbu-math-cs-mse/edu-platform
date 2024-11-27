@@ -15,14 +15,15 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
       +"Введите ID преподавателя, которого хотите добавить на курс ${state.courseName}"
     }
     val message = waitTextMessage().first()
-    val id = message.content.text
+    val input = message.content.text
+    val id = input.toLongOrNull()
     when {
-      id == "/stop" -> StartState(state.context)
+      input == "/stop" -> StartState(state.context)
 
-      !core.teacherExists(id) -> {
+      id == null || !core.teacherExists(id) -> {
         send(
           state.context,
-          "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
+          "Преподавателя с идентификатором $input не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
         )
         AddTeacherState(state.context, state.course, state.courseName)
       }
@@ -30,7 +31,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
       state.course.teachers.contains(Teacher(id)) -> {
         send(
           state.context,
-          "Преподаватель $id уже есть на курсе ${state.courseName}",
+          "Преподаватель $input уже есть на курсе ${state.courseName}",
         )
         StartState(state.context)
       }
@@ -39,7 +40,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
         state.course.teachers.addLast(Teacher(id))
         send(
           state.context,
-          "Преподаватель $id успешно добавлен на курс ${state.courseName}",
+          "Преподаватель $input успешно добавлен на курс ${state.courseName}",
         )
         StartState(state.context)
       }

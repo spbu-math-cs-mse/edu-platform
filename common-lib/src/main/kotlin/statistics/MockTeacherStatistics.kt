@@ -10,14 +10,14 @@ private data class SolutionReview(
 )
 
 class MockTeacherStatistics : TeacherStatistics {
-  private val teacherStats: MutableMap<String, MutableList<SolutionReview>> = mutableMapOf()
+  private val teacherStats: MutableMap<Long, MutableList<SolutionReview>> = mutableMapOf()
   private var uncheckedSolutions = 0
 
   override fun recordNewSolution(solution: Solution) {
     uncheckedSolutions++
   }
 
-  override fun recordAssessment(teacherId: String, solution: Solution, timestamp: LocalDateTime) {
+  override fun recordAssessment(teacherId: Long, solution: Solution, timestamp: LocalDateTime) {
     teacherStats.getOrPut(teacherId) { mutableListOf() }
       .add(SolutionReview(solution.timestamp, timestamp))
     if (uncheckedSolutions > 0) {
@@ -25,7 +25,7 @@ class MockTeacherStatistics : TeacherStatistics {
     }
   }
 
-  override fun getTeacherStats(teacherId: String): TeacherStatsData? {
+  override fun getTeacherStats(teacherId: Long): TeacherStatsData? {
     val assessments = teacherStats[teacherId] ?: return null
 
     val totalAssessments = assessments.size
@@ -64,12 +64,12 @@ class MockTeacherStatistics : TeacherStatistics {
     )
   }
 
-  override fun getAllTeachersStats(): Map<String, TeacherStatsData> {
+  override fun getAllTeachersStats(): Map<Long, TeacherStatsData> {
     return teacherStats.keys.associateWith { getTeacherStats(it) }
-      .filterValues { it != null } as Map<String, TeacherStatsData>
+      .filterValues { it != null } as Map<Long, TeacherStatsData>
   }
 
-  fun addMockFilling(teacherId: String) {
+  fun addMockFilling(teacherId: Long) {
     teacherStats.getOrPut(teacherId) { mutableListOf() }.add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
   }
 }

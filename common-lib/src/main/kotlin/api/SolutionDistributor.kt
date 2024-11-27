@@ -6,23 +6,24 @@ import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import java.time.LocalDateTime
 
 interface SolutionDistributor {
   fun inputSolution(
-    studentId: String,
+    studentId: Long,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
   )
 
-  fun querySolution(teacherId: String): Solution?
+  fun querySolution(teacherId: Long): Solution?
 
   fun assessSolution(
     solution: Solution,
-    teacherId: String,
+    teacherId: Long,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+    timestamp: LocalDateTime = LocalDateTime.now(),
     teacherStatistics: TeacherStatistics,
   )
 }

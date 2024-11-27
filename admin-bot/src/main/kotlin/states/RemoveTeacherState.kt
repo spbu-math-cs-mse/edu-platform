@@ -15,11 +15,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: 
       +"Введите ID преподавателя, которого хотите убрать с курса ${state.courseName}"
     }
     val message = waitTextMessage().first()
-    val id = message.content.text
+    val input = message.content.text
+    val id = input.toLongOrNull()
     when {
-      id == "/stop" -> StartState(state.context)
+      input == "/stop" -> StartState(state.context)
 
-      !core.teacherExists(id) -> {
+      id == null || !core.teacherExists(id) -> {
         send(
           state.context,
           "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",

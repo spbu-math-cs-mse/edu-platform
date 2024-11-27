@@ -43,7 +43,7 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution with existing student test`() {
-    val teacherId = "0"
+    val teacherId = 0L
 
     teacherCore =
       TeacherCore(
@@ -94,7 +94,7 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution with new student test`() {
-    val teacherId = "SF9"
+    val teacherId = 654L
 
     teacherCore =
       TeacherCore(
@@ -102,7 +102,7 @@ class SolutionDistributionTest {
         coursesDistributor, solutionDistributor,
       )
 
-    val userId = "WEi"
+    val userId = 255L
     val chatId = RawChatId(200)
     val messageId = MessageId(15)
     val text = SolutionType.PHOTOS.toString()
@@ -139,8 +139,8 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution with multiple test`() {
-    val teacherId = "CIX"
-    val teacherId2 = "1"
+    val teacherId = 1337L
+    val teacherId2 = 1338L
 
     teacherCore =
       TeacherCore(
@@ -193,11 +193,11 @@ class SolutionDistributionTest {
     assertNotNull(solution2)
 
     assertEquals("solution 11", solution2.content.text)
-    assertEquals("2", solution2.id)
+    assertEquals(2L, solution2.id)
 
     teacherCore2.assessSolution(solution2, teacherId2, SolutionAssessment(3, "ok"), gradeTable)
 
-    val userId2 = "3"
+    val userId2 = 3L
     val chatId2 = RawChatId(90)
     val messageId2 = MessageId(203)
     val text2 = "another solution"

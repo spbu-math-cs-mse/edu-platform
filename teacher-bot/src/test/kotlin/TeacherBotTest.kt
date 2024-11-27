@@ -15,15 +15,15 @@ import kotlin.test.assertEquals
 class TeacherBotTest {
   private lateinit var statistics: MockTeacherStatistics
   private val now = LocalDateTime.now()
-  private val teacher1Id = "teacher1"
+  private val teacher1Id = 1L
 
   private fun makeSolution(timestamp: LocalDateTime) =
     Solution(
-      "",
-      "",
+      0L,
+      0L,
       RawChatId(0),
       MessageId(0),
-      Problem("", "", "", 1, ""),
+      Problem(0L, "", "", 1, 0L),
       SolutionContent(),
       SolutionType.TEXT,
       timestamp,
@@ -80,8 +80,8 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol1)
     statistics.recordNewSolution(sol2)
 
-    statistics.recordAssessment("teacher1", sol1, now.minusHours(2))
-    statistics.recordAssessment("teacher2", sol2, now.minusHours(1))
+    statistics.recordAssessment(1L, sol1, now.minusHours(2))
+    statistics.recordAssessment(2L, sol2, now.minusHours(1))
 
     val globalStats = statistics.getGlobalStats()
     assertEquals(0, globalStats.totalUncheckedSolutions)
@@ -90,8 +90,8 @@ class TeacherBotTest {
 
   @Test
   fun `teacher gets user solution TEXT`() {
-    val studentId = "student"
-    val teacherId = "teacher"
+    val studentId = 10L
+    val teacherId = 139L
     val mockSolutionDistributor = MockSolutionDistributor()
     mockSolutionDistributor.inputSolution(studentId, RawChatId(0), MessageId(0), SolutionContent(text = "test"))
     val solution = mockSolutionDistributor.querySolution(teacherId)!!

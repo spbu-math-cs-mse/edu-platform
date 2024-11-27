@@ -6,15 +6,15 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
 class MockGradeTable : GradeTable {
-  data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D,
+  data class GradeTableEntry(
+    val student: Student,
+    val teacher: Teacher,
+    val solution: Solution,
+    val solutionAssessment: SolutionAssessment,
   )
-  var mockIncrementalSolutionId = 0
+  private var mockIncrementalSolutionId = 0L
 
-  private val data: MutableList<Quadruple<Student, Teacher, Solution, SolutionAssessment>> =
+  private val data: MutableList<GradeTableEntry> =
     mutableListOf()
 
   override fun addAssessment(
@@ -23,18 +23,18 @@ class MockGradeTable : GradeTable {
     solution: Solution,
     assessment: SolutionAssessment,
   ) {
-    data.add(Quadruple(student, teacher, solution, assessment))
+    data.add(GradeTableEntry(student, teacher, solution, assessment))
   }
 
-  override fun getStudentPerformance(studentId: String): Map<Problem, Grade> =
+  override fun getStudentPerformance(studentId: Long): Map<Problem, Grade> =
     getGradeMap()[studentId] ?: mapOf()
 
-  fun getGradeMap(): Map<String, Map<Problem, Grade>> {
-    val result = mutableMapOf<String, MutableMap<Problem, Grade>>()
+  fun getGradeMap(): Map<Long, Map<Problem, Grade>> {
+    val result = mutableMapOf<Long, MutableMap<Problem, Grade>>()
     for (quadruple in data) {
-      val student = quadruple.first
-      val solution = quadruple.third
-      val solutionAssessment = quadruple.fourth
+      val student = quadruple.student
+      val solution = quadruple.solution
+      val solutionAssessment = quadruple.solutionAssessment
 
       val problem = solution.problem
       val grade = solutionAssessment.grade
@@ -45,13 +45,13 @@ class MockGradeTable : GradeTable {
     return result
   }
 
-  fun addTrivialAssessment(problem: Problem, studentId: String, grade: Grade) {
+  fun addTrivialAssessment(problem: Problem, studentId: Long, grade: Grade) {
     addAssessment(
       Student(studentId),
-      Teacher("0"),
+      Teacher(0L),
       Solution(
-        (mockIncrementalSolutionId++).toString(),
-        "",
+        mockIncrementalSolutionId++,
+        studentId,
         RawChatId(0),
         MessageId(0),
         problem,
@@ -62,7 +62,7 @@ class MockGradeTable : GradeTable {
     )
   }
 
-  fun addMockFilling(assignment: Assignment, userId: String) {
+  fun addMockFilling(assignment: Assignment, userId: Long) {
     val problems = assignment.problems
     problems.withIndex().filter { it.index % 2 == 1 }
       .forEach { (index, problem) ->

@@ -16,13 +16,13 @@ class DatabaseGradeTable(
     assessment: SolutionAssessment,
   ) {
     AssessmentTable.insert {
-      it[AssessmentTable.solutionId] = solution.id.toLongIdHack()
-      it[AssessmentTable.teacherId] = teacher.id.toLongIdHack()
+      it[AssessmentTable.solutionId] = solution.id
+      it[AssessmentTable.teacherId] = teacher.id
       it[AssessmentTable.grade] = assessment.grade
     }
   }
 
-  override fun getStudentPerformance(studentId: String): Map<Problem, Grade> {
+  override fun getStudentPerformance(studentId: Long): Map<Problem, Grade> {
     TODO("Not yet implemented")
   }
 }

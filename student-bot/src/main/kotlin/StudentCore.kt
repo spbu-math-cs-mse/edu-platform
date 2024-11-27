@@ -15,7 +15,7 @@ class StudentCore(
   fun getGradingForAssignment(
     assignment: Assignment,
     course: Course,
-    studentId: String,
+    studentId: Long,
   ): List<Pair<Problem, Grade?>> {
     assert(assignment in course.assignments)
     val grades =
@@ -28,11 +28,11 @@ class StudentCore(
     return gradedProblems
   }
 
-  fun getStudentCourses(studentId: String): List<Course> {
+  fun getStudentCourses(studentId: Long): List<Course> {
     return coursesDistributor.getStudentCourses(studentId)
   }
 
-  fun addRecord(studentId: String, courseId: String) {
+  fun addRecord(studentId: Long, courseId: Long) {
     coursesDistributor.addRecord(studentId, courseId)
   }
 
@@ -41,7 +41,7 @@ class StudentCore(
   }
 
   fun inputSolution(
-    studentId: String,
+    studentId: Long,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
@@ -54,7 +54,7 @@ class StudentCore(
     )
   }
 
-  fun getCoursesBulletList(userId: String): String {
+  fun getCoursesBulletList(userId: Long): String {
     val studentCourses = coursesDistributor.getStudentCourses(userId)
     val notRegisteredMessage = "Вы не записаны ни на один курс!"
     return if (!studentCourses.isEmpty()) {

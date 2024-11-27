@@ -4,13 +4,13 @@ import com.github.heheteam.commonlib.Course
 
 interface CoursesDistributor {
   fun addRecord(
-    studentId: String,
-    courseId: String,
+    studentId: Long,
+    courseId: Long,
   )
 
-  fun getStudentCourses(studentId: String): List<Course>
+  fun getStudentCourses(studentId: Long): List<Course>
 
   fun getCourses(): List<Course>
 
-  fun getTeacherCourses(teacherId: String): List<Course>
+  fun getTeacherCourses(teacherId: Long): List<Course>
 }

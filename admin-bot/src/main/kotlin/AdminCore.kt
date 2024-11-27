@@ -9,14 +9,14 @@ class AdminCore(
   private val gradeTable: GradeTable,
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
   private val coursesTable: MutableMap<String, Course>,
-  private val studentsTable: MutableMap<String, Student>,
-  private val teachersTable: MutableMap<String, Teacher>,
+  private val studentsTable: MutableMap<Long, Student>,
+  private val teachersTable: MutableMap<Long, Teacher>,
   private val adminsTable: List<Username>,
 ) : GradeTable, ScheduledMessagesDistributor {
   override fun addAssessment(student: Student, teacher: Teacher, solution: Solution, assessment: SolutionAssessment) =
     gradeTable.addAssessment(student, teacher, solution, assessment)
 
-  override fun getStudentPerformance(studentId: String): Map<Problem, Grade> =
+  override fun getStudentPerformance(studentId: Long): Map<Problem, Grade> =
     gradeTable.getStudentPerformance(studentId)
 
   override fun addMessage(message: ScheduledMessage) =
@@ -38,9 +38,9 @@ class AdminCore(
 
   fun getCourses() = coursesTable.toMap()
 
-  fun studentExists(id: String) = studentsTable.containsKey(id)
+  fun studentExists(id: Long) = studentsTable.containsKey(id)
 
-  fun teacherExists(id: String) = teachersTable.containsKey(id)
+  fun teacherExists(id: Long) = teachersTable.containsKey(id)
 
   fun isAdmin(username: Username) = adminsTable.contains(username)
 }

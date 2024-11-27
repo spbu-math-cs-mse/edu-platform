@@ -36,7 +36,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
       )
       val grade = waitDataCallbackQuery().first().data
       if (grade == "Родитель") {
-        mockParents[username] = Parent((mockParents.size + 1).toString(), listOf())
+        mockParents[username] = Parent((mockParents.size + 1).toLong(), listOf())
       }
       return@strictlyOn MenuState(state.context)
     }

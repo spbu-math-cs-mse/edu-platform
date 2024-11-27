@@ -5,7 +5,6 @@ import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import com.github.heheteam.commonlib.database.tables.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.ProblemTable
-import com.github.heheteam.commonlib.database.toLongIdHack
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
@@ -16,11 +15,11 @@ class DatabaseCoursesDistributor(
   val database: Database,
   val gradeTable: GradeTable,
 ) : CoursesDistributor {
-  override fun addRecord(studentId: String, courseId: String) {
+  override fun addRecord(studentId: Long, courseId: Long) {
     transaction(database) {
       CourseStudents.insert {
-        it[CourseStudents.studentId] = studentId.toLongIdHack()
-        it[CourseStudents.courseId] = courseId.toLongIdHack()
+        it[CourseStudents.studentId] = studentId
+        it[CourseStudents.courseId] = courseId
       }
     }
   }
@@ -29,14 +28,14 @@ class DatabaseCoursesDistributor(
     TODO("Not yet implemented")
   }
 
-  override fun getTeacherCourses(teacherId: String): List<Course> {
+  override fun getTeacherCourses(teacherId: Long): List<Course> {
     TODO("Not yet implemented")
   }
 
-  override fun getStudentCourses(studentId: String): List<Course> {
+  override fun getStudentCourses(studentId: Long): List<Course> {
     val courses = transaction {
       val courseIds = CourseStudents.selectAll()
-        .where { CourseStudents.studentId eq studentId.toLongIdHack() }
+        .where { CourseStudents.studentId eq studentId }
         .map { it[CourseStudents.courseId] }
       val courses = courseIds.map { courseId ->
         val courseRow =
@@ -52,7 +51,7 @@ class DatabaseCoursesDistributor(
             queryAssignment(assignmentId, assignmentDescription, courseId)
           }
         Course(
-          courseId.toString(),
+          courseId.value,
           mutableListOf(),
           mutableListOf(),
           courseDescription,
@@ -74,18 +73,18 @@ class DatabaseCoursesDistributor(
       .where { ProblemTable.assignment eq assignmentId }
       .map {
         Problem(
-          it[ProblemTable.id].toString(),
-          it[ProblemTable.id].toString(),
+          it[ProblemTable.id].value,
+          it[ProblemTable.id].value.toString(),
           it[ProblemTable.description],
           it[ProblemTable.maxScore],
-          assignmentId.toString(),
+          assignmentId.value,
         )
       }
     return Assignment(
-      assignmentId.toString(),
+      assignmentId.value,
       assignmentDescription,
       problems.toMutableList(),
-      courseId.toString(),
+      courseId.value,
     )
   }
 }

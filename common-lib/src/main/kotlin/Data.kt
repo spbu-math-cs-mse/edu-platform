@@ -9,26 +9,26 @@ import dev.inmo.tgbotapi.types.RawChatId
 typealias Grade = Int
 
 data class Student(
-  val id: String,
+  val id: Long,
   val name: String = "",
   val surname: String = "",
 )
 
 data class Parent(
-  val id: String,
+  val id: Long,
   val children: List<Student>,
 )
 
 data class Teacher(
-  val id: String,
+  val id: Long,
 )
 
 data class Problem(
-  val id: String,
+  val id: Long,
   val number: String,
   val description: String,
   val maxScore: Grade,
-  val assignmentId: String,
+  val assignmentId: Long,
 )
 
 enum class SolutionType {
@@ -39,8 +39,8 @@ enum class SolutionType {
 }
 
 data class Solution(
-  val id: String,
-  val studentId: String,
+  val id: Long,
+  val studentId: Long,
   val chatId: RawChatId,
   val messageId: MessageId,
   val problem: Problem,
@@ -50,7 +50,7 @@ data class Solution(
 )
 
 class Course(
-  val id: String,
+  val id: Long,
   val teachers: MutableList<Teacher> = mutableListOf(),
   val students: MutableList<Student> = mutableListOf(),
   var description: String,
@@ -59,10 +59,10 @@ class Course(
 )
 
 data class Assignment(
-  val id: String,
+  val id: Long,
   val description: String,
   val problems: MutableList<Problem>,
-  val courseId: String,
+  val courseId: Long,
 )
 
 data class SolutionContent(

@@ -4,10 +4,10 @@ import com.github.heheteam.commonlib.Solution
 import java.time.LocalDateTime
 
 interface TeacherStatistics {
-  fun recordAssessment(teacherId: String, solution: Solution, timestamp: LocalDateTime)
+  fun recordAssessment(teacherId: Long, solution: Solution, timestamp: LocalDateTime)
   fun recordNewSolution(solution: Solution)
-  fun getTeacherStats(teacherId: String): TeacherStatsData?
-  fun getAllTeachersStats(): Map<String, TeacherStatsData>
+  fun getTeacherStats(teacherId: Long): TeacherStatsData?
+  fun getAllTeachersStats(): Map<Long, TeacherStatsData>
   fun getGlobalStats(): GlobalTeacherStats
 }
 

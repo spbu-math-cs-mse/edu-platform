@@ -6,33 +6,34 @@ import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatsData
+import java.time.LocalDateTime
 
 class TeacherCore(
   private val teacherStatistics: TeacherStatistics,
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
 ) {
-  fun getTeacherStats(teacherId: String): TeacherStatsData? =
+  fun getTeacherStats(teacherId: Long): TeacherStatsData? =
     teacherStatistics.getTeacherStats(teacherId)
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
   fun getQueryStats() = teacherStatistics.getGlobalStats()
 
-  fun getAvailableCourses(teacherId: String): List<Course> {
+  fun getAvailableCourses(teacherId: Long): List<Course> {
     return coursesDistributor.getTeacherCourses(teacherId)
   }
 
-  fun querySolution(teacherId: String): Solution? {
+  fun querySolution(teacherId: Long): Solution? {
     return solutionDistributor.querySolution(teacherId)
   }
 
   fun assessSolution(
     solution: Solution,
-    teacherId: String,
+    teacherId: Long,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+    timestamp: LocalDateTime = LocalDateTime.now(),
   ) {
     solutionDistributor.assessSolution(
       solution,

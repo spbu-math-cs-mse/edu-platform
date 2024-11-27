@@ -51,7 +51,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
       else -> {
         bot.delete(stickerMessage)
         bot.delete(menuMessage)
-        return@strictlyOn ChildPerformanceState(state.context, Student(command))
+        return@strictlyOn ChildPerformanceState(state.context, Student(command.toLong()))
       }
     }
   }

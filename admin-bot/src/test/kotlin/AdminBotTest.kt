@@ -17,11 +17,11 @@ class AdminBotTest {
       mockAdminsTable,
     )
 
-  private val student = Student("1")
-  private val teacher = Teacher("1")
+  private val student = Student(1L)
+  private val teacher = Teacher(1L)
   private val course =
     Course(
-      "1",
+      1L,
       mutableListOf(teacher),
       mutableListOf(student),
       "",

@@ -16,7 +16,6 @@ import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
-@OptIn(RiskFeature::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
   userIdRegistry: UserIdRegistry,
   core: StudentCore,
@@ -49,7 +48,7 @@ class SigningUpState(
   private val studentCourses: MutableList<Course>,
   private val coursesToAvailability: MutableList<Pair<Course, Boolean>>,
   private val core: StudentCore,
-  private val studentId: String,
+  private val studentId: Long,
 ) {
 
   suspend fun BehaviourContext.signUp(initialMessage: ContentMessage<*>) {
@@ -70,7 +69,7 @@ class SigningUpState(
     val index = when {
       callbackData.contains(ButtonKey.COURSE_ID) -> {
         val courseId = callbackData.split(" ").last()
-        courses.indexOfFirst { it.id == courseId }
+        courses.indexOfFirst { it.id == courseId.toLong() }
       }
 
       else -> {
@@ -114,7 +113,7 @@ class SigningUpState(
     }
 
     studentCourses.add(courses[index])
-    coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId }] = courses[index] to true
+    coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == courseId.toLong() }] = courses[index] to true
 
     bot.editMessageReplyMarkup(
       state.context.id,

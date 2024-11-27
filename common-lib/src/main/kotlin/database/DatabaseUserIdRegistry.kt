@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.union
 class DatabaseUserIdRegistry(
   val database: Database,
 ) : UserIdRegistry {
-  override fun getUserId(tgId: UserId): String? =
+  override fun getUserId(tgId: UserId): Long? =
     transaction(database) {
       val students =
         StudentTable
@@ -30,6 +30,5 @@ class DatabaseUserIdRegistry(
         .firstOrNull()
         ?.get(StudentTable.id)
         ?.value
-        ?.toString()
     }
 }

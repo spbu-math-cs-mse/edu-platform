@@ -10,5 +10,5 @@ interface GradeTable {
     solution: Solution,
     assessment: SolutionAssessment,
   )
-  fun getStudentPerformance(studentId: String): Map<Problem, Grade>
+  fun getStudentPerformance(studentId: Long): Map<Problem, Grade>
 }

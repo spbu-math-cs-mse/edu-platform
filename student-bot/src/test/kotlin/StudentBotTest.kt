@@ -44,8 +44,8 @@ class StudentBotTest {
     }
     // check first input correctness
     val availableCourses = studentCore.getStudentCourses(userId)
-    assert(availableCourses.any { it.id == "0" })
-    val course = mockCoursesDistributor.getStudentCourses("0").first()
+    assert(availableCourses.any { it.id == 0L })
+    val course = mockCoursesDistributor.getStudentCourses(0L).first()
     val assignment = course.assignments.first()
     val grading =
       studentCore.getGradingForAssignment(
@@ -59,7 +59,7 @@ class StudentBotTest {
 
   @Test
   fun `new student courses assignment test`() {
-    val studentId = "rA9"
+    val studentId = 25L
 
     val studentCourses = studentCore.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.toInt() })
@@ -69,16 +69,16 @@ class StudentBotTest {
 
   @Test
   fun `new student courses handling test`() {
-    val studentId = "rA9"
+    val studentId = 36L
 
     run {
-      studentCore.addRecord(studentId, "0")
-      studentCore.addRecord(studentId, "3")
+      studentCore.addRecord(studentId, 0L)
+      studentCore.addRecord(studentId, 3L)
     }
 
     val studentCourses = studentCore.getStudentCourses(studentId)
 
-    assertEquals(listOf("0", "3"), studentCourses.map { it.id }.sortedBy { it.toInt() })
+    assertEquals(listOf(0L, 3L), studentCourses.map { it.id }.sortedBy { it.toInt() })
     assertEquals("Начала мат. анализа", studentCourses.first().description)
 
     assertEquals("- Начала мат. анализа\n- ТФКП", studentCore.getCoursesBulletList(studentId))
@@ -90,7 +90,7 @@ class StudentBotTest {
     val chatId = RawChatId(0)
 
     run {
-      val teacherId = "0"
+      val teacherId = 0L
       val userId = mockCoursesDistributor.singleUserId
 
       (0..4).forEach {
@@ -125,7 +125,7 @@ class StudentBotTest {
     assertEquals("sample0", firstSolution.content.text)
 
     val lastSolution = solutions.last()
-    assertEquals("5", lastSolution.id)
+    assertEquals(5L, lastSolution.id)
 
     assertEquals(solutions.map { it.chatId }.toSet(), setOf(chatId))
   }

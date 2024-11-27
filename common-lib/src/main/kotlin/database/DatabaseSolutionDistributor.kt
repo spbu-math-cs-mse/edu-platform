@@ -20,7 +20,7 @@ class DatabaseSolutionDistributor(
   val database: Database,
 ) : SolutionDistributor {
   override fun inputSolution(
-    studentId: String,
+    studentId: Long,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
@@ -28,7 +28,7 @@ class DatabaseSolutionDistributor(
     val solutionId =
       transaction(database) {
         SolutionTable.insert {
-          it[SolutionTable.studentId] = studentId.toLongIdHack()
+          it[SolutionTable.studentId] = studentId
           it[SolutionTable.chatId] = chatId.toChatId().chatId.long
           it[SolutionTable.messageId] = messageId.long
           it[SolutionTable.problemId] = 0 // TODO: Add this to the method arguments
@@ -37,7 +37,7 @@ class DatabaseSolutionDistributor(
       }.value.toString()
   }
 
-  override fun querySolution(teacherId: String): Solution? {
+  override fun querySolution(teacherId: Long): Solution? {
     val solutions =
       transaction(database) {
         val assessedSolutions = AssessmentTable.select(AssessmentTable.id).withDistinctOn(AssessmentTable.id)
@@ -50,11 +50,11 @@ class DatabaseSolutionDistributor(
 
     val solution = solutions.firstOrNull() ?: return null
     return Solution(
-      solution[SolutionTable.id].value.toString(),
-      solution[SolutionTable.studentId].value.toString(),
+      solution[SolutionTable.id].value,
+      solution[SolutionTable.studentId].value,
       RawChatId(solution[SolutionTable.chatId].absoluteValue),
       MessageId(solution[SolutionTable.messageId]),
-      Problem(solution[SolutionTable.problemId].value.toString(), "", "", 1, ""),
+      Problem(solution[SolutionTable.problemId].value, "", "", 1, TODO()),
       SolutionContent(listOf(), solution[SolutionTable.content]),
       SolutionType.TEXT,
     )
@@ -62,7 +62,7 @@ class DatabaseSolutionDistributor(
 
   override fun assessSolution(
     solution: Solution,
-    teacherId: String,
+    teacherId: Long,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     timestamp: LocalDateTime,
@@ -70,8 +70,8 @@ class DatabaseSolutionDistributor(
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solution.id.toLongIdHack()
-        it[AssessmentTable.teacherId] = teacherId.toLongIdHack()
+        it[AssessmentTable.solutionId] = solution.id
+        it[AssessmentTable.teacherId] = teacherId
         it[AssessmentTable.grade] = assessment.grade
       }
     }

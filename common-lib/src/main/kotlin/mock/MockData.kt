@@ -7,67 +7,67 @@ import com.github.heheteam.commonlib.Student
 
 val mockCoursesTable =
   mutableMapOf(
-    "0" to
+    0L to
       Course(
-        "0",
+        0L,
         description = "Начала мат. анализа",
         gradeTable = MockGradeTable(),
         assignments =
         mutableListOf(
           Assignment(
-            "0",
+            0L,
             "Серия 1",
-            mutableListOf(Problem("0", "1", "", 10, "0"), Problem("1", "2", "", 5, "0")),
-            "0",
+            mutableListOf(Problem(0, "1", "", 10, 0L), Problem(1, "2", "", 5, 0L)),
+            0L,
           ),
         ),
       ),
     "1" to
       Course(
-        "1",
+        1L,
         description = "Теория вероятности",
         gradeTable = MockGradeTable(),
         assignments = mutableListOf(
           Assignment(
-            "1", "Серия 1",
+            1L, "Серия 1",
             mutableListOf(
-              Problem("2", "1", "", 10, "1"),
+              Problem(2L, "1", "", 10, 1L),
             ),
-            "1",
+            1L,
           ),
         ),
       ),
-    "2" to
+    2L to
       Course(
-        "2",
+        2L,
         description = "Линейная алгебра",
         gradeTable = MockGradeTable(),
         assignments =
         mutableListOf(
           Assignment(
-            "2",
+            2L,
             "Серия 1",
             mutableListOf(
-              Problem("3", "1", "", 10, "2"),
-              Problem("4", "2", "", 5, "2"),
-              Problem("5", "3", "", 5, "2"),
+              Problem(3L, "1", "", 10, 2L),
+              Problem(4L, "2", "", 5, 2L),
+              Problem(5L, "3", "", 5, 2L),
             ),
-            "2",
+            2L,
           ),
         ),
       ),
-    "3" to
+    3L to
       Course(
-        "3",
+        3L,
         description = "Теория функции комплексной переменной",
         gradeTable = MockGradeTable(),
         assignments =
         mutableListOf(
           Assignment(
-            "3",
+            3L,
             "Серия 1",
-            mutableListOf(Problem("6", "1", "", 1, "3"), Problem("7", "2", "", 5, "3")),
-            "3",
+            mutableListOf(Problem(6L, "1", "", 1, 3L), Problem(7L, "2", "", 5, 3L)),
+            3L,
           ),
         ),
       ),
@@ -75,10 +75,10 @@ val mockCoursesTable =
 
 val mockStudentsTable =
   mutableMapOf(
-    "0" to Student("0", "Мария", "Кузнецова"),
-    "1" to Student("1", "Иван", "Баландин"),
-    "2" to Student("2"),
-    "3" to Student("3"),
+    0L to Student(0, "Мария", "Кузнецова"),
+    1L to Student(1, "Иван", "Баландин"),
+    2L to Student(2),
+    3L to Student(3),
   )
 
 // Student.id -> MutableList<Course.id>

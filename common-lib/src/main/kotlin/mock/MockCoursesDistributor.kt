@@ -3,8 +3,6 @@ package com.github.heheteam.commonlib.mock
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.CoursesDistributor
 
-const val PROBLEMS_PER_COURSE = 4
-
 class MockCoursesDistributor : CoursesDistributor {
   val singleUserId = 0L
   private val students =
@@ -18,7 +16,12 @@ class MockCoursesDistributor : CoursesDistributor {
   /*
   generates a course with dummy content with PROBLEMS_PER_COURSE problems
    */
-  fun generateCourse(courseId: Long, name: String): Course {
+  fun generateCourse(
+    courseId: Long,
+    name: String,
+    assignmentsPerCourse: Int = 1,
+    problemsPerAssignment: Int = 4,
+  ): Course {
     val singleAssignmentId = courseId * 10 + 1
     return Course(
       courseId,
@@ -26,22 +29,23 @@ class MockCoursesDistributor : CoursesDistributor {
       mutableListOf(),
       name,
       MockGradeTable(),
-      assignments = mutableListOf(
+      assignments = (0..assignmentsPerCourse).map { assignmentNum ->
+        val assignmentId = courseId * 1000 + assignmentNum
         Assignment(
-          singleAssignmentId,
-          "sample assignment",
-          problems = (1..PROBLEMS_PER_COURSE).map {
+          assignmentId,
+          "sample assignment $assignmentNum",
+          problems = (1..problemsPerAssignment).map { problemNum ->
             Problem(
-              id = singleAssignmentId * 100 + it,
-              number = it.toString(),
+              id = singleAssignmentId * 1000 + problemNum,
+              number = problemNum.toString(),
               description = "",
-              assignmentId = singleAssignmentId,
+              assignmentId = assignmentId,
               maxScore = 1,
             )
           }.toMutableList(),
-          courseId = 0,
-        ),
-      ),
+          courseId = courseId,
+        )
+      }.toMutableList(),
     )
   }
 

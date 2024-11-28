@@ -60,14 +60,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               state.context,
               InputFile.fromId(solution.content.fileIds!![0]),
               text =
-                if (solution.content.text == null) {
-                  solutionInfo(solution)
-                } else {
-                  solution.content.text + "\n\n\n" +
-                    solutionInfo(
-                      solution,
-                    )
-                },
+              if (solution.content.text == null) {
+                solutionInfo(solution)
+              } else {
+                solution.content.text + "\n\n\n" +
+                  solutionInfo(
+                    solution,
+                  )
+              },
               replyMarkup = Keyboards.solutionMenu(),
             )
 
@@ -94,14 +94,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               state.context,
               InputFile.fromId(solution.content.fileIds!![0]),
               text =
-                if (solution.content.text == null) {
-                  solutionInfo(solution)
-                } else {
-                  solution.content.text + "\n\n\n" +
-                    solutionInfo(
-                      solution,
-                    )
-                },
+              if (solution.content.text == null) {
+                solutionInfo(solution)
+              } else {
+                solution.content.text + "\n\n\n" +
+                  solutionInfo(
+                    solution,
+                  )
+              },
               replyMarkup = Keyboards.solutionMenu(),
             )
       }

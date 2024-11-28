@@ -2,7 +2,7 @@ package com.github.heheteam.parentbot.states
 
 import Dialogues
 import Keyboards
-import com.github.heheteam.parentbot.mockParents
+import com.github.heheteam.commonlib.api.ParentIdRegistry
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -17,15 +17,9 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState(userIdRegistry: ParentIdRegistry) {
   strictlyOn<GivingFeedbackState> { state ->
-    if (state.context.username == null) {
-      return@strictlyOn null
-    }
-    val username = state.context.username!!.username
-    if (!mockParents.containsKey(username)) {
-      return@strictlyOn StartState(state.context)
-    }
+    val userId = userIdRegistry.getUserId(state.context.id) ?: return@strictlyOn StartState(state.context)
 
     val giveFeedbackMessage =
       bot.send(
@@ -44,7 +38,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
 
       is CommonMessage<*> -> {
         val feedback = response.content
-        println("Feedback by user @$username: \n\"$feedback\"")
+        println("Feedback by user @${state.context.username}: \n\"$feedback\"") // TODO: implement receiving feedback
 
         bot.sendSticker(
           state.context,

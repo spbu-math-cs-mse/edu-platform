@@ -14,7 +14,7 @@ data class Student(
 
 data class Parent(
   val id: ParentId,
-  val children: List<Student>,
+  val children: List<StudentId>,
 )
 
 data class Teacher(

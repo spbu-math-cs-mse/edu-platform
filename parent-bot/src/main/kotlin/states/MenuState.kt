@@ -2,9 +2,10 @@ package com.github.heheteam.parentbot.states
 
 import Dialogues
 import Keyboards
+import ParentCore
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.api.ParentIdRegistry
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.parentbot.mockParents
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -12,15 +13,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
+  userIdRegistry: ParentIdRegistry,
+  core: ParentCore,
+) {
   strictlyOn<MenuState> { state ->
-    if (state.context.username == null) {
-      return@strictlyOn null
-    }
-    val username = state.context.username!!.username
-    if (!mockParents.containsKey(username)) {
-      return@strictlyOn StartState(state.context)
-    }
+    val userId = userIdRegistry.getUserId(state.context.id) ?: return@strictlyOn StartState(state.context)
 
     val stickerMessage =
       bot.sendSticker(
@@ -32,7 +30,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
       bot.send(
         state.context,
         Dialogues.menu(),
-        replyMarkup = Keyboards.menu(mockParents[username]!!.children),
+        replyMarkup = Keyboards.menu(core.getChildren(userId)),
       )
 
     when (val command = waitDataCallbackQuery().first().data) {

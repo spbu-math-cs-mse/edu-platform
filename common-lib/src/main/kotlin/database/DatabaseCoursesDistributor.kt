@@ -86,7 +86,7 @@ class DatabaseCoursesDistributor(
     val problems =
       ProblemTable
         .selectAll()
-        .where { ProblemTable.assignment eq assignmentId }
+        .where { ProblemTable.assignmentId eq assignmentId }
         .map {
           Problem(
             ProblemId(it[ProblemTable.id].value),

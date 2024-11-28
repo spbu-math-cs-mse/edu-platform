@@ -32,7 +32,7 @@ class DatabaseSolutionDistributor(
           it[SolutionTable.chatId] = chatId.toChatId().chatId.long
           it[SolutionTable.messageId] = messageId.long
           it[SolutionTable.problemId] = problemId.id
-          it[SolutionTable.content] = solutionContent.text
+          it[SolutionTable.content] = solutionContent.text ?: ""
         } get SolutionTable.id
       }.value
     return SolutionId(solutionId)

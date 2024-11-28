@@ -31,6 +31,7 @@ fun main(args: Array<String>) {
       TeacherTable,
       AdminTable,
       ParentTable,
+      ParentStudents,
     )
     create(
       AssessmentTable,
@@ -44,6 +45,7 @@ fun main(args: Array<String>) {
       TeacherTable,
       AdminTable,
       ParentTable,
+      ParentStudents,
     )
   }
 }

@@ -2,6 +2,9 @@ import com.github.heheteam.adminbot.*
 import com.github.heheteam.adminbot.mockCoursesTable
 import com.github.heheteam.adminbot.mockStudentsTable
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.mock.MockCoursesDistributor
 import java.time.LocalDateTime
 import kotlin.test.Test
@@ -19,11 +22,11 @@ class AdminBotTest {
       MockCoursesDistributor(),
     )
 
-  private val student = Student(1L)
-  private val teacher = Teacher(1L)
+  private val student = Student(StudentId(1L))
+  private val teacher = Teacher(TeacherId(1L))
   private val course =
     Course(
-      1L,
+      CourseId(1L),
       "",
     )
 

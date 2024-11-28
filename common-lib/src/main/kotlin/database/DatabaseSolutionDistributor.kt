@@ -2,9 +2,9 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
-import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
@@ -18,7 +18,7 @@ class DatabaseSolutionDistributor(
   val database: Database,
 ) : SolutionDistributor {
   override fun inputSolution(
-    studentId: Long,
+    studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
@@ -28,21 +28,23 @@ class DatabaseSolutionDistributor(
     val solutionId =
       transaction(database) {
         SolutionTable.insert {
-          it[SolutionTable.studentId] = studentId
+          it[SolutionTable.studentId] = studentId.id
           it[SolutionTable.chatId] = chatId.toChatId().chatId.long
           it[SolutionTable.messageId] = messageId.long
-          it[SolutionTable.problemId] = problemId
+          it[SolutionTable.problemId] = problemId.id
           it[SolutionTable.content] = solutionContent.text
         } get SolutionTable.id
       }.value
-    return solutionId
+    return SolutionId(solutionId)
   }
 
-  override fun querySolution(teacherId: Long): SolutionId? {
+  override fun querySolution(teacherId: TeacherId): SolutionId? {
     val solutions =
       transaction(database) {
-        val assessedSolutions = AssessmentTable.select(AssessmentTable.id)
-          .withDistinctOn(AssessmentTable.id)
+        val assessedSolutions =
+          AssessmentTable
+            .select(AssessmentTable.id)
+            .withDistinctOn(AssessmentTable.id)
 
         SolutionTable
           .selectAll()
@@ -68,8 +70,8 @@ class DatabaseSolutionDistributor(
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solutionId
-        it[AssessmentTable.teacherId] = teacherId
+        it[AssessmentTable.solutionId] = solutionId.id
+        it[AssessmentTable.teacherId] = teacherId.id
         it[AssessmentTable.grade] = assessment.grade
       }
     }

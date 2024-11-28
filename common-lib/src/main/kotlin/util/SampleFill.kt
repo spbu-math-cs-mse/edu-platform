@@ -1,9 +1,6 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.*
 
 fun generateCourse(
   name: String,
@@ -35,8 +32,8 @@ fun fillWithSamples(
   val linAlgebra = generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
   val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
 
-  (0 until 5).map { studentId -> coursesDistributor.addRecord(studentId.toLong(), realAnalysis) }
-  (0 until 5).map { studentId -> coursesDistributor.addRecord(studentId.toLong(), probTheory) }
-  (5 until 10).map { studentId -> coursesDistributor.addRecord(studentId.toLong(), probTheory) }
-  (5 until 10).map { studentId -> coursesDistributor.addRecord(studentId.toLong(), linAlgebra) }
+  (0 until 5).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), realAnalysis) }
+  (0 until 5).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), probTheory) }
+  (5 until 10).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), probTheory) }
+  (5 until 10).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), linAlgebra) }
 }

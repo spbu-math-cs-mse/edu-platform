@@ -4,19 +4,20 @@ import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
 
 class MockGradeTable(
-  val constGradeMap: Map<Long, Map<Problem, Int>> =
+  val constGradeMap: Map<StudentId, Map<Problem, Int>> =
     mapOf(
-      1L to
+      StudentId(1L) to
         mapOf(
-          Problem(1L, "1c", "", 1000, 1L) to 100,
-          Problem(2L, "1d", "", 1000, 1L) to 500,
-          Problem(3L, "2a", "", 1000, 1L) to 200,
+          Problem(ProblemId(1L), "1c", "", 1000, AssignmentId(1L)) to 100,
+          Problem(ProblemId(2L), "1d", "", 1000, AssignmentId(1L)) to 500,
+          Problem(ProblemId(3L), "2a", "", 1000, AssignmentId(1L)) to 200,
         ),
-      2L to mapOf(
-        Problem(2L, "1d", "", 1000, 1L) to 250,
-        Problem(3L, "2a", "", 1000, 1L) to 200,
-      ),
-      3L to mapOf(Problem(1L, "1c", "", 1000, 1L) to 200),
+      StudentId(2L) to
+        mapOf(
+          Problem(ProblemId(2L), "1d", "", 1000, AssignmentId(1L)) to 250,
+          Problem(ProblemId(3L), "2a", "", 1000, AssignmentId(1L)) to 200,
+        ),
+      StudentId(3L) to mapOf(Problem(ProblemId(1L), "1c", "", 1000, AssignmentId(1L)) to 200),
     ),
 ) : GradeTable {
   override fun addAssessment(
@@ -29,18 +30,18 @@ class MockGradeTable(
   override fun getStudentPerformance(
     studentId: StudentId,
     solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> =
-    constGradeMap[studentId]?.mapKeys { it.key.id } ?: mapOf()
+  ): Map<ProblemId, Grade> = constGradeMap[studentId]?.mapKeys { it.key.id } ?: mapOf()
 }
 
 var mockTgUsername: String = ""
 
 val mockParents: MutableMap<String, Parent> by lazy {
   mutableMapOf(
-    mockTgUsername to Parent(
-      1L,
-      listOf(Student(1L), Student(2L), Student(4L)),
-    ),
-    "@somebody" to Parent(2L, listOf(Student(3L))),
+    mockTgUsername to
+      Parent(
+        ParentId(1L),
+        listOf(Student(StudentId(1L)), Student(StudentId(2L)), Student(StudentId(4L))),
+      ),
+    "@somebody" to Parent(ParentId(2L), listOf(Student(StudentId(3L)))),
   )
 }

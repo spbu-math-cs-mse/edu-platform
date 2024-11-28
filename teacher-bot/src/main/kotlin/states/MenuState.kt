@@ -1,6 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.api.UserIdRegistry
+import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
@@ -11,7 +11,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(userIdRegistry: UserIdRegistry, core: TeacherCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
+  userIdRegistry: TeacherIdRegistry,
+  core: TeacherCore,
+) {
   strictlyOn<MenuState> { state ->
     if (state.context.username == null) {
       return@strictlyOn null

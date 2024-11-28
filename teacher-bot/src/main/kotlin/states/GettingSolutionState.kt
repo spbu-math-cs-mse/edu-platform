@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.api.UserIdRegistry
+import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.mock.InMemoryGradeTable
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
@@ -30,7 +30,10 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(userIdRegistry: UserIdRegistry, core: TeacherCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
+  userIdRegistry: TeacherIdRegistry,
+  core: TeacherCore,
+) {
   strictlyOn<GettingSolutionState> { state ->
     val userId = userIdRegistry.getUserId(state.context.id)!!
     val solution = core.querySolution(userIdRegistry.getUserId(state.context.id)!!)
@@ -57,14 +60,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(user
               state.context,
               InputFile.fromId(solution.content.fileIds!![0]),
               text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
+                if (solution.content.text == null) {
+                  solutionInfo(solution)
+                } else {
+                  solution.content.text + "\n\n\n" +
+                    solutionInfo(
+                      solution,
+                    )
+                },
               replyMarkup = Keyboards.solutionMenu(),
             )
 
@@ -91,14 +94,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(user
               state.context,
               InputFile.fromId(solution.content.fileIds!![0]),
               text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
+                if (solution.content.text == null) {
+                  solutionInfo(solution)
+                } else {
+                  solution.content.text + "\n\n\n" +
+                    solutionInfo(
+                      solution,
+                    )
+                },
               replyMarkup = Keyboards.solutionMenu(),
             )
       }

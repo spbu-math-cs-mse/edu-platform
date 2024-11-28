@@ -3,6 +3,7 @@ package com.github.heheteam.parentbot.states
 import Dialogues
 import Keyboards
 import com.github.heheteam.commonlib.Parent
+import com.github.heheteam.commonlib.api.ParentId
 import com.github.heheteam.parentbot.mockParents
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -36,7 +37,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState() {
       )
       val grade = waitDataCallbackQuery().first().data
       if (grade == "Родитель") {
-        mockParents[username] = Parent((mockParents.size + 1).toLong(), listOf())
+        mockParents[username] = Parent(ParentId((mockParents.size + 1).toLong()), listOf())
       }
       return@strictlyOn MenuState(state.context)
     }

@@ -2,19 +2,19 @@ package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.statistics.TeacherStatistics
+import com.github.heheteam.commonlib.api.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 import kotlin.collections.mutableListOf
 
-class InMemorySolutionDistributor() : SolutionDistributor {
+class InMemorySolutionDistributor : SolutionDistributor {
   private val solutions = mutableListOf<Solution>()
   private val assessedSolutions = mutableListOf<SolutionId>()
   private var solutionId = 1L
 
   override fun inputSolution(
-    studentId: Long,
+    studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
@@ -30,7 +30,7 @@ class InMemorySolutionDistributor() : SolutionDistributor {
       }
     val solution =
       Solution(
-        solutionId++,
+        SolutionId(solutionId++),
         studentId,
         chatId,
         messageId,
@@ -43,12 +43,9 @@ class InMemorySolutionDistributor() : SolutionDistributor {
     return solution.id
   }
 
-  override fun querySolution(teacherId: Long): SolutionId? =
-    solutions.filter { !assessedSolutions.contains(it.id) }.firstOrNull()?.id
+  override fun querySolution(teacherId: TeacherId): SolutionId? = solutions.filter { !assessedSolutions.contains(it.id) }.firstOrNull()?.id
 
-  override fun resolveSolution(solutionId: SolutionId): Solution {
-    return solutions.single { it.id == solutionId }
-  }
+  override fun resolveSolution(solutionId: SolutionId): Solution = solutions.single { it.id == solutionId }
 
   override fun assessSolution(
     solutionId: SolutionId,

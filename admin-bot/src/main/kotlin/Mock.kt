@@ -3,6 +3,9 @@ package com.github.heheteam.adminbot
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.mock.InMemoryGradeTable
 import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
@@ -13,21 +16,21 @@ val mockCoursesTable: MutableMap<String, Course> =
   mutableMapOf(
     "Геома 1" to
       Course(
-        1L,
+        CourseId(1L),
         "какое-то описание",
       ),
   )
 
-val mockStudentsTable: MutableMap<Long, Student> =
+val mockStudentsTable: MutableMap<StudentId, Student> =
   mutableMapOf(
-    1L to Student(1L),
-    2L to Student(2L),
+    StudentId(1L) to Student(StudentId(1L)),
+    StudentId(2L) to Student(StudentId(2L)),
   )
 
-val mockTeachersTable: MutableMap<Long, Teacher> =
+val mockTeachersTable: MutableMap<TeacherId, Teacher> =
   mutableMapOf(
-    3L to Teacher(3L),
-    4L to Teacher(4L),
+    TeacherId(3L) to Teacher(TeacherId(3L)),
+    TeacherId(4L) to Teacher(TeacherId(4L)),
   )
 
 val mockAdminsTable: List<Username> =

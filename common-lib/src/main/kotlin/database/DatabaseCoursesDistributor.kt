@@ -1,8 +1,5 @@
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import com.github.heheteam.commonlib.database.tables.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
@@ -17,11 +14,14 @@ class DatabaseCoursesDistributor(
   val database: Database,
   val gradeTable: GradeTable,
 ) : CoursesDistributor {
-  override fun addRecord(studentId: Long, courseId: Long) {
+  override fun addRecord(
+    studentId: StudentId,
+    courseId: CourseId,
+  ) {
     transaction(database) {
       CourseStudents.insert {
-        it[CourseStudents.studentId] = studentId
-        it[CourseStudents.courseId] = courseId
+        it[CourseStudents.studentId] = studentId.id
+        it[CourseStudents.courseId] = courseId.id
       }
     }
   }
@@ -30,7 +30,7 @@ class DatabaseCoursesDistributor(
     TODO("Not yet implemented")
   }
 
-  override fun getTeacherCourses(teacherId: Long): List<CourseId> {
+  override fun getTeacherCourses(teacherId: TeacherId): List<CourseId> {
     TODO("Not yet implemented")
   }
 
@@ -46,31 +46,35 @@ class DatabaseCoursesDistributor(
     TODO("Not yet implemented")
   }
 
-  override fun getStudentCourses(studentId: Long): List<CourseId> {
-    val courses = transaction {
-      val courseIds = CourseStudents.selectAll()
-        .where { CourseStudents.studentId eq studentId }
-        .map { it[CourseStudents.courseId] }
-      val courses = courseIds.map { courseId ->
-        val courseRow =
-          CourseTable.selectAll().where { CourseTable.id eq courseId }.single()
-        val courseDescription = courseRow[CourseTable.description]
-        val preassignments = AssignmentTable
-          .selectAll()
-          .where { AssignmentTable.course eq courseId }
-          .map { it[AssignmentTable.id] to it[AssignmentTable.description] }
-          .toList()
-        val assignments =
-          preassignments.map { (assignmentId, assignmentDescription) ->
-            queryAssignment(assignmentId, assignmentDescription, courseId)
+  override fun getStudentCourses(studentId: StudentId): List<CourseId> {
+    val courses =
+      transaction {
+        val courseIds =
+          CourseStudents
+            .selectAll()
+            .where { CourseStudents.studentId eq studentId.id }
+            .map { it[CourseStudents.courseId] }
+        val courses =
+          courseIds.map { courseId ->
+            val courseRow =
+              CourseTable.selectAll().where { CourseTable.id eq courseId }.single()
+            val courseDescription = courseRow[CourseTable.description]
+            val preassignments =
+              AssignmentTable
+                .selectAll()
+                .where { AssignmentTable.course eq courseId }
+                .map { it[AssignmentTable.id] to it[AssignmentTable.description] }
+                .toList()
+            preassignments.map { (assignmentId, assignmentDescription) ->
+              queryAssignment(assignmentId, assignmentDescription, courseId)
+            }
+            Course(
+              CourseId(courseId.value),
+              courseDescription,
+            )
           }
-        Course(
-          courseId.value,
-          courseDescription,
-        )
+        courses
       }
-      courses
-    }
     return courses.map { it.id }
   }
 
@@ -79,22 +83,24 @@ class DatabaseCoursesDistributor(
     assignmentDescription: String,
     courseId: EntityID<Long>,
   ): Assignment {
-    val problems = ProblemTable.selectAll()
-      .where { ProblemTable.assignment eq assignmentId }
-      .map {
-        Problem(
-          it[ProblemTable.id].value,
-          it[ProblemTable.id].value.toString(),
-          it[ProblemTable.description],
-          it[ProblemTable.maxScore],
-          assignmentId.value,
-        )
-      }
+    val problems =
+      ProblemTable
+        .selectAll()
+        .where { ProblemTable.assignment eq assignmentId }
+        .map {
+          Problem(
+            ProblemId(it[ProblemTable.id].value),
+            it[ProblemTable.id].value.toString(),
+            it[ProblemTable.description],
+            it[ProblemTable.maxScore],
+            AssignmentId(assignmentId.value),
+          )
+        }
     return Assignment(
-      assignmentId.value,
+      AssignmentId(assignmentId.value),
       assignmentDescription,
       problems.map { it.id },
-      courseId.value,
+      CourseId(courseId.value),
     )
   }
 }

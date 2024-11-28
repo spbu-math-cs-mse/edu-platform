@@ -1,9 +1,8 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.mock.*
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -14,7 +13,6 @@ import kotlin.test.*
 class SolutionDistributionTest {
   private lateinit var coursesDistributor: MockCoursesDistributor
   private lateinit var solutionDistributor: InMemorySolutionDistributor
-  private lateinit var userIdRegistry: MockUserIdRegistry
   private lateinit var teacherStatistics: MockTeacherStatistics
   private lateinit var gradeTable: InMemoryGradeTable
   private val problemStorage: ProblemStorage = InMemoryProblemStorage()
@@ -43,32 +41,34 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution with existing student test`() {
-    val teacherId = 0L
+    val teacherId = TeacherId(0L)
 
-    teacherCore = TeacherCore(
-      teacherStatistics,
-      coursesDistributor,
-      solutionDistributor,
-      InMemoryGradeTable(),
-    )
+    teacherCore =
+      TeacherCore(
+        teacherStatistics,
+        coursesDistributor,
+        solutionDistributor,
+        InMemoryGradeTable(),
+      )
 
     val userId = coursesDistributor.singleUserId
     val chatId = RawChatId(100)
     val messageId = MessageId(10)
     val text = "sample solution\nwith lines\n..."
 
-    val problemId = 239L
+    val problemId = ProblemId(239L)
     studentCore.inputSolution(
-      userId,
+      StudentId(userId),
       chatId,
       messageId,
       SolutionContent(text = text),
       problemId,
     )
 
-    val extractedSolution = solutionDistributor.resolveSolution(
-      solutionDistributor.querySolution(teacherId)!!,
-    )
+    val extractedSolution =
+      solutionDistributor.resolveSolution(
+        solutionDistributor.querySolution(teacherId)!!,
+      )
     assertNotNull(extractedSolution)
     val expectedText =
       """sample solution
@@ -100,21 +100,22 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution with new student test`() {
-    val teacherId = 654L
+    val teacherId = TeacherId(654L)
 
-    teacherCore = TeacherCore(
-      teacherStatistics,
-      coursesDistributor,
-      solutionDistributor,
-      InMemoryGradeTable(),
-    )
+    teacherCore =
+      TeacherCore(
+        teacherStatistics,
+        coursesDistributor,
+        solutionDistributor,
+        InMemoryGradeTable(),
+      )
 
-    val userId = 255L
+    val userId = StudentId(255L)
     val chatId = RawChatId(200)
     val messageId = MessageId(15)
     val text = SolutionType.PHOTOS.toString()
     val fileIds = listOf("2", "3", "4")
-    val problemId = 239L
+    val problemId = ProblemId(239L)
     studentCore.inputSolution(
       userId,
       chatId,
@@ -123,9 +124,10 @@ class SolutionDistributionTest {
       problemId,
     )
 
-    val extractedSolution = solutionDistributor.resolveSolution(
-      solutionDistributor.querySolution(teacherId)!!,
-    )
+    val extractedSolution =
+      solutionDistributor.resolveSolution(
+        solutionDistributor.querySolution(teacherId)!!,
+      )
     assertNotNull(extractedSolution)
     assertEquals(text, "PHOTOS")
     assertEquals(problemId, extractedSolution.problemId)
@@ -150,13 +152,15 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution with multiple test`() {
-    val teacherId = 1337L
-    val teacherId2 = 1338L
+    val teacherId = TeacherId(1337L)
+    val teacherId2 = TeacherId(1338L)
 
     teacherCore =
       TeacherCore(
         teacherStatistics,
-        coursesDistributor, solutionDistributor, InMemoryGradeTable(),
+        coursesDistributor,
+        solutionDistributor,
+        InMemoryGradeTable(),
       )
 
     val teacherCore2 =
@@ -167,7 +171,7 @@ class SolutionDistributionTest {
         InMemoryGradeTable(),
       )
 
-    val userId1 = coursesDistributor.singleUserId
+    val userId1 = StudentId(coursesDistributor.singleUserId)
     var id = 10L
     var problemId = 0L
     val chatId1 = RawChatId(88)
@@ -182,7 +186,7 @@ class SolutionDistributionTest {
           chatId1,
           messageId,
           SolutionContent(text = text),
-          problemId++,
+          ProblemId(problemId++),
         )
       }
       studentCore.inputSolution(
@@ -193,7 +197,7 @@ class SolutionDistributionTest {
           fileIds = fileIds1,
           text = SolutionType.DOCUMENT.toString(),
         ),
-        problemId++,
+        ProblemId(problemId++),
       )
     }
 
@@ -211,7 +215,7 @@ class SolutionDistributionTest {
     assertNotNull(solution2)
 
     assertEquals("solution 11", solution2.content.text)
-    assertEquals(2L, solution2.id)
+    assertEquals(SolutionId(2L), solution2.id)
 
     teacherCore2.assessSolution(
       solution2,
@@ -220,7 +224,7 @@ class SolutionDistributionTest {
       gradeTable,
     )
 
-    val userId2 = 3L
+    val userId2 = StudentId(3L)
     val chatId2 = RawChatId(90)
     val messageId2 = MessageId(203)
     val text2 = "another solution"
@@ -231,7 +235,7 @@ class SolutionDistributionTest {
         chatId2,
         messageId2,
         SolutionContent(text = text2),
-        problemId++,
+        ProblemId(problemId++),
       )
     }
 

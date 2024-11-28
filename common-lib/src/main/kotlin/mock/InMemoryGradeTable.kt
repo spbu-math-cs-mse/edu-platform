@@ -27,26 +27,32 @@ class InMemoryGradeTable : GradeTable {
     studentId: StudentId,
     solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade> =
-    entries.filter {
-      val solution = solutionDistributor.resolveSolution(it.solutionId)
-      solution.studentId == studentId
-    }.associate {
-      val solution = solutionDistributor.resolveSolution(it.solutionId)
-      solution.problemId to it.solutionAssessment.grade
-    }
+    entries
+      .filter {
+        val solution = solutionDistributor.resolveSolution(it.solutionId)
+        solution.studentId == studentId
+      }.associate {
+        val solution = solutionDistributor.resolveSolution(it.solutionId)
+        solution.problemId to it.solutionAssessment.grade
+      }
 
   fun addTrivialAssessment(grade: Grade) {
     addAssessment(
-      0L,
-      mockIncrementalSolutionId++,
+      TeacherId(0L),
+      SolutionId(mockIncrementalSolutionId++),
       SolutionAssessment(grade, ""),
     )
   }
 
-  fun addMockFilling(assignment: Assignment, userId: Long) {
+  fun addMockFilling(
+    assignment: Assignment,
+    userId: Long,
+  ) {
     val problemIds = assignment.problemIds
-    problemIds.withIndex().filter { it.index % 2 == 1 }
-      .forEach { (index, problemId) ->
+    problemIds
+      .withIndex()
+      .filter { it.index % 2 == 1 }
+      .forEach { (index, _) ->
         val grade = if (index == 1) 1 else 0
         addTrivialAssessment(
           grade,

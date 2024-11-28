@@ -1,7 +1,10 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.UserIdRegistry
+import com.github.heheteam.commonlib.api.AssignmentId
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
@@ -27,7 +30,7 @@ import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
-  userIdRegistry: UserIdRegistry,
+  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<SendSolutionState> { state ->
@@ -141,7 +144,7 @@ private suspend fun BehaviourContext.queryCourse(
   }
 
   val courseId = callbackData.split(" ").last()
-  return courses.first { it.id == courseId.toLong() }
+  return courses.first { it.id == CourseId(courseId.toLong()) }
 }
 
 private suspend fun BehaviourContext.queryAssignments(
@@ -159,7 +162,7 @@ private suspend fun BehaviourContext.queryAssignments(
   }
 
   val assignmentId = callbackData.split(" ").last()
-  return assignments.first { it.id == assignmentId.toLong() }
+  return assignments.first { it.id == AssignmentId(assignmentId.toLong()) }
 }
 
 private suspend fun BehaviourContext.queryProblem(
@@ -177,7 +180,7 @@ private suspend fun BehaviourContext.queryProblem(
   }
 
   val problemId = callbackData.split(" ").last()
-  return problems.single { it.id == problemId.toLong() }
+  return problems.single { it.id == ProblemId(problemId.toLong()) }
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {

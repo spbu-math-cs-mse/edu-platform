@@ -2,6 +2,18 @@ package com.github.heheteam.commonlib.api
 
 import dev.inmo.tgbotapi.types.UserId
 
-interface UserIdRegistry {
-  fun getUserId(tgId: UserId): Long?
+interface AdminIdRegistry {
+  fun getUserId(tgId: UserId): AdminId?
+}
+
+interface StudentIdRegistry {
+  fun getUserId(tgId: UserId): StudentId?
+}
+
+interface TeacherIdRegistry {
+  fun getUserId(tgId: UserId): TeacherId?
+}
+
+interface ParentIdRegistry {
+  fun getUserId(tgId: UserId): ParentId?
 }

@@ -1,10 +1,7 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.mock.InMemoryGradeTable
-import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
-import com.github.heheteam.commonlib.mock.MockCoursesDistributor
-import com.github.heheteam.commonlib.mock.MockUserIdRegistry
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
@@ -52,18 +49,19 @@ suspend fun main(vararg args: String) {
       }
     }
     val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
+    val userIdRegistry = MockTeacherIdRegistry(mockCoursesDistributor.singleUserId)
     val mockTeacherStatistics = MockTeacherStatistics()
     run {
       // fill with mock data
-      mockTeacherStatistics.addMockFilling(mockCoursesDistributor.singleUserId)
+      mockTeacherStatistics.addMockFilling(TeacherId(mockCoursesDistributor.singleUserId))
     }
-    val core = TeacherCore(
-      mockTeacherStatistics,
-      mockCoursesDistributor,
-      InMemorySolutionDistributor(),
-      InMemoryGradeTable(),
-    )
+    val core =
+      TeacherCore(
+        mockTeacherStatistics,
+        mockCoursesDistributor,
+        InMemorySolutionDistributor(),
+        InMemoryGradeTable(),
+      )
 
     strictlyOnStartState(userIdRegistry)
     strictlyOnMenuState(userIdRegistry, core)

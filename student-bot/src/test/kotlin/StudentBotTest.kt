@@ -1,9 +1,7 @@
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.mock.*
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockTeacherStatistics
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -37,10 +35,10 @@ class StudentBotTest {
 
   @Test
   fun `new student courses assignment test`() {
-    val studentId = 25L
+    val studentId = StudentId(25L)
 
     val studentCourses = studentCore.getStudentCourses(studentId)
-    assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.toInt() })
+    assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.id })
 
     assertEquals(
       "Вы не записаны ни на один курс!",
@@ -50,18 +48,18 @@ class StudentBotTest {
 
   @Test
   fun `new student courses handling test`() {
-    val studentId = 36L
+    val studentId = StudentId(36L)
 
     run {
-      studentCore.addRecord(studentId, 0L)
-      studentCore.addRecord(studentId, 3L)
+      studentCore.addRecord(studentId, CourseId(0L))
+      studentCore.addRecord(studentId, CourseId(3L))
     }
 
     val studentCourses = studentCore.getStudentCourses(studentId)
 
     assertEquals(
-      listOf(0L, 3L),
-      studentCourses.map { it.id }.sortedBy { it.toInt() },
+      listOf(CourseId(0L), CourseId(3L)),
+      studentCourses.map { it.id }.sortedBy { it.id },
     )
     assertEquals("Начала мат. анализа", studentCourses.first().description)
 
@@ -77,8 +75,8 @@ class StudentBotTest {
     val chatId = RawChatId(0)
 
     run {
-      val teacherId = 0L
-      val userId = mockCoursesDistributor.singleUserId
+      val teacherId = TeacherId(0L)
+      val userId = StudentId(mockCoursesDistributor.singleUserId)
 
       (0..4).forEach {
         studentCore.inputSolution(
@@ -86,7 +84,7 @@ class StudentBotTest {
           chatId,
           MessageId(it.toLong()),
           SolutionContent(text = "sample$it"),
-          0L,
+          ProblemId(0L),
         )
       }
 
@@ -114,10 +112,11 @@ class StudentBotTest {
     assertEquals("sample0", firstSolution.content.text)
 
     val lastSolution = inMemorySolutionDistributor.resolveSolution(solutions.last())
-    assertEquals(5L, lastSolution.id)
+    assertEquals(SolutionId(5L), lastSolution.id)
 
     assertEquals(
-      solutions.map { inMemorySolutionDistributor.resolveSolution(it).chatId }
+      solutions
+        .map { inMemorySolutionDistributor.resolveSolution(it).chatId }
         .toSet(),
       setOf(chatId),
     )

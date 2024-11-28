@@ -15,8 +15,8 @@ class DatabaseGradeTable(
     assessment: SolutionAssessment,
   ) {
     AssessmentTable.insert {
-      it[AssessmentTable.solutionId] = solutionId
-      it[AssessmentTable.teacherId] = teacherId
+      it[AssessmentTable.solutionId] = solutionId.id
+      it[AssessmentTable.teacherId] = teacherId.id
       it[AssessmentTable.grade] = assessment.grade
     }
   }

@@ -10,8 +10,7 @@ class InMemoryAssignmentStorage : AssignmentStorage {
   val assns = mutableListOf<Assignment>()
   var id = 0L
 
-  override fun resolveAssignment(id: AssignmentId): Assignment =
-    assns.single { it.id == id }
+  override fun resolveAssignment(assignmentId: AssignmentId): Assignment = assns.single { it.id == assignmentId }
 
   override fun createAssignment(
     courseId: CourseId,
@@ -19,20 +18,18 @@ class InMemoryAssignmentStorage : AssignmentStorage {
     problemNames: List<String>,
     problemStorage: ProblemStorage,
   ): AssignmentId {
-    val problems = problemNames.map { problemStorage.createProblem(id, it) }
+    val problems = problemNames.map { problemStorage.createProblem(AssignmentId(id), it) }
     assns.add(
       Assignment(
-        id,
+        AssignmentId(id),
         description,
         problems,
         courseId,
       ),
     )
     ++id
-    return id - 1
+    return AssignmentId(id - 1)
   }
 
-  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> {
-    return assns.filter { it.courseId == courseId }.map { it.id }
-  }
+  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> = assns.filter { it.courseId == courseId }.map { it.id }
 }

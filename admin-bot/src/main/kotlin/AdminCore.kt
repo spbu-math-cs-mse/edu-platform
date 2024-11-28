@@ -9,36 +9,35 @@ class AdminCore(
   private val gradeTable: GradeTable,
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
   private val coursesTable: MutableMap<String, Course>,
-  private val studentsTable: MutableMap<Long, Student>,
-  private val teachersTable: MutableMap<Long, Teacher>,
+  private val studentsTable: MutableMap<StudentId, Student>,
+  private val teachersTable: MutableMap<TeacherId, Teacher>,
   private val adminsTable: List<Username>,
   private val coursesDistributor: CoursesDistributor,
-) : GradeTable, ScheduledMessagesDistributor {
+) : GradeTable,
+  ScheduledMessagesDistributor {
   override fun addAssessment(
     teacherId: TeacherId,
     solutionId: SolutionId,
     assessment: SolutionAssessment,
-  ) =
-    gradeTable.addAssessment(teacherId, solutionId, assessment)
+  ) = gradeTable.addAssessment(teacherId, solutionId, assessment)
 
   override fun getStudentPerformance(
     studentId: StudentId,
     solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> =
-    gradeTable.getStudentPerformance(studentId, solutionDistributor)
+  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
 
-  override fun addMessage(message: ScheduledMessage) =
-    scheduledMessagesDistributor.addMessage(message)
+  override fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
-  override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
-    scheduledMessagesDistributor.getMessagesUpToDate(date)
+  override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> = scheduledMessagesDistributor.getMessagesUpToDate(date)
 
-  override fun markMessagesUpToDateAsSent(date: LocalDateTime) =
-    scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
+  override fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
   fun courseExists(courseName: String) = coursesTable.containsKey(courseName)
 
-  fun addCourse(courseName: String, course: Course) {
+  fun addCourse(
+    courseName: String,
+    course: Course,
+  ) {
     coursesTable[courseName] = course
   }
 
@@ -46,24 +45,31 @@ class AdminCore(
 
   fun getCourses() = coursesTable.toMap()
 
-  fun studentExists(id: Long) = studentsTable.containsKey(id)
+  fun studentExists(id: StudentId) = studentsTable.containsKey(id)
 
-  fun teacherExists(id: Long) = teachersTable.containsKey(id)
+  fun teacherExists(id: TeacherId) = teachersTable.containsKey(id)
 
-  fun isAdmin(username: Username) = adminsTable.contains(username)
-  fun studiesIn(id: Long, course: Course): Boolean {
-    return false
-  }
+  fun studiesIn(
+    id: StudentId,
+    course: Course,
+  ): Boolean = false
 
-  fun registerForCourse(studentId: StudentId, courseId: CourseId) {
+  fun registerForCourse(
+    studentId: StudentId,
+    courseId: CourseId,
+  ) {
     coursesDistributor.addRecord(studentId, courseId)
   }
 
-  fun removeTeacher(teacherId: TeacherId, courseId: CourseId): Boolean {
-    return false
-  }
+  fun removeTeacher(
+    teacherId: TeacherId,
+    courseId: CourseId,
+  ): Boolean = false
 
-  fun removeStudent(studentId: StudentId, courseId: CourseId): Boolean {
+  fun removeStudent(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Boolean {
     TODO()
   }
 }

@@ -44,7 +44,7 @@ suspend fun main(vararg args: String) {
       }
     }
     val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
+    val userIdRegistry = MockStudentIdRegistry(mockCoursesDistributor.singleUserId)
     val problemStorage: ProblemStorage = InMemoryProblemStorage()
     val assignmentStorage: AssignmentStorage = InMemoryAssignmentStorage()
     val core =

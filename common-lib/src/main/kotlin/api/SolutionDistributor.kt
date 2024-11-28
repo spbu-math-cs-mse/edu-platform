@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -18,7 +17,7 @@ interface SolutionDistributor {
     timestamp: LocalDateTime = LocalDateTime.now(),
   ): SolutionId
 
-  fun querySolution(teacherId: Long): SolutionId?
+  fun querySolution(teacherId: TeacherId): SolutionId?
 
   fun resolveSolution(solutionId: SolutionId): Solution
 

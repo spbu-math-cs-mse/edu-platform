@@ -1,7 +1,10 @@
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.junit.jupiter.api.Assertions.*
@@ -13,16 +16,16 @@ import kotlin.test.assertEquals
 class TeacherBotTest {
   private lateinit var statistics: MockTeacherStatistics
   private val now = LocalDateTime.now()
-  private val teacher1Id = 1L
+  private val teacher1Id = TeacherId(1L)
   private val solutionDistributor = InMemorySolutionDistributor()
 
   private fun makeSolution(timestamp: LocalDateTime) =
     solutionDistributor.inputSolution(
-      0L,
+      StudentId(0L),
       RawChatId(0L),
       MessageId(0L),
       SolutionContent(),
-      0L,
+      ProblemId(0L),
       timestamp,
     )
 
@@ -93,13 +96,13 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol2)
 
     statistics.recordAssessment(
-      1L,
+      TeacherId(1L),
       sol1,
       now.minusHours(2),
       solutionDistributor,
     )
     statistics.recordAssessment(
-      2L,
+      TeacherId(2L),
       sol2,
       now.minusHours(1),
       solutionDistributor,
@@ -112,19 +115,20 @@ class TeacherBotTest {
 
   @Test
   fun `teacher gets user solution TEXT`() {
-    val studentId = 10L
-    val teacherId = 139L
+    val studentId = StudentId(10L)
+    val teacherId = TeacherId(139L)
     val inMemorySolutionDistributor = InMemorySolutionDistributor()
     inMemorySolutionDistributor.inputSolution(
       studentId,
       RawChatId(0),
       MessageId(0),
       SolutionContent(text = "test"),
-      0L,
+      ProblemId(0L),
     )
-    val solution = inMemorySolutionDistributor.resolveSolution(
-      inMemorySolutionDistributor.querySolution(teacherId)!!,
-    )
+    val solution =
+      inMemorySolutionDistributor.resolveSolution(
+        inMemorySolutionDistributor.querySolution(teacherId)!!,
+      )
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(text = "test"), solution.content)
     assertEquals(SolutionType.TEXT, solution.type)

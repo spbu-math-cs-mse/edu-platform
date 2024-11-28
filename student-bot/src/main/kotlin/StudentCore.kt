@@ -16,12 +16,13 @@ class StudentCore(
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
-    studentId: Long,
+    studentId: StudentId,
   ): List<Pair<Problem, Grade?>> {
     val assignment = assignmentStorage.resolveAssignment(assignmentId)
     val courseId = coursesDistributor.resolveCourse(assignment.courseId)!!
     val grades =
-      gradeTable.getStudentPerformance(studentId, solutionDistributor)
+      gradeTable
+        .getStudentPerformance(studentId, solutionDistributor)
         .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
       assignment.problemIds
@@ -31,27 +32,30 @@ class StudentCore(
     return gradedProblems
   }
 
-  fun getStudentCourses(studentId: Long): List<Course> {
-    return coursesDistributor.getStudentCourses(studentId)
+  fun getStudentCourses(studentId: StudentId): List<Course> =
+    coursesDistributor
+      .getStudentCourses(studentId)
       .map { coursesDistributor.resolveCourse(it)!! }
-  }
 
-  fun getCourseAssignments(courseId: CourseId): List<Assignment> {
-    return assignmentStorage.getAssignmentsForCourse(courseId)
+  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
+    assignmentStorage
+      .getAssignmentsForCourse(courseId)
       .map { assignmentStorage.resolveAssignment(it) }
-  }
 
-  fun addRecord(studentId: Long, courseId: Long) {
+  fun addRecord(
+    studentId: StudentId,
+    courseId: CourseId,
+  ) {
     coursesDistributor.addRecord(studentId, courseId)
   }
 
-  fun getCourses(): List<Course> {
-    return coursesDistributor.getCourses()
+  fun getCourses(): List<Course> =
+    coursesDistributor
+      .getCourses()
       .map { coursesDistributor.resolveCourse(it)!! }
-  }
 
   fun inputSolution(
-    studentId: Long,
+    studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
@@ -66,23 +70,26 @@ class StudentCore(
     )
   }
 
-  fun getCoursesBulletList(userId: Long): String {
-    val studentCourses = coursesDistributor.getStudentCourses(userId)
+  fun getCoursesBulletList(studentId: StudentId): String {
+    val studentCourses = coursesDistributor.getStudentCourses(studentId)
     val notRegisteredMessage = "Вы не записаны ни на один курс!"
     return if (studentCourses.isNotEmpty()) {
       studentCourses
         .joinToString("\n") { courseId ->
-          "- " + coursesDistributor.resolveCourse(
-            courseId,
-          )!!.description
+          "- " +
+            coursesDistributor
+              .resolveCourse(
+                courseId,
+              )!!
+              .description
         }
     } else {
       notRegisteredMessage
     }
   }
 
-  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> {
-    return problemStorage.getProblemsFromAssignment(assignment.id)
+  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
+    problemStorage
+      .getProblemsFromAssignment(assignment.id)
       .map { problemStorage.resolveProblem(it) }
-  }
 }

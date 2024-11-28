@@ -3,6 +3,7 @@ package com.github.heheteam.parentbot.states
 import Dialogues
 import Keyboards
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.parentbot.mockParents
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -51,7 +52,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
       else -> {
         bot.delete(stickerMessage)
         bot.delete(menuMessage)
-        return@strictlyOn ChildPerformanceState(state.context, Student(command.toLong()))
+        return@strictlyOn ChildPerformanceState(state.context, Student(StudentId(command.toLong())))
       }
     }
   }

@@ -15,6 +15,7 @@ interface SolutionDistributor {
     messageId: MessageId,
     solutionContent: SolutionContent,
     problemId: ProblemId,
+    timestamp: LocalDateTime = LocalDateTime.now(),
   ): SolutionId
 
   fun querySolution(teacherId: Long): SolutionId?

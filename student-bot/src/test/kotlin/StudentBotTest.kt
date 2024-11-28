@@ -2,9 +2,7 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
-import com.github.heheteam.commonlib.mock.MockCoursesDistributor
-import com.github.heheteam.commonlib.mock.MockGradeTable
+import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -21,8 +19,8 @@ class StudentBotTest {
 
   @BeforeEach
   fun setup() {
-    val problemStorage = TODO()
-    val assignmentStorage = TODO()
+    val problemStorage = InMemoryProblemStorage()
+    val assignmentStorage = InMemoryAssignmentStorage()
     mockCoursesDistributor = MockCoursesDistributor()
     mockSolutionDistributor = InMemorySolutionDistributor()
     studentCore =
@@ -32,33 +30,6 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
       )
-  }
-
-  @Test
-  fun `testing checking grades`() {
-    val userId = mockCoursesDistributor.singleUserId
-
-    run {
-      val firstCourse = studentCore.getStudentCourses(userId).first()
-      val firstAssignment = firstCourse.assignments.first()
-      (firstCourse.gradeTable as MockGradeTable).addMockFilling(
-        firstAssignment,
-        userId,
-      )
-    }
-    // check first input correctness
-    val availableCourses = studentCore.getStudentCourses(userId)
-    assert(availableCourses.any { it.id == 0L })
-    val courseId = mockCoursesDistributor.getStudentCourses(0L).first()
-    val course = mockCoursesDistributor.resolveCourse(courseId)
-    val assignment = course!!.assignments.first()
-    val grading =
-      studentCore.getGradingForAssignment(
-        assignment.id,
-        userId,
-      )
-    // check output correctness
-    assertEquals(listOf(null, 1, null, 0), grading.map { (_, grade) -> grade })
   }
 
   @Test

@@ -21,13 +21,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
   core: StudentCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
-    val courses = core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
+    val courses =
+      core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
     val courseId: Long =
       queryCourseFromUser(state, courses)
         ?: return@strictlyOn MenuState(state.context)
     val course = courses.find { it.id == courseId }!!
 
-    val assignmentsFromCourse = course.assignments
+    val assignmentsFromCourse = core.getCourseAssignments(course)
     val assignmentId =
       queryAssignmentFromUser(state, assignmentsFromCourse)
         ?: return@strictlyOn CheckGradesState(state.context)
@@ -66,7 +67,7 @@ private suspend fun BehaviourContext.respondWithGrades(
 
 private suspend fun BehaviourContext.queryAssignmentFromUser(
   state: CheckGradesState,
-  assignments: MutableList<Assignment>,
+  assignments: List<Assignment>,
 ): Long? {
   val chooseAssignmentMessage =
     bot.send(
@@ -96,6 +97,7 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
       callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
         callback.data.split(" ").last()
       }
+
       else -> null
     }
   return assignmentId?.toLong()

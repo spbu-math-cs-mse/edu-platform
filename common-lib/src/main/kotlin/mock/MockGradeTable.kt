@@ -35,7 +35,7 @@ class MockGradeTable : GradeTable {
       solution.problemId to it.solutionAssessment.grade
     }
 
-  fun addTrivialAssessment(problem: Problem, studentId: Long, grade: Grade) {
+  fun addTrivialAssessment(grade: Grade) {
     addAssessment(
       0L,
       mockIncrementalSolutionId++,
@@ -44,13 +44,11 @@ class MockGradeTable : GradeTable {
   }
 
   fun addMockFilling(assignment: Assignment, userId: Long) {
-    val problems = assignment.problems
-    problems.withIndex().filter { it.index % 2 == 1 }
-      .forEach { (index, problem) ->
+    val problemIds = assignment.problemIds
+    problemIds.withIndex().filter { it.index % 2 == 1 }
+      .forEach { (index, problemId) ->
         val grade = if (index == 1) 1 else 0
         addTrivialAssessment(
-          problem,
-          userId,
           grade,
         )
       }

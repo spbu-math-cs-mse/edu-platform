@@ -19,12 +19,13 @@ class StudentCore(
   ): List<Pair<Problem, Grade?>> {
     val assignment = assignmentStorage.resolveAssignment(assignmentId)
     val course = coursesDistributor.resolveCourse(assignment.courseId)!!
-    assert(assignmentId in course.assignments.map { it.id })
+    assert(assignmentId in course.assignmentIds)
     val grades =
       course.gradeTable.getStudentPerformance(studentId, solutionDistributor)
         .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
-      assignment.problems
+      assignment.problemIds
+        .map { problemStorage.resolveProblem(it) }
         .sortedBy { problem -> problem.number }
         .map { problem -> problem to grades[problem.id] }
     return gradedProblems
@@ -33,6 +34,10 @@ class StudentCore(
   fun getStudentCourses(studentId: Long): List<Course> {
     return coursesDistributor.getStudentCourses(studentId)
       .map { coursesDistributor.resolveCourse(it)!! }
+  }
+
+  fun getCourseAssignments(course: Course): List<Assignment> {
+    return course.assignmentIds.map { assignmentStorage.resolveAssignment(it) }
   }
 
   fun addRecord(studentId: Long, courseId: Long) {
@@ -50,7 +55,8 @@ class StudentCore(
     messageId: MessageId,
     solutionContent: SolutionContent,
   ) {
-    TODO("Implement me")
+    TODO("broken")
+//    solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, )
   }
 
   fun getCoursesBulletList(userId: Long): String {
@@ -58,7 +64,11 @@ class StudentCore(
     val notRegisteredMessage = "Вы не записаны ни на один курс!"
     return if (studentCourses.isNotEmpty()) {
       studentCourses
-        .joinToString("\n") { courseId -> "- " + coursesDistributor.resolveCourse(courseId)!!.description }
+        .joinToString("\n") { courseId ->
+          "- " + coursesDistributor.resolveCourse(
+            courseId,
+          )!!.description
+        }
     } else {
       notRegisteredMessage
     }

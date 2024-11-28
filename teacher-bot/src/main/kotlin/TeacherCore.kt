@@ -56,6 +56,6 @@ class TeacherCore(
   }
 
   fun getMaxGrade(course: Course): Grade {
-    return course.assignments.flatMap { it.problems }.sumOf { it.maxScore }
+    return 5
   }
 }

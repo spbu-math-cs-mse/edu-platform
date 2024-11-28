@@ -2,6 +2,7 @@
 
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
@@ -57,13 +58,13 @@ class Course(
   val students: MutableList<Student> = mutableListOf(),
   var description: String,
   val gradeTable: GradeTable,
-  val assignments: MutableList<Assignment> = mutableListOf(),
+  val assignmentIds: List<AssignmentId> = mutableListOf(),
 )
 
 data class Assignment(
   val id: Long,
   val description: String,
-  val problems: MutableList<Problem>,
+  val problemIds: List<ProblemId>,
   val courseId: Long,
 )
 

@@ -23,6 +23,7 @@ class DatabaseSolutionDistributor(
     messageId: MessageId,
     solutionContent: SolutionContent,
     problemId: ProblemId,
+    timestamp: LocalDateTime,
   ): SolutionId {
     val solutionId =
       transaction(database) {

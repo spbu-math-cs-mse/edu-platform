@@ -65,7 +65,7 @@ class DatabaseCoursesDistributor(
           mutableListOf(),
           courseDescription,
           gradeTable,
-          assignments.toMutableList(),
+          assignments.map { it.id },
         )
       }
       courses
@@ -92,7 +92,7 @@ class DatabaseCoursesDistributor(
     return Assignment(
       assignmentId.value,
       assignmentDescription,
-      problems.toMutableList(),
+      problems.map { it.id },
       courseId.value,
     )
   }

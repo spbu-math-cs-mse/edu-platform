@@ -23,6 +23,7 @@ class TeacherBotTest {
       MessageId(0L),
       SolutionContent(),
       0L,
+      timestamp,
     )
 
   @BeforeEach

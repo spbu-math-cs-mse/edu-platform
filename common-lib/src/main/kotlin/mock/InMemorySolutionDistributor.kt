@@ -18,6 +18,7 @@ class InMemorySolutionDistributor() : SolutionDistributor {
     messageId: MessageId,
     solutionContent: SolutionContent,
     problemId: ProblemId,
+    timestamp: LocalDateTime,
   ): SolutionId {
     val solutionType =
       when (solutionContent.text) {
@@ -35,6 +36,7 @@ class InMemorySolutionDistributor() : SolutionDistributor {
         0L,
         solutionContent,
         solutionType,
+        timestamp,
       )
     solutions.add(solution)
     return solution.id
@@ -44,7 +46,7 @@ class InMemorySolutionDistributor() : SolutionDistributor {
     solutions.firstOrNull()?.id
 
   override fun resolveSolution(solutionId: SolutionId): Solution {
-    TODO("Not yet implemented")
+    return solutions.single { it.id == solutionId }
   }
 
   override fun assessSolution(

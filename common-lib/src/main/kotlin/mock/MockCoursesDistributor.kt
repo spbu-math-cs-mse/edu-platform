@@ -30,23 +30,23 @@ class MockCoursesDistributor : CoursesDistributor {
       mutableListOf(),
       name,
       MockGradeTable(),
-      assignments = (0..assignmentsPerCourse).map { assignmentNum ->
+      assignmentIds = (0..assignmentsPerCourse).map { assignmentNum ->
         val assignmentId = courseId * 1000 + assignmentNum
         Assignment(
           assignmentId,
           "sample assignment $assignmentNum",
-          problems = (1..problemsPerAssignment).map { problemNum ->
+          problemIds = (1..problemsPerAssignment).map { problemNum ->
             Problem(
               id = singleAssignmentId * 1000 + problemNum,
               number = problemNum.toString(),
               description = "",
               assignmentId = assignmentId,
               maxScore = 1,
-            )
-          }.toMutableList(),
+            ).id
+          },
           courseId = courseId,
-        )
-      }.toMutableList(),
+        ).id
+      },
     )
   }
 

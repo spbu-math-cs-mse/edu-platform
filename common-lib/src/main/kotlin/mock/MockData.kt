@@ -12,14 +12,14 @@ val mockCoursesTable =
         0L,
         description = "Начала мат. анализа",
         gradeTable = MockGradeTable(),
-        assignments =
-        mutableListOf(
+        assignmentIds =
+        listOf(
           Assignment(
             0L,
             "Серия 1",
-            mutableListOf(Problem(0, "1", "", 10, 0L), Problem(1, "2", "", 5, 0L)),
+            mutableListOf(Problem(0, "1", "", 10, 0L).id, Problem(1, "2", "", 5, 0L).id),
             0L,
-          ),
+          ).id,
         ),
       ),
     "1" to
@@ -27,14 +27,14 @@ val mockCoursesTable =
         1L,
         description = "Теория вероятности",
         gradeTable = MockGradeTable(),
-        assignments = mutableListOf(
+        assignmentIds = listOf(
           Assignment(
             1L, "Серия 1",
             mutableListOf(
-              Problem(2L, "1", "", 10, 1L),
+              Problem(2L, "1", "", 10, 1L).id,
             ),
             1L,
-          ),
+          ).id,
         ),
       ),
     2L to
@@ -42,18 +42,18 @@ val mockCoursesTable =
         2L,
         description = "Линейная алгебра",
         gradeTable = MockGradeTable(),
-        assignments =
+        assignmentIds =
         mutableListOf(
           Assignment(
             2L,
             "Серия 1",
             mutableListOf(
-              Problem(3L, "1", "", 10, 2L),
-              Problem(4L, "2", "", 5, 2L),
-              Problem(5L, "3", "", 5, 2L),
+              Problem(3L, "1", "", 10, 2L).id,
+              Problem(4L, "2", "", 5, 2L).id,
+              Problem(5L, "3", "", 5, 2L).id,
             ),
             2L,
-          ),
+          ).id,
         ),
       ),
     3L to
@@ -61,14 +61,14 @@ val mockCoursesTable =
         3L,
         description = "Теория функции комплексной переменной",
         gradeTable = MockGradeTable(),
-        assignments =
+        assignmentIds =
         mutableListOf(
           Assignment(
             3L,
             "Серия 1",
-            mutableListOf(Problem(6L, "1", "", 1, 3L), Problem(7L, "2", "", 5, 3L)),
+            mutableListOf(Problem(6L, "1", "", 1, 3L).id, Problem(7L, "2", "", 5, 3L).id),
             3L,
-          ),
+          ).id,
         ),
       ),
   )
@@ -87,16 +87,3 @@ val mockStudentsAndCourses =
     "0" to mutableListOf("1", "2"),
     "1" to mutableListOf("0", "3"),
   )
-
-// Teacher.id -> Set<(Course.id, boolean)>
-val MockDoesTeacherHaveAccessToCourse: MutableMap<String, MutableSet<Pair<String, Boolean>>> = mutableMapOf()
-
-fun Problem.getAssignment(
-  assignments: MutableList<Assignment> =
-    mockCoursesTable.values
-      .flatMap {
-        it.assignments
-      }.toMutableList(),
-): Assignment? = assignments.find { it.id == assignmentId }
-
-fun Assignment.getCourse(courses: MutableList<Course> = mockCoursesTable.values.toMutableList()): Course? = courses.find { it.id == courseId }

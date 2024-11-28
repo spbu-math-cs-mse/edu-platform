@@ -10,4 +10,5 @@ interface AssignmentStorage {
     problemNames: List<String>,
     problemStorage: ProblemStorage,
   ): AssignmentId
+  fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId>
 }

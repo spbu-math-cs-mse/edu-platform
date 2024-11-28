@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.statistics.TeacherStatistics
 import com.github.heheteam.commonlib.statistics.TeacherStatsData
 import java.time.LocalDateTime
@@ -12,6 +13,7 @@ class TeacherCore(
   private val teacherStatistics: TeacherStatistics,
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
+  private val gradeTable: GradeTable,
 ) {
   fun getTeacherStats(teacherId: Long): TeacherStatsData? =
     teacherStatistics.getTeacherStats(teacherId)
@@ -42,15 +44,15 @@ class TeacherCore(
       teacherId,
       assessment,
       gradeTable,
-      timestamp,
       teacherStatistics,
+      timestamp,
     )
   }
 
-  fun getGrading(course: Course): List<Pair<Student, Grade?>> {
-    val students = course.students
-    val grades = students.map { student ->
-      student to course.gradeTable.getStudentPerformance(student.id, solutionDistributor).values.sum()
+  fun getGrading(course: Course): List<Pair<StudentId, Grade?>> {
+    val students = coursesDistributor.getStudents(course.id)
+    val grades = students.map { studentId ->
+      studentId to gradeTable.getStudentPerformance(studentId, solutionDistributor).values.sum()
     }
     return grades
   }

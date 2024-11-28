@@ -1,6 +1,7 @@
 package com.github.heheteam.teacherbot.state
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.teacherbot.*
 import com.github.heheteam.teacherbot.Keyboards.returnBack
@@ -23,7 +24,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
   core: TeacherCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
-    val courses = core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
+    val courses =
+      core.getAvailableCourses(userIdRegistry.getUserId(state.context.id)!!)
 
     val courseId: Long = queryCourseFromUser(state, courses)
       ?: return@strictlyOn MenuState(state.context)
@@ -89,7 +91,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
   return courseId?.toLong()
 }
 
-fun List<Pair<Student, Grade?>>.withGradesToText(maxGrade: Grade) =
-  joinToString(separator = "\n") { (student, grade) ->
-    "${if (student.name.isEmpty() || student.surname.isEmpty()) "Ученик ${student.id}" else "${student.name} ${student.surname}"}: $grade/$maxGrade"
+fun List<Pair<StudentId, Grade?>>.withGradesToText(maxGrade: Grade) =
+  joinToString(separator = "\n") { (studentId, grade) ->
+    "Ученик $studentId : $grade/$maxGrade"
   }

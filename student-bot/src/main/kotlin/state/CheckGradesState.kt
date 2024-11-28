@@ -28,7 +28,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
         ?: return@strictlyOn MenuState(state.context)
     val course = courses.find { it.id == courseId }!!
 
-    val assignmentsFromCourse = core.getCourseAssignments(course)
+    val assignmentsFromCourse = core.getCourseAssignments(courseId)
     val assignmentId =
       queryAssignmentFromUser(state, assignmentsFromCourse)
         ?: return@strictlyOn CheckGradesState(state.context)

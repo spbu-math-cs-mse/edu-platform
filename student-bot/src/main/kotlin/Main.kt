@@ -53,6 +53,7 @@ suspend fun main(vararg args: String) {
         mockCoursesDistributor,
         problemStorage,
         assignmentStorage,
+        InMemoryGradeTable(),
       )
 
     strictlyOnStartState(isDeveloperRun = true)

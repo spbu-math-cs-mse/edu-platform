@@ -1,7 +1,6 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
@@ -27,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
         AddStudentState(state.context, state.course, state.courseName)
       }
 
-      state.course.students.contains(Student(id)) -> {
+      core.studiesIn(id, state.course) -> {
         send(
           state.context,
           "Ученик $id уже есть на курсе ${state.courseName}",
@@ -36,7 +35,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
       }
 
       else -> {
-        state.course.students.addLast(Student(id))
+        core.registerForCourse(id, state.course.id)
         send(
           state.context,
           "Ученик $id успешно добавлен на курс ${state.courseName}",

@@ -1,6 +1,7 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
 import com.github.heheteam.parentbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -23,7 +24,7 @@ suspend fun main(vararg args: String) {
   val botToken = args.first()
   mockTgUsername = args[1]
   val mockGradeTable = MockGradeTable()
-  val solutionDistributor: SolutionDistributor = TODO()
+  val solutionDistributor: SolutionDistributor = InMemorySolutionDistributor()
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->

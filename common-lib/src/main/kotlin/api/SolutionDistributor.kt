@@ -27,7 +27,7 @@ interface SolutionDistributor {
     teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: LocalDateTime = LocalDateTime.now(),
     teacherStatistics: TeacherStatistics,
+    timestamp: LocalDateTime = LocalDateTime.now(),
   )
 }

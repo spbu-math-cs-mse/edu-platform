@@ -26,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: A
       }
 
       else -> {
-        core.addCourse(answer, Course(0L, mutableListOf(), mutableListOf(), "", core))
+        core.addCourse(answer, Course(0L, ""))
 
         send(
           state.context,

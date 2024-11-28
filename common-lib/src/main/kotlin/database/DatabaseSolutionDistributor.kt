@@ -63,8 +63,8 @@ class DatabaseSolutionDistributor(
     teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: LocalDateTime,
     teacherStatistics: TeacherStatistics,
+    timestamp: LocalDateTime,
   ) {
     transaction(database) {
       AssessmentTable.insert {

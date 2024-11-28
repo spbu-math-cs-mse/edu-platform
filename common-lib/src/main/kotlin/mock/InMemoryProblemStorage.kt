@@ -26,4 +26,7 @@ class InMemoryProblemStorage : ProblemStorage {
     ++id
     return problem.id
   }
+
+  override fun getProblemsFromAssignment(id: AssignmentId): List<ProblemId> =
+    problems.filter { it.assignmentId == id }.map { it.id }
 }

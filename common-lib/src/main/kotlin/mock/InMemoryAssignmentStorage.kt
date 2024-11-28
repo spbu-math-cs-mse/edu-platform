@@ -31,4 +31,8 @@ class InMemoryAssignmentStorage : AssignmentStorage {
     ++id
     return id - 1
   }
+
+  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> {
+    return assns.filter { it.courseId == courseId }.map { it.id }
+  }
 }

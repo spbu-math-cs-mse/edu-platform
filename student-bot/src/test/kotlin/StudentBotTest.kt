@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 
 class StudentBotTest {
   private lateinit var mockCoursesDistributor: MockCoursesDistributor
-  private lateinit var mockSolutionDistributor: InMemorySolutionDistributor
+  private lateinit var inMemorySolutionDistributor: InMemorySolutionDistributor
   private lateinit var studentCore: StudentCore
 
   @BeforeEach
@@ -22,13 +23,15 @@ class StudentBotTest {
     val problemStorage = InMemoryProblemStorage()
     val assignmentStorage = InMemoryAssignmentStorage()
     mockCoursesDistributor = MockCoursesDistributor()
-    mockSolutionDistributor = InMemorySolutionDistributor()
+    inMemorySolutionDistributor = InMemorySolutionDistributor()
+    fillWithSamples(mockCoursesDistributor, problemStorage, assignmentStorage)
     studentCore =
       StudentCore(
-        mockSolutionDistributor,
+        inMemorySolutionDistributor,
         mockCoursesDistributor,
         problemStorage,
         assignmentStorage,
+        InMemoryGradeTable(),
       )
   }
 
@@ -83,37 +86,38 @@ class StudentBotTest {
           chatId,
           MessageId(it.toLong()),
           SolutionContent(text = "sample$it"),
+          0L,
         )
       }
 
-      val gradeTable = MockGradeTable()
+      val gradeTable = InMemoryGradeTable()
 
       repeat(5) {
-        val solution = mockSolutionDistributor.querySolution(teacherId)
+        val solution = inMemorySolutionDistributor.querySolution(teacherId)
         if (solution != null) {
+          println("here")
           solutions.add(solution)
-          mockSolutionDistributor.assessSolution(
+          inMemorySolutionDistributor.assessSolution(
             solution,
             teacherId,
             SolutionAssessment(5, "comment"),
             gradeTable,
-            LocalDateTime.now(),
             MockTeacherStatistics(),
+            LocalDateTime.now(),
           )
         }
       }
     }
 
-    val firstSolution =
-      mockSolutionDistributor.resolveSolution(solutions.first())
+    val firstSolution = inMemorySolutionDistributor.resolveSolution(solutions.first())
     assertEquals(SolutionType.TEXT, firstSolution.type)
     assertEquals("sample0", firstSolution.content.text)
 
-    val lastSolution = mockSolutionDistributor.resolveSolution(solutions.last())
+    val lastSolution = inMemorySolutionDistributor.resolveSolution(solutions.last())
     assertEquals(5L, lastSolution.id)
 
     assertEquals(
-      solutions.map { mockSolutionDistributor.resolveSolution(it).chatId }
+      solutions.map { inMemorySolutionDistributor.resolveSolution(it).chatId }
         .toSet(),
       setOf(chatId),
     )

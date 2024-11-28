@@ -1,7 +1,6 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.commonlib.Teacher
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
@@ -29,7 +28,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: 
       }
 
       else -> {
-        if (state.course.teachers.remove(Teacher(id))) {
+        if (core.removeTeacher(id, state.course.id)) {
           send(
             state.context,
             "Преподаватель $id успешно удалён с курса ${state.courseName}",

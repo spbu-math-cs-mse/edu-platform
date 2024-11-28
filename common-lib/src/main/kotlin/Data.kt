@@ -1,10 +1,6 @@
-@file:Suppress("unused")
-
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -54,11 +50,7 @@ data class Solution(
 
 class Course(
   val id: CourseId,
-  val teachers: MutableList<Teacher> = mutableListOf(),
-  val students: MutableList<Student> = mutableListOf(),
   var description: String,
-  val gradeTable: GradeTable,
-  val assignmentIds: List<AssignmentId> = mutableListOf(),
 )
 
 data class Assignment(

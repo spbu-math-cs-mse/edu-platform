@@ -2,6 +2,7 @@ import com.github.heheteam.adminbot.*
 import com.github.heheteam.adminbot.mockCoursesTable
 import com.github.heheteam.adminbot.mockStudentsTable
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.mock.MockCoursesDistributor
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,6 +16,7 @@ class AdminBotTest {
       mockStudentsTable,
       mockTeachersTable,
       mockAdminsTable,
+      MockCoursesDistributor(),
     )
 
   private val student = Student(1L)
@@ -22,10 +24,7 @@ class AdminBotTest {
   private val course =
     Course(
       1L,
-      mutableListOf(teacher),
-      mutableListOf(student),
       "",
-      core,
     )
 
   @Test

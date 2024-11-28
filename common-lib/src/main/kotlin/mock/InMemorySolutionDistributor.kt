@@ -10,6 +10,7 @@ import kotlin.collections.mutableListOf
 
 class InMemorySolutionDistributor() : SolutionDistributor {
   private val solutions = mutableListOf<Solution>()
+  private val assessedSolutions = mutableListOf<SolutionId>()
   private var solutionId = 1L
 
   override fun inputSolution(
@@ -33,7 +34,7 @@ class InMemorySolutionDistributor() : SolutionDistributor {
         studentId,
         chatId,
         messageId,
-        0L,
+        problemId,
         solutionContent,
         solutionType,
         timestamp,
@@ -43,7 +44,7 @@ class InMemorySolutionDistributor() : SolutionDistributor {
   }
 
   override fun querySolution(teacherId: Long): SolutionId? =
-    solutions.firstOrNull()?.id
+    solutions.filter { !assessedSolutions.contains(it.id) }.firstOrNull()?.id
 
   override fun resolveSolution(solutionId: SolutionId): Solution {
     return solutions.single { it.id == solutionId }
@@ -54,11 +55,11 @@ class InMemorySolutionDistributor() : SolutionDistributor {
     teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
-    timestamp: LocalDateTime,
     teacherStatistics: TeacherStatistics,
+    timestamp: LocalDateTime,
   ) {
-    solutions.removeIf { it.id == solutionId }
-//    teacherStatistics.recordAssessment(teacherId, solutionId, timestamp)
+    teacherStatistics.recordAssessment(teacherId, solutionId, timestamp, this)
     gradeTable.addAssessment(teacherId, solutionId, assessment)
+    assessedSolutions.add(solutionId)
   }
 }

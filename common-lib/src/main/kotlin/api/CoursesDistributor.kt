@@ -16,5 +16,7 @@ interface CoursesDistributor {
 
   fun resolveCourse(id: CourseId): Course?
 
-  fun createCourse(description: Int): CourseId
+  fun createCourse(description: String): CourseId
+
+  fun getStudents(courseId: CourseId): List<StudentId>
 }

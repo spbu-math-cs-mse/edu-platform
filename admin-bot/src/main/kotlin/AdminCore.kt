@@ -12,6 +12,7 @@ class AdminCore(
   private val studentsTable: MutableMap<Long, Student>,
   private val teachersTable: MutableMap<Long, Teacher>,
   private val adminsTable: List<Username>,
+  private val coursesDistributor: CoursesDistributor,
 ) : GradeTable, ScheduledMessagesDistributor {
   override fun addAssessment(
     teacherId: TeacherId,
@@ -50,4 +51,19 @@ class AdminCore(
   fun teacherExists(id: Long) = teachersTable.containsKey(id)
 
   fun isAdmin(username: Username) = adminsTable.contains(username)
+  fun studiesIn(id: Long, course: Course): Boolean {
+    return false
+  }
+
+  fun registerForCourse(studentId: StudentId, courseId: CourseId) {
+    coursesDistributor.addRecord(studentId, courseId)
+  }
+
+  fun removeTeacher(teacherId: TeacherId, courseId: CourseId): Boolean {
+    return false
+  }
+
+  fun removeStudent(studentId: StudentId, courseId: CourseId): Boolean {
+    TODO()
+  }
 }

@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.mock
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
 
-class MockGradeTable : GradeTable {
+class InMemoryGradeTable : GradeTable {
   data class GradeTableEntry(
     val teacherId: TeacherId,
     val solutionId: SolutionId,

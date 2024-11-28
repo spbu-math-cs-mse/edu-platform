@@ -12,16 +12,16 @@ class StudentCore(
   private val coursesDistributor: CoursesDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
+  private val gradeTable: GradeTable,
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: Long,
   ): List<Pair<Problem, Grade?>> {
     val assignment = assignmentStorage.resolveAssignment(assignmentId)
-    val course = coursesDistributor.resolveCourse(assignment.courseId)!!
-    assert(assignmentId in course.assignmentIds)
+    val courseId = coursesDistributor.resolveCourse(assignment.courseId)!!
     val grades =
-      course.gradeTable.getStudentPerformance(studentId, solutionDistributor)
+      gradeTable.getStudentPerformance(studentId, solutionDistributor)
         .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
       assignment.problemIds
@@ -36,8 +36,9 @@ class StudentCore(
       .map { coursesDistributor.resolveCourse(it)!! }
   }
 
-  fun getCourseAssignments(course: Course): List<Assignment> {
-    return course.assignmentIds.map { assignmentStorage.resolveAssignment(it) }
+  fun getCourseAssignments(courseId: CourseId): List<Assignment> {
+    return assignmentStorage.getAssignmentsForCourse(courseId)
+      .map { assignmentStorage.resolveAssignment(it) }
   }
 
   fun addRecord(studentId: Long, courseId: Long) {
@@ -54,9 +55,15 @@ class StudentCore(
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
+    problemId: ProblemId,
   ) {
-    TODO("broken")
-//    solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, )
+    solutionDistributor.inputSolution(
+      studentId,
+      chatId,
+      messageId,
+      solutionContent,
+      problemId,
+    )
   }
 
   fun getCoursesBulletList(userId: Long): String {
@@ -72,5 +79,10 @@ class StudentCore(
     } else {
       notRegisteredMessage
     }
+  }
+
+  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> {
+    return problemStorage.getProblemsFromAssignment(assignment.id)
+      .map { problemStorage.resolveProblem(it) }
   }
 }

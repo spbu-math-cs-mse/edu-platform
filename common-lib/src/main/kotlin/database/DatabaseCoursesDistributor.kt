@@ -2,6 +2,7 @@ import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import com.github.heheteam.commonlib.database.tables.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
@@ -37,7 +38,11 @@ class DatabaseCoursesDistributor(
     TODO("Not yet implemented")
   }
 
-  override fun createCourse(description: Int): CourseId {
+  override fun createCourse(description: String): CourseId {
+    TODO("Not yet implemented")
+  }
+
+  override fun getStudents(courseId: CourseId): List<StudentId> {
     TODO("Not yet implemented")
   }
 
@@ -61,11 +66,7 @@ class DatabaseCoursesDistributor(
           }
         Course(
           courseId.value,
-          mutableListOf(),
-          mutableListOf(),
           courseDescription,
-          gradeTable,
-          assignments.map { it.id },
         )
       }
       courses

@@ -3,21 +3,18 @@ package com.github.heheteam.adminbot
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.mock.MockGradeTable
+import com.github.heheteam.commonlib.mock.InMemoryGradeTable
 import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 
-val mockGradeTable = MockGradeTable()
+val mockGradeTable = InMemoryGradeTable()
 
 val mockCoursesTable: MutableMap<String, Course> =
   mutableMapOf(
     "Геома 1" to
       Course(
         1L,
-        mutableListOf(Teacher(1L)),
-        mutableListOf(Student(1L)),
         "какое-то описание",
-        mockGradeTable,
       ),
   )
 

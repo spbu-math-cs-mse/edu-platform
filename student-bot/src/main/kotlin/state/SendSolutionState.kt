@@ -1,14 +1,10 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.UserIdRegistry
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.ButtonKey
-import com.github.heheteam.studentbot.metaData.back
-import com.github.heheteam.studentbot.metaData.buildCoursesSendingSelector
+import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -51,6 +47,21 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       return@strictlyOn MenuState(state.context)
     }
 
+    val assignments = core.getCourseAssignments(course.id)
+
+    val assignment = queryAssignments(state, assignments)
+    if (assignment == null) {
+      deleteMessage(stickerMessage)
+      return@strictlyOn MenuState(state.context)
+    }
+
+    val problems = core.getProblemsFromAssignment(assignment)
+    val problem = queryProblem(state, problems)
+    if (problem == null) {
+      deleteMessage(stickerMessage)
+      return@strictlyOn MenuState(state.context)
+    }
+
     state.selectedCourse = course
 
     var botMessage = bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
@@ -80,8 +91,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
           botMessage = bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
           continue
         }
-
-        core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent)
+        core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent, problem.id)
 
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
@@ -132,6 +142,42 @@ private suspend fun BehaviourContext.queryCourse(
 
   val courseId = callbackData.split(" ").last()
   return courses.first { it.id == courseId.toLong() }
+}
+
+private suspend fun BehaviourContext.queryAssignments(
+  state: SendSolutionState,
+  assignments: List<Assignment>,
+): Assignment? {
+  val message =
+    bot.send(state.context, Dialogues.askAssignmentFromSolution(), replyMarkup = buildAssignmentSendingSelector(assignments))
+
+  val callbackData = waitDataCallbackQuery().first().data
+  deleteMessage(message)
+
+  if (callbackData == ButtonKey.BACK) {
+    return null
+  }
+
+  val assignmentId = callbackData.split(" ").last()
+  return assignments.first { it.id == assignmentId.toLong() }
+}
+
+private suspend fun BehaviourContext.queryProblem(
+  state: SendSolutionState,
+  problems: List<Problem>,
+): Problem? {
+  val message =
+    bot.send(state.context, Dialogues.askAssignmentFromSolution(), replyMarkup = buildProblemSendingSelector(problems))
+
+  val callbackData = waitDataCallbackQuery().first().data
+  deleteMessage(message)
+
+  if (callbackData == ButtonKey.BACK) {
+    return null
+  }
+
+  val problemId = callbackData.split(" ").last()
+  return problems.single { it.id == problemId.toLong() }
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {

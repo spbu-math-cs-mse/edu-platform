@@ -3,11 +3,8 @@ import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.CourseTeachers
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseCoursesDistributor(
@@ -20,14 +17,19 @@ class DatabaseCoursesDistributor(
     }
   }
 
-  override fun addRecord(
+  override fun addToCourse(
     studentId: StudentId,
     courseId: CourseId,
   ) {
     transaction(database) {
-      CourseStudents.insert {
-        it[CourseStudents.studentId] = studentId.id
-        it[CourseStudents.courseId] = courseId.id
+      val exists = CourseStudents.selectAll()
+        .where((CourseStudents.courseId eq courseId.id) and (CourseStudents.studentId eq studentId.id))
+        .map { 0L }.isNotEmpty()
+      if (!exists) {
+        CourseStudents.insert {
+          it[CourseStudents.studentId] = studentId.id
+          it[CourseStudents.courseId] = courseId.id
+        }
       }
     }
   }

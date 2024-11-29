@@ -54,28 +54,29 @@ fun fillWithSamples(
   )
   val students = (0..10).map { studentStorage.createStudent() }
   students.slice(0..<5).map { studentId ->
-    coursesDistributor.addRecord(
+    coursesDistributor.addToCourse(
       studentId,
       realAnalysis,
     )
   }
   students.slice(0..<5).map { studentId ->
-    coursesDistributor.addRecord(
+    coursesDistributor.addToCourse(
       studentId,
       probTheory,
     )
   }
   students.slice(5..<10).map { studentId ->
-    coursesDistributor.addRecord(
+    coursesDistributor.addToCourse(
       studentId,
       probTheory,
     )
   }
   students.slice(5..<10).map { studentId ->
-    coursesDistributor.addRecord(
+    coursesDistributor.addToCourse(
       studentId,
       linAlgebra,
     )
   }
+  println("first student is ${students.first()}")
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

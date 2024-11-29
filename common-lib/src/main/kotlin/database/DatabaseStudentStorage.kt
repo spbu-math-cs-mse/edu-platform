@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.ParentId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.StudentStorage
+import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.database.tables.StudentTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
@@ -22,9 +23,12 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
   }
 
   override fun createStudent(): StudentId {
-    TODO("Does this not clone StudentIdRegistry? ^-")
-    transaction(database) {
-      StudentTable.insert { }
-    }
+    return transaction(database) {
+      StudentTable.insert {
+        it[StudentTable.name] = "defaultName"
+        it[StudentTable.surname] = "defaultSurname"
+        it[StudentTable.tgId] = 0L
+      } get StudentTable.id
+    }.value.toStudentId()
   }
 }

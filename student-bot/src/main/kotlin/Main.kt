@@ -1,7 +1,11 @@
 package com.github.heheteam.studentbot
 
+import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.state.*
@@ -17,6 +21,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
 
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
@@ -44,18 +49,23 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockStudentIdRegistry(mockCoursesDistributor.singleUserId)
-    val problemStorage: ProblemStorage = InMemoryProblemStorage()
-    val assignmentStorage: AssignmentStorage = InMemoryAssignmentStorage()
-    fillWithSamples(mockCoursesDistributor, problemStorage, assignmentStorage, InMemoryStudentStorage())
+    val database = Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
+    val studentStorage = DatabaseStudentStorage(database)
+    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
+//    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage()
+    fillWithSamples(coursesDistributor, problemStorage, InMemoryAssignmentStorage(), studentStorage)
+    val userIdRegistry = MockStudentIdRegistry(1L)
     val core =
       StudentCore(
         InMemorySolutionDistributor(),
-        mockCoursesDistributor,
+        coursesDistributor,
         problemStorage,
         assignmentStorage,
-        InMemoryGradeTable(),
+        DatabaseGradeTable(database),
       )
 
     strictlyOnStartState(isDeveloperRun = true)

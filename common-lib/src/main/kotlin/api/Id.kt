@@ -1,5 +1,7 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.Solution
+
 data class CourseId(
   val id: Long,
 )
@@ -33,4 +35,7 @@ data class AssignmentId(
 )
 
 fun Long.toCourseId() = CourseId(this)
+fun Long.toAssignmentId() = AssignmentId(this)
+fun Long.toProblemId() = ProblemId(this)
+fun Long.toSolutionId() = SolutionId(this)
 fun Long.toStudentId() = StudentId(this)

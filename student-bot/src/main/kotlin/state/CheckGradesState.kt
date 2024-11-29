@@ -83,7 +83,7 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
             row {
               dataButton(
                 it.description,
-                "${ButtonKey.ASSIGNMENT_ID} ${it.id}",
+                "${ButtonKey.ASSIGNMENT_ID} ${it.id.id}",
               )
             }
           }
@@ -124,7 +124,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
             row {
               dataButton(
                 it.description,
-                "${ButtonKey.COURSE_ID} ${it.id}",
+                "${ButtonKey.COURSE_ID} ${it.id.id}",
               )
             }
           }

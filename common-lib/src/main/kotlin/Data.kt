@@ -49,7 +49,7 @@ data class Solution(
   val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
 
-class Course(
+data class Course(
   val id: CourseId,
   var description: String,
 )

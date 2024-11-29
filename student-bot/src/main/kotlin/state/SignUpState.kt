@@ -26,7 +26,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
     val studentId = userIdRegistry.getUserId(state.context.id)!!
     val courses = core.getCourses()
     val studentCourses = core.getStudentCourses(studentId).toMutableList()
-    val coursesToAvailability = courses.map { it to studentCourses.contains(it) }.toMutableList()
+    println(studentCourses)
+    val coursesToAvailability =
+      courses.map { it to studentCourses.map { it.id }.contains(it.id) }
+        .toMutableList()
 
     val initialMessage =
       bot.send(
@@ -35,7 +38,15 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
         replyMarkup = buildCoursesSelector(coursesToAvailability),
       )
 
-    val signingUpState = SigningUpState(state, courses, studentCourses, coursesToAvailability, core, studentId)
+    val signingUpState = SigningUpState(
+      state,
+      courses,
+      studentCourses,
+      coursesToAvailability,
+      core,
+      studentId
+    )
+
     signingUpState.run {
       signUp(initialMessage)
     }
@@ -115,7 +126,11 @@ class SigningUpState(
     }
 
     studentCourses.add(courses[index])
-    coursesToAvailability[coursesToAvailability.indexOfFirst { it.first.id == CourseId(courseId.toLong()) }] = courses[index] to true
+    coursesToAvailability[coursesToAvailability.indexOfFirst {
+      it.first.id == CourseId(
+        courseId.toLong()
+      )
+    }] = courses[index] to true
 
     bot.editMessageReplyMarkup(
       state.context.id,

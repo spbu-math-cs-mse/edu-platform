@@ -22,7 +22,7 @@ class MockCoursesDistributor : CoursesDistributor {
   private val studentsToCourseIds: MutableMap<StudentId, MutableSet<CourseId>> =
     mutableMapOf()
 
-  override fun addRecord(
+  override fun addToCourse(
     studentId: StudentId,
     courseId: CourseId,
   ) {

@@ -5,7 +5,9 @@ import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
@@ -14,7 +16,16 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
   }
 
   override fun resolveAssignment(assignmentId: AssignmentId): Assignment {
-    TODO("Not yet implemented")
+    val row = transaction {
+      AssignmentTable.selectAll().where(
+        AssignmentTable.id eq assignmentId.id
+      ).single()
+    }
+    return Assignment(
+      assignmentId,
+      row[AssignmentTable.description],
+      row[AssignmentTable.course].value.toCourseId()
+    )
   }
 
   override fun createAssignment(
@@ -34,7 +45,10 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
     return assgnId
   }
 
-  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> {
-    TODO("Not yet implemented")
-  }
+  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> =
+    transaction {
+      AssignmentTable.selectAll().where(
+        AssignmentTable.course eq courseId.id
+      ).map { it[AssignmentTable.id].value.toAssignmentId() }
+    }
 }

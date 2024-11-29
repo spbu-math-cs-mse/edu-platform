@@ -1,7 +1,5 @@
 package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.Solution
-
 data class CourseId(
   val id: Long,
 )

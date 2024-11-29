@@ -18,14 +18,12 @@ class StudentCore(
     assignmentId: AssignmentId,
     studentId: StudentId,
   ): List<Pair<Problem, Grade?>> {
-    val assignment = assignmentStorage.resolveAssignment(assignmentId)
-    val courseId = coursesDistributor.resolveCourse(assignment.courseId)!!
     val grades =
       gradeTable
         .getStudentPerformance(studentId, solutionDistributor)
         .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
-      assignment.problemIds
+      problemStorage.getProblemsFromAssignment(assignmentId)
         .map { problemStorage.resolveProblem(it) }
         .sortedBy { problem -> problem.number }
         .map { problem -> problem to grades[problem.id] }

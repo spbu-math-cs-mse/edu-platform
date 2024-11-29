@@ -43,20 +43,4 @@ class InMemoryGradeTable : GradeTable {
       SolutionAssessment(grade, ""),
     )
   }
-
-  fun addMockFilling(
-    assignment: Assignment,
-    userId: Long,
-  ) {
-    val problemIds = assignment.problemIds
-    problemIds
-      .withIndex()
-      .filter { it.index % 2 == 1 }
-      .forEach { (index, _) ->
-        val grade = if (index == 1) 1 else 0
-        addTrivialAssessment(
-          grade,
-        )
-      }
-  }
 }

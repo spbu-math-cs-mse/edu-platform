@@ -24,13 +24,13 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
       id.toString(),
       "",
       1,
-      row[ProblemTable.assignmentId].value.toAssignmentId()
+      row[ProblemTable.assignmentId].value.toAssignmentId(),
     )
   }
 
   override fun createProblem(
     assignmentId: AssignmentId,
-    number: String
+    number: String,
   ): ProblemId {
     return transaction(database) {
       ProblemTable.insertAndGetId {

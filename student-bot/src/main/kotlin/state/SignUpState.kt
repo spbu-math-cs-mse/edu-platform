@@ -44,7 +44,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
       studentCourses,
       coursesToAvailability,
       core,
-      studentId
+      studentId,
     )
 
     signingUpState.run {
@@ -126,11 +126,13 @@ class SigningUpState(
     }
 
     studentCourses.add(courses[index])
-    coursesToAvailability[coursesToAvailability.indexOfFirst {
-      it.first.id == CourseId(
-        courseId.toLong()
-      )
-    }] = courses[index] to true
+    coursesToAvailability[
+      coursesToAvailability.indexOfFirst {
+        it.first.id == CourseId(
+          courseId.toLong(),
+        )
+      },
+    ] = courses[index] to true
 
     bot.editMessageReplyMarkup(
       state.context.id,

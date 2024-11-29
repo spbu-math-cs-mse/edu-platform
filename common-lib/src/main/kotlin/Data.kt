@@ -57,7 +57,6 @@ data class Course(
 data class Assignment(
   val id: AssignmentId,
   val description: String,
-  val problemIds: List<ProblemId>,
   val courseId: CourseId,
 )
 

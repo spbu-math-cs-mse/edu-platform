@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot
 import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
@@ -56,8 +57,8 @@ suspend fun main(vararg args: String) {
     val studentStorage = DatabaseStudentStorage(database)
     val coursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-//    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage()
-    fillWithSamples(coursesDistributor, problemStorage, InMemoryAssignmentStorage(), studentStorage)
+    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
+    fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
     val userIdRegistry = MockStudentIdRegistry(1L)
     val core =
       StudentCore(

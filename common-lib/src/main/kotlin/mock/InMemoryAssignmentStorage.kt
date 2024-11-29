@@ -23,7 +23,6 @@ class InMemoryAssignmentStorage : AssignmentStorage {
       Assignment(
         AssignmentId(id),
         description,
-        problems,
         courseId,
       ),
     )

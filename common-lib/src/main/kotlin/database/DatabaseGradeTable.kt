@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
-import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert

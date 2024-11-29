@@ -1,6 +1,7 @@
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.mock.MockTeacherStatistics
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -29,9 +30,8 @@ class StudentBotTest {
     transaction(database) {
       exec("SET REFERENTIAL_INTEGRITY FALSE;")
     }
-    val problemStorage = InMemoryProblemStorage()
-    val assignmentStorage = InMemoryAssignmentStorage()
-    DatabaseStudentStorage(database)
+    val problemStorage = DatabaseProblemStorage(database)
+    val assignmentStorage = DatabaseAssignmentStorage(database)
     coursesDistributor = DatabaseCoursesDistributor(database)
     inMemorySolutionDistributor = InMemorySolutionDistributor()
     courseIds = fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, InMemoryStudentStorage())

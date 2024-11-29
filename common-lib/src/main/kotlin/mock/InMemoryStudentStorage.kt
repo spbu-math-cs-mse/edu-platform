@@ -8,15 +8,22 @@ import com.github.heheteam.commonlib.api.toStudentId
 
 class InMemoryStudentStorage : StudentStorage {
   var studentId = 0L
+
+  data class Entry(
+    val studentId: StudentId,
+    val parentId: ParentId
+  )
+
+  val entries = mutableListOf<Entry>()
   override fun bindStudentToParent(
     studentId: StudentId,
     parentId: ParentId,
   ) {
-    TODO("Not yet implemented")
+    entries.add(Entry(studentId, parentId))
   }
 
   override fun getStudents(parentId: ParentId): List<Student> {
-    TODO("Not yet implemented")
+    return entries.mapNotNull { if (it.parentId == parentId) Student(it.studentId) else null }
   }
 
   override fun createStudent(): StudentId = (studentId++).toStudentId()

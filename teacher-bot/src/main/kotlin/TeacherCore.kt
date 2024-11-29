@@ -23,17 +23,16 @@ class TeacherCore(
 
   fun querySolution(teacherId: TeacherId): Solution? =
     solutionDistributor
-      .querySolution(teacherId)
+      .querySolution(teacherId, gradeTable)
       ?.let { solutionDistributor.resolveSolution(it) }
 
   fun assessSolution(
     solution: Solution,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    gradeTable: GradeTable,
     timestamp: LocalDateTime = LocalDateTime.now(),
   ) {
-    solutionDistributor.assessSolution(
+    gradeTable.assessSolution(
       solution.id,
       teacherId,
       assessment,

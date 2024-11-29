@@ -3,7 +3,6 @@ package com.github.heheteam.teacherbot.states
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.TeacherIdRegistry
-import com.github.heheteam.commonlib.mock.InMemoryGradeTable
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
@@ -119,12 +118,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
                 )
               } catch (e: CommonRequestException) {
               }
-
+              // TODO extract from maxscore of a problem
               core.assessSolution(
                 solution,
                 userId,
-                SolutionAssessment(5, ""),
-                InMemoryGradeTable(),
+                SolutionAssessment(1, ""),
               )
             }
 
@@ -141,8 +139,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               core.assessSolution(
                 solution,
                 userId,
-                SolutionAssessment(2, ""),
-                InMemoryGradeTable(),
+                SolutionAssessment(0, ""),
               )
             }
 

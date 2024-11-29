@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
+import java.time.LocalDateTime
 
 class InMemoryGradeTable : GradeTable {
   data class GradeTableEntry(
@@ -35,6 +36,21 @@ class InMemoryGradeTable : GradeTable {
         val solution = solutionDistributor.resolveSolution(it.solutionId)
         solution.problemId to it.solutionAssessment.grade
       }
+
+  override fun assessSolution(
+    solutionId: SolutionId,
+    teacherId: TeacherId,
+    assessment: SolutionAssessment,
+    gradeTable: GradeTable,
+    teacherStatistics: TeacherStatistics,
+    timestamp: LocalDateTime,
+  ) {
+    TODO("Not yet implemented")
+  }
+
+  override fun isChecked(solutionId: SolutionId): Boolean {
+    TODO("Not yet implemented")
+  }
 
   fun addTrivialAssessment(grade: Grade) {
     addAssessment(

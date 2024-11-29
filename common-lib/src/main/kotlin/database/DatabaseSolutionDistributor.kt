@@ -1,16 +1,15 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -19,6 +18,12 @@ import java.time.LocalDateTime
 class DatabaseSolutionDistributor(
   val database: Database,
 ) : SolutionDistributor {
+  init {
+    transaction(database) {
+      SchemaUtils.create(SolutionTable)
+    }
+  }
+
   override fun inputSolution(
     studentId: StudentId,
     chatId: RawChatId,
@@ -40,26 +45,14 @@ class DatabaseSolutionDistributor(
     return SolutionId(solutionId)
   }
 
-  override fun querySolution(teacherId: TeacherId): SolutionId? {
-    val solutions =
-      transaction(database) {
-        val assessedSolutions =
-          AssessmentTable
-            .select(AssessmentTable.id)
-            .withDistinctOn(AssessmentTable.id)
-
-        SolutionTable
-          .selectAll()
-          .where { SolutionTable.id notInSubQuery assessedSolutions }
-          .orderBy(SolutionTable.timestamp)
-      }
-
-    return solutions
-      .firstOrNull()
-      ?.get(SolutionTable.id)
-      ?.value
-      ?.toSolutionId()
-  }
+  override fun querySolution(
+    teacherId: TeacherId,
+    gradeTable: GradeTable,
+  ): SolutionId? = transaction(database) {
+    SolutionTable
+      .selectAll()
+      .map { it[SolutionTable.id].value.toSolutionId() }
+  }.firstOrNull { solutionId -> !gradeTable.isChecked(solutionId) }
 
   override fun resolveSolution(solutionId: SolutionId): Solution =
     transaction(database) {
@@ -79,21 +72,4 @@ class DatabaseSolutionDistributor(
         SolutionType.TEXT,
       )
     }
-
-  override fun assessSolution(
-    solutionId: SolutionId,
-    teacherId: TeacherId,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-    teacherStatistics: TeacherStatistics,
-    timestamp: LocalDateTime,
-  ) {
-    transaction(database) {
-      AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solutionId.id
-        it[AssessmentTable.teacherId] = teacherId.id
-        it[AssessmentTable.grade] = assessment.grade
-      }
-    }
-  }
 }

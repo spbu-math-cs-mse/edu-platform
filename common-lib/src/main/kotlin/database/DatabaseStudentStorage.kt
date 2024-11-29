@@ -46,7 +46,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
             Student(
               studentId.toStudentId(),
               it[StudentTable.name],
-              it[StudentTable.name]
+              it[StudentTable.name],
             )
           }
           .single()

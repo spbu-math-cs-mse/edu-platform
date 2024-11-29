@@ -48,6 +48,7 @@ class DatabaseStudentIdRegistry(
 class DatabaseTeacherIdRegistry(
   val database: Database,
 ) : TeacherIdRegistry {
+
   override fun getUserId(tgId: UserId): TeacherId? {
     val teacherId =
       transaction(database) {

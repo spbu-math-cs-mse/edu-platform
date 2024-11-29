@@ -2,7 +2,6 @@ package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -43,20 +42,7 @@ class InMemorySolutionDistributor : SolutionDistributor {
     return solution.id
   }
 
-  override fun querySolution(teacherId: TeacherId): SolutionId? = solutions.filter { !assessedSolutions.contains(it.id) }.firstOrNull()?.id
+  override fun querySolution(teacherId: TeacherId, gradeTable: GradeTable): SolutionId? = solutions.filter { !assessedSolutions.contains(it.id) }.firstOrNull()?.id
 
   override fun resolveSolution(solutionId: SolutionId): Solution = solutions.single { it.id == solutionId }
-
-  override fun assessSolution(
-    solutionId: SolutionId,
-    teacherId: TeacherId,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-    teacherStatistics: TeacherStatistics,
-    timestamp: LocalDateTime,
-  ) {
-    teacherStatistics.recordAssessment(teacherId, solutionId, timestamp, this)
-    gradeTable.addAssessment(teacherId, solutionId, assessment)
-    assessedSolutions.add(solutionId)
-  }
 }

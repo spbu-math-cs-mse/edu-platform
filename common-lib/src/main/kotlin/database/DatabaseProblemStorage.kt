@@ -21,7 +21,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
     }
     return Problem(
       id,
-      id.toString(),
+      row[ProblemTable.number],
       "",
       1,
       row[ProblemTable.assignmentId].value.toAssignmentId(),
@@ -34,7 +34,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   ): ProblemId {
     return transaction(database) {
       ProblemTable.insertAndGetId {
-        it[ProblemTable.number] = "1"
+        it[ProblemTable.number] = number
         it[ProblemTable.assignmentId] = assignmentId.id
         it[ProblemTable.maxScore] = 1
         it[ProblemTable.description] = ""
@@ -45,5 +45,6 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   override fun getProblemsFromAssignment(id: AssignmentId): List<ProblemId> =
     transaction(database) {
       ProblemTable.selectAll().where(ProblemTable.assignmentId eq id.id)
-    }.map { it[ProblemTable.id].value.toProblemId() }
+        .map { it[ProblemTable.id].value.toProblemId() }
+    }
 }

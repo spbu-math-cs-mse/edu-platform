@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.mock.*
-import com.github.heheteam.commonlib.mock.MockTeacherStatistics
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -13,7 +13,7 @@ import kotlin.test.*
 class SolutionDistributionTest {
   private lateinit var coursesDistributor: MockCoursesDistributor
   private lateinit var solutionDistributor: InMemorySolutionDistributor
-  private lateinit var teacherStatistics: MockTeacherStatistics
+  private lateinit var teacherStatistics: InMemoryTeacherStatistics
   private lateinit var gradeTable: InMemoryGradeTable
   private val problemStorage: ProblemStorage = InMemoryProblemStorage()
   private val assignmentStorage: AssignmentStorage = InMemoryAssignmentStorage()
@@ -26,7 +26,7 @@ class SolutionDistributionTest {
   fun setup() {
     coursesDistributor = MockCoursesDistributor()
     solutionDistributor = InMemorySolutionDistributor()
-    teacherStatistics = MockTeacherStatistics()
+    teacherStatistics = InMemoryTeacherStatistics()
     gradeTable = InMemoryGradeTable()
 
     studentCore =
@@ -91,7 +91,6 @@ class SolutionDistributionTest {
       solution,
       teacherId,
       SolutionAssessment(5, "way to go"),
-      gradeTable,
     )
 
     val emptySolution = teacherCore.querySolution(teacherId)
@@ -143,7 +142,6 @@ class SolutionDistributionTest {
       solution,
       teacherId,
       SolutionAssessment(3, "not too bad"),
-      gradeTable,
     )
 
     val emptySolution = teacherCore.querySolution(teacherId)
@@ -208,7 +206,6 @@ class SolutionDistributionTest {
       solution1,
       teacherId,
       SolutionAssessment(2, "bad"),
-      gradeTable,
     )
 
     val solution2 = teacherCore2.querySolution(teacherId2)
@@ -221,7 +218,6 @@ class SolutionDistributionTest {
       solution2,
       teacherId2,
       SolutionAssessment(3, "ok"),
-      gradeTable,
     )
 
     val userId2 = StudentId(3L)
@@ -249,7 +245,6 @@ class SolutionDistributionTest {
       solution3,
       teacherId,
       SolutionAssessment(4, "good"),
-      gradeTable,
     )
 
     val solution4 = teacherCore.querySolution(teacherId)
@@ -262,7 +257,6 @@ class SolutionDistributionTest {
       solution4,
       teacherId,
       SolutionAssessment(4, "good"),
-      gradeTable,
     )
 
     val solution5 = teacherCore2.querySolution(teacherId2)
@@ -276,7 +270,6 @@ class SolutionDistributionTest {
       solution5,
       teacherId2,
       SolutionAssessment(5, "great!"),
-      gradeTable,
     )
   }
 }

@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -17,16 +16,7 @@ interface SolutionDistributor {
     timestamp: LocalDateTime = LocalDateTime.now(),
   ): SolutionId
 
-  fun querySolution(teacherId: TeacherId): SolutionId?
+  fun querySolution(teacherId: TeacherId, gradeTable: GradeTable): SolutionId?
 
   fun resolveSolution(solutionId: SolutionId): Solution
-
-  fun assessSolution(
-    solutionId: SolutionId,
-    teacherId: TeacherId,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-    teacherStatistics: TeacherStatistics,
-    timestamp: LocalDateTime = LocalDateTime.now(),
-  )
 }

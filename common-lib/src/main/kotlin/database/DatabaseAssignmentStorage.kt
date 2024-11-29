@@ -18,13 +18,13 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
   override fun resolveAssignment(assignmentId: AssignmentId): Assignment {
     val row = transaction {
       AssignmentTable.selectAll().where(
-        AssignmentTable.id eq assignmentId.id
+        AssignmentTable.id eq assignmentId.id,
       ).single()
     }
     return Assignment(
       assignmentId,
       row[AssignmentTable.description],
-      row[AssignmentTable.course].value.toCourseId()
+      row[AssignmentTable.course].value.toCourseId(),
     )
   }
 
@@ -48,7 +48,7 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
   override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> =
     transaction {
       AssignmentTable.selectAll().where(
-        AssignmentTable.course eq courseId.id
+        AssignmentTable.course eq courseId.id,
       ).map { it[AssignmentTable.id].value.toAssignmentId() }
     }
 }

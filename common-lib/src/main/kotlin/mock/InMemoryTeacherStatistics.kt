@@ -10,7 +10,7 @@ import dev.inmo.tgbotapi.utils.mapNotNullValues
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class MockTeacherStatistics : TeacherStatistics {
+class InMemoryTeacherStatistics : TeacherStatistics {
   private data class SolutionReview(
     val solutionSent: LocalDateTime,
     val solutionReviewed: LocalDateTime,

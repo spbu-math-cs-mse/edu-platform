@@ -3,8 +3,9 @@ import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.mock.InMemoryGradeTable
 import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
-import com.github.heheteam.commonlib.mock.MockTeacherStatistics
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.junit.jupiter.api.Assertions.*
@@ -14,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TeacherBotTest {
-  private lateinit var statistics: MockTeacherStatistics
+  private lateinit var statistics: InMemoryTeacherStatistics
   private val now = LocalDateTime.now()
   private val teacher1Id = TeacherId(1L)
   private val solutionDistributor = InMemorySolutionDistributor()
@@ -31,7 +32,7 @@ class TeacherBotTest {
 
   @BeforeEach
   fun setUp() {
-    statistics = MockTeacherStatistics()
+    statistics = InMemoryTeacherStatistics()
   }
 
   @Test
@@ -127,7 +128,7 @@ class TeacherBotTest {
     )
     val solution =
       inMemorySolutionDistributor.resolveSolution(
-        inMemorySolutionDistributor.querySolution(teacherId)!!,
+        inMemorySolutionDistributor.querySolution(teacherId, InMemoryGradeTable())!!,
       )
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(text = "test"), solution.content)

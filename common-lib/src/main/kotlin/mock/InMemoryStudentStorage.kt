@@ -11,7 +11,7 @@ class InMemoryStudentStorage : StudentStorage {
 
   data class Entry(
     val studentId: StudentId,
-    val parentId: ParentId
+    val parentId: ParentId,
   )
 
   val entries = mutableListOf<Entry>()

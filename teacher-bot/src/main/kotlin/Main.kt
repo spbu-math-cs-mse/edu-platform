@@ -1,6 +1,8 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.api.TeacherId
+import DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.*
@@ -16,6 +18,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -48,19 +51,19 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockTeacherIdRegistry(mockCoursesDistributor.singleUserId)
-    val mockTeacherStatistics = MockTeacherStatistics()
-    run {
-      // fill with mock data
-      mockTeacherStatistics.addMockFilling(TeacherId(mockCoursesDistributor.singleUserId))
-    }
+    val database = Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
+    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val userIdRegistry = MockTeacherIdRegistry(0L)
+    val inMemoryTeacherStatistics = InMemoryTeacherStatistics()
     val core =
       TeacherCore(
-        mockTeacherStatistics,
-        mockCoursesDistributor,
-        InMemorySolutionDistributor(),
-        InMemoryGradeTable(),
+        inMemoryTeacherStatistics,
+        coursesDistributor,
+        DatabaseSolutionDistributor(database),
+        DatabaseGradeTable(database),
       )
 
     strictlyOnStartState(userIdRegistry)

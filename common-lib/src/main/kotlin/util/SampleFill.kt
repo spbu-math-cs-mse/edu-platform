@@ -14,8 +14,8 @@ fun generateCourse(
   (0..assignmentsPerCourse).map { assgnNum ->
     assignmentStorage.createAssignment(
       courseId,
-      "assignment $courseId.$assgnNum",
-      (0..problemsPerAssignment).map { ("p$courseId.$assgnNum.$it") },
+      "assignment ${courseId.id}.$assgnNum",
+      (0..problemsPerAssignment).map { ("p${courseId.id}.$assgnNum.$it") },
       problemStorage,
     )
   }

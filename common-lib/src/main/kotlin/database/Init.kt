@@ -55,4 +55,11 @@ fun main(args: Array<String>) {
 }
 
 fun Transaction.fillWithMockData() {
+  exec(
+    object {}
+      .javaClass
+      .getClassLoader()
+      .getResource("mock_data.sql")!!
+      .readText(Charsets.UTF_8),
+  )
 }

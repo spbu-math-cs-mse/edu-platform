@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create

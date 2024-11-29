@@ -26,14 +26,63 @@ fun fillWithSamples(
   coursesDistributor: CoursesDistributor,
   problemStorage: ProblemStorage,
   assignmentStorage: AssignmentStorage,
+  studentStorage: StudentStorage,
 ) {
-  val realAnalysis = generateCourse("Начала мат. анализа", coursesDistributor, assignmentStorage, problemStorage)
-  val probTheory = generateCourse("Теория вероятностей", coursesDistributor, assignmentStorage, problemStorage)
-  val linAlgebra = generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
-  val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
-
-  (0 until 5).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), realAnalysis) }
-  (0 until 5).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), probTheory) }
-  (5 until 10).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), probTheory) }
-  (5 until 10).map { studentId -> coursesDistributor.addRecord(StudentId(studentId.toLong()), linAlgebra) }
+  val realAnalysis = generateCourse(
+    "Начала мат. анализа",
+    coursesDistributor,
+    assignmentStorage,
+    problemStorage,
+  )
+  val probTheory = generateCourse(
+    "Теория вероятностей",
+    coursesDistributor,
+    assignmentStorage,
+    problemStorage,
+  )
+  val linAlgebra = generateCourse(
+    "Линейная алгебра",
+    coursesDistributor,
+    assignmentStorage,
+    problemStorage,
+  )
+  val complAnalysis = generateCourse(
+    "ТФКП",
+    coursesDistributor,
+    assignmentStorage,
+    problemStorage,
+  )
+//  val students = (0..10).map { studentStorage.createStudent() }
+  (0 until 5).map { studentId ->
+    coursesDistributor.addRecord(
+      StudentId(
+        studentId.toLong(),
+      ),
+      realAnalysis,
+    )
+  }
+  (0 until 5).map { studentId ->
+    coursesDistributor.addRecord(
+      StudentId(
+        studentId.toLong(),
+      ),
+      probTheory,
+    )
+  }
+  (5 until 10).map { studentId ->
+    coursesDistributor.addRecord(
+      StudentId(
+        studentId.toLong(),
+      ),
+      probTheory,
+    )
+  }
+  (5 until 10).map { studentId ->
+    coursesDistributor.addRecord(
+      StudentId(
+        studentId.toLong(),
+      ),
+      linAlgebra,
+    )
+  }
 }

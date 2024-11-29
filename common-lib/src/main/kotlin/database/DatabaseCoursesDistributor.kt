@@ -1,19 +1,27 @@
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
-import com.github.heheteam.commonlib.database.tables.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.ProblemTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseCoursesDistributor(
   val database: Database,
-  val gradeTable: GradeTable,
 ) : CoursesDistributor {
+  init {
+    transaction(database) {
+//      this.
+      SchemaUtils.create(CourseTable)
+      SchemaUtils.create(CourseStudents)
+    }
+  }
   override fun addRecord(
     studentId: StudentId,
     courseId: CourseId,
@@ -26,20 +34,23 @@ class DatabaseCoursesDistributor(
     }
   }
 
-  override fun getCourses(): List<CourseId> {
-    TODO("Not yet implemented")
+  override fun getCourses(): List<CourseId> = transaction(database) {
+    CourseTable.selectAll().map { it[CourseTable.id].value.toCourseId() }
   }
 
   override fun getTeacherCourses(teacherId: TeacherId): List<CourseId> {
     TODO("Not yet implemented")
   }
 
-  override fun resolveCourse(id: CourseId): Course {
-    TODO("Not yet implemented")
+  override fun resolveCourse(id: CourseId): Course = transaction(database) {
+    val row = CourseTable.selectAll().where(CourseTable.id eq id.id).singleOrNull()
+    Course(id, row!!.get(CourseTable.description))
   }
 
   override fun createCourse(description: String): CourseId {
-    TODO("Not yet implemented")
+    return transaction(database) {
+      CourseTable.insert { it[CourseTable.description] = description } get CourseTable.id
+    }.value.toCourseId()
   }
 
   override fun getStudents(courseId: CourseId): List<StudentId> {

@@ -1,28 +1,35 @@
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.mock.MockTeacherStatistics
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class StudentBotTest {
-  private lateinit var mockCoursesDistributor: MockCoursesDistributor
+  private lateinit var mockCoursesDistributor: CoursesDistributor
   private lateinit var inMemorySolutionDistributor: InMemorySolutionDistributor
   private lateinit var studentCore: StudentCore
 
   @BeforeEach
   fun setup() {
+    val database = Database.connect(
+      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+      driver = "org.h2.Driver",
+    )
     val problemStorage = InMemoryProblemStorage()
     val assignmentStorage = InMemoryAssignmentStorage()
-    mockCoursesDistributor = MockCoursesDistributor()
+    val studentStorage = DatabaseStudentStorage(database)
+    mockCoursesDistributor = DatabaseCoursesDistributor(database)
     inMemorySolutionDistributor = InMemorySolutionDistributor()
-    fillWithSamples(mockCoursesDistributor, problemStorage, assignmentStorage)
+    fillWithSamples(mockCoursesDistributor, problemStorage, assignmentStorage, InMemoryStudentStorage())
     studentCore =
       StudentCore(
         inMemorySolutionDistributor,
@@ -76,7 +83,7 @@ class StudentBotTest {
 
     run {
       val teacherId = TeacherId(0L)
-      val userId = StudentId(mockCoursesDistributor.singleUserId)
+      val userId = StudentId(0L)
 
       (0..4).forEach {
         studentCore.inputSolution(

@@ -16,4 +16,8 @@ class InMemoryStudentStorage : StudentStorage {
   override fun getStudents(parentId: ParentId): List<Student> {
     TODO("Not yet implemented")
   }
+
+  override fun createStudent(): StudentId {
+    TODO("Not yet implemented")
+  }
 }

@@ -1,5 +1,7 @@
-package com.github.heheteam.commonlib.database.tables
+package com.github.heheteam.commonlib.database.table
 
+import com.github.heheteam.commonlib.database.tables.CourseTable
+import com.github.heheteam.commonlib.database.tables.StudentTable
 import org.jetbrains.exposed.dao.id.LongIdTable
 
 object CourseStudents : LongIdTable("courseStudents") {

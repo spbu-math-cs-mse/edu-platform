@@ -31,3 +31,7 @@ data class SolutionId(
 data class AssignmentId(
   val id: Long,
 )
+
+fun Long.toCourseId() = CourseId(this)
+fun Long.toSolutionId() = SolutionId(this)
+fun Long.toProblemId() = ProblemId(this)

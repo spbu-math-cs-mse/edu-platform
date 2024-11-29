@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -47,6 +48,7 @@ suspend fun main(vararg args: String) {
     val userIdRegistry = MockStudentIdRegistry(mockCoursesDistributor.singleUserId)
     val problemStorage: ProblemStorage = InMemoryProblemStorage()
     val assignmentStorage: AssignmentStorage = InMemoryAssignmentStorage()
+    fillWithSamples(mockCoursesDistributor, problemStorage, assignmentStorage, InMemoryStudentStorage())
     val core =
       StudentCore(
         InMemorySolutionDistributor(),

@@ -33,5 +33,4 @@ data class AssignmentId(
 )
 
 fun Long.toCourseId() = CourseId(this)
-fun Long.toSolutionId() = SolutionId(this)
-fun Long.toProblemId() = ProblemId(this)
+fun Long.toStudentId() = StudentId(this)

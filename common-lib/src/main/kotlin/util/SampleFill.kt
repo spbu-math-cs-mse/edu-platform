@@ -27,7 +27,7 @@ fun fillWithSamples(
   problemStorage: ProblemStorage,
   assignmentStorage: AssignmentStorage,
   studentStorage: StudentStorage,
-) {
+): List<CourseId> {
   val realAnalysis = generateCourse(
     "Начала мат. анализа",
     coursesDistributor,
@@ -52,37 +52,30 @@ fun fillWithSamples(
     assignmentStorage,
     problemStorage,
   )
-//  val students = (0..10).map { studentStorage.createStudent() }
-  (0 until 5).map { studentId ->
+  val students = (0..10).map { studentStorage.createStudent() }
+  students.slice(0..<5).map { studentId ->
     coursesDistributor.addRecord(
-      StudentId(
-        studentId.toLong(),
-      ),
+      studentId,
       realAnalysis,
     )
   }
-  (0 until 5).map { studentId ->
+  students.slice(0..<5).map { studentId ->
     coursesDistributor.addRecord(
-      StudentId(
-        studentId.toLong(),
-      ),
+      studentId,
       probTheory,
     )
   }
-  (5 until 10).map { studentId ->
+  students.slice(5..<10).map { studentId ->
     coursesDistributor.addRecord(
-      StudentId(
-        studentId.toLong(),
-      ),
+      studentId,
       probTheory,
     )
   }
-  (5 until 10).map { studentId ->
+  students.slice(5..<10).map { studentId ->
     coursesDistributor.addRecord(
-      StudentId(
-        studentId.toLong(),
-      ),
+      studentId,
       linAlgebra,
     )
   }
+  return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

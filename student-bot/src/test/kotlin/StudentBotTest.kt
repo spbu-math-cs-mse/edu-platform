@@ -8,15 +8,17 @@ import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class StudentBotTest {
-  private lateinit var mockCoursesDistributor: CoursesDistributor
+  private lateinit var coursesDistributor: CoursesDistributor
   private lateinit var inMemorySolutionDistributor: InMemorySolutionDistributor
   private lateinit var studentCore: StudentCore
+  private lateinit var courseIds: List<CourseId>
 
   @BeforeEach
   fun setup() {
@@ -24,16 +26,19 @@ class StudentBotTest {
       "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
       driver = "org.h2.Driver",
     )
+    transaction(database) {
+      exec("SET REFERENTIAL_INTEGRITY FALSE;")
+    }
     val problemStorage = InMemoryProblemStorage()
     val assignmentStorage = InMemoryAssignmentStorage()
-    val studentStorage = DatabaseStudentStorage(database)
-    mockCoursesDistributor = DatabaseCoursesDistributor(database)
+    DatabaseStudentStorage(database)
+    coursesDistributor = DatabaseCoursesDistributor(database)
     inMemorySolutionDistributor = InMemorySolutionDistributor()
-    fillWithSamples(mockCoursesDistributor, problemStorage, assignmentStorage, InMemoryStudentStorage())
+    courseIds = fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, InMemoryStudentStorage())
     studentCore =
       StudentCore(
         inMemorySolutionDistributor,
-        mockCoursesDistributor,
+        coursesDistributor,
         problemStorage,
         assignmentStorage,
         InMemoryGradeTable(),
@@ -57,15 +62,13 @@ class StudentBotTest {
   fun `new student courses handling test`() {
     val studentId = StudentId(36L)
 
-    run {
-      studentCore.addRecord(studentId, CourseId(0L))
-      studentCore.addRecord(studentId, CourseId(3L))
-    }
+    studentCore.addRecord(studentId, courseIds[0])
+    studentCore.addRecord(studentId, courseIds[3])
 
     val studentCourses = studentCore.getStudentCourses(studentId)
 
     assertEquals(
-      listOf(CourseId(0L), CourseId(3L)),
+      listOf(courseIds[0], courseIds[3]),
       studentCourses.map { it.id }.sortedBy { it.id },
     )
     assertEquals("Начала мат. анализа", studentCourses.first().description)
@@ -100,7 +103,6 @@ class StudentBotTest {
       repeat(5) {
         val solution = inMemorySolutionDistributor.querySolution(teacherId)
         if (solution != null) {
-          println("here")
           solutions.add(solution)
           inMemorySolutionDistributor.assessSolution(
             solution,
@@ -113,6 +115,7 @@ class StudentBotTest {
         }
       }
     }
+    println(solutions)
 
     val firstSolution = inMemorySolutionDistributor.resolveSolution(solutions.first())
     assertEquals(SolutionType.TEXT, firstSolution.type)

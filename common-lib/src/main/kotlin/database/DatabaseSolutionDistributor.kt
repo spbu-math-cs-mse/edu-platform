@@ -1,8 +1,10 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
 import dev.inmo.tgbotapi.types.MessageId
@@ -52,13 +54,31 @@ class DatabaseSolutionDistributor(
           .orderBy(SolutionTable.timestamp)
       }
 
-    val solution = solutions.firstOrNull() ?: return null
-    TODO("Not implemented")
+    return solutions
+      .firstOrNull()
+      ?.get(SolutionTable.id)
+      ?.value
+      ?.toSolutionId()
   }
 
-  override fun resolveSolution(solutionId: SolutionId): Solution {
-    TODO("Not yet implemented")
-  }
+  override fun resolveSolution(solutionId: SolutionId): Solution =
+    transaction(database) {
+      val solution =
+        SolutionTable
+          .selectAll()
+          .where { SolutionTable.id eq solutionId.id }
+          .first()
+
+      return@transaction Solution(
+        solutionId,
+        StudentId(solution[SolutionTable.studentId].value),
+        solution[SolutionTable.chatId].toChatId().chatId,
+        MessageId(solution[SolutionTable.messageId]),
+        ProblemId(solution[SolutionTable.problemId].value),
+        SolutionContent(listOf(), solution[SolutionTable.content]),
+        SolutionType.TEXT,
+      )
+    }
 
   override fun assessSolution(
     solutionId: SolutionId,

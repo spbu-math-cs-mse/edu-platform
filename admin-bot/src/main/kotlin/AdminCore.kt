@@ -67,21 +67,21 @@ class AdminCore(
     TODO()
   }
 
-  override fun assessSolution(
+  fun assessSolution(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
     gradeTable: GradeTable,
     teacherStatistics: TeacherStatistics,
-    timestamp: LocalDateTime
+    timestamp: LocalDateTime,
   ) = gradeTable.assessSolution(
     solutionId,
-    teacherId, 
+    teacherId,
     assessment,
     gradeTable,
     teacherStatistics,
-    timestamp
+    timestamp,
   )
 
-  override fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
+  fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
 }

@@ -53,8 +53,6 @@ class SolutionDistributionTest {
   @Test
   fun `solution distribution with existing student test`() {
     val teacherId = TeacherId(0L)
-    val gradeTable = InMemoryGradeTable()
-
     teacherCore =
       TeacherCore(
         teacherStatistics,
@@ -121,12 +119,10 @@ class SolutionDistributionTest {
     return problemId
   }
 
-  @Ignore // because documents are not yet supported
+  @Ignore // because documents are not yet supported in database
   @Test
   fun `solution distribution with new student test`() {
     val teacherId = TeacherId(654L)
-    val gradeTable = InMemoryGradeTable()
-
     teacherCore =
       TeacherCore(
         teacherStatistics,

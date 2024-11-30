@@ -4,14 +4,13 @@ import com.github.heheteam.adminbot.AdminCore
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
-import dev.inmo.tgbotapi.types.message.textsources.botCommand
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: AdminCore) {
   strictlyOn<CreateCourseState> { state ->
     send(
       state.context,
-      "Введите название курса, который хотите создать, или отправьте " + botCommand("stop") + ", чтобы отменить операцию",
+      "Введите название курса, который хотите создать, или отправьте /stop, чтобы отменить операцию",
     )
 
     val message = waitTextMessage().first()

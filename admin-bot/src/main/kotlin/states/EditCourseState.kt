@@ -5,9 +5,8 @@ import com.github.heheteam.adminbot.Keyboards
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.replyKeyboard
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.simpleButton
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
@@ -17,19 +16,20 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState(core: Adm
       state.context,
       "Выберите курс, который хотите изменить:",
       replyMarkup =
-      replyKeyboard {
+      inlineKeyboard {
         for ((name, _) in core.getCourses()) {
           row {
-            simpleButton(
+            dataButton(
               text = name,
+              data = name,
             )
           }
         }
       },
     )
 
-    val message = waitTextMessage().first()
-    val answer = message.content.text
+    val message = waitDataCallbackQuery().first()
+    val answer = message.data
 
     if (answer == "/stop") {
       return@strictlyOn MenuState(state.context)

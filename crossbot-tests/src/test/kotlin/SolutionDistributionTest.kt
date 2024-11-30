@@ -42,13 +42,14 @@ class SolutionDistributionTest {
   @Test
   fun `solution distribution with existing student test`() {
     val teacherId = TeacherId(0L)
+    val gradeTable = InMemoryGradeTable()
 
     teacherCore =
       TeacherCore(
         teacherStatistics,
         coursesDistributor,
         solutionDistributor,
-        InMemoryGradeTable(),
+        gradeTable,
       )
 
     val userId = coursesDistributor.singleUserId
@@ -67,7 +68,7 @@ class SolutionDistributionTest {
 
     val extractedSolution =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId)!!,
+        solutionDistributor.querySolution(teacherId, gradeTable)!!,
       )
     assertNotNull(extractedSolution)
     val expectedText =
@@ -100,13 +101,14 @@ class SolutionDistributionTest {
   @Test
   fun `solution distribution with new student test`() {
     val teacherId = TeacherId(654L)
+    val gradeTable = InMemoryGradeTable()
 
     teacherCore =
       TeacherCore(
         teacherStatistics,
         coursesDistributor,
         solutionDistributor,
-        InMemoryGradeTable(),
+        gradeTable,
       )
 
     val userId = StudentId(255L)
@@ -125,7 +127,7 @@ class SolutionDistributionTest {
 
     val extractedSolution =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId)!!,
+        solutionDistributor.querySolution(teacherId, gradeTable)!!,
       )
     assertNotNull(extractedSolution)
     assertEquals(text, "PHOTOS")

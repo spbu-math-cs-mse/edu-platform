@@ -27,10 +27,6 @@ suspend fun main(vararg args: String) {
     AdminCore(
       mockGradeTable,
       InMemoryScheduledMessagesDistributor(),
-      mockCoursesTable,
-      mockStudentsTable,
-      mockTeachersTable,
-      mockAdminsTable,
       TODO(),
     )
 

@@ -2,52 +2,46 @@ package com.github.heheteam.adminbot
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
-import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 
 class AdminCore(
   private val gradeTable: GradeTable,
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
-  private val coursesTable: MutableMap<String, Course>,
-  private val studentsTable: MutableMap<StudentId, Student>,
-  private val teachersTable: MutableMap<TeacherId, Teacher>,
-  private val adminsTable: List<Username>,
   private val coursesDistributor: CoursesDistributor,
-) : GradeTable,
-  ScheduledMessagesDistributor {
-  override fun addAssessment(
+) {
+  fun addAssessment(
     teacherId: TeacherId,
     solutionId: SolutionId,
     assessment: SolutionAssessment,
   ) = gradeTable.addAssessment(teacherId, solutionId, assessment)
 
-  override fun getStudentPerformance(
+  fun getStudentPerformance(
     studentId: StudentId,
     solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
 
-  override fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
+  fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
-  override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> = scheduledMessagesDistributor.getMessagesUpToDate(date)
+  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> = scheduledMessagesDistributor.getMessagesUpToDate(date)
 
-  override fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
+  fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
-  fun courseExists(courseName: String) = coursesTable.containsKey(courseName)
+  fun courseExists(courseName: String): Boolean = TODO()
 
   fun addCourse(
     courseName: String,
     course: Course,
   ) {
-    coursesTable[courseName] = course
+    TODO()
   }
 
-  fun getCourse(courseName: String) = coursesTable[courseName]
+  fun getCourse(courseName: String): Course? = TODO()
 
-  fun getCourses() = coursesTable.toMap()
+  fun getCourses(): Map<String, Course> = TODO()
 
-  fun studentExists(id: StudentId) = studentsTable.containsKey(id)
+  fun studentExists(id: StudentId): Boolean = TODO()
 
-  fun teacherExists(id: TeacherId) = teachersTable.containsKey(id)
+  fun teacherExists(id: TeacherId): Boolean = TODO()
 
   fun studiesIn(
     id: StudentId,

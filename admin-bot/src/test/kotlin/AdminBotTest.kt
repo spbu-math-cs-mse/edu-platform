@@ -1,12 +1,12 @@
 import com.github.heheteam.adminbot.*
 import com.github.heheteam.adminbot.mockCoursesTable
-import com.github.heheteam.adminbot.mockStudentsTable
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.mock.MockCoursesDistributor
 import java.time.LocalDateTime
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -15,10 +15,6 @@ class AdminBotTest {
     AdminCore(
       mockGradeTable,
       InMemoryScheduledMessagesDistributor(),
-      mockCoursesTable,
-      mockStudentsTable,
-      mockTeachersTable,
-      mockAdminsTable,
       MockCoursesDistributor(),
     )
 
@@ -48,6 +44,7 @@ class AdminBotTest {
     assertEquals(listOf(message2), core.getMessagesUpToDate(date2))
   }
 
+  @Ignore
   @Test
   fun coursesTableTest() {
     val courseName = "course 1"

@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.api.CourseId
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
@@ -26,7 +27,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: A
       }
 
       else -> {
-        core.addCourse(answer, Course("", mutableListOf(), mutableListOf(), "", core))
+        core.addCourse(answer, Course(CourseId(0L), ""))
 
         send(
           state.context,

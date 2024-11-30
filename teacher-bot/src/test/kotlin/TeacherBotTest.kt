@@ -1,9 +1,11 @@
-import com.github.heheteam.commonlib.MockSolutionDistributor
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.mock.InMemoryGradeTable
+import com.github.heheteam.commonlib.mock.InMemorySolutionDistributor
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.junit.jupiter.api.Assertions.*
@@ -13,25 +15,24 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TeacherBotTest {
-  private lateinit var statistics: MockTeacherStatistics
+  private lateinit var statistics: InMemoryTeacherStatistics
   private val now = LocalDateTime.now()
-  private val teacher1Id = "teacher1"
+  private val teacher1Id = TeacherId(1L)
+  private val solutionDistributor = InMemorySolutionDistributor()
 
   private fun makeSolution(timestamp: LocalDateTime) =
-    Solution(
-      "",
-      "",
-      RawChatId(0),
-      MessageId(0),
-      Problem("", "", "", 1, ""),
+    solutionDistributor.inputSolution(
+      StudentId(0L),
+      RawChatId(0L),
+      MessageId(0L),
       SolutionContent(),
-      SolutionType.TEXT,
+      ProblemId(0L),
       timestamp,
     )
 
   @BeforeEach
   fun setUp() {
-    statistics = MockTeacherStatistics()
+    statistics = InMemoryTeacherStatistics()
   }
 
   @Test
@@ -48,7 +49,12 @@ class TeacherBotTest {
 
     assertEquals(2, statistics.getGlobalStats().totalUncheckedSolutions)
 
-    statistics.recordAssessment(teacher1Id, makeSolution(now.minusHours(2)), now)
+    statistics.recordAssessment(
+      teacher1Id,
+      makeSolution(now.minusHours(2)),
+      now,
+      solutionDistributor,
+    )
 
     val stats = statistics.getTeacherStats(teacher1Id)
     assertEquals(1, stats!!.totalAssessments)
@@ -63,9 +69,19 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol1)
     statistics.recordNewSolution(sol2)
     statistics.recordNewSolution(sol3)
-    statistics.recordAssessment(teacher1Id, sol1, now.minusHours(4))
-    statistics.recordAssessment(teacher1Id, sol2, now.minusHours(1))
-    statistics.recordAssessment(teacher1Id, sol3, now)
+    statistics.recordAssessment(
+      teacher1Id,
+      sol1,
+      now.minusHours(4),
+      solutionDistributor,
+    )
+    statistics.recordAssessment(
+      teacher1Id,
+      sol2,
+      now.minusHours(1),
+      solutionDistributor,
+    )
+    statistics.recordAssessment(teacher1Id, sol3, now, solutionDistributor)
 
     val stats = statistics.getTeacherStats(teacher1Id)
     assertEquals(1.0 * 60 * 60, stats!!.averageCheckTimeSeconds, 0.01)
@@ -80,8 +96,18 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol1)
     statistics.recordNewSolution(sol2)
 
-    statistics.recordAssessment("teacher1", sol1, now.minusHours(2))
-    statistics.recordAssessment("teacher2", sol2, now.minusHours(1))
+    statistics.recordAssessment(
+      TeacherId(1L),
+      sol1,
+      now.minusHours(2),
+      solutionDistributor,
+    )
+    statistics.recordAssessment(
+      TeacherId(2L),
+      sol2,
+      now.minusHours(1),
+      solutionDistributor,
+    )
 
     val globalStats = statistics.getGlobalStats()
     assertEquals(0, globalStats.totalUncheckedSolutions)
@@ -90,11 +116,20 @@ class TeacherBotTest {
 
   @Test
   fun `teacher gets user solution TEXT`() {
-    val studentId = "student"
-    val teacherId = "teacher"
-    val mockSolutionDistributor = MockSolutionDistributor()
-    mockSolutionDistributor.inputSolution(studentId, RawChatId(0), MessageId(0), SolutionContent(text = "test"))
-    val solution = mockSolutionDistributor.querySolution(teacherId)!!
+    val studentId = StudentId(10L)
+    val teacherId = TeacherId(139L)
+    val inMemorySolutionDistributor = InMemorySolutionDistributor()
+    inMemorySolutionDistributor.inputSolution(
+      studentId,
+      RawChatId(0),
+      MessageId(0),
+      SolutionContent(text = "test"),
+      ProblemId(0L),
+    )
+    val solution =
+      inMemorySolutionDistributor.resolveSolution(
+        inMemorySolutionDistributor.querySolution(teacherId, InMemoryGradeTable())!!,
+      )
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(text = "test"), solution.content)
     assertEquals(SolutionType.TEXT, solution.type)

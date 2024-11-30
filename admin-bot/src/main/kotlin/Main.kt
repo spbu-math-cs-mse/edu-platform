@@ -26,11 +26,8 @@ suspend fun main(vararg args: String) {
   val core =
     AdminCore(
       mockGradeTable,
-      MockScheduledMessagesDistributor(),
-      mockCoursesTable,
-      mockStudentsTable,
-      mockTeachersTable,
-      mockAdminsTable,
+      InMemoryScheduledMessagesDistributor(),
+      TODO(),
     )
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(

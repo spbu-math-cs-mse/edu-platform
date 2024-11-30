@@ -1,9 +1,11 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.MockCoursesDistributor
-import com.github.heheteam.commonlib.MockGradeTable
-import com.github.heheteam.commonlib.MockSolutionDistributor
-import com.github.heheteam.commonlib.MockUserIdRegistry
+import DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.state.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -17,6 +19,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
 
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
@@ -44,22 +47,25 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
+    val database = Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
+    val studentStorage = DatabaseStudentStorage(database)
+    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
+    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
+    fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+    val userIdRegistry = MockStudentIdRegistry(1L)
+    val solutionDistributor = DatabaseSolutionDistributor(database)
     val core =
       StudentCore(
-        MockSolutionDistributor(),
-        mockCoursesDistributor,
+        solutionDistributor,
+        coursesDistributor,
+        problemStorage,
+        assignmentStorage,
+        DatabaseGradeTable(database),
       )
-    run {
-      // fill with mock data
-      val firstCourse = core.getStudentCourses(mockCoursesDistributor.singleUserId).first()
-      val firstAssignment = firstCourse.assignments.first()
-      (firstCourse.gradeTable as MockGradeTable).addMockFilling(
-        firstAssignment,
-        mockCoursesDistributor.singleUserId,
-      )
-    }
 
     strictlyOnStartState(isDeveloperRun = true)
     strictlyOnMenuState()

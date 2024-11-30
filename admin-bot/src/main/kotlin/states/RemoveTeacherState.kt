@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.api.TeacherId
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
@@ -15,11 +15,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: 
       +"Введите ID преподавателя, которого хотите убрать с курса ${state.courseName}"
     }
     val message = waitTextMessage().first()
-    val id = message.content.text
+    val input = message.content.text
+    val id = input.toLongOrNull()
     when {
-      id == "/stop" -> StartState(state.context)
+      input == "/stop" -> StartState(state.context)
 
-      !core.teacherExists(id) -> {
+      id == null || !core.teacherExists(TeacherId(id)) -> {
         send(
           state.context,
           "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
@@ -28,7 +29,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: 
       }
 
       else -> {
-        if (state.course.teachers.remove(Teacher(id))) {
+        if (core.removeTeacher(TeacherId(id), state.course.id)) {
           send(
             state.context,
             "Преподаватель $id успешно удалён с курса ${state.courseName}",

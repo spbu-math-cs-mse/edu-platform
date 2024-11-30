@@ -1,47 +1,55 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.statistics.TeacherStatistics
-import com.github.heheteam.commonlib.statistics.TeacherStatsData
+import com.github.heheteam.commonlib.api.*
+import java.time.LocalDateTime
 
 class TeacherCore(
   private val teacherStatistics: TeacherStatistics,
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
+  private val gradeTable: GradeTable,
 ) {
-  fun getTeacherStats(teacherId: String): TeacherStatsData? = teacherStatistics.getTeacherStats(teacherId)
+  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? = teacherStatistics.getTeacherStats(teacherId)
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
   fun getQueryStats() = teacherStatistics.getGlobalStats()
 
-  fun getAvailableCourses(teacherId: String): List<Course> {
-    return coursesDistributor.getTeacherCourses(teacherId)
-  }
+  fun getAvailableCourses(teacherId: TeacherId): List<Course> =
+    coursesDistributor
+      .getTeacherCourses(teacherId)
+      .map { coursesDistributor.resolveCourse(it)!! }
 
-  fun querySolution(teacherId: String): Solution? {
-    return solutionDistributor.querySolution(teacherId)
-  }
+  fun querySolution(teacherId: TeacherId): Solution? =
+    solutionDistributor
+      .querySolution(teacherId, gradeTable)
+      ?.let { solutionDistributor.resolveSolution(it) }
 
   fun assessSolution(
     solution: Solution,
-    teacherId: String,
+    teacherId: TeacherId,
     assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-    timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+    timestamp: LocalDateTime = LocalDateTime.now(),
   ) {
-    solutionDistributor.assessSolution(solution, teacherId, assessment, gradeTable, timestamp, teacherStatistics)
+    gradeTable.assessSolution(
+      solution.id,
+      teacherId,
+      assessment,
+      gradeTable,
+      teacherStatistics,
+      timestamp,
+    )
   }
 
-  fun getGrading(course: Course): List<Pair<Student, Grade?>> {
-    return course.gradeTable.getGradeMap().map { (student, solvedProblems) ->
-      student to solvedProblems.filter { (problem: Problem, _: Grade) ->
-        course.assignments.map { it.id }.contains(problem.assignmentId)
-      }.map { (_: Problem, grade: Grade) -> grade }.sum()
-    }
+  fun getGrading(course: Course): List<Pair<StudentId, Grade?>> {
+    val students = coursesDistributor.getStudents(course.id)
+    val grades =
+      students.map { studentId ->
+        studentId to gradeTable.getStudentPerformance(studentId, solutionDistributor).values.sum()
+      }
+    return grades
   }
 
-  fun getMaxGrade(course: Course): Grade {
-    return course.assignments.flatMap { it.problems }.sumOf { it.maxScore }
-  }
+  fun getMaxGrade(course: Course): Grade = 5
 }

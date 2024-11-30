@@ -1,36 +1,36 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.MockGradeTable
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.mock.InMemoryGradeTable
 import dev.inmo.tgbotapi.types.Username
 import java.time.LocalDateTime
 
-val mockGradeTable = MockGradeTable()
+val mockGradeTable = InMemoryGradeTable()
 
 val mockCoursesTable: MutableMap<String, Course> =
   mutableMapOf(
     "Геома 1" to
       Course(
-        "1",
-        mutableListOf(Teacher("1")),
-        mutableListOf(Student("1")),
+        CourseId(1L),
         "какое-то описание",
-        mockGradeTable,
       ),
   )
 
-val mockStudentsTable: MutableMap<String, Student> =
+val mockStudentsTable: MutableMap<StudentId, Student> =
   mutableMapOf(
-    "1" to Student("1"),
-    "2" to Student("2"),
+    StudentId(1L) to Student(StudentId(1L)),
+    StudentId(2L) to Student(StudentId(2L)),
   )
 
-val mockTeachersTable: MutableMap<String, Teacher> =
+val mockTeachersTable: MutableMap<TeacherId, Teacher> =
   mutableMapOf(
-    "3" to Teacher("3"),
-    "4" to Teacher("4"),
+    TeacherId(3L) to Teacher(TeacherId(3L)),
+    TeacherId(4L) to Teacher(TeacherId(4L)),
   )
 
 val mockAdminsTable: List<Username> =
@@ -38,7 +38,7 @@ val mockAdminsTable: List<Username> =
     Username("@schindleria_praematurus"),
   )
 
-class MockScheduledMessagesDistributor(
+class InMemoryScheduledMessagesDistributor(
   private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf(),
 ) : ScheduledMessagesDistributor {
   override fun addMessage(message: ScheduledMessage) {

@@ -1,6 +1,9 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.AssignmentId
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
@@ -16,17 +19,18 @@ import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
-  userIdRegistry: UserIdRegistry,
+  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
-    val courses = core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
-    val courseId: String =
+    val courses =
+      core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
+    val courseId: CourseId =
       queryCourseFromUser(state, courses)
         ?: return@strictlyOn MenuState(state.context)
     val course = courses.find { it.id == courseId }!!
 
-    val assignmentsFromCourse = course.assignments
+    val assignmentsFromCourse = core.getCourseAssignments(courseId)
     val assignmentId =
       queryAssignmentFromUser(state, assignmentsFromCourse)
         ?: return@strictlyOn CheckGradesState(state.context)
@@ -34,8 +38,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
 
     val gradedProblems =
       core.getGradingForAssignment(
-        assignment,
-        course,
+        assignment.id,
         userIdRegistry.getUserId(state.context.id)!!,
       )
 
@@ -66,8 +69,8 @@ private suspend fun BehaviourContext.respondWithGrades(
 
 private suspend fun BehaviourContext.queryAssignmentFromUser(
   state: CheckGradesState,
-  assignments: MutableList<Assignment>,
-): String? {
+  assignments: List<Assignment>,
+): AssignmentId? {
   val chooseAssignmentMessage =
     bot.send(
       state.context,
@@ -80,7 +83,7 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
             row {
               dataButton(
                 it.description,
-                "${ButtonKey.ASSIGNMENT_ID} ${it.id}",
+                "${ButtonKey.ASSIGNMENT_ID} ${it.id.id}",
               )
             }
           }
@@ -94,18 +97,21 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
   val assignmentId =
     when {
       callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
-        callback.data.split(" ").last()
+        callback.data
+          .split(" ")
+          .last()
+          .toLong()
       }
 
-      else -> null
+      else -> return null
     }
-  return assignmentId
+  return AssignmentId(assignmentId)
 }
 
 private suspend fun BehaviourContext.queryCourseFromUser(
   state: CheckGradesState,
   courses: List<Course>,
-): String? {
+): CourseId? {
   val chooseCourseMessage =
     bot.send(
       state.context,
@@ -118,7 +124,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
             row {
               dataButton(
                 it.description,
-                "${ButtonKey.COURSE_ID} ${it.id}",
+                "${ButtonKey.COURSE_ID} ${it.id.id}",
               )
             }
           }
@@ -129,13 +135,18 @@ private suspend fun BehaviourContext.queryCourseFromUser(
 
   val callback = waitDataCallbackQuery().first()
   deleteMessage(chooseCourseMessage)
-  var courseId: String? = null
-  when {
-    callback.data.contains(ButtonKey.COURSE_ID) -> {
-      courseId = callback.data.split(" ").last()
+  val courseId =
+    when {
+      callback.data.contains(ButtonKey.COURSE_ID) -> {
+        callback.data
+          .split(" ")
+          .last()
+          .toLong()
+      }
+
+      else -> return null
     }
-  }
-  return courseId
+  return CourseId(courseId)
 }
 
 fun List<Pair<Problem, Grade?>>.withGradesToText() =

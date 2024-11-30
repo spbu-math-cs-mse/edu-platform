@@ -1,4 +1,3 @@
-import com.github.heheteam.commonlib.GradeTable
 import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
@@ -42,15 +41,13 @@ object Dialogues {
   fun acceptFeedback(): String = "Отлично, я уже побежал передавать твой ответ администратору"
 
   fun childPerformance(
-    gradeTable: GradeTable,
     child: Student,
+    core: ParentCore,
   ) = "Успеваемость ребенка $child:\n\n" +
     (
-      gradeTable
-        .getGradeMap()
-        .firstNotNullOfOrNull { if (it.key.id == child.id) it.value else null }
-        ?.map { "Задача ${it.key.id} решена на ${it.value} баллов" }
-        ?.joinToString("\n")
-        ?: "Пока нет решенных задач"
+      core
+        .getStudentPerformance(child.id)
+        .map { "Задача ${it.key} решена на ${it.value} баллов" }
+        .joinToString("\n")
       )
 }

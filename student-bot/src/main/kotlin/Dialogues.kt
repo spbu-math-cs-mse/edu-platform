@@ -29,6 +29,7 @@ object Dialogues {
   fun menu(): String = "\u2705 Главное меню"
 
   fun askCourseForSolution(): String = "Выбери курс для отправки решения:"
+  fun askAssignmentFromSolution(): String = "Выбери серию из курса:"
 
   fun tellSolutionIsSent(): String = "Решение отправлено на проверку!"
 

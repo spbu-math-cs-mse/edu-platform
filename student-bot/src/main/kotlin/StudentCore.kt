@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.*
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -9,43 +10,84 @@ import dev.inmo.tgbotapi.types.RawChatId
 class StudentCore(
   private val solutionDistributor: SolutionDistributor,
   private val coursesDistributor: CoursesDistributor,
+  private val problemStorage: ProblemStorage,
+  private val assignmentStorage: AssignmentStorage,
+  private val gradeTable: GradeTable,
 ) {
   fun getGradingForAssignment(
-    assignment: Assignment,
-    course: Course,
-    studentId: String,
+    assignmentId: AssignmentId,
+    studentId: StudentId,
   ): List<Pair<Problem, Grade?>> {
-    assert(assignment in course.assignments)
     val grades =
-      course.gradeTable
-        .getGradeMap()[Student(studentId)]
-        ?.filter { it.key.assignmentId == assignment.id }
+      gradeTable
+        .getStudentPerformance(studentId, solutionDistributor)
+        .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
-      assignment.problems
+      problemStorage.getProblemsFromAssignment(assignmentId)
+        .map { problemStorage.resolveProblem(it) }
         .sortedBy { problem -> problem.number }
-        .map { problem -> problem to grades?.get(problem) }
+        .map { problem -> problem to grades[problem.id] }
     return gradedProblems
   }
 
-  fun getStudentCourses(studentId: String): List<Course> {
-    return coursesDistributor.getStudentCourses(studentId)
+  fun getStudentCourses(studentId: StudentId): List<Course> =
+    coursesDistributor
+      .getStudentCourses(studentId)
+      .map { coursesDistributor.resolveCourse(it)!! }
+
+  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
+    assignmentStorage
+      .getAssignmentsForCourse(courseId)
+      .map { assignmentStorage.resolveAssignment(it) }
+
+  fun addRecord(
+    studentId: StudentId,
+    courseId: CourseId,
+  ) {
+    coursesDistributor.addToCourse(studentId, courseId)
   }
 
-  fun addRecord(studentId: String, courseId: String) {
-    coursesDistributor.addRecord(studentId, courseId)
-  }
+  fun getCourses(): List<Course> =
+    coursesDistributor
+      .getCourses()
+      .map { coursesDistributor.resolveCourse(it)!! }
 
-  fun getCourses(): List<Course> {
-    return coursesDistributor.getCourses()
-  }
   fun inputSolution(
-    studentId: String,
+    studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
+    problemId: ProblemId,
   ) {
-    solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent)
+    solutionDistributor.inputSolution(
+      studentId,
+      chatId,
+      messageId,
+      solutionContent,
+      problemId,
+    )
   }
 
-  fun getCoursesBulletList(userId: String): String = coursesDistributor.getCoursesBulletList(userId)
+  fun getCoursesBulletList(studentId: StudentId): String {
+    val studentCourses = coursesDistributor.getStudentCourses(studentId)
+    val notRegisteredMessage = "Вы не записаны ни на один курс!"
+    return if (studentCourses.isNotEmpty()) {
+      studentCourses
+        .joinToString("\n") { courseId ->
+          "- " +
+            coursesDistributor
+              .resolveCourse(
+                courseId,
+              )!!
+              .description
+        }
+    } else {
+      notRegisteredMessage
+    }
+  }
+
+  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
+    problemStorage
+      .getProblemsFromAssignment(assignment.id)
+      .map { problemStorage.resolveProblem(it) }
 }

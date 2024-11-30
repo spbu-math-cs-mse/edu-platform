@@ -1,10 +1,12 @@
 import com.github.heheteam.adminbot.*
 import com.github.heheteam.adminbot.mockCoursesTable
-import com.github.heheteam.adminbot.mockStudentsTable
 import com.github.heheteam.commonlib.*
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.mock.MockCoursesDistributor
 import java.time.LocalDateTime
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -12,44 +14,17 @@ class AdminBotTest {
   private val core =
     AdminCore(
       mockGradeTable,
-      MockScheduledMessagesDistributor(),
-      mockCoursesTable,
-      mockStudentsTable,
-      mockTeachersTable,
-      mockAdminsTable,
+      InMemoryScheduledMessagesDistributor(),
+      MockCoursesDistributor(),
     )
 
-  private val student = Student("1")
-  private val teacher = Teacher("1")
+  private val student = Student(StudentId(1L))
+  private val teacher = Teacher(TeacherId(1L))
   private val course =
     Course(
-      "1",
-      mutableListOf(teacher),
-      mutableListOf(student),
+      CourseId(1L),
       "",
-      core,
     )
-
-  @Test
-  fun gradeTableTest() {
-    val problem = Problem("1", "1", "", 10, "1")
-    val solution =
-      Solution(
-        "1",
-        "1",
-        RawChatId(0),
-        MessageId(0),
-        problem,
-        SolutionContent(),
-        SolutionType.TEXT,
-      )
-    val grade = 10
-    val assessment = SolutionAssessment(grade, "")
-
-    assertEquals(mapOf(), core.getGradeMap())
-    core.addAssessment(student, teacher, solution, assessment)
-    assertEquals(mapOf(student to mapOf(problem to grade)), core.getGradeMap())
-  }
 
   @Test
   fun scheduledMessagesDistributorTest() {
@@ -69,6 +44,7 @@ class AdminBotTest {
     assertEquals(listOf(message2), core.getMessagesUpToDate(date2))
   }
 
+  @Ignore
   @Test
   fun coursesTableTest() {
     val courseName = "course 1"

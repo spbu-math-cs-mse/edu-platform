@@ -1,33 +1,34 @@
-@file:Suppress("unused")
-
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.api.*
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
 typealias Grade = Int
 
 data class Student(
-  val id: String,
+  val id: StudentId,
   val name: String = "",
   val surname: String = "",
 )
 
 data class Parent(
-  val id: String,
-  val children: List<Student>,
+  val id: ParentId,
+  val name: String = "",
+  val surname: String = "",
+  val children: List<StudentId>,
 )
 
 data class Teacher(
-  val id: String,
+  val id: TeacherId,
 )
 
 data class Problem(
-  val id: String,
+  val id: ProblemId,
   val number: String,
   val description: String,
   val maxScore: Grade,
-  val assignmentId: String,
+  val assignmentId: AssignmentId,
 )
 
 enum class SolutionType {
@@ -38,30 +39,25 @@ enum class SolutionType {
 }
 
 data class Solution(
-  val id: String,
-  val studentId: String,
+  val id: SolutionId,
+  val studentId: StudentId,
   val chatId: RawChatId,
   val messageId: MessageId,
-  val problem: Problem,
+  val problemId: ProblemId,
   val content: SolutionContent,
   val type: SolutionType,
   val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
 
-class Course(
-  val id: String,
-  val teachers: MutableList<Teacher> = mutableListOf(),
-  val students: MutableList<Student> = mutableListOf(),
+data class Course(
+  val id: CourseId,
   var description: String,
-  val gradeTable: GradeTable,
-  val assignments: MutableList<Assignment> = mutableListOf(),
 )
 
 data class Assignment(
-  val id: String,
+  val id: AssignmentId,
   val description: String,
-  val problems: MutableList<Problem>,
-  val courseId: String,
+  val courseId: CourseId,
 )
 
 data class SolutionContent(
@@ -71,5 +67,5 @@ data class SolutionContent(
 
 data class SolutionAssessment(
   val grade: Grade,
-  val comments: String,
+  val comment: String,
 )

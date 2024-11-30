@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.MockCoursesDistributor
-import com.github.heheteam.commonlib.MockSolutionDistributor
-import com.github.heheteam.commonlib.MockUserIdRegistry
-import com.github.heheteam.commonlib.statistics.MockTeacherStatistics
+import DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
+import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
@@ -18,6 +18,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -50,14 +51,20 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockUserIdRegistry(mockCoursesDistributor.singleUserId)
-    val mockTeacherStatistics = MockTeacherStatistics()
-    run {
-      // fill with mock data
-      mockTeacherStatistics.addMockFilling(mockCoursesDistributor.singleUserId)
-    }
-    val core = TeacherCore(mockTeacherStatistics, mockCoursesDistributor, MockSolutionDistributor())
+    val database = Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
+    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val userIdRegistry = MockTeacherIdRegistry(0L)
+    val inMemoryTeacherStatistics = InMemoryTeacherStatistics()
+    val core =
+      TeacherCore(
+        inMemoryTeacherStatistics,
+        coursesDistributor,
+        DatabaseSolutionDistributor(database),
+        DatabaseGradeTable(database),
+      )
 
     strictlyOnStartState(userIdRegistry)
     strictlyOnMenuState(userIdRegistry, core)

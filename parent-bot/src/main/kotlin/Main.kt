@@ -1,5 +1,7 @@
 package com.github.heheteam.parentbot
 
+import ParentCore
+import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.parentbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -13,6 +15,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import strictlyOnStartState
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -20,8 +23,6 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
-  mockTgUsername = args[1]
-  val mockGradeTable = MockGradeTable()
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -29,7 +30,7 @@ suspend fun main(vararg args: String) {
       }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling(
     botToken,
     CoroutineScope(Dispatchers.IO),
     onStateHandlingErrorHandler = { state, e ->
@@ -40,18 +41,24 @@ suspend fun main(vararg args: String) {
   ) {
     println(getMe())
 
-    command(
-      "start",
-    ) {
+    command("start") {
       if (it.from != null) {
         startChain(StartState(it.from!!))
       }
     }
+    val mockCoursesDistributor = MockCoursesDistributor()
+    val userIdRegistry = MockParentIdRegistry(mockCoursesDistributor.singleUserId)
+    val core =
+      ParentCore(
+        InMemoryStudentStorage(),
+        InMemoryGradeTable(),
+        InMemorySolutionDistributor(),
+      )
 
-    strictlyOnStartState()
-    strictlyOnMenuState()
-    strictlyOnGivingFeedbackState()
-    strictlyOnChildPerformanceState(mockGradeTable)
+    strictlyOnStartState(isDeveloperRun = true)
+    strictlyOnMenuState(userIdRegistry, core)
+    strictlyOnGivingFeedbackState(userIdRegistry)
+    strictlyOnChildPerformanceState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

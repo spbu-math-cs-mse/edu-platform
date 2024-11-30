@@ -1,13 +1,21 @@
-package com.github.heheteam.commonlib.statistics
+package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.Solution
 import java.time.LocalDateTime
 
 interface TeacherStatistics {
-  fun recordAssessment(teacherId: String, solution: Solution, timestamp: LocalDateTime)
-  fun recordNewSolution(solution: Solution)
-  fun getTeacherStats(teacherId: String): TeacherStatsData?
-  fun getAllTeachersStats(): Map<String, TeacherStatsData>
+  fun recordAssessment(
+    teacherId: TeacherId,
+    solutionId: SolutionId,
+    timestamp: LocalDateTime,
+    solutionDistributor: SolutionDistributor,
+  )
+
+  fun recordNewSolution(solutionId: SolutionId)
+
+  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData?
+
+  fun getAllTeachersStats(): Map<TeacherId, TeacherStatsData>
+
   fun getGlobalStats(): GlobalTeacherStats
 }
 

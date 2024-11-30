@@ -1,6 +1,8 @@
 package com.github.heheteam.studentbot.metaData
 
+import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionType
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -13,7 +15,7 @@ fun buildCoursesSelector(availableCourses: List<Pair<Course, Boolean>>) =
     matrix {
       availableCourses.forEach { (course, status) ->
         val description = if (status) "${course.description} ✅" else course.description
-        row { dataButton(description, "${ButtonKey.COURSE_ID} ${course.id}") }
+        row { dataButton(description, "${ButtonKey.COURSE_ID} ${course.id.id}") }
       }
       row { dataButton("Записаться", ButtonKey.APPLY) }
       row { dataButton("Назад", ButtonKey.BACK) }
@@ -25,7 +27,29 @@ fun buildCoursesSendingSelector(availableCourses: List<Course>) =
     keyboard =
     matrix {
       availableCourses.forEach { course ->
-        row { dataButton(course.description, "${ButtonKey.COURSE_ID} ${course.id}") }
+        row { dataButton(course.description, "${ButtonKey.COURSE_ID} ${course.id.id}") }
+      }
+      row { dataButton("Назад", ButtonKey.BACK) }
+    },
+  )
+
+fun buildAssignmentSendingSelector(availableAssignments: List<Assignment>) =
+  InlineKeyboardMarkup(
+    keyboard =
+    matrix {
+      availableAssignments.forEach { assignment ->
+        row { dataButton(assignment.description, "${ButtonKey.ASSIGNMENT_ID} ${assignment.id.id}") }
+      }
+      row { dataButton("Назад", ButtonKey.BACK) }
+    },
+  )
+
+fun buildProblemSendingSelector(availableProblems: List<Problem>) =
+  InlineKeyboardMarkup(
+    keyboard =
+    matrix {
+      availableProblems.forEach { problem ->
+        row { dataButton(problem.number, "${ButtonKey.PROBLEM_ID} ${problem.id.id}") }
       }
       row { dataButton("Назад", ButtonKey.BACK) }
     },

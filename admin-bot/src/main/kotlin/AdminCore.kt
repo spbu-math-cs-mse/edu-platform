@@ -25,14 +25,12 @@ class AdminCore(
   fun getCourse(courseName: String): Course? =
     coursesDistributor
       .getCourses()
-      .asSequence()
       .map { coursesDistributor.resolveCourse(it) }
       .find { it?.description == courseName }
 
   fun getCourses(): Map<String, Course> =
     coursesDistributor
       .getCourses()
-      .asSequence()
       .map { coursesDistributor.resolveCourse(it)!! }
       .groupBy { it.description }
       .mapValues { it.value.first() }

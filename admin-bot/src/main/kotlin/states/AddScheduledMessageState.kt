@@ -52,7 +52,7 @@ private suspend fun BehaviourContext.queryDateFromUser(state: AddScheduledMessag
     state.context,
     "Выберите дату или введите её в формате дд.мм.гггг",
     replyMarkup =
-      keyboardWithDates(),
+    keyboardWithDates(),
   )
 
   val callback = waitDataCallbackQuery().first()
@@ -120,60 +120,60 @@ private fun keyboardWithDates(): InlineKeyboardMarkup {
     )
   return InlineKeyboardMarkup(
     keyboard =
-      matrix {
-        row {
-          dataButton(
-            dates[0].format(dateFormatter) + " (сегодня)",
-            dates[0].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton(
-            dates[1].format(dateFormatter) + " (завтра)",
-            dates[1].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton(
-            dates[2].format(dateFormatter) +
-              " (" + toRussian(dates[2].dayOfWeek) + ")",
-            dates[2].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton(
-            dates[3].format(dateFormatter) +
-              " (" + toRussian(dates[3].dayOfWeek) + ")",
-            dates[3].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton(
-            dates[4].format(dateFormatter) +
-              " (" + toRussian(dates[4].dayOfWeek) + ")",
-            dates[4].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton(
-            dates[5].format(dateFormatter) +
-              " (" + toRussian(dates[5].dayOfWeek) + ")",
-            dates[5].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton(
-            dates[6].format(dateFormatter) +
-              " (" + toRussian(dates[6].dayOfWeek) + ")",
-            dates[6].format(dateFormatter),
-          )
-        }
-        row {
-          dataButton("Ввести с клавиатуры", "enter date")
-        }
-        row {
-          dataButton("Отмена", "cancel")
-        }
-      },
+    matrix {
+      row {
+        dataButton(
+          dates[0].format(dateFormatter) + " (сегодня)",
+          dates[0].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton(
+          dates[1].format(dateFormatter) + " (завтра)",
+          dates[1].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton(
+          dates[2].format(dateFormatter) +
+            " (" + toRussian(dates[2].dayOfWeek) + ")",
+          dates[2].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton(
+          dates[3].format(dateFormatter) +
+            " (" + toRussian(dates[3].dayOfWeek) + ")",
+          dates[3].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton(
+          dates[4].format(dateFormatter) +
+            " (" + toRussian(dates[4].dayOfWeek) + ")",
+          dates[4].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton(
+          dates[5].format(dateFormatter) +
+            " (" + toRussian(dates[5].dayOfWeek) + ")",
+          dates[5].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton(
+          dates[6].format(dateFormatter) +
+            " (" + toRussian(dates[6].dayOfWeek) + ")",
+          dates[6].format(dateFormatter),
+        )
+      }
+      row {
+        dataButton("Ввести с клавиатуры", "enter date")
+      }
+      row {
+        dataButton("Отмена", "cancel")
+      }
+    },
   )
 }

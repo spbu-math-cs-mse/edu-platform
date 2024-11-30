@@ -53,6 +53,7 @@ class SolutionDistributionTest {
   @Test
   fun `solution distribution with existing student test`() {
     val teacherId = TeacherId(0L)
+    val gradeTable = InMemoryGradeTable()
 
     teacherCore =
       TeacherCore(
@@ -124,6 +125,7 @@ class SolutionDistributionTest {
   @Test
   fun `solution distribution with new student test`() {
     val teacherId = TeacherId(654L)
+    val gradeTable = InMemoryGradeTable()
 
     teacherCore =
       TeacherCore(

@@ -1,4 +1,4 @@
-package com.github.heheteam.adminbot
+package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Course
 import java.time.LocalDateTime

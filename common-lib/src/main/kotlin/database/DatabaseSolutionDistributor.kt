@@ -8,6 +8,8 @@ import com.github.heheteam.commonlib.database.tables.SolutionTable
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
@@ -40,6 +42,7 @@ class DatabaseSolutionDistributor(
           it[SolutionTable.messageId] = messageId.long
           it[SolutionTable.problemId] = problemId.id
           it[SolutionTable.content] = solutionContent.text ?: ""
+          it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
         } get SolutionTable.id
       }.value
     return SolutionId(solutionId)
@@ -48,11 +51,12 @@ class DatabaseSolutionDistributor(
   override fun querySolution(
     teacherId: TeacherId,
     gradeTable: GradeTable,
-  ): SolutionId? = transaction(database) {
-    SolutionTable
-      .selectAll()
-      .map { it[SolutionTable.id].value.toSolutionId() }
-  }.firstOrNull { solutionId -> !gradeTable.isChecked(solutionId) }
+  ): SolutionId? =
+    transaction(database) {
+      SolutionTable
+        .selectAll()
+        .map { it[SolutionTable.id].value.toSolutionId() }
+    }.firstOrNull { solutionId -> !gradeTable.isChecked(solutionId) }
 
   override fun resolveSolution(solutionId: SolutionId): Solution =
     transaction(database) {
@@ -70,6 +74,7 @@ class DatabaseSolutionDistributor(
         ProblemId(solution[SolutionTable.problemId].value),
         SolutionContent(listOf(), solution[SolutionTable.content]),
         SolutionType.TEXT,
+        solution[SolutionTable.timestamp].toJavaLocalDateTime(),
       )
     }
 }

@@ -1,13 +1,10 @@
 import com.github.heheteam.adminbot.*
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
+import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import org.jetbrains.exposed.sql.Database
 import java.time.LocalDateTime
 import kotlin.test.Ignore
@@ -21,7 +18,6 @@ class AdminBotTest {
       driver = "org.h2.Driver",
     )
 
-  private val userIdRegistry = MockAdminIdRegistry(0L)
   private val core =
     AdminCore(
       InMemoryScheduledMessagesDistributor(),
@@ -30,8 +26,15 @@ class AdminBotTest {
       DatabaseTeacherStorage(database),
     )
 
-  private val student = Student(StudentId(1L))
-  private val teacher = Teacher(TeacherId(1L))
+  private val mockCoursesTable: MutableMap<String, Course> =
+    mutableMapOf(
+      "Геома 1" to
+        Course(
+          CourseId(1L),
+          "какое-то описание",
+        ),
+    )
+
   private val course =
     Course(
       CourseId(1L),

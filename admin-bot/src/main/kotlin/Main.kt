@@ -4,6 +4,7 @@ import DatabaseCoursesDistributor
 import com.github.heheteam.adminbot.states.*
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel

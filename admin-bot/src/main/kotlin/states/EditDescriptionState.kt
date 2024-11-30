@@ -17,7 +17,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
     val message = waitTextMessage().first()
     val answer = message.content.text
     when {
-      answer == "/stop" -> StartState(state.context)
+      answer == "/stop" -> MenuState(state.context)
 
       else -> {
         state.course.description = answer
@@ -26,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
           "Описание курса ${state.courseName} успешно обновлено",
         )
 
-        StartState(state.context)
+        MenuState(state.context)
       }
     }
   }

@@ -7,6 +7,10 @@ interface StudentStorage {
     studentId: StudentId,
     parentId: ParentId,
   )
-  fun getStudents(parentId: ParentId): List<Student>
+
+  fun getChildren(parentId: ParentId): List<Student>
+
   fun createStudent(): StudentId
+
+  fun resolveStudent(studentId: StudentId): Student?
 }

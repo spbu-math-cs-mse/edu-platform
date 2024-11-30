@@ -1,21 +1,33 @@
 import com.github.heheteam.adminbot.*
-import com.github.heheteam.adminbot.mockCoursesTable
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.mock.MockCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
+import org.jetbrains.exposed.sql.Database
 import java.time.LocalDateTime
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AdminBotTest {
+  private val database =
+    Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
+
+  private val userIdRegistry = MockAdminIdRegistry(0L)
   private val core =
     AdminCore(
-      mockGradeTable,
       InMemoryScheduledMessagesDistributor(),
-      MockCoursesDistributor(),
+      DatabaseCoursesDistributor(database),
+      DatabaseStudentStorage(database),
+      DatabaseTeacherStorage(database),
     )
 
   private val student = Student(StudentId(1L))
@@ -52,7 +64,7 @@ class AdminBotTest {
     assertEquals(false, core.courseExists(courseName))
     assertEquals(null, core.getCourse(courseName))
     assertEquals(mockCoursesTable.toMap(), core.getCourses())
-    core.addCourse(courseName, course)
+    core.addCourse(courseName)
     assertEquals(true, core.courseExists(courseName))
     assertEquals(course, core.getCourse(courseName))
     assertEquals(mockCoursesTable.toMap().plus(courseName to course), core.getCourses())

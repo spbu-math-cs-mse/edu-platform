@@ -15,6 +15,7 @@ class InMemoryStudentStorage : StudentStorage {
   )
 
   val entries = mutableListOf<Entry>()
+
   override fun bindStudentToParent(
     studentId: StudentId,
     parentId: ParentId,
@@ -22,9 +23,14 @@ class InMemoryStudentStorage : StudentStorage {
     entries.add(Entry(studentId, parentId))
   }
 
-  override fun getStudents(parentId: ParentId): List<Student> {
-    return entries.mapNotNull { if (it.parentId == parentId) Student(it.studentId) else null }
-  }
+  override fun getChildren(parentId: ParentId): List<Student> =
+    entries.mapNotNull {
+      if (it.parentId == parentId) Student(it.studentId) else null
+    }
 
   override fun createStudent(): StudentId = (studentId++).toStudentId()
+
+  override fun resolveStudent(studentId: StudentId): Student? {
+    TODO("Not yet implemented")
+  }
 }

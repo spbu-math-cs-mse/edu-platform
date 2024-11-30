@@ -22,7 +22,7 @@ class MockCoursesDistributor : CoursesDistributor {
   private val studentsToCourseIds: MutableMap<StudentId, MutableSet<CourseId>> =
     mutableMapOf()
 
-  override fun addToCourse(
+  override fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
   ) {
@@ -33,6 +33,27 @@ class MockCoursesDistributor : CoursesDistributor {
       studentsToCourseIds[studentId] = mutableSetOf()
     }
     studentsToCourseIds[studentId]!!.add(courseId)
+  }
+
+  override fun addTeacherToCourse(
+    teacherId: TeacherId,
+    courseId: CourseId,
+  ) {
+    TODO()
+  }
+
+  override fun removeStudentFromCourse(
+    studentId: StudentId,
+    courseId: CourseId,
+  ) {
+    TODO("Not yet implemented")
+  }
+
+  override fun removeTeacherFromCourse(
+    teacherId: TeacherId,
+    courseId: CourseId,
+  ) {
+    TODO("Not yet implemented")
   }
 
   override fun getStudentCourses(studentId: StudentId): List<CourseId> {
@@ -57,4 +78,8 @@ class MockCoursesDistributor : CoursesDistributor {
   override fun getStudents(courseId: CourseId): List<StudentId> =
     studentsToCourseIds
       .mapNotNull { if (it.value.contains(courseId)) it.key else null }
+
+  override fun getTeachers(courseId: CourseId): List<TeacherId> {
+    TODO("Not yet implemented")
+  }
 }

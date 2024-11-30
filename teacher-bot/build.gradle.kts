@@ -10,7 +10,6 @@ application {
 val exposedVersion: String by project
 val postgresDriverVersion: String by project
 
-
 dependencies {
     testImplementation(kotlin("test"))
     implementation(project(":common-lib"))
@@ -18,7 +17,7 @@ dependencies {
     implementation("dev.inmo:tgbotapi:18.2.1")
     implementation("org.slf4j:slf4j-api:1.6.1")
     implementation("org.slf4j:slf4j-simple:1.6.1")
-    implementation("dev.inmo:tgbotapi:18.2.1")
+
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-crypt:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")

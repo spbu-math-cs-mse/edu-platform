@@ -1,75 +1,63 @@
 package com.github.heheteam.adminbot.states
 
-import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
+import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.adminbot.Keyboards
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.replyKeyboard
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.simpleButton
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState() {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState(core: AdminCore) {
   strictlyOn<EditCourseState> { state ->
-    val action = selectAction(state)
+    bot.send(
+      state.context,
+      "Выберите курс, который хотите изменить:",
+      replyMarkup =
+      replyKeyboard {
+        for ((name, _) in core.getCourses()) {
+          row {
+            simpleButton(
+              text = name,
+            )
+          }
+        }
+      },
+    )
+
+    val message = waitTextMessage().first()
+    val answer = message.content.text
+
+    if (answer == "/stop") {
+      return@strictlyOn MenuState(state.context)
+    }
+
+    val courseName = answer
+    val course = core.getCourse(answer)!!
+
+    bot.send(state.context, "Изменить курс $courseName:", replyMarkup = Keyboards.editCourse())
+    val callback = waitDataCallbackQuery().first()
+    val action = callback.data
+
     when (action) {
-      "cancel" -> StartState(state.context)
-      "add a student" -> {
-        AddStudentState(state.context, state.course, state.courseName)
-      }
-      "remove a student" -> {
-        RemoveStudentState(state.context, state.course, state.courseName)
-      }
-      "add a teacher" -> {
-        AddTeacherState(state.context, state.course, state.courseName)
-      }
-      "remove a teacher" -> {
-        RemoveTeacherState(state.context, state.course, state.courseName)
-      }
-      "edit description" -> {
-        EditDescriptionState(state.context, state.course, state.courseName)
-      }
-      "add scheduled message" -> {
-        AddScheduledMessageState(state.context, state.course, state.courseName)
-      }
-      else -> EditCourseState(state.context, state.course, state.courseName)
+      Keyboards.returnBack -> StartState(state.context)
+
+      Keyboards.addStudent -> AddStudentState(state.context, course, courseName)
+
+      Keyboards.removeStudent -> RemoveStudentState(state.context, course, courseName)
+
+      Keyboards.addTeacher -> AddTeacherState(state.context, course, courseName)
+
+      Keyboards.removeTeacher -> RemoveTeacherState(state.context, course, courseName)
+
+      Keyboards.editDescription -> EditDescriptionState(state.context, course, courseName)
+
+      Keyboards.addScheduledMessage -> AddScheduledMessageState(state.context, course, courseName)
+
+      else -> EditCourseState(state.context)
     }
   }
-}
-
-private suspend fun BehaviourContext.selectAction(state: EditCourseState): String {
-  bot.send(
-    state.context,
-    "Изменить курс ${state.courseName}:",
-    replyMarkup =
-    inlineKeyboard {
-      row {
-        dataButton("Добавить ученика", "add a student")
-      }
-      row {
-        dataButton("Убрать ученика", "remove a student")
-      }
-      row {
-        dataButton("Добавить преподавателя", "add a teacher")
-      }
-      row {
-        dataButton("Убрать преподавателя", "remove a teacher")
-      }
-      row {
-        dataButton("Изменить описание", "edit description")
-      }
-      row {
-        dataButton("Добавить отложенное сообщение", "add scheduled message")
-      }
-      row {
-        dataButton("Назад", "cancel")
-      }
-    },
-  )
-
-  val callback = waitDataCallbackQuery().first()
-  val data = callback.data
-  answerCallbackQuery(callback)
-  return data
 }

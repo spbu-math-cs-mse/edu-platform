@@ -10,10 +10,6 @@ data class StartState(
   override val context: User,
 ) : BotState
 
-data class NotAdminState(
-  override val context: User,
-) : BotState
-
 data class MenuState(
   override val context: User,
 ) : BotState
@@ -24,8 +20,6 @@ data class CreateCourseState(
 
 data class EditCourseState(
   override val context: User,
-  val course: Course,
-  val courseName: String,
 ) : BotState
 
 data class AddStudentState(

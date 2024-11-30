@@ -23,7 +23,8 @@ class StudentCore(
         .getStudentPerformance(studentId, solutionDistributor)
         .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
     val gradedProblems =
-      problemStorage.getProblemsFromAssignment(assignmentId)
+      problemStorage
+        .getProblemsFromAssignment(assignmentId)
         .map { problemStorage.resolveProblem(it) }
         .sortedBy { problem -> problem.number }
         .map { problem -> problem to grades[problem.id] }
@@ -44,7 +45,7 @@ class StudentCore(
     studentId: StudentId,
     courseId: CourseId,
   ) {
-    coursesDistributor.addToCourse(studentId, courseId)
+    coursesDistributor.addStudentToCourse(studentId, courseId)
   }
 
   fun getCourses(): List<Course> =

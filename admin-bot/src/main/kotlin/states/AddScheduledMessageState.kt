@@ -29,11 +29,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddScheduledMessageState(
     val text = message.content.text
 
     if (text == "/stop") {
-      return@strictlyOn StartState(state.context)
+      return@strictlyOn MenuState(state.context)
     }
 
-    val date = queryDateFromUser(state) ?: return@strictlyOn StartState(state.context)
-    val time = queryTimeFromUser(state) ?: return@strictlyOn StartState(state.context)
+    val date = queryDateFromUser(state) ?: return@strictlyOn MenuState(state.context)
+    val time = queryTimeFromUser(state) ?: return@strictlyOn MenuState(state.context)
 
     send(state.context) {
       +"Сообщение успешно добавлено:" + newLine + text + newLine +
@@ -42,7 +42,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddScheduledMessageState(
         "Курс: " + state.courseName
     }
     core.addMessage(ScheduledMessage(state.course, LocalDateTime.of(date, time), text))
-    StartState(state.context)
+    MenuState(state.context)
   }
 }
 

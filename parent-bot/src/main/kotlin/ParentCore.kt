@@ -6,7 +6,7 @@ class ParentCore(
   private val gradeTable: GradeTable,
   private val solutionDistributor: SolutionDistributor,
 ) {
-  fun getChildren(parentId: ParentId): List<Student> = studentStorage.getStudents(parentId)
+  fun getChildren(parentId: ParentId): List<Student> = studentStorage.getChildren(parentId)
 
   fun getStudentPerformance(studentId: StudentId) = gradeTable.getStudentPerformance(studentId, solutionDistributor)
 }

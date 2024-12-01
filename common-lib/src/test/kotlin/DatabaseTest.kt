@@ -4,19 +4,20 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DatabaseTest {
-  val database = Database.connect(
-    "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-    driver = "org.h2.Driver",
-  )
+  val database =
+    Database.connect(
+      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+      driver = "org.h2.Driver",
+    )
 
   // assumes database is empty
   fun courseDistributorTests(coursesDistributor: CoursesDistributor) {
     val sampleDescription = "sample description"
     val id = coursesDistributor.createCourse(sampleDescription)
-    val requeriedId = coursesDistributor.getCourses().single()
-    assertEquals(id, requeriedId)
-    val resolvedCourse = coursesDistributor.resolveCourse(requeriedId)!!
-    assertEquals(sampleDescription, resolvedCourse.description)
+    val requiredId = coursesDistributor.getCourses().single().id
+    assertEquals(id, requiredId)
+    val resolvedCourse = coursesDistributor.resolveCourse(requiredId)!!
+    assertEquals(sampleDescription, resolvedCourse.name)
   }
 
   @Test

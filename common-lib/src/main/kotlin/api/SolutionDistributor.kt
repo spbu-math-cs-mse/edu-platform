@@ -16,7 +16,10 @@ interface SolutionDistributor {
     timestamp: LocalDateTime = LocalDateTime.now(),
   ): SolutionId
 
-  fun querySolution(teacherId: TeacherId, gradeTable: GradeTable): SolutionId?
+  fun querySolution(
+    teacherId: TeacherId,
+    gradeTable: GradeTable,
+  ): Solution?
 
   fun resolveSolution(solutionId: SolutionId): Solution
 }

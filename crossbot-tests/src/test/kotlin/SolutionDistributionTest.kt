@@ -25,14 +25,16 @@ class SolutionDistributionTest {
 
   private var messageId = 1L
   private var databaseNum = 0L
+
   fun newMessageId(): MessageId = MessageId(messageId++)
 
   @BeforeEach
   fun setup() {
-    val database = Database.connect(
-      "jdbc:h2:mem:test${databaseNum++};DB_CLOSE_DELAY=-1",
-      driver = "org.h2.Driver",
-    )
+    val database =
+      Database.connect(
+        "jdbc:h2:mem:test${databaseNum++};DB_CLOSE_DELAY=-1",
+        driver = "org.h2.Driver",
+      )
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     teacherStatistics = InMemoryTeacherStatistics()
@@ -77,7 +79,7 @@ class SolutionDistributionTest {
 
     val extractedSolution =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!,
+        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
       )
     assertNotNull(extractedSolution)
     val expectedText =
@@ -109,13 +111,14 @@ class SolutionDistributionTest {
 
   private fun createProblem(): ProblemId {
     val courseId = coursesDistributor.createCourse("")
-    val assignment = assignmentStorage.createAssignment(
-      courseId,
-      "",
-      listOf("1"),
-      problemStorage,
-    )
-    val problemId = problemStorage.getProblemsFromAssignment(assignment).first()
+    val assignment =
+      assignmentStorage.createAssignment(
+        courseId,
+        "",
+        listOf("1"),
+        problemStorage,
+      )
+    val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id
     return problemId
   }
 
@@ -147,7 +150,7 @@ class SolutionDistributionTest {
 
     val extractedSolution =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!,
+        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
       )
     assertNotNull(extractedSolution)
     assertEquals(text, "PHOTOS")
@@ -176,12 +179,13 @@ class SolutionDistributionTest {
     val teacherId = TeacherId(1337L)
     val teacherId2 = TeacherId(1338L)
 
-    teacherCore = TeacherCore(
-      teacherStatistics,
-      coursesDistributor,
-      solutionDistributor,
-      gradeTable,
-    )
+    teacherCore =
+      TeacherCore(
+        teacherStatistics,
+        coursesDistributor,
+        solutionDistributor,
+        gradeTable,
+      )
 
     val userId1 = studentStorage.createStudent()
     var id = 10L

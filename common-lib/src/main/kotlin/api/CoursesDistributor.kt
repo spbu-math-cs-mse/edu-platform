@@ -23,11 +23,11 @@ interface CoursesDistributor {
     courseId: CourseId,
   )
 
-  fun getCourses(): List<CourseId>
+  fun getCourses(): List<Course>
 
-  fun getStudentCourses(studentId: StudentId): List<CourseId>
+  fun getStudentCourses(studentId: StudentId): List<Course>
 
-  fun getTeacherCourses(teacherId: TeacherId): List<CourseId>
+  fun getTeacherCourses(teacherId: TeacherId): List<Course>
 
   fun resolveCourse(id: CourseId): Course?
 

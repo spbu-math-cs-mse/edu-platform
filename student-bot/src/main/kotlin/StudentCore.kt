@@ -20,12 +20,10 @@ class StudentCore(
   ): List<Pair<Problem, Grade?>> {
     val grades =
       gradeTable
-        .getStudentPerformance(studentId, solutionDistributor)
-        .filter { problemStorage.resolveProblem(it.key).assignmentId == assignmentId }
+        .getStudentPerformance(studentId, assignmentId, solutionDistributor)
     val gradedProblems =
       problemStorage
         .getProblemsFromAssignment(assignmentId)
-        .map { problemStorage.resolveProblem(it) }
         .sortedBy { problem -> problem.number }
         .map { problem -> problem to grades[problem.id] }
     return gradedProblems
@@ -34,7 +32,6 @@ class StudentCore(
   fun getStudentCourses(studentId: StudentId): List<Course> =
     coursesDistributor
       .getStudentCourses(studentId)
-      .map { coursesDistributor.resolveCourse(it)!! }
 
   fun getCourseAssignments(courseId: CourseId): List<Assignment> =
     assignmentStorage
@@ -48,10 +45,7 @@ class StudentCore(
     coursesDistributor.addStudentToCourse(studentId, courseId)
   }
 
-  fun getCourses(): List<Course> =
-    coursesDistributor
-      .getCourses()
-      .map { coursesDistributor.resolveCourse(it)!! }
+  fun getCourses(): List<Course> = coursesDistributor.getCourses()
 
   fun inputSolution(
     studentId: StudentId,
@@ -74,21 +68,13 @@ class StudentCore(
     val notRegisteredMessage = "Вы не записаны ни на один курс!"
     return if (studentCourses.isNotEmpty()) {
       studentCourses
-        .joinToString("\n") { courseId ->
-          "- " +
-            coursesDistributor
-              .resolveCourse(
-                courseId,
-              )!!
-              .description
+        .joinToString("\n") { course ->
+          "- " + course.name
         }
     } else {
       notRegisteredMessage
     }
   }
 
-  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
-    problemStorage
-      .getProblemsFromAssignment(assignment.id)
-      .map { problemStorage.resolveProblem(it) }
+  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> = problemStorage.getProblemsFromAssignment(assignment.id)
 }

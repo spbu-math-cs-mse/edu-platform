@@ -26,34 +26,37 @@ class StudentBotTest {
 
   private fun createProblem(): ProblemId {
     val courseId = coursesDistributor.createCourse("")
-    val assignment = assignmentStorage.createAssignment(
-      courseId,
-      "",
-      listOf("1"),
-      problemStorage,
-    )
-    val problemId = problemStorage.getProblemsFromAssignment(assignment).first()
+    val assignment =
+      assignmentStorage.createAssignment(
+        courseId,
+        "",
+        listOf("1"),
+        problemStorage,
+      )
+    val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id
     return problemId
   }
 
   @BeforeEach
   fun setup() {
-    val database = Database.connect(
-      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-      driver = "org.h2.Driver",
-    )
+    val database =
+      Database.connect(
+        "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+        driver = "org.h2.Driver",
+      )
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
     problemStorage = DatabaseProblemStorage(database)
-    courseIds = fillWithSamples(
-      coursesDistributor,
-      problemStorage,
-      assignmentStorage,
-      studentStorage,
-    )
+    courseIds =
+      fillWithSamples(
+        coursesDistributor,
+        problemStorage,
+        assignmentStorage,
+        studentStorage,
+      )
     gradeTable = DatabaseGradeTable(database)
     studentCore =
       StudentCore(
@@ -91,7 +94,7 @@ class StudentBotTest {
       listOf(courseIds[0], courseIds[3]),
       studentCourses.map { it.id }.sortedBy { it.id },
     )
-    assertEquals("Начала мат. анализа", studentCourses.first().description)
+    assertEquals("Начала мат. анализа", studentCourses.first().name)
 
     assertEquals(
       "- Начала мат. анализа\n- ТФКП",
@@ -121,9 +124,9 @@ class StudentBotTest {
       repeat(5) {
         val solution = solutionDistributor.querySolution(teacherId, gradeTable)
         if (solution != null) {
-          solutions.add(solution)
+          solutions.add(solution.id)
           gradeTable.assessSolution(
-            solution,
+            solution.id,
             teacherId,
             SolutionAssessment(5, "comment"),
             gradeTable,

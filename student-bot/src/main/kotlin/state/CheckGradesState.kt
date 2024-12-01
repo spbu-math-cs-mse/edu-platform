@@ -123,7 +123,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
           courses.forEach {
             row {
               dataButton(
-                it.description,
+                it.name,
                 "${ButtonKey.COURSE_ID} ${it.id.id}",
               )
             }

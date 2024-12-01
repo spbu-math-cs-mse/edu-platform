@@ -25,14 +25,12 @@ class AdminCore(
   fun getCourse(courseName: String): Course? =
     coursesDistributor
       .getCourses()
-      .map { coursesDistributor.resolveCourse(it) }
-      .find { it?.description == courseName }
+      .find { it.name == courseName }
 
   fun getCourses(): Map<String, Course> =
     coursesDistributor
       .getCourses()
-      .map { coursesDistributor.resolveCourse(it)!! }
-      .groupBy { it.description }
+      .groupBy { it.name }
       .mapValues { it.value.first() }
 
   fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id) != null
@@ -42,7 +40,7 @@ class AdminCore(
   fun studiesIn(
     id: StudentId,
     course: Course,
-  ): Boolean = coursesDistributor.getStudentCourses(id).contains(course.id)
+  ): Boolean = coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
 
   fun registerStudentForCourse(
     studentId: StudentId,
@@ -62,7 +60,7 @@ class AdminCore(
     teacherId: TeacherId,
     courseId: CourseId,
   ): Boolean {
-    if (coursesDistributor.getTeacherCourses(teacherId).contains(courseId)) {
+    if (coursesDistributor.getTeacherCourses(teacherId).find { it.id == courseId } != null) {
       coursesDistributor.removeTeacherFromCourse(teacherId, courseId)
       return true
     }
@@ -73,7 +71,7 @@ class AdminCore(
     studentId: StudentId,
     courseId: CourseId,
   ): Boolean {
-    if (coursesDistributor.getStudentCourses(studentId).contains(courseId)) {
+    if (coursesDistributor.getStudentCourses(studentId).find { it.id == courseId } != null) {
       coursesDistributor.removeStudentFromCourse(studentId, courseId)
       return true
     }

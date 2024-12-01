@@ -51,7 +51,7 @@ data class Solution(
 
 data class Course(
   val id: CourseId,
-  var description: String,
+  var name: String,
 )
 
 data class Assignment(

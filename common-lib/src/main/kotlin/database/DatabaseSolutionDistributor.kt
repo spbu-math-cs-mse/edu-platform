@@ -51,12 +51,23 @@ class DatabaseSolutionDistributor(
   override fun querySolution(
     teacherId: TeacherId,
     gradeTable: GradeTable,
-  ): SolutionId? =
+  ): Solution? =
     transaction(database) {
       SolutionTable
         .selectAll()
-        .map { it[SolutionTable.id].value.toSolutionId() }
-    }.firstOrNull { solutionId -> !gradeTable.isChecked(solutionId) }
+        .map {
+          Solution(
+            it[SolutionTable.id].value.toSolutionId(),
+            StudentId(it[SolutionTable.studentId].value),
+            it[SolutionTable.chatId].toChatId().chatId,
+            MessageId(it[SolutionTable.messageId]),
+            ProblemId(it[SolutionTable.problemId].value),
+            SolutionContent(listOf(), it[SolutionTable.content]),
+            SolutionType.TEXT,
+            it[SolutionTable.timestamp].toJavaLocalDateTime(),
+          )
+        }
+    }.firstOrNull { solution -> !gradeTable.isChecked(solution.id) } // TODO: implement this with join
 
   override fun resolveSolution(solutionId: SolutionId): Solution =
     transaction(database) {

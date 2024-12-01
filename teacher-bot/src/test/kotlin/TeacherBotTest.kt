@@ -143,7 +143,7 @@ class TeacherBotTest {
     )
     val solution =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!,
+        solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!.id,
       )
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(listOf(), text = "test"), solution.content)

@@ -45,9 +45,9 @@ class DatabaseGradeTable(
           otherColumn = SolutionTable.id,
         ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id }
-        .where { AssessmentTable.grade.isNotNull() }
-    }.associate { it[AssessmentTable.solutionId].value.toProblemId() to it[AssessmentTable.grade] }
+        .where { SolutionTable.studentId eq studentId.id and AssessmentTable.grade.isNotNull() }
+        .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
+    }
 
   override fun getStudentPerformance(
     studentId: StudentId,
@@ -63,10 +63,12 @@ class DatabaseGradeTable(
           otherColumn = SolutionTable.id,
         ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id }
-        .where { ProblemTable.assignmentId eq assignmentId.id }
-        .where { AssessmentTable.grade.isNotNull() }
-    }.associate { it[AssessmentTable.solutionId].value.toProblemId() to it[AssessmentTable.grade] }
+        .where {
+          (SolutionTable.studentId eq studentId.id) and
+            (ProblemTable.assignmentId eq assignmentId.id) and
+            AssessmentTable.grade.isNotNull()
+        }.associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
+    }
 
   override fun assessSolution(
     solutionId: SolutionId,

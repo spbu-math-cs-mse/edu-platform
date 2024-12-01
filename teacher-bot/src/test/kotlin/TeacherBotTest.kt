@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -51,6 +52,11 @@ class TeacherBotTest {
         database,
       ).createAssignment(courseId, "test assignment", listOf("p1", "p2"), DatabaseProblemStorage(database))
     problemId = DatabaseProblemStorage(database).createProblem(assignmentId, "test problem")
+  }
+
+  @AfterTest
+  fun reset() {
+    reset(database)
   }
 
   @Test

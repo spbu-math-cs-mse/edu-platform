@@ -11,6 +11,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -37,13 +38,14 @@ class StudentBotTest {
     return problemId
   }
 
+  private val database =
+    Database.connect(
+      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+      driver = "org.h2.Driver",
+    )
+
   @BeforeEach
   fun setup() {
-    val database =
-      Database.connect(
-        "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-        driver = "org.h2.Driver",
-      )
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
@@ -66,6 +68,11 @@ class StudentBotTest {
         assignmentStorage,
         gradeTable,
       )
+  }
+
+  @AfterTest
+  fun reset() {
+    reset(database)
   }
 
   @Test

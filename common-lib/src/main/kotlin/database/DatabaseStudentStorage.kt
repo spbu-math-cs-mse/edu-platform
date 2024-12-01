@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.time.measureTimedValue
 
 class DatabaseStudentStorage(
   val database: Database,
@@ -38,31 +37,26 @@ class DatabaseStudentStorage(
   }
 
   override fun getChildren(parentId: ParentId): List<Student> {
-    val (res, time) =
-      measureTimedValue {
-        val ids =
-          transaction(database) {
-            ParentStudents
-              .selectAll()
-              .where(ParentStudents.parentId eq parentId.id)
-          }.map { it[ParentStudents.studentId].value }
-        transaction(database) {
-          return@transaction ids.map { studentId ->
-            StudentTable
-              .selectAll()
-              .where(StudentTable.id eq studentId)
-              .map {
-                Student(
-                  studentId.toStudentId(),
-                  it[StudentTable.name],
-                  it[StudentTable.name],
-                )
-              }.single()
-          }
-        }
+    val ids =
+      transaction(database) {
+        ParentStudents
+          .selectAll()
+          .where(ParentStudents.parentId eq parentId.id)
+      }.map { it[ParentStudents.studentId].value }
+    return transaction(database) {
+      return@transaction ids.map { studentId ->
+        StudentTable
+          .selectAll()
+          .where(StudentTable.id eq studentId)
+          .map {
+            Student(
+              studentId.toStudentId(),
+              it[StudentTable.name],
+              it[StudentTable.name],
+            )
+          }.single()
       }
-    println("get children took $time")
-    return res
+    }
   }
 
   override fun createStudent(): StudentId =

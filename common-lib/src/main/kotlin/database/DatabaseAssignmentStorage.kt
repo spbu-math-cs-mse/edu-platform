@@ -10,17 +10,22 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
+class DatabaseAssignmentStorage(
+  val database: Database,
+) : AssignmentStorage {
   init {
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
 
   override fun resolveAssignment(assignmentId: AssignmentId): Assignment {
-    val row = transaction {
-      AssignmentTable.selectAll().where(
-        AssignmentTable.id eq assignmentId.id,
-      ).single()
-    }
+    val row =
+      transaction {
+        AssignmentTable
+          .selectAll()
+          .where(
+            AssignmentTable.id eq assignmentId.id,
+          ).single()
+      }
     return Assignment(
       assignmentId,
       row[AssignmentTable.description],
@@ -34,21 +39,24 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
     problemNames: List<String>,
     problemStorage: ProblemStorage,
   ): AssignmentId {
-    val assgnId = transaction(database) {
-      AssignmentTable.insertAndGetId {
-        it[AssignmentTable.description] = description
-        it[AssignmentTable.course] = courseId.id
-      }
-    }.value.toAssignmentId()
+    val assignId =
+      transaction(database) {
+        AssignmentTable.insertAndGetId {
+          it[AssignmentTable.description] = description
+          it[AssignmentTable.course] = courseId.id
+        }
+      }.value.toAssignmentId()
     problemNames
-      .map { problemStorage.createProblem(assgnId, it) }
-    return assgnId
+      .map { problemStorage.createProblem(assignId, it) }
+    return assignId
   }
 
   override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> =
     transaction {
-      AssignmentTable.selectAll().where(
-        AssignmentTable.course eq courseId.id,
-      ).map { it[AssignmentTable.id].value.toAssignmentId() }
+      AssignmentTable
+        .selectAll()
+        .where(
+          AssignmentTable.course eq courseId.id,
+        ).map { it[AssignmentTable.id].value.toAssignmentId() }
     }
 }

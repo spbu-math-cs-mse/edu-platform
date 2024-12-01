@@ -20,7 +20,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
       answer == "/stop" -> MenuState(state.context)
 
       else -> {
-        state.course.name = answer
+//        state.course.name = answer TODO: implement this feature
         send(
           state.context,
           "Описание курса ${state.courseName} успешно обновлено",

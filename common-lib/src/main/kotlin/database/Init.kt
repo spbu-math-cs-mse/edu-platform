@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.api.ParentId
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.*
 import org.jetbrains.exposed.sql.Database
@@ -36,22 +35,11 @@ fun main(args: Array<String>) {
       args[2],
       args[3],
     )
-//  val database =
-//    Database.connect(
-//      "jdbc:h2:./data/films",
-//      driver = "org.h2.Driver",
-//    )
+
   transaction {
     addLogger(StdOutSqlLogger)
     reset(database)
     fillWithMockData()
-  }
-
-  val ss = DatabaseStudentStorage(database)
-  transaction(database) {
-    println(ss.getChildren(ParentId(1)).size)
-    println(ss.getChildren(ParentId(2)).size)
-    println(ss.getChildren(ParentId(3)).size)
   }
 }
 

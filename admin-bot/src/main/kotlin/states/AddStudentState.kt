@@ -17,7 +17,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
     val input = message.content.text
     val id = input.toLongOrNull()
     when {
-      input == "/stop" -> StartState(state.context)
+      input == "/stop" -> MenuState(state.context)
 
       id == null || !core.studentExists(StudentId(id)) -> {
         send(
@@ -32,16 +32,16 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
           state.context,
           "Ученик $id уже есть на курсе ${state.courseName}",
         )
-        StartState(state.context)
+        MenuState(state.context)
       }
 
       else -> {
-        core.registerForCourse(StudentId(id), state.course.id)
+        core.registerStudentForCourse(StudentId(id), state.course.id)
         send(
           state.context,
           "Ученик $id успешно добавлен на курс ${state.courseName}",
         )
-        StartState(state.context)
+        MenuState(state.context)
       }
     }
   }

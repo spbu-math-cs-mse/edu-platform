@@ -18,7 +18,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveStudentState(core: 
     val input = message.content.text
     val id = input.toLongOrNull()
     when {
-      input == "/stop" -> StartState(state.context)
+      input == "/stop" -> MenuState(state.context)
 
       id == null || !core.studentExists(StudentId(id)) -> {
         send(
@@ -40,7 +40,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveStudentState(core: 
             "Ученика $id нет на курсе ${state.courseName}",
           )
         }
-        StartState(state.context)
+        MenuState(state.context)
       }
     }
   }

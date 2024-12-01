@@ -16,15 +16,9 @@ class TeacherCore(
 
   fun getQueryStats() = teacherStatistics.getGlobalStats()
 
-  fun getAvailableCourses(teacherId: TeacherId): List<Course> =
-    coursesDistributor
-      .getTeacherCourses(teacherId)
-      .map { coursesDistributor.resolveCourse(it)!! }
+  fun getAvailableCourses(teacherId: TeacherId): List<Course> = coursesDistributor.getTeacherCourses(teacherId)
 
-  fun querySolution(teacherId: TeacherId): Solution? =
-    solutionDistributor
-      .querySolution(teacherId, gradeTable)
-      ?.let { solutionDistributor.resolveSolution(it) }
+  fun querySolution(teacherId: TeacherId): Solution? = solutionDistributor.querySolution(teacherId, gradeTable)
 
   fun assessSolution(
     solution: Solution,
@@ -51,5 +45,5 @@ class TeacherCore(
     return grades
   }
 
-  fun getMaxGrade(course: Course): Grade = 5
+  fun getMaxGrade(course: Course): Grade = 5 // TODO: this needs to be fixed properly
 }

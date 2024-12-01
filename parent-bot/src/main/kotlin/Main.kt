@@ -1,6 +1,9 @@
 package com.github.heheteam.parentbot
 
 import ParentCore
+import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.parentbot.states.*
 import dev.inmo.kslog.common.KSLog
@@ -15,6 +18,7 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
 import strictlyOnStartState
 
 /**
@@ -46,13 +50,18 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val mockCoursesDistributor = MockCoursesDistributor()
-    val userIdRegistry = MockParentIdRegistry(mockCoursesDistributor.singleUserId)
+    val database =
+      Database.connect(
+        "jdbc:h2:./data/films",
+        driver = "org.h2.Driver",
+      )
+
+    val userIdRegistry = MockParentIdRegistry(1)
     val core =
       ParentCore(
-        InMemoryStudentStorage(),
-        InMemoryGradeTable(),
-        InMemorySolutionDistributor(),
+        DatabaseStudentStorage(database),
+        DatabaseGradeTable(database),
+        DatabaseSolutionDistributor(database),
       )
 
     strictlyOnStartState(isDeveloperRun = true)

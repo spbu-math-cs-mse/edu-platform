@@ -17,14 +17,17 @@ class DatabaseCoursesDistributor(
     }
   }
 
-  override fun addToCourse(
+  override fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
   ) {
     transaction(database) {
-      val exists = CourseStudents.selectAll()
-        .where((CourseStudents.courseId eq courseId.id) and (CourseStudents.studentId eq studentId.id))
-        .map { 0L }.isNotEmpty()
+      val exists =
+        CourseStudents
+          .selectAll()
+          .where((CourseStudents.courseId eq courseId.id) and (CourseStudents.studentId eq studentId.id))
+          .map { 0L }
+          .isNotEmpty()
       if (!exists) {
         CourseStudents.insert {
           it[CourseStudents.studentId] = studentId.id
@@ -34,43 +37,109 @@ class DatabaseCoursesDistributor(
     }
   }
 
-  override fun getCourses(): List<CourseId> = transaction(database) {
-    CourseTable.selectAll().map { it[CourseTable.id].value.toCourseId() }
+  override fun addTeacherToCourse(
+    teacherId: TeacherId,
+    courseId: CourseId,
+  ) {
+    transaction(database) {
+      val exists =
+        CourseTeachers
+          .selectAll()
+          .where((CourseTeachers.courseId eq courseId.id) and (CourseTeachers.teacherId eq teacherId.id))
+          .map { 0L }
+          .isNotEmpty()
+      if (!exists) {
+        CourseTeachers.insert {
+          it[CourseTeachers.teacherId] = teacherId.id
+          it[CourseTeachers.courseId] = courseId.id
+        }
+      }
+    }
   }
 
-  override fun getTeacherCourses(teacherId: TeacherId): List<CourseId> =
+  override fun removeStudentFromCourse(
+    studentId: StudentId,
+    courseId: CourseId,
+  ) {
     transaction(database) {
-      CourseTeachers.selectAll().where(CourseTeachers.teacherId eq teacherId.id)
-        .map { it[CourseTeachers.courseId].value.toCourseId() }
+      CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }
+    }
+  }
+
+  override fun removeTeacherFromCourse(
+    teacherId: TeacherId,
+    courseId: CourseId,
+  ) {
+    transaction(database) {
+      CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }
+    }
+  }
+
+  override fun getCourses(): List<Course> =
+    transaction(database) {
+      CourseTable.selectAll().map {
+        Course(
+          it[CourseTable.id].value.toCourseId(),
+          it[CourseTable.name],
+        )
+      }
     }
 
-  override fun resolveCourse(id: CourseId): Course = transaction(database) {
-    val row =
-      CourseTable.selectAll().where(CourseTable.id eq id.id).singleOrNull()
-    Course(id, row!!.get(CourseTable.description))
-  }
+  override fun getStudentCourses(studentId: StudentId): List<Course> =
+    transaction {
+      CourseStudents
+        .join(CourseTable, JoinType.INNER, onColumn = CourseTable.id, otherColumn = CourseStudents.courseId)
+        .selectAll()
+        .where { CourseStudents.studentId eq studentId.id }
+        .map {
+          Course(
+            it[CourseStudents.courseId].value.toCourseId(),
+            it[CourseTable.name].toString(),
+          )
+        }
+    }
 
-  override fun createCourse(description: String): CourseId {
-    return transaction(database) {
+  override fun getTeacherCourses(teacherId: TeacherId): List<Course> =
+    transaction {
+      CourseTeachers
+        .join(CourseTable, JoinType.INNER, onColumn = CourseTable.id, otherColumn = CourseTeachers.courseId)
+        .selectAll()
+        .where { CourseTeachers.teacherId eq teacherId.id }
+        .map {
+          Course(
+            it[CourseTeachers.courseId].value.toCourseId(),
+            it[CourseTable.name].toString(),
+          )
+        }
+    }
+
+  override fun resolveCourse(id: CourseId): Course =
+    transaction(database) {
+      val row =
+        CourseTable.selectAll().where(CourseTable.id eq id.id).singleOrNull()
+      Course(id, row!!.get(CourseTable.name))
+    }
+
+  override fun createCourse(description: String): CourseId =
+    transaction(database) {
       CourseTable.insert {
-        it[CourseTable.description] = description
+        it[CourseTable.name] = description
       } get CourseTable.id
     }.value.toCourseId()
-  }
 
   override fun getStudents(courseId: CourseId): List<StudentId> =
     transaction(database) {
-      CourseStudents.selectAll().where(CourseStudents.courseId eq courseId.id)
+      CourseStudents
+        .selectAll()
+        .where(CourseStudents.courseId eq courseId.id)
         .map { it[CourseStudents.studentId].value.toStudentId() }
     }
 
-  override fun getStudentCourses(studentId: StudentId): List<CourseId> {
-    val courseIds = transaction {
-      CourseStudents
+  override fun getTeachers(courseId: CourseId): List<TeacherId> =
+    transaction(database) {
+      CourseTeachers
         .selectAll()
-        .where { CourseStudents.studentId eq studentId.id }
-        .map { it[CourseStudents.courseId].value.toCourseId() }
+        .where(CourseTeachers.courseId eq courseId.id)
+        .map { it[CourseTeachers.teacherId].value.toTeacherId() }
     }
-    return courseIds
-  }
 }

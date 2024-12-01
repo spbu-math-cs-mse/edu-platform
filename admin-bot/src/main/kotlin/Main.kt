@@ -1,6 +1,11 @@
 package com.github.heheteam.adminbot
 
+import DatabaseCoursesDistributor
 import com.github.heheteam.adminbot.states.*
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
+import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -10,24 +15,34 @@ import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
+import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
 
+@OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
-  val bot =
-    telegramBot(botToken) {
-      logger =
-        KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-          println(defaultMessageFormatter(level, tag, message, throwable))
-        }
-    }
+  telegramBot(botToken) {
+    logger =
+      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+        println(defaultMessageFormatter(level, tag, message, throwable))
+      }
+  }
 
+  val database =
+    Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
+
+  val userIdRegistry = MockAdminIdRegistry(0L)
   val core =
     AdminCore(
-      mockGradeTable,
       InMemoryScheduledMessagesDistributor(),
-      TODO(),
+      DatabaseCoursesDistributor(database),
+      DatabaseStudentStorage(database),
+      DatabaseTeacherStorage(database),
     )
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
@@ -47,11 +62,10 @@ suspend fun main(vararg args: String) {
       startChain(StartState(it.from!!))
     }
 
-    strictlyOnStartState(core)
-    strictlyOnNotAdminState()
-    strictlyOnMenuState(core)
+    strictlyOnStartState(userIdRegistry)
+    strictlyOnMenuState()
     strictlyOnCreateCourseState(core)
-    strictlyOnEditCourseState()
+    strictlyOnEditCourseState(core)
     strictlyOnAddStudentState(core)
     strictlyOnRemoveStudentState(core)
     strictlyOnAddTeacherState(core)

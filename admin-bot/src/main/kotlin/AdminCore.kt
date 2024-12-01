@@ -1,87 +1,80 @@
 package com.github.heheteam.adminbot
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.*
 import java.time.LocalDateTime
 
 class AdminCore(
-  private val gradeTable: GradeTable,
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
   private val coursesDistributor: CoursesDistributor,
+  private val studentStorage: StudentStorage,
+  private val teacherStorage: TeacherStorage,
 ) {
-  fun addAssessment(
-    teacherId: TeacherId,
-    solutionId: SolutionId,
-    assessment: SolutionAssessment,
-  ) = gradeTable.addAssessment(teacherId, solutionId, assessment)
-
-  fun getStudentPerformance(
-    studentId: StudentId,
-    solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
-
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
   fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> = scheduledMessagesDistributor.getMessagesUpToDate(date)
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
-  fun courseExists(courseName: String): Boolean = TODO()
+  fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
-  fun addCourse(
-    courseName: String,
-    course: Course,
-  ) {
-    TODO()
+  fun addCourse(courseName: String) {
+    coursesDistributor.createCourse(courseName)
   }
 
-  fun getCourse(courseName: String): Course? = TODO()
+  fun getCourse(courseName: String): Course? =
+    coursesDistributor
+      .getCourses()
+      .find { it.name == courseName }
 
-  fun getCourses(): Map<String, Course> = TODO()
+  fun getCourses(): Map<String, Course> =
+    coursesDistributor
+      .getCourses()
+      .groupBy { it.name }
+      .mapValues { it.value.first() }
 
-  fun studentExists(id: StudentId): Boolean = TODO()
+  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id) != null
 
-  fun teacherExists(id: TeacherId): Boolean = TODO()
+  fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id) != null
 
   fun studiesIn(
     id: StudentId,
     course: Course,
-  ): Boolean = false
+  ): Boolean = coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
 
-  fun registerForCourse(
+  fun registerStudentForCourse(
     studentId: StudentId,
     courseId: CourseId,
   ) {
-    coursesDistributor.addToCourse(studentId, courseId)
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+  }
+
+  fun registerTeacherForCourse(
+    teacherId: TeacherId,
+    courseId: CourseId,
+  ) {
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
   }
 
   fun removeTeacher(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Boolean = false
+  ): Boolean {
+    if (coursesDistributor.getTeacherCourses(teacherId).find { it.id == courseId } != null) {
+      coursesDistributor.removeTeacherFromCourse(teacherId, courseId)
+      return true
+    }
+    return false
+  }
 
   fun removeStudent(
     studentId: StudentId,
     courseId: CourseId,
   ): Boolean {
-    TODO()
+    if (coursesDistributor.getStudentCourses(studentId).find { it.id == courseId } != null) {
+      coursesDistributor.removeStudentFromCourse(studentId, courseId)
+      return true
+    }
+    return false
   }
-
-  fun assessSolution(
-    solutionId: SolutionId,
-    teacherId: TeacherId,
-    assessment: SolutionAssessment,
-    gradeTable: GradeTable,
-    teacherStatistics: TeacherStatistics,
-    timestamp: LocalDateTime,
-  ) = gradeTable.assessSolution(
-    solutionId,
-    teacherId,
-    assessment,
-    gradeTable,
-    teacherStatistics,
-    timestamp,
-  )
-
-  fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
 }

@@ -7,7 +7,9 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseProblemStorage(val database: Database) : ProblemStorage {
+class DatabaseProblemStorage(
+  val database: Database,
+) : ProblemStorage {
   init {
     transaction(database) {
       SchemaUtils.create(ProblemTable)
@@ -15,10 +17,13 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   }
 
   override fun resolveProblem(id: ProblemId): Problem {
-    val row = transaction(database) {
-      ProblemTable.selectAll().where(ProblemTable.id eq id.id)
-        .single()
-    }
+    val row =
+      transaction(database) {
+        ProblemTable
+          .selectAll()
+          .where(ProblemTable.id eq id.id)
+          .single()
+      }
     return Problem(
       id,
       row[ProblemTable.number],
@@ -31,8 +36,8 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   override fun createProblem(
     assignmentId: AssignmentId,
     number: String,
-  ): ProblemId {
-    return transaction(database) {
+  ): ProblemId =
+    transaction(database) {
       ProblemTable.insertAndGetId {
         it[ProblemTable.number] = number
         it[ProblemTable.assignmentId] = assignmentId.id
@@ -40,11 +45,20 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
         it[ProblemTable.description] = ""
       }
     }.value.toProblemId()
-  }
 
-  override fun getProblemsFromAssignment(id: AssignmentId): List<ProblemId> =
+  override fun getProblemsFromAssignment(id: AssignmentId): List<Problem> =
     transaction(database) {
-      ProblemTable.selectAll().where(ProblemTable.assignmentId eq id.id)
-        .map { it[ProblemTable.id].value.toProblemId() }
+      ProblemTable
+        .selectAll()
+        .where(ProblemTable.assignmentId eq id.id)
+        .map {
+          Problem(
+            it[ProblemTable.id].value.toProblemId(),
+            it[ProblemTable.number],
+            it[ProblemTable.description],
+            it[ProblemTable.maxScore],
+            it[ProblemTable.assignmentId].value.toAssignmentId(),
+          )
+        }
     }
 }

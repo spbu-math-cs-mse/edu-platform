@@ -14,8 +14,9 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseStudentStorage(val database: Database) : StudentStorage {
-
+class DatabaseStudentStorage(
+  val database: Database,
+) : StudentStorage {
   init {
     transaction(database) {
       SchemaUtils.create(StudentTable)
@@ -35,32 +36,49 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
     }
   }
 
-  override fun getStudents(parentId: ParentId): List<Student> {
-    val ids = transaction(database) {
-      ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.id)
-    }.map { it[ParentStudents.studentId].value }
-    return ids.map { studentId ->
+  override fun getChildren(parentId: ParentId): List<Student> {
+    val ids =
       transaction(database) {
-        StudentTable.selectAll().where(StudentTable.id eq studentId)
+        ParentStudents
+          .selectAll()
+          .where(ParentStudents.parentId eq parentId.id)
+      }.map { it[ParentStudents.studentId].value }
+    return transaction(database) {
+      return@transaction ids.map { studentId ->
+        StudentTable
+          .selectAll()
+          .where(StudentTable.id eq studentId)
           .map {
             Student(
               studentId.toStudentId(),
               it[StudentTable.name],
               it[StudentTable.name],
             )
-          }
-          .single()
+          }.single()
       }
     }
   }
 
-  override fun createStudent(): StudentId {
-    return transaction(database) {
+  override fun createStudent(): StudentId =
+    transaction(database) {
       StudentTable.insert {
         it[StudentTable.name] = "defaultName"
         it[StudentTable.surname] = "defaultSurname"
         it[StudentTable.tgId] = 0L
       } get StudentTable.id
     }.value.toStudentId()
-  }
+
+  override fun resolveStudent(studentId: StudentId): Student? =
+    transaction(database) {
+      StudentTable
+        .selectAll()
+        .where(StudentTable.id eq studentId.id)
+        .map {
+          Student(
+            studentId,
+            it[StudentTable.name],
+            it[StudentTable.name],
+          )
+        }.singleOrNull()
+    }
 }

@@ -10,47 +10,43 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 
+private val allTables =
+  arrayOf(
+    CourseStudents,
+    CourseTeachers,
+    ParentStudents,
+    AssessmentTable,
+    AssignmentTable,
+    CourseTable,
+    ProblemTable,
+    SolutionTable,
+    StudentTable,
+    TeacherTable,
+    AdminTable,
+    ParentTable,
+  )
+
 /** @param args Url, driver, user, password */
 fun main(args: Array<String>) {
-  Database.connect(
-    args[0],
-    args[1],
-    args[2],
-    args[3],
-  )
+  val database =
+    Database.connect(
+      args[0],
+      args[1],
+      args[2],
+      args[3],
+    )
 
   transaction {
     addLogger(StdOutSqlLogger)
-    drop(
-      AssessmentTable,
-      AssignmentTable,
-      CourseStudents,
-      CourseTeachers,
-      CourseTable,
-      ProblemTable,
-      SolutionTable,
-      StudentTable,
-      TeacherTable,
-      AdminTable,
-      ParentTable,
-      ParentStudents,
-    )
-    create(
-      AssessmentTable,
-      AssignmentTable,
-      CourseStudents,
-      CourseTeachers,
-      CourseTable,
-      ProblemTable,
-      SolutionTable,
-      StudentTable,
-      TeacherTable,
-      AdminTable,
-      ParentTable,
-      ParentStudents,
-    )
-
+    reset(database)
     fillWithMockData()
+  }
+}
+
+fun reset(database: Database) {
+  transaction(database) {
+    drop(*allTables)
+    create(*allTables)
   }
 }
 

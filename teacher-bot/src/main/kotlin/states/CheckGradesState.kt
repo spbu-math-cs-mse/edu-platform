@@ -36,7 +36,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     val gradedProblems = core.getGrading(course)
     val maxGrade = core.getMaxGrade(course)
     val strGrades =
-      "Оценки учеников на курсе ${course.description}:\n" +
+      "Оценки учеников на курсе ${course.name}:\n" +
         gradedProblems
           .withGradesToText(maxGrade)
     respondWithGrades(state, strGrades)
@@ -73,7 +73,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
           courses.forEach {
             row {
               dataButton(
-                it.description,
+                it.name,
                 "courseId ${it.id}",
               )
             }
@@ -85,7 +85,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
 
   val callback = waitDataCallbackQuery().first()
   deleteMessage(state.context.id, chooseCourseMessage.messageId)
-  var courseId: String? = null
+  val courseId: String?
   when {
     callback.data.contains("courseId") -> {
       courseId = callback.data.split(" ").last()

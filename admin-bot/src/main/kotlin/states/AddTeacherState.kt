@@ -18,7 +18,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
     val input = message.content.text
     val id = input.toLongOrNull()
     when {
-      input == "/stop" -> StartState(state.context)
+      input == "/stop" -> MenuState(state.context)
 
       id == null || !core.teacherExists(TeacherId(id)) -> {
         send(
@@ -33,7 +33,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
           state.context,
           "Sorry, not implemented",
         )
-        StartState(state.context)
+        MenuState(state.context)
       }
     }
   }

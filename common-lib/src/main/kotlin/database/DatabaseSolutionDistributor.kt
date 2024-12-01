@@ -4,12 +4,15 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,12 +21,6 @@ import java.time.LocalDateTime
 class DatabaseSolutionDistributor(
   val database: Database,
 ) : SolutionDistributor {
-  init {
-    transaction(database) {
-      SchemaUtils.create(SolutionTable)
-    }
-  }
-
   override fun inputSolution(
     studentId: StudentId,
     chatId: RawChatId,
@@ -40,6 +37,7 @@ class DatabaseSolutionDistributor(
           it[SolutionTable.messageId] = messageId.long
           it[SolutionTable.problemId] = problemId.id
           it[SolutionTable.content] = solutionContent.text ?: ""
+          it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
         } get SolutionTable.id
       }.value
     return SolutionId(solutionId)
@@ -48,11 +46,25 @@ class DatabaseSolutionDistributor(
   override fun querySolution(
     teacherId: TeacherId,
     gradeTable: GradeTable,
-  ): SolutionId? = transaction(database) {
-    SolutionTable
-      .selectAll()
-      .map { it[SolutionTable.id].value.toSolutionId() }
-  }.firstOrNull { solutionId -> !gradeTable.isChecked(solutionId) }
+  ): Solution? =
+    transaction(database) {
+      SolutionTable
+        .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
+        .selectAll()
+        .where { AssessmentTable.id.isNull() }
+        .map {
+          Solution(
+            it[SolutionTable.id].value.toSolutionId(),
+            StudentId(it[SolutionTable.studentId].value),
+            it[SolutionTable.chatId].toChatId().chatId,
+            MessageId(it[SolutionTable.messageId]),
+            ProblemId(it[SolutionTable.problemId].value),
+            SolutionContent(listOf(), it[SolutionTable.content]),
+            SolutionType.TEXT,
+            it[SolutionTable.timestamp].toJavaLocalDateTime(),
+          )
+        }
+    }.firstOrNull()
 
   override fun resolveSolution(solutionId: SolutionId): Solution =
     transaction(database) {
@@ -70,6 +82,7 @@ class DatabaseSolutionDistributor(
         ProblemId(solution[SolutionTable.problemId].value),
         SolutionContent(listOf(), solution[SolutionTable.content]),
         SolutionType.TEXT,
+        solution[SolutionTable.timestamp].toJavaLocalDateTime(),
       )
     }
 }

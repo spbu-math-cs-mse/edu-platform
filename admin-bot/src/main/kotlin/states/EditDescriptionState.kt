@@ -12,21 +12,21 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
       state.context,
     ) {
       +"Введите новое описание курса ${state.courseName}. Текущее описание:" + newLine + newLine
-      +state.course.description
+      +state.course.name
     }
     val message = waitTextMessage().first()
     val answer = message.content.text
     when {
-      answer == "/stop" -> StartState(state.context)
+      answer == "/stop" -> MenuState(state.context)
 
       else -> {
-        state.course.description = answer
+//        state.course.name = answer TODO: implement this feature
         send(
           state.context,
           "Описание курса ${state.courseName} успешно обновлено",
         )
 
-        StartState(state.context)
+        MenuState(state.context)
       }
     }
   }

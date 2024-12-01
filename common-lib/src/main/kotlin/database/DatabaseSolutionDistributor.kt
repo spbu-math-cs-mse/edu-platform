@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -11,7 +12,7 @@ import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -20,12 +21,6 @@ import java.time.LocalDateTime
 class DatabaseSolutionDistributor(
   val database: Database,
 ) : SolutionDistributor {
-  init {
-    transaction(database) {
-      SchemaUtils.create(SolutionTable)
-    }
-  }
-
   override fun inputSolution(
     studentId: StudentId,
     chatId: RawChatId,
@@ -54,7 +49,9 @@ class DatabaseSolutionDistributor(
   ): Solution? =
     transaction(database) {
       SolutionTable
+        .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
         .selectAll()
+        .where { AssessmentTable.id.isNull() }
         .map {
           Solution(
             it[SolutionTable.id].value.toSolutionId(),
@@ -67,7 +64,7 @@ class DatabaseSolutionDistributor(
             it[SolutionTable.timestamp].toJavaLocalDateTime(),
           )
         }
-    }.firstOrNull { solution -> !gradeTable.isChecked(solution.id) } // TODO: implement this with join
+    }.firstOrNull()
 
   override fun resolveSolution(solutionId: SolutionId): Solution =
     transaction(database) {

@@ -8,16 +8,15 @@ import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
-import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TeacherBotTest {
-  private lateinit var statistics: InMemoryTeacherStatistics
   private val now = LocalDateTime.now()
   private lateinit var teacherId: TeacherId
   private lateinit var studentId: StudentId
@@ -28,7 +27,12 @@ class TeacherBotTest {
       driver = "org.h2.Driver",
     )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
+  private val coursesDistributor = DatabaseCoursesDistributor(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database)
+  private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
+  private val studentStorage = DatabaseStudentStorage(database)
+  private val statistics = InMemoryTeacherStatistics()
 
   private fun makeSolution(timestamp: LocalDateTime) =
     solutionDistributor.inputSolution(
@@ -40,23 +44,34 @@ class TeacherBotTest {
       timestamp,
     )
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
-    statistics = InMemoryTeacherStatistics()
     reset(database)
     teacherId = teacherStorage.createTeacher()
-    studentId = DatabaseStudentStorage(database).createStudent()
-    val courseId = DatabaseCoursesDistributor(database).createCourse("test course")
+    studentId = studentStorage.createStudent()
+    val courseId = coursesDistributor.createCourse("test course")
     val assignmentId =
-      DatabaseAssignmentStorage(
-        database,
-      ).createAssignment(courseId, "test assignment", listOf("p1", "p2"), DatabaseProblemStorage(database))
-    problemId = DatabaseProblemStorage(database).createProblem(assignmentId, "test problem")
+      assignmentStorage.createAssignment(
+        courseId,
+        "test assignment",
+        listOf("p1", "p2"),
+        DatabaseProblemStorage(database),
+      )
+    problemId = problemStorage.createProblem(assignmentId, "test problem")
   }
 
-  @AfterTest
-  fun reset() {
-    reset(database)
+  companion object {
+    val database =
+      Database.connect(
+        "jdbc:h2:./data/films",
+        driver = "org.h2.Driver",
+      )
+
+    @JvmStatic
+    @AfterAll
+    fun reset() {
+      reset(database)
+    }
   }
 
   @Test
@@ -147,10 +162,8 @@ class TeacherBotTest {
       SolutionContent(text = "test"),
       problemId,
     )
-    val solution =
-      solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!.id,
-      )
+    val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!
+
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(listOf(), text = "test"), solution.content)
     assertEquals(SolutionType.TEXT, solution.type)

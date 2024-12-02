@@ -4,7 +4,7 @@ plugins {
     java
 }
 
-subprojects {
+allprojects {
     group = "com.github.heheteam"
     version = "1.0-SNAPSHOT"
 

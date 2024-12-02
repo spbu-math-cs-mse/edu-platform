@@ -13,7 +13,6 @@ allprojects {
     }
 
     apply(plugin = "com.diffplug.spotless")
-    apply(plugin = "java")
     apply(plugin = "kotlin")
 
     java {

@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.0.20" apply false
     id("com.diffplug.spotless") version "7.0.0.BETA3"
+    java
 }
 
 allprojects {
@@ -12,6 +13,14 @@ allprojects {
     }
 
     apply(plugin = "com.diffplug.spotless")
+    apply(plugin = "java")
+    apply(plugin = "kotlin")
+    tasks.test {
+        useJUnitPlatform()
+    }
+    dependencies {
+        testImplementation(kotlin("test"))
+    }
 }
 
 spotless {

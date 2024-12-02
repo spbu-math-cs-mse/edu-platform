@@ -4,7 +4,7 @@ plugins {
     java
 }
 
-allprojects {
+subprojects {
     group = "com.github.heheteam"
     version = "1.0-SNAPSHOT"
 
@@ -15,6 +15,13 @@ allprojects {
     apply(plugin = "com.diffplug.spotless")
     apply(plugin = "java")
     apply(plugin = "kotlin")
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    }
+
     tasks.test {
         useJUnitPlatform()
     }

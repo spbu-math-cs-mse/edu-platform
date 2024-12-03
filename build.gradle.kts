@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.0.20" apply false
     kotlin("plugin.serialization") version "2.0.20" apply false
     id("com.diffplug.spotless") version "7.0.0.BETA3"
+    id("io.gitlab.arturbosch.detekt") version "1.23.7"
     java
 }
 
@@ -33,22 +34,52 @@ allprojects {
     }
 }
 
-spotless {
-    kotlin {
-        ktlint("1.0.0")
-            .setEditorConfigPath("$projectDir/.editorconfig")  // sample unusual placement
-            .editorConfigOverride(
-                mapOf(
-                    "indent_size" to 2,
-                    // intellij_idea is the default style we preset in Spotless, you can override it referring to https://pinterest.github.io/ktlint/latest/rules/code-styles.
-                    "ktlint_code_style" to "intellij_idea",
-                )
-            )
-            .customRuleSets(
-                listOf(
-                    "io.nlopez.compose.rules:ktlint:0.3.3"
-                )
-            )
-        target("**/*.kt")
+detekt {
+    buildUponDefaultConfig = true
+    baseline = file("$rootDir/config/detekt/baseline.xml")
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    parallel = false
+    ignoreFailures = false
+}
+
+val configFile = files("$rootDir/config/detekt/detekt.yml")
+val baselineFile = file("$rootDir/config/detekt/baseline.xml")
+val kotlinFiles = "**/*.kt"
+val resourceFiles = "**/resources/**"
+val buildFiles = "**/build/**"
+
+tasks.register<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>("detektGenerateBaseline") {
+    description = "Custom DETEKT build to build baseline for all modules"
+    parallel = true
+    ignoreFailures = false
+    buildUponDefaultConfig = true
+    setSource(projectDir)
+    baseline.set(file(baselineFile))
+    config.setFrom(files(configFile))
+    include(kotlinFiles)
+    exclude(resourceFiles, buildFiles)
+}
+
+tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektAll") {
+    description = "Custom DETEKT build for all modules"
+    dependsOn("detektGenerateBaseline")
+    parallel = true
+    ignoreFailures = false
+    autoCorrect = false
+    buildUponDefaultConfig = true
+    setSource(projectDir)
+    baseline.set(file(baselineFile))
+    config.setFrom(files(configFile))
+    include(kotlinFiles)
+    exclude(resourceFiles, buildFiles)
+    reports {
+        html.required.set(true)
+        md.required.set(true)
     }
+}
+
+dependencies {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:1.23.7")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:1.23.7")
 }

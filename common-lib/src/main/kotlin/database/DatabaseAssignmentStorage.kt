@@ -17,15 +17,15 @@ class DatabaseAssignmentStorage(
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
 
-  override fun resolveAssignment(assignmentId: AssignmentId): Assignment {
+  override fun resolveAssignment(assignmentId: AssignmentId): Assignment? {
     val row =
       transaction {
         AssignmentTable
           .selectAll()
           .where(
             AssignmentTable.id eq assignmentId.id,
-          ).single()
-      }
+          ).singleOrNull()
+      } ?: return null
     return Assignment(
       assignmentId,
       row[AssignmentTable.description],
@@ -51,12 +51,18 @@ class DatabaseAssignmentStorage(
     return assignId
   }
 
-  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> =
+  override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> =
     transaction {
       AssignmentTable
         .selectAll()
         .where(
           AssignmentTable.course eq courseId.id,
-        ).map { it[AssignmentTable.id].value.toAssignmentId() }
+        ).map {
+          Assignment(
+            it[AssignmentTable.id].value.toAssignmentId(),
+            it[AssignmentTable.description],
+            it[AssignmentTable.course].value.toCourseId(),
+          )
+        }
     }
 }

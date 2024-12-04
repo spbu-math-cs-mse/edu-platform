@@ -36,7 +36,7 @@ class TeacherCore(
     )
   }
 
-  fun getGrading(course: Course): List<Pair<StudentId, Grade?>> {
+  fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)
     val grades =
       students.map { studentId ->

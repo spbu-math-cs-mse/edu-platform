@@ -21,5 +21,5 @@ interface SolutionDistributor {
     gradeTable: GradeTable,
   ): Solution?
 
-  fun resolveSolution(solutionId: SolutionId): Solution
+  fun resolveSolution(solutionId: SolutionId): Solution?
 }

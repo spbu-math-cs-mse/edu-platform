@@ -29,7 +29,7 @@ class InMemoryTeacherStatistics : TeacherStatistics {
     timestamp: LocalDateTime,
     solutionDistributor: SolutionDistributor,
   ) {
-    val solution = solutionDistributor.resolveSolution(solutionId)
+    val solution = solutionDistributor.resolveSolution(solutionId) ?: return
     teacherStats
       .getOrPut(teacherId) { mutableListOf() }
       .add(SolutionReview(solution.timestamp, timestamp))

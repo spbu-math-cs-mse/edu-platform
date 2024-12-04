@@ -117,7 +117,7 @@ class DatabaseCoursesDistributor(
     transaction(database) {
       val row =
         CourseTable.selectAll().where(CourseTable.id eq id.id).singleOrNull()
-      Course(id, row!!.get(CourseTable.name))
+      Course(id, row!![CourseTable.name])
     }
 
   override fun createCourse(description: String): CourseId =

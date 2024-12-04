@@ -66,13 +66,13 @@ class DatabaseSolutionDistributor(
         }
     }.firstOrNull()
 
-  override fun resolveSolution(solutionId: SolutionId): Solution =
+  override fun resolveSolution(solutionId: SolutionId): Solution? =
     transaction(database) {
       val solution =
         SolutionTable
           .selectAll()
           .where { SolutionTable.id eq solutionId.id }
-          .first()
+          .singleOrNull() ?: return@transaction null
 
       return@transaction Solution(
         solutionId,

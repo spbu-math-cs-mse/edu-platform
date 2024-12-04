@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Assignment
 
 interface AssignmentStorage {
-  fun resolveAssignment(assignmentId: AssignmentId): Assignment
+  fun resolveAssignment(assignmentId: AssignmentId): Assignment?
 
   fun createAssignment(
     courseId: CourseId,
@@ -12,5 +12,5 @@ interface AssignmentStorage {
     problemStorage: ProblemStorage,
   ): AssignmentId
 
-  fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId>
+  fun getAssignmentsForCourse(courseId: CourseId): List<Assignment>
 }

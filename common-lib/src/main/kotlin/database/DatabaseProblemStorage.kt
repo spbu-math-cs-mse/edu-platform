@@ -16,14 +16,14 @@ class DatabaseProblemStorage(
     }
   }
 
-  override fun resolveProblem(id: ProblemId): Problem {
+  override fun resolveProblem(id: ProblemId): Problem? {
     val row =
       transaction(database) {
         ProblemTable
           .selectAll()
           .where(ProblemTable.id eq id.id)
-          .single()
-      }
+          .singleOrNull()
+      } ?: return null
     return Problem(
       id,
       row[ProblemTable.number],

@@ -145,16 +145,16 @@ class StudentBotTest {
     }
     println(solutions)
 
-    val firstSolution = solutionDistributor.resolveSolution(solutions.first())
+    val firstSolution = solutionDistributor.resolveSolution(solutions.first())!!
     assertEquals(SolutionType.TEXT, firstSolution.type)
     assertEquals("sample0", firstSolution.content.text)
 
-    val lastSolution = solutionDistributor.resolveSolution(solutions.last())
+    val lastSolution = solutionDistributor.resolveSolution(solutions.last())!!
     assertEquals(SolutionId(5L), lastSolution.id)
 
     assertEquals(
       solutions
-        .map { solutionDistributor.resolveSolution(it).chatId }
+        .map { solutionDistributor.resolveSolution(it)!!.chatId }
         .toSet(),
       setOf(chatId),
     )

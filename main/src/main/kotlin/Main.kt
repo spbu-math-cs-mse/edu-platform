@@ -30,7 +30,7 @@ import org.jetbrains.exposed.sql.Database
 import java.io.File
 
 // this is a sample multi-bot running main
-suspend fun main() {
+fun main() {
   val tokens = hashMapOf(
     "student" to "student-token",
     "teacher" to "teacher-token",

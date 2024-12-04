@@ -12,6 +12,7 @@ include(
   ":admin-bot",
   ":crossbot-tests"
 )
+include("main")
 
 dependencyResolutionManagement {
   versionCatalogs {

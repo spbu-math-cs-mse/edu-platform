@@ -3,6 +3,7 @@ package com.github.heheteam.teacherbot
 import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
+import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.*
@@ -55,6 +56,7 @@ suspend fun main(vararg args: String) {
       "jdbc:h2:./data/films",
       driver = "org.h2.Driver",
     )
+    val teacherStorage = DatabaseTeacherStorage(database)
     val coursesDistributor = DatabaseCoursesDistributor(database)
     val userIdRegistry = MockTeacherIdRegistry(0L)
     val inMemoryTeacherStatistics = InMemoryTeacherStatistics()
@@ -66,7 +68,7 @@ suspend fun main(vararg args: String) {
         DatabaseGradeTable(database),
       )
 
-    strictlyOnStartState(userIdRegistry, isDeveloperRun = true)
+    strictlyOnStartState(userIdRegistry, teacherStorage, isDeveloperRun = true)
     strictlyOnMenuState(userIdRegistry, core)
     strictlyOnGettingSolutionState(userIdRegistry, core)
     strictlyOnCheckGradesState(userIdRegistry, core)

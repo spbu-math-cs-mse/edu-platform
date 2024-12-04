@@ -64,7 +64,7 @@ suspend fun main(vararg args: String) {
         DatabaseSolutionDistributor(database),
       )
 
-    strictlyOnStartState(userIdRegistry, isDeveloperRun = true)
+    strictlyOnStartState(parentStorage = TODO(), isDeveloperRun = true)
     strictlyOnMenuState(userIdRegistry, core)
     strictlyOnGivingFeedbackState(userIdRegistry)
     strictlyOnChildPerformanceState(userIdRegistry, core)

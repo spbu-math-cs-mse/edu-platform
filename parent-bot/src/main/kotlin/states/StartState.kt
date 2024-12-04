@@ -1,4 +1,5 @@
-import com.github.heheteam.commonlib.api.ParentIdRegistry
+import com.github.heheteam.commonlib.api.ParentId
+import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.parentbot.states.BotState
 import com.github.heheteam.parentbot.states.MenuState
 import com.github.heheteam.parentbot.states.StartState
@@ -8,11 +9,9 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
-import dev.inmo.tgbotapi.types.RawChatId
-import dev.inmo.tgbotapi.types.UserId
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry: ParentIdRegistry, isDeveloperRun: Boolean = false) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentStorage: ParentStorage, isDeveloperRun: Boolean = false) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     if (state.context.username == null) {
@@ -41,8 +40,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
     } else {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val id = waitTextMessage().first().content.text.toLongOrNull()?.let { userIdRegistry.getUserId(UserId(RawChatId(it))) }
-        if (id == null) {
+        val parentId = waitTextMessage().first().content.text.toLongOrNull()?.let { ParentId(it) }
+        if (parentId == null) {
+          bot.send(state.context, Dialogues.devIdIsNotLong())
+          continue
+        }
+        val parent = parentStorage.resolveParent(parentId)
+        if (parent == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }

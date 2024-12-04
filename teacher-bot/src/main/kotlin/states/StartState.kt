@@ -1,6 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherIdRegistry
+import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -8,14 +10,16 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
-import dev.inmo.tgbotapi.types.RawChatId
-import dev.inmo.tgbotapi.types.UserId
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry: TeacherIdRegistry, isDeveloperRun: Boolean = false) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
+  teacherIdRegistry: TeacherIdRegistry,
+  teacherStorage: TeacherStorage,
+  isDeveloperRun: Boolean = false,
+) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
-    if (!isDeveloperRun && userIdRegistry.getUserId(state.context.id) == null) {
+    if (!isDeveloperRun && teacherIdRegistry.getUserId(state.context.id) == null) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),
@@ -36,8 +40,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val id = waitTextMessage().first().content.text.toLongOrNull()?.let { userIdRegistry.getUserId(UserId(RawChatId(it))) }
-        if (id == null) {
+        val teacherId = waitTextMessage().first().content.text.toLongOrNull()?.let { TeacherId(it) }
+        if (teacherId == null) {
+          bot.send(state.context, Dialogues.devIdIsNotLong())
+          continue
+        }
+        val teacher = teacherStorage.resolveTeacher(teacherId)
+        if (teacher == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }

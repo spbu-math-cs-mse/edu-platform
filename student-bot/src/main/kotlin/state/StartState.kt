@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.api.StudentIdRegistry
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
@@ -9,11 +10,9 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
-import dev.inmo.tgbotapi.types.RawChatId
-import dev.inmo.tgbotapi.types.UserId
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry: StudentIdRegistry, isDeveloperRun: Boolean = false) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentStorage: StudentStorage, isDeveloperRun: Boolean = false) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     if (state.context.username == null) {
@@ -42,8 +41,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
     } else {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val id = waitTextMessage().first().content.text.toLongOrNull()?.let { userIdRegistry.getUserId(UserId(RawChatId(it))) }
-        if (id == null) {
+        val studentId = waitTextMessage().first().content.text.toLongOrNull()?.let { StudentId(it) }
+        if (studentId == null) {
+          bot.send(state.context, Dialogues.devIdIsNotLong())
+          continue
+        }
+        val student = studentStorage.resolveStudent(studentId)
+        if (student == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }

@@ -1,14 +1,14 @@
-package com.github.heheteam.parentbot
+package com.github.heheteam
 
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.mock.*
-import com.github.heheteam.parentbot.states.StartState
-import com.github.heheteam.parentbot.states.strictlyOnChildPerformanceState
-import com.github.heheteam.parentbot.states.strictlyOnGivingFeedbackState
-import com.github.heheteam.parentbot.states.strictlyOnMenuState
-import com.github.heheteam.parentbot.states.strictlyOnStartState
+import com.github.heheteam.commonlib.api.StudentIdRegistry
+import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
+import com.github.heheteam.studentbot.state.strictlyOnMenuState
+import com.github.heheteam.studentbot.state.strictlyOnSendSolutionState
+import com.github.heheteam.studentbot.state.strictlyOnSignUpState
+import com.github.heheteam.studentbot.state.strictlyOnStartState
+import com.github.heheteam.studentbot.state.strictlyOnViewState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -21,14 +21,9 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.Database
 
-/**
- * @param args bot token and telegram @username for mocking data.
- */
 @OptIn(RiskFeature::class)
-suspend fun main(vararg args: String) {
-  val botToken = args.first()
+suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, core: StudentCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -52,24 +47,13 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val database =
-      Database.connect(
-        "jdbc:h2:./data/films",
-        driver = "org.h2.Driver",
-      )
-
-    val userIdRegistry = MockParentIdRegistry(1)
-    val core =
-      ParentCore(
-        DatabaseStudentStorage(database),
-        DatabaseGradeTable(database),
-        DatabaseSolutionDistributor(database),
-      )
 
     strictlyOnStartState(isDeveloperRun = true)
-    strictlyOnMenuState(userIdRegistry, core)
-    strictlyOnGivingFeedbackState(userIdRegistry)
-    strictlyOnChildPerformanceState(userIdRegistry, core)
+    strictlyOnMenuState()
+    strictlyOnViewState(userIdRegistry, core)
+    strictlyOnSignUpState(userIdRegistry, core)
+    strictlyOnSendSolutionState(userIdRegistry, core)
+    strictlyOnCheckGradesState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

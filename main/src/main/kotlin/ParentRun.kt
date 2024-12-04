@@ -1,9 +1,7 @@
-package com.github.heheteam.parentbot
+package com.github.heheteam
 
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.api.ParentIdRegistry
+import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.states.StartState
 import com.github.heheteam.parentbot.states.strictlyOnChildPerformanceState
 import com.github.heheteam.parentbot.states.strictlyOnGivingFeedbackState
@@ -21,14 +19,9 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.Database
 
-/**
- * @param args bot token and telegram @username for mocking data.
- */
 @OptIn(RiskFeature::class)
-suspend fun main(vararg args: String) {
-  val botToken = args.first()
+suspend fun parentRun(botToken: String, userIdRegistry: ParentIdRegistry, core: ParentCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -52,19 +45,6 @@ suspend fun main(vararg args: String) {
         startChain(StartState(it.from!!))
       }
     }
-    val database =
-      Database.connect(
-        "jdbc:h2:./data/films",
-        driver = "org.h2.Driver",
-      )
-
-    val userIdRegistry = MockParentIdRegistry(1)
-    val core =
-      ParentCore(
-        DatabaseStudentStorage(database),
-        DatabaseGradeTable(database),
-        DatabaseSolutionDistributor(database),
-      )
 
     strictlyOnStartState(isDeveloperRun = true)
     strictlyOnMenuState(userIdRegistry, core)

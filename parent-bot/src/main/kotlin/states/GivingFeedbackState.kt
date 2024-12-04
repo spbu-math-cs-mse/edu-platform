@@ -1,14 +1,14 @@
 package com.github.heheteam.parentbot.states
 
-import Dialogues
-import Keyboards
 import com.github.heheteam.commonlib.api.ParentIdRegistry
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.parentbot.Dialogues
+import com.github.heheteam.parentbot.Keyboards
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +28,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState(userI
         replyMarkup = Keyboards.returnBack(),
       )
 
-    when (val response = flowOf(waitDataCallbackQuery(), waitTextMessage()).flattenMerge().first()) {
+    when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
       is DataCallbackQuery -> {
         val command = response.data
         if (command == Keyboards.returnBack) {

@@ -14,6 +14,7 @@ class DatabaseCoursesDistributor(
     transaction(database) {
       SchemaUtils.create(CourseTable)
       SchemaUtils.create(CourseStudents)
+      SchemaUtils.create(CourseTeachers)
     }
   }
 

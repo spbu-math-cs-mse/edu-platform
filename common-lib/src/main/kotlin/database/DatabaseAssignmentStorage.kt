@@ -3,6 +3,9 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -17,7 +20,7 @@ class DatabaseAssignmentStorage(
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
 
-  override fun resolveAssignment(assignmentId: AssignmentId): Assignment? {
+  override fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError> {
     val row =
       transaction {
         AssignmentTable
@@ -25,11 +28,13 @@ class DatabaseAssignmentStorage(
           .where(
             AssignmentTable.id eq assignmentId.id,
           ).singleOrNull()
-      } ?: return null
-    return Assignment(
-      assignmentId,
-      row[AssignmentTable.description],
-      row[AssignmentTable.course].value.toCourseId(),
+      } ?: return Err(ResolveError("Assignment not found"))
+    return Ok(
+      Assignment(
+        assignmentId,
+        row[AssignmentTable.description],
+        row[AssignmentTable.course].value.toCourseId(),
+      ),
     )
   }
 

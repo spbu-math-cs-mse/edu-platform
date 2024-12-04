@@ -12,4 +12,5 @@ dependencies {
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.exposed.spring.boot.starter)
     implementation(libs.h2database)
+    implementation(libs.kotlin.result)
 }

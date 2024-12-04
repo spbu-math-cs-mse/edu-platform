@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Course
+import com.github.michaelbull.result.Result
 
 interface CoursesDistributor {
   fun addStudentToCourse(
@@ -16,12 +17,12 @@ interface CoursesDistributor {
   fun removeStudentFromCourse(
     studentId: StudentId,
     courseId: CourseId,
-  )
+  ): Result<Unit, DeleteError>
 
   fun removeTeacherFromCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  )
+  ): Result<Unit, DeleteError>
 
   fun getCourses(): List<Course>
 
@@ -29,7 +30,7 @@ interface CoursesDistributor {
 
   fun getTeacherCourses(teacherId: TeacherId): List<Course>
 
-  fun resolveCourse(id: CourseId): Course?
+  fun resolveCourse(id: CourseId): Result<Course, ResolveError>
 
   fun createCourse(description: String): CourseId
 

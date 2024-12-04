@@ -3,6 +3,9 @@ import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.CourseTeachers
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -60,20 +63,30 @@ class DatabaseCoursesDistributor(
   override fun removeStudentFromCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ) {
+  ): Result<Unit, DeleteError> =
     transaction(database) {
-      CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }
+      val deletedRows =
+        CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }
+      if (deletedRows == 1) {
+        return@transaction Ok(Unit)
+      } else {
+        return@transaction Err(DeleteError("Deleted $deletedRows rows"))
+      }
     }
-  }
 
   override fun removeTeacherFromCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  ) {
+  ): Result<Unit, DeleteError> =
     transaction(database) {
-      CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }
+      val deletedRows =
+        CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }
+      if (deletedRows == 1) {
+        return@transaction Ok(Unit)
+      } else {
+        return@transaction Err(DeleteError("Deleted $deletedRows rows"))
+      }
     }
-  }
 
   override fun getCourses(): List<Course> =
     transaction(database) {
@@ -113,11 +126,12 @@ class DatabaseCoursesDistributor(
         }
     }
 
-  override fun resolveCourse(id: CourseId): Course =
+  override fun resolveCourse(id: CourseId): Result<Course, ResolveError> =
     transaction(database) {
       val row =
         CourseTable.selectAll().where(CourseTable.id eq id.id).singleOrNull()
-      Course(id, row!![CourseTable.name])
+          ?: return@transaction Err(ResolveError("Course not found"))
+      return@transaction Ok(Course(id, row[CourseTable.name]))
     }
 
   override fun createCourse(description: String): CourseId =

@@ -12,7 +12,8 @@ class AdminCore(
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
-  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> = scheduledMessagesDistributor.getMessagesUpToDate(date)
+  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
+    scheduledMessagesDistributor.getMessagesUpToDate(date)
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
@@ -59,22 +60,10 @@ class AdminCore(
   fun removeTeacher(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Boolean {
-    if (coursesDistributor.getTeacherCourses(teacherId).find { it.id == courseId } != null) {
-      coursesDistributor.removeTeacherFromCourse(teacherId, courseId)
-      return true
-    }
-    return false
-  }
+  ): Boolean = coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
 
   fun removeStudent(
     studentId: StudentId,
     courseId: CourseId,
-  ): Boolean {
-    if (coursesDistributor.getStudentCourses(studentId).find { it.id == courseId } != null) {
-      coursesDistributor.removeStudentFromCourse(studentId, courseId)
-      return true
-    }
-    return false
-  }
+  ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
 }

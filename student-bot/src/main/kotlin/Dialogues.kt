@@ -28,6 +28,9 @@ object Dialogues {
 
   fun menu(): String = "\u2705 Главное меню"
 
+  fun devAskForId(): String = "Введите свой id:"
+  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+
   fun askCourseForSolution(): String = "Выбери курс для отправки решения:"
   fun askAssignmentFromSolution(): String = "Выбери серию из курса:"
 

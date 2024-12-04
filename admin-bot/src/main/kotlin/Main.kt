@@ -62,7 +62,7 @@ suspend fun main(vararg args: String) {
       startChain(StartState(it.from!!))
     }
 
-    strictlyOnStartState(userIdRegistry)
+    strictlyOnStartState(userIdRegistry, isDeveloperRun = true)
     strictlyOnMenuState()
     strictlyOnCreateCourseState(core)
     strictlyOnEditCourseState(core)

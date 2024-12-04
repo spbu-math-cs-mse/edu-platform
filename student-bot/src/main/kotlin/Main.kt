@@ -67,7 +67,7 @@ suspend fun main(vararg args: String) {
         DatabaseGradeTable(database),
       )
 
-    strictlyOnStartState(isDeveloperRun = true)
+    strictlyOnStartState(userIdRegistry, isDeveloperRun = true)
     strictlyOnMenuState()
     strictlyOnViewState(userIdRegistry, core)
     strictlyOnSignUpState(userIdRegistry, core)

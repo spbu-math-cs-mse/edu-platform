@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm") version "2.0.20" apply false
-    id("com.diffplug.spotless") version "7.0.0.BETA3"
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
     java
 }
@@ -13,7 +12,6 @@ allprojects {
         mavenCentral()
     }
 
-    apply(plugin = "com.diffplug.spotless")
     apply(plugin = "kotlin")
 
     java {
@@ -58,13 +56,13 @@ tasks.register<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>("detektGene
 
 tasks.register<io.gitlab.arturbosch.detekt.Detekt>("detektAll") {
     description = "Custom DETEKT build for all modules"
-    dependsOn("detektGenerateBaseline")
     parallel = true
     ignoreFailures = false
     autoCorrect = false
     buildUponDefaultConfig = true
     setSource(projectDir)
-    baseline.set(file(baselineFile))
+    if (baselineFile.exists())
+        baseline.set(file(baselineFile))
     config.setFrom(files(configFile))
     include(kotlinFiles)
     exclude(resourceFiles, buildFiles)

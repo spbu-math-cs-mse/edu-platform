@@ -38,8 +38,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       )
       waitDataCallbackQuery().first().data // discard class
       teacherId = teacherStorage.createTeacher()
-      // TODO: put teacherId into teacherIdRegistry
-      // TODO : put Teacher(teacherId) into teacherStorage
       return@strictlyOn MenuState(state.context, teacherId)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())

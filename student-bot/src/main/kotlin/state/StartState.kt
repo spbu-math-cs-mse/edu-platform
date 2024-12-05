@@ -40,8 +40,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentIdRegis
       // discard student class data
       waitDataCallbackQuery().first().data
       studentId = studentStorage.createStudent()
-      // TODO: put studentId into studentIdRegistry
-      // TODO : put Student(studentId, ...) into studentStorage
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())

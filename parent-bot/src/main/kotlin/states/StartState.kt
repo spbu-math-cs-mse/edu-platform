@@ -39,8 +39,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentIdRegist
       // discard student class data
       waitDataCallbackQuery().first().data
       parentId = parentStorage.createParent()
-      // TODO: put parentId into parentIdRegistry
-      // TODO : put Parent(parentId, ...) into parentStorage
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())

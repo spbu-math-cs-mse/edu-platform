@@ -61,10 +61,7 @@ fun main(vararg args: String) {
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
 
   val studentIdRegistry = MockStudentIdRegistry(1L)
-  /*
-  TODO since only one user per run is created, the data is common among bots, even though actions are distinct
-  TODO applies to every Registry
-   */
+
   val studentCore =
     StudentCore(
       solutionDistributor,
@@ -104,6 +101,6 @@ fun main(vararg args: String) {
     launch { studentRun(args[0], studentIdRegistry, studentCore) }
     launch { teacherRun(args[1], teacherIdRegistry, teacherCore) }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
-    launch { parentRun(args[3], parentIdRegistry, parentCore) } // TODO fix parent
+    launch { parentRun(args[3], parentIdRegistry, parentCore) }
   }
 }

@@ -10,9 +10,9 @@ include(
   ":parent-bot",
   ":teacher-bot",
   ":admin-bot",
+  ":multi-bot",
   ":crossbot-tests"
 )
-include("main")
 
 dependencyResolutionManagement {
   versionCatalogs {

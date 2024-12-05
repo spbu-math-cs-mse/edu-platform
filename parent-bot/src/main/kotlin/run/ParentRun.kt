@@ -1,4 +1,4 @@
-package com.github.heheteam
+package com.github.heheteam.parentbot.run
 
 import com.github.heheteam.commonlib.api.ParentIdRegistry
 import com.github.heheteam.parentbot.ParentCore

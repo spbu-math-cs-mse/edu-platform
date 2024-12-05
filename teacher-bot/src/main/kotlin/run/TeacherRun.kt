@@ -1,14 +1,9 @@
-package com.github.heheteam
+package com.github.heheteam.teacherbot.run
 
-import com.github.heheteam.commonlib.api.StudentIdRegistry
-import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.state.StartState
-import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
-import com.github.heheteam.studentbot.state.strictlyOnMenuState
-import com.github.heheteam.studentbot.state.strictlyOnSendSolutionState
-import com.github.heheteam.studentbot.state.strictlyOnSignUpState
-import com.github.heheteam.studentbot.state.strictlyOnStartState
-import com.github.heheteam.studentbot.state.strictlyOnViewState
+import com.github.heheteam.commonlib.api.TeacherIdRegistry
+import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
+import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -23,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, core: StudentCore) {
+suspend fun teacherRun(botToken: String, userIdRegistry: TeacherIdRegistry, core: TeacherCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -31,7 +26,7 @@ suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, core
       }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
     botToken,
     CoroutineScope(Dispatchers.IO),
     onStateHandlingErrorHandler = { state, e ->
@@ -42,17 +37,17 @@ suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, core
   ) {
     println(getMe())
 
-    command("start") {
+    command(
+      "start",
+    ) {
       if (it.from != null) {
         startChain(StartState(it.from!!))
       }
     }
 
-    strictlyOnStartState(isDeveloperRun = true)
-    strictlyOnMenuState()
-    strictlyOnViewState(userIdRegistry, core)
-    strictlyOnSignUpState(userIdRegistry, core)
-    strictlyOnSendSolutionState(userIdRegistry, core)
+    strictlyOnStartState(userIdRegistry)
+    strictlyOnMenuState(userIdRegistry, core)
+    strictlyOnGettingSolutionState(userIdRegistry, core)
     strictlyOnCheckGradesState(userIdRegistry, core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {

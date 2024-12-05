@@ -1,7 +1,8 @@
-package com.github.heheteam
+package com.github.heheteam.multibot
 
 import DatabaseCoursesDistributor
 import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemStorage
@@ -22,22 +23,21 @@ import com.github.heheteam.commonlib.mock.MockStudentIdRegistry
 import com.github.heheteam.commonlib.mock.MockTeacherIdRegistry
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.parentbot.ParentCore
+import com.github.heheteam.parentbot.run.parentRun
 import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.run.teacherRun
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 import java.io.File
 
 // this is a sample multi-bot running main
-fun main() {
-  val tokens = hashMapOf(
-    "student" to "student-token",
-    "teacher" to "teacher-token",
-    "admin" to "admin-token",
-    "parent" to "parent-token",
-  ) // use your tokens here
-
+/**
+ * @param args tokens for bots in the FOLLOWING order: student, teacher, admin, parent
+ */
+fun main(vararg args: String) {
   val dbFile = File("./data/films.mv.db")
   if (dbFile.exists()) {
     dbFile.delete()
@@ -101,9 +101,9 @@ fun main() {
     )
 
   runBlocking {
-    launch { studentRun(tokens["student"]!!, studentIdRegistry, studentCore) }
-    launch { teacherRun(tokens["teacher"]!!, teacherIdRegistry, teacherCore) }
-    launch { adminRun(tokens["admin"]!!, adminIdRegistry, adminCore) }
-    launch { parentRun(tokens["parent"]!!, parentIdRegistry, parentCore) } // TODO fix parent
+    launch { studentRun(args[0], studentIdRegistry, studentCore) }
+    launch { teacherRun(args[1], teacherIdRegistry, teacherCore) }
+    launch { adminRun(args[2], adminIdRegistry, adminCore) }
+    launch { parentRun(args[3], parentIdRegistry, parentCore) } // TODO fix parent
   }
 }

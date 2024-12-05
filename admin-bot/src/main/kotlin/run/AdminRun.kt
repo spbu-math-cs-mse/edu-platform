@@ -1,4 +1,4 @@
-package com.github.heheteam
+package com.github.heheteam.adminbot.run
 
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.states.BotState

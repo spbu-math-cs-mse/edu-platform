@@ -19,7 +19,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
     if (state.context.username == null) {
       return@strictlyOn null
     }
-    val userId = userIdRegistry.getUserId(state.context.id) ?: return@strictlyOn StartState(state.context)
+    val userId = userIdRegistry.getUserId(state.context.id).value
 
     val stickerMessage =
       bot.sendSticker(

@@ -5,6 +5,9 @@ import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.ParentStudents
 import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.heheteam.commonlib.database.tables.TeacherTable
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -31,15 +34,18 @@ class DatabaseTeacherStorage(
       } get TeacherTable.id
     }.value.toTeacherId()
 
-  override fun resolveTeacher(teacherId: TeacherId): Teacher? =
+  override fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     transaction(database) {
-      StudentTable
+      val row = StudentTable
         .selectAll()
         .where(StudentTable.id eq teacherId.id)
-        .map {
-          Teacher(
-            teacherId,
-          )
-        }.singleOrNull()
+        .singleOrNull() ?: return@transaction Err(ResolveError(teacherId))
+      Ok(
+        Teacher(
+          teacherId,
+          row[TeacherTable.name],
+          row[TeacherTable.surname],
+        ),
+      )
     }
 }

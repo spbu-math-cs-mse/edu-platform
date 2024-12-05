@@ -34,8 +34,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
   core: TeacherCore,
 ) {
   strictlyOn<GettingSolutionState> { state ->
-    val userId = userIdRegistry.getUserId(state.context.id)!!
-    val solution = core.querySolution(userIdRegistry.getUserId(state.context.id)!!)
+    val userId = userIdRegistry.getUserId(state.context.id).value
+    val solution = core.querySolution(userId)
     if (solution == null) {
       bot.send(
         state.context,

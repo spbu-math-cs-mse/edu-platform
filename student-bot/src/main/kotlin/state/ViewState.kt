@@ -14,8 +14,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
   core: StudentCore,
 ) {
   strictlyOn<ViewState> { state ->
-    val studentId = state.context.id
-    val studentCourses = core.getCoursesBulletList(userIdRegistry.getUserId(studentId)!!)
+    val studentId = userIdRegistry.getUserId(state.context.id).value
+    val studentCourses = core.getCoursesBulletList(studentId)
     val initialMessage =
       bot.send(
         state.context,

@@ -24,7 +24,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
 ) {
   strictlyOn<CheckGradesState> { state ->
     val courses =
-      core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
+      core.getStudentCourses(userIdRegistry.getUserId(state.context.id).value)
     val courseId: CourseId =
       queryCourseFromUser(state, courses)
         ?: return@strictlyOn MenuState(state.context)
@@ -39,7 +39,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     val gradedProblems =
       core.getGradingForAssignment(
         assignment.id,
-        userIdRegistry.getUserId(state.context.id)!!,
+        userIdRegistry.getUserId(state.context.id).value,
       )
 
     respondWithGrades(state, assignment, gradedProblems)

@@ -7,22 +7,22 @@ interface CoursesDistributor {
   fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
-  )
+  ): Result<Unit, BindError<StudentId, CourseId>>
 
   fun addTeacherToCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  )
+  ): Result<Unit, BindError<TeacherId, CourseId>>
 
   fun removeStudentFromCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ): Result<Unit, DeleteError>
+  ): Result<Unit, DeleteError<StudentId>>
 
   fun removeTeacherFromCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Result<Unit, DeleteError>
+  ): Result<Unit, DeleteError<TeacherId>>
 
   fun getCourses(): List<Course>
 
@@ -30,7 +30,7 @@ interface CoursesDistributor {
 
   fun getTeacherCourses(teacherId: TeacherId): List<Course>
 
-  fun resolveCourse(id: CourseId): Result<Course, ResolveError>
+  fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>>
 
   fun createCourse(description: String): CourseId
 

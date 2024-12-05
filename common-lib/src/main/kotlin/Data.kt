@@ -21,6 +21,8 @@ data class Parent(
 
 data class Teacher(
   val id: TeacherId,
+  val name: String = "",
+  val surname: String = "",
 )
 
 data class Problem(

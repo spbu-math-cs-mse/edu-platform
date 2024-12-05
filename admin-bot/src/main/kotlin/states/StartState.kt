@@ -1,7 +1,6 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.commonlib.api.AdminId
 import com.github.heheteam.commonlib.api.AdminIdRegistry
 import com.github.heheteam.commonlib.api.toAdminId
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -19,13 +18,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
 
     bot.send(state.context, Dialogues.greetings())
 
-    var id: AdminId? = userIdRegistry.getUserId(state.context.id)
-    if (id != null) {
+    val result = userIdRegistry.getUserId(state.context.id)
+    if (result.isErr) {
       return@strictlyOn MenuState(state.context)
     }
 
     bot.send(state.context, Dialogues.askId())
-    id =
+    var id =
       waitTextMessage()
         .first()
         .content.text

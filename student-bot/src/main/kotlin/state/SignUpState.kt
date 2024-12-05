@@ -23,7 +23,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
   core: StudentCore,
 ) {
   strictlyOn<SignUpState> { state ->
-    val studentId = userIdRegistry.getUserId(state.context.id)!!
+    val studentId = userIdRegistry.getUserId(state.context.id).value
     val courses = core.getCourses()
     val studentCourses = core.getStudentCourses(studentId).toMutableList()
     println(studentCourses)
@@ -79,7 +79,6 @@ class SigningUpState(
     val index =
       when {
         callbackData.contains(ButtonKey.COURSE_ID) -> {
-          val courseId = callbackData.split(" ").last()
           courses.indexOfFirst { it.id == CourseId(courseId.toLong()) }
         }
 

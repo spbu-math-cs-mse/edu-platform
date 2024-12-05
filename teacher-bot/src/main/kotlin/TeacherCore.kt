@@ -10,7 +10,10 @@ class TeacherCore(
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
 ) {
-  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? = teacherStatistics.getTeacherStats(teacherId)
+  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
+    val result = teacherStatistics.resolveTeacherStats(teacherId)
+    return if (result.isErr) null else result.value
+  }
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 

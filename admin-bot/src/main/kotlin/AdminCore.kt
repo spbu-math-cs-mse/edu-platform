@@ -34,9 +34,9 @@ class AdminCore(
       .groupBy { it.name }
       .mapValues { it.value.first() }
 
-  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id) != null
+  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
 
-  fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id) != null
+  fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
   fun studiesIn(
     id: StudentId,

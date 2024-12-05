@@ -20,7 +20,7 @@ class DatabaseAssignmentStorage(
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
 
-  override fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError> {
+  override fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>> {
     val row =
       transaction {
         AssignmentTable
@@ -28,7 +28,7 @@ class DatabaseAssignmentStorage(
           .where(
             AssignmentTable.id eq assignmentId.id,
           ).singleOrNull()
-      } ?: return Err(ResolveError("Assignment not found"))
+      } ?: return Err(ResolveError(assignmentId))
     return Ok(
       Assignment(
         assignmentId,
@@ -52,7 +52,7 @@ class DatabaseAssignmentStorage(
         }
       }.value.toAssignmentId()
     problemNames
-      .map { problemStorage.createProblem(assignId, it) }
+      .map { problemStorage.createProblem(assignId, it, 1, "") } // TODO
     return assignId
   }
 

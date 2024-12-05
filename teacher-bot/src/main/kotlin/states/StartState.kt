@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.first
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry: TeacherIdRegistry) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
-    if (userIdRegistry.getUserId(state.context.id) == null) {
+    if (userIdRegistry.getUserId(state.context.id).isErr) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),

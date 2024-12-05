@@ -34,7 +34,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   core: StudentCore,
 ) {
   strictlyOn<SendSolutionState> { state ->
-    val studentId = userIdRegistry.getUserId(state.context.id)!!
+    val studentId = userIdRegistry.getUserId(state.context.id).value
     val courses = core.getStudentCourses(studentId)
 
     val stickerMessage = bot.sendSticker(state.context, Dialogues.nerdSticker)

@@ -23,7 +23,7 @@ class DatabaseCoursesDistributor(
   override fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ) {
+  ): Result<Unit, BindError<StudentId, CourseId>> =
     transaction(database) {
       val exists =
         CourseStudents
@@ -32,18 +32,24 @@ class DatabaseCoursesDistributor(
           .map { 0L }
           .isNotEmpty()
       if (!exists) {
-        CourseStudents.insert {
-          it[CourseStudents.studentId] = studentId.id
-          it[CourseStudents.courseId] = courseId.id
+        try {
+          CourseStudents.insert {
+            it[CourseStudents.studentId] = studentId.id
+            it[CourseStudents.courseId] = courseId.id
+          }
+          Ok(Unit)
+        } catch (_: Throwable) {
+          Err(BindError(studentId, courseId))
         }
+      } else {
+        Err(BindError(studentId, courseId))
       }
     }
-  }
 
   override fun addTeacherToCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  ) {
+  ): Result<Unit, BindError<TeacherId, CourseId>> =
     transaction(database) {
       val exists =
         CourseTeachers
@@ -52,39 +58,45 @@ class DatabaseCoursesDistributor(
           .map { 0L }
           .isNotEmpty()
       if (!exists) {
-        CourseTeachers.insert {
-          it[CourseTeachers.teacherId] = teacherId.id
-          it[CourseTeachers.courseId] = courseId.id
+        try {
+          CourseTeachers.insert {
+            it[CourseTeachers.teacherId] = teacherId.id
+            it[CourseTeachers.courseId] = courseId.id
+          }
+          Ok(Unit)
+        } catch (_: Throwable) {
+          Err(BindError(teacherId, courseId))
         }
+      } else {
+        Err(BindError(teacherId, courseId))
       }
     }
-  }
 
   override fun removeStudentFromCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ): Result<Unit, DeleteError> =
+  ): Result<Unit, DeleteError<StudentId>> =
     transaction(database) {
       val deletedRows =
         CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }
       if (deletedRows == 1) {
-        return@transaction Ok(Unit)
+        Ok(Unit)
       } else {
-        return@transaction Err(DeleteError("Deleted $deletedRows rows"))
+        Err(DeleteError(studentId, deletedRows))
       }
     }
 
   override fun removeTeacherFromCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Result<Unit, DeleteError> =
+  ): Result<Unit, DeleteError<TeacherId>> =
     transaction(database) {
       val deletedRows =
         CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }
       if (deletedRows == 1) {
-        return@transaction Ok(Unit)
+        Ok(Unit)
       } else {
-        return@transaction Err(DeleteError("Deleted $deletedRows rows"))
+        Err(DeleteError(teacherId, deletedRows))
       }
     }
 
@@ -126,12 +138,12 @@ class DatabaseCoursesDistributor(
         }
     }
 
-  override fun resolveCourse(id: CourseId): Result<Course, ResolveError> =
+  override fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>> =
     transaction(database) {
       val row =
-        CourseTable.selectAll().where(CourseTable.id eq id.id).singleOrNull()
-          ?: return@transaction Err(ResolveError("Course not found"))
-      return@transaction Ok(Course(id, row[CourseTable.name]))
+        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+          ?: return@transaction Err(ResolveError(courseId))
+      Ok(Course(courseId, row[CourseTable.name]))
     }
 
   override fun createCourse(description: String): CourseId =

@@ -77,11 +77,12 @@ class SolutionDistributionTest {
       problemId,
     )
 
-    val extractedSolution =
+    val extractedSolutionResult =
       solutionDistributor.resolveSolution(
         solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
       )
-    assertNotNull(extractedSolution)
+    assertTrue(extractedSolutionResult.isOk)
+    val extractedSolution = extractedSolutionResult.value
     val expectedText =
       """sample solution
       |with lines
@@ -148,11 +149,12 @@ class SolutionDistributionTest {
       problemId,
     )
 
-    val extractedSolution =
+    val extractedSolutionResult =
       solutionDistributor.resolveSolution(
         solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
       )
-    assertNotNull(extractedSolution)
+    assertTrue(extractedSolutionResult.isOk)
+    val extractedSolution = extractedSolutionResult.value
     assertEquals(text, "PHOTOS")
     assertEquals(problemId, extractedSolution.problemId)
 //    assertEquals(SolutionType.PHOTOS, extractedSolution.type)

@@ -2,7 +2,6 @@ package com.github.heheteam.parentbot.states
 
 import Dialogues
 import Keyboards
-import com.github.heheteam.commonlib.api.ParentIdRegistry
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -17,10 +16,8 @@ import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState(userIdRegistry: ParentIdRegistry) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
   strictlyOn<GivingFeedbackState> { state ->
-    val userId = userIdRegistry.getUserId(state.context.id) ?: return@strictlyOn StartState(state.context)
-
     val giveFeedbackMessage =
       bot.send(
         state.context,
@@ -50,6 +47,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState(userI
         )
       }
     }
-    MenuState(state.context)
+    MenuState(state.context, state.parentId)
   }
 }

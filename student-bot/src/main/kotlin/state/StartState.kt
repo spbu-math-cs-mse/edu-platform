@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
@@ -13,15 +13,15 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallb
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentStorage: StudentStorage, isDeveloperRun: Boolean = false) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentIdRegistry: StudentIdRegistry, studentStorage: StudentStorage, isDeveloperRun: Boolean = false) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     if (state.context.username == null) {
       return@strictlyOn null
     }
 
-    val student: Student
-    if (!isDeveloperRun) {
+    var studentId = studentIdRegistry.getUserId(state.context.id)
+    if (!isDeveloperRun && studentId == null) {
       bot.send(state.context, Dialogues.greetings())
 
       bot.send(state.context, Dialogues.askFirstName())
@@ -39,25 +39,27 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentStorage
 
       // discard student class data
       waitDataCallbackQuery().first().data
-      student = Student(studentStorage.createStudent(), firstName, lastName)
+      studentId = studentStorage.createStudent()
+      // TODO: put studentId into studentIdRegistry
+      // TODO : put Student(studentId, ...) into studentStorage
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
-    } else {
+    } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val studentId = waitTextMessage().first().content.text.toLongOrNull()?.let { StudentId(it) }
-        if (studentId == null) {
+        val studentIdFromText = waitTextMessage().first().content.text.toLongOrNull()?.let { StudentId(it) }
+        if (studentIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
         }
-        val studentFromStorage = studentStorage.resolveStudent(studentId)
-        if (studentFromStorage == null) {
+        val student = studentStorage.resolveStudent(studentIdFromText)
+        if (student == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }
-        student = studentFromStorage
+        studentId = studentIdFromText
         break
       }
     }
-    MenuState(state.context, student)
+    MenuState(state.context, studentId!!)
   }
 }

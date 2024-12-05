@@ -32,20 +32,20 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   core: StudentCore,
 ) {
   strictlyOn<SendSolutionState> { state ->
-    val studentId = state.student.id
+    val studentId = state.studentId
     val courses = core.getStudentCourses(studentId)
 
     val stickerMessage = bot.sendSticker(state.context, Dialogues.nerdSticker)
 
     if (courses.isEmpty()) {
       suggestToApplyForCourses(state)
-      return@strictlyOn MenuState(state.context, state.student)
+      return@strictlyOn MenuState(state.context, state.studentId)
     }
 
     val course = queryCourse(state, courses)
     if (course == null) {
       deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context, state.student)
+      return@strictlyOn MenuState(state.context, state.studentId)
     }
 
     val assignments = core.getCourseAssignments(course.id)
@@ -53,14 +53,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
     val assignment = queryAssignments(state, assignments)
     if (assignment == null) {
       deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context, state.student)
+      return@strictlyOn MenuState(state.context, state.studentId)
     }
 
     val problems = core.getProblemsFromAssignment(assignment)
     val problem = queryProblem(state, problems)
     if (problem == null) {
       deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context, state.student)
+      return@strictlyOn MenuState(state.context, state.studentId)
     }
 
     state.selectedCourse = course
@@ -79,7 +79,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
-        return@strictlyOn SendSolutionState(state.context, state.student)
+        return@strictlyOn SendSolutionState(state.context, state.studentId)
       }
 
       if (content is CommonMessage<*>) {
@@ -101,7 +101,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
         break
       }
     }
-    MenuState(state.context, state.student)
+    MenuState(state.context, state.studentId)
   }
 }
 

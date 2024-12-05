@@ -69,9 +69,9 @@ suspend fun main(vararg args: String) {
       )
 
     strictlyOnStartState(userIdRegistry, teacherStorage, isDeveloperRun = true)
-    strictlyOnMenuState(userIdRegistry, core)
-    strictlyOnGettingSolutionState(userIdRegistry, core)
-    strictlyOnCheckGradesState(userIdRegistry, core)
+    strictlyOnMenuState(core)
+    strictlyOnGettingSolutionState(core)
+    strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

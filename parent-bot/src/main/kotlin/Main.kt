@@ -64,10 +64,10 @@ suspend fun main(vararg args: String) {
         DatabaseSolutionDistributor(database),
       )
 
-    strictlyOnStartState(parentStorage = TODO(), isDeveloperRun = true)
-    strictlyOnMenuState(userIdRegistry, core)
-    strictlyOnGivingFeedbackState(userIdRegistry)
-    strictlyOnChildPerformanceState(userIdRegistry, core)
+    strictlyOnStartState(userIdRegistry, parentStorage = TODO(), isDeveloperRun = true)
+    strictlyOnMenuState(core)
+    strictlyOnGivingFeedbackState()
+    strictlyOnChildPerformanceState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

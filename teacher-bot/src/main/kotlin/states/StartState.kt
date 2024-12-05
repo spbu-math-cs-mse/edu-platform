@@ -19,7 +19,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
 ) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
-    if (!isDeveloperRun && teacherIdRegistry.getUserId(state.context.id) == null) {
+    var teacherId = teacherIdRegistry.getUserId(state.context.id)
+    if (!isDeveloperRun && teacherId == null) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),
@@ -36,20 +37,24 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
         replyMarkup = Keyboards.askGrade(),
       )
       waitDataCallbackQuery().first().data // discard class
-      return@strictlyOn MenuState(state.context)
+      teacherId = teacherStorage.createTeacher()
+      // TODO: put teacherId into teacherIdRegistry
+      // TODO : put Teacher(teacherId) into teacherStorage
+      return@strictlyOn MenuState(state.context, teacherId)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val teacherId = waitTextMessage().first().content.text.toLongOrNull()?.let { TeacherId(it) }
-        if (teacherId == null) {
+        val teacherIdFromText = waitTextMessage().first().content.text.toLongOrNull()?.let { TeacherId(it) }
+        if (teacherIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
         }
-        val teacher = teacherStorage.resolveTeacher(teacherId)
+        val teacher = teacherStorage.resolveTeacher(teacherIdFromText)
         if (teacher == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }
+        teacherId = teacherIdFromText
         break
       }
     }
@@ -57,6 +62,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       state.context,
       Dialogues.greetings(),
     )
-    MenuState(state.context)
+    MenuState(state.context, teacherId!!)
   }
 }

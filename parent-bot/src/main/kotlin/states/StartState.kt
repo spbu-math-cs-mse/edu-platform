@@ -1,4 +1,5 @@
 import com.github.heheteam.commonlib.api.ParentId
+import com.github.heheteam.commonlib.api.ParentIdRegistry
 import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.parentbot.states.BotState
 import com.github.heheteam.parentbot.states.MenuState
@@ -11,14 +12,15 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallb
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentStorage: ParentStorage, isDeveloperRun: Boolean = false) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentIdRegistry: ParentIdRegistry, parentStorage: ParentStorage, isDeveloperRun: Boolean = false) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     if (state.context.username == null) {
       return@strictlyOn null
     }
 
-    if (!isDeveloperRun) {
+    var parentId = parentIdRegistry.getUserId(state.context.id)
+    if (!isDeveloperRun && parentId == null) {
       bot.send(state.context, Dialogues.greetings())
 
       bot.send(state.context, Dialogues.askFirstName())
@@ -36,23 +38,27 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentStorage:
 
       // discard student class data
       waitDataCallbackQuery().first().data
+      parentId = parentStorage.createParent()
+      // TODO: put parentId into parentIdRegistry
+      // TODO : put Parent(parentId, ...) into parentStorage
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
-    } else {
+    } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val parentId = waitTextMessage().first().content.text.toLongOrNull()?.let { ParentId(it) }
-        if (parentId == null) {
+        val parentIdFromText = waitTextMessage().first().content.text.toLongOrNull()?.let { ParentId(it) }
+        if (parentIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
         }
-        val parent = parentStorage.resolveParent(parentId)
+        val parent = parentStorage.resolveParent(parentIdFromText)
         if (parent == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }
+        parentId = parentIdFromText
         break
       }
     }
-    MenuState(state.context)
+    MenuState(state.context, parentId!!)
   }
 }

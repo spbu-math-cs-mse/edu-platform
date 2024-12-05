@@ -56,6 +56,7 @@ suspend fun main(vararg args: String) {
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
     fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+    val userIdRegistry = MockStudentIdRegistry(1L)
     val solutionDistributor = DatabaseSolutionDistributor(database)
     val core =
       StudentCore(
@@ -66,7 +67,7 @@ suspend fun main(vararg args: String) {
         DatabaseGradeTable(database),
       )
 
-    strictlyOnStartState(studentStorage, isDeveloperRun = true)
+    strictlyOnStartState(userIdRegistry, studentStorage, isDeveloperRun = true)
     strictlyOnMenuState()
     strictlyOnViewState(core)
     strictlyOnSignUpState(core)

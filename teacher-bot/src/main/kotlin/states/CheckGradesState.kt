@@ -5,6 +5,8 @@ import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherIdRegistry
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.teacherbot.*
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.states.BotState
@@ -14,7 +16,6 @@ import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
@@ -55,7 +56,7 @@ private suspend fun BehaviourContext.respondWithGrades(
       text = strGrades,
       replyMarkup = returnBack(),
     )
-  waitDataCallbackQuery().first()
+  waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(state.context.id, gradesMessage.messageId)
 }
 
@@ -84,7 +85,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
       ),
     )
 
-  val callback = waitDataCallbackQuery().first()
+  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(state.context.id, chooseCourseMessage.messageId)
   val courseId: String?
   when {

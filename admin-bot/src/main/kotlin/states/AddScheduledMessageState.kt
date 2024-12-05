@@ -2,12 +2,12 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.*
 import com.github.heheteam.commonlib.api.ScheduledMessage
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
@@ -26,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddScheduledMessageState(
     ) {
       +"Введите сообщение"
     }
-    val message = waitTextMessage().first()
+    val message = waitTextMessageWithUser(state.context.id).first()
     val text = message.content.text
 
     if (text == "/stop") {
@@ -55,14 +55,14 @@ private suspend fun BehaviourContext.queryDateFromUser(state: AddScheduledMessag
     keyboardWithDates(),
   )
 
-  val callback = waitDataCallbackQuery().first()
+  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
   val data = callback.data
   answerCallbackQuery(callback)
   when (data) {
     "enter date" ->
       {
         while (true) {
-          val message = waitTextMessage().first().content.text
+          val message = waitTextMessageWithUser(state.context.id).first().content.text
           if (message == "/stop") {
             return null
           }
@@ -89,7 +89,7 @@ private suspend fun BehaviourContext.queryTimeFromUser(state: AddScheduledMessag
     "Введите время в формате чч:мм",
   )
   while (true) {
-    val message = waitTextMessage().first().content.text
+    val message = waitTextMessageWithUser(state.context.id).first().content.text
     if (message == "/stop") {
       return null
     }

@@ -23,7 +23,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
   core: StudentCore,
 ) {
   strictlyOn<SignUpState> { state ->
-    val studentId = userIdRegistry.getUserId(state.context.id)!!
+    val studentId = state.student.id
     val courses = core.getCourses()
     val studentCourses = core.getStudentCourses(studentId).toMutableList()
     println(studentCourses)
@@ -51,7 +51,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
       signUp(initialMessage)
     }
 
-    MenuState(state.context)
+    MenuState(state.context, state.student)
   }
 }
 

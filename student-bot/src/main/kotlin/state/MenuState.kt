@@ -24,11 +24,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
     deleteMessage(initialMessage)
     deleteMessage(stickerMessage)
     when (callback.data) {
-      ButtonKey.VIEW -> ViewState(state.context)
-      ButtonKey.SIGN_UP -> SignUpState(state.context)
-      ButtonKey.SEND_SOLUTION -> SendSolutionState(state.context)
-      ButtonKey.CHECK_GRADES -> CheckGradesState(state.context)
-      else -> MenuState(state.context)
+      ButtonKey.VIEW -> ViewState(state.context,state.student)
+      ButtonKey.SIGN_UP -> SignUpState(state.context,state.student)
+      ButtonKey.SEND_SOLUTION -> SendSolutionState(state.context,state.student)
+      ButtonKey.CHECK_GRADES -> CheckGradesState(state.context,state.student)
+      else -> MenuState(state.context,state.student)
     }
   }
 }

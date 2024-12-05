@@ -4,7 +4,6 @@ import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
-  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<SendSolutionState> { state ->
@@ -41,13 +39,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
     if (courses.isEmpty()) {
       suggestToApplyForCourses(state)
-      return@strictlyOn MenuState(state.context,state.student)
+      return@strictlyOn MenuState(state.context, state.student)
     }
 
     val course = queryCourse(state, courses)
     if (course == null) {
       deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context,state.student)
+      return@strictlyOn MenuState(state.context, state.student)
     }
 
     val assignments = core.getCourseAssignments(course.id)
@@ -55,7 +53,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
     val assignment = queryAssignments(state, assignments)
     if (assignment == null) {
       deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context,state.student)
+      return@strictlyOn MenuState(state.context, state.student)
     }
 
     val problems = core.getProblemsFromAssignment(assignment)
@@ -81,7 +79,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
-        return@strictlyOn SendSolutionState(state.context,state.student)
+        return@strictlyOn SendSolutionState(state.context, state.student)
       }
 
       if (content is CommonMessage<*>) {
@@ -103,7 +101,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
         break
       }
     }
-    MenuState(state.context,state.student)
+    MenuState(state.context, state.student)
   }
 }
 

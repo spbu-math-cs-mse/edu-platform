@@ -3,7 +3,6 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -19,7 +18,6 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
-  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<SignUpState> { state ->

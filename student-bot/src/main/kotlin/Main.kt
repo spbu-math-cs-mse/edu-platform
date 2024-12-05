@@ -56,7 +56,6 @@ suspend fun main(vararg args: String) {
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
     fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
-    val userIdRegistry = MockStudentIdRegistry(1L)
     val solutionDistributor = DatabaseSolutionDistributor(database)
     val core =
       StudentCore(
@@ -69,10 +68,10 @@ suspend fun main(vararg args: String) {
 
     strictlyOnStartState(studentStorage, isDeveloperRun = true)
     strictlyOnMenuState()
-    strictlyOnViewState(userIdRegistry, core)
-    strictlyOnSignUpState(userIdRegistry, core)
-    strictlyOnSendSolutionState(userIdRegistry, core)
-    strictlyOnCheckGradesState(userIdRegistry, core)
+    strictlyOnViewState(core)
+    strictlyOnSignUpState(core)
+    strictlyOnSendSolutionState(core)
+    strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

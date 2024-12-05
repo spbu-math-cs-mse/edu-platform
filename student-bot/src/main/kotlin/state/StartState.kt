@@ -20,7 +20,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentStorage
       return@strictlyOn null
     }
 
-    val student : Student
+    val student: Student
     if (!isDeveloperRun) {
       bot.send(state.context, Dialogues.greetings())
 

@@ -1,13 +1,13 @@
 package com.github.heheteam.parentbot.states
 
-import Dialogues
-import Keyboards
-import ParentCore
 import com.github.heheteam.commonlib.api.ParentIdRegistry
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.parentbot.Dialogues
+import com.github.heheteam.parentbot.Keyboards
+import com.github.heheteam.parentbot.ParentCore
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(
@@ -24,7 +24,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(
       replyMarkup = Keyboards.returnBack(),
     )
 
-    waitDataCallbackQuery().first()
+    waitDataCallbackQueryWithUser(state.context.id).first()
 
     MenuState(state.context)
   }

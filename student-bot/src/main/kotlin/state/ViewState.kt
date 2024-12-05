@@ -1,12 +1,12 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentIdRegistry
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
@@ -22,7 +22,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
         text = studentCourses,
         replyMarkup = back(),
       )
-    waitDataCallbackQuery().first()
+    waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(initialMessage)
     MenuState(state.context)
   }

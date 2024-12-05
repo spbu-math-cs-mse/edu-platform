@@ -2,9 +2,9 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.Keyboards
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.utils.row
@@ -28,7 +28,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState(core: Adm
       },
     )
 
-    val message = waitDataCallbackQuery().first()
+    val message = waitDataCallbackQueryWithUser(state.context.id).first()
     val answer = message.data
 
     if (answer == "/stop") {
@@ -39,7 +39,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState(core: Adm
     val course = core.getCourse(answer)!!
 
     bot.send(state.context, "Изменить курс $courseName:", replyMarkup = Keyboards.editCourse())
-    val callback = waitDataCallbackQuery().first()
+    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
     val action = callback.data
 
     when (action) {

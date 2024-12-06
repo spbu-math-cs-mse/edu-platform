@@ -1,6 +1,5 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.back
@@ -10,12 +9,11 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
-  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<ViewState> { state ->
-    val studentId = state.context.id
-    val studentCourses = core.getCoursesBulletList(userIdRegistry.getUserId(studentId)!!)
+    val studentId = state.studentId
+    val studentCourses = core.getCoursesBulletList(studentId)
     val initialMessage =
       bot.send(
         state.context,
@@ -24,6 +22,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
       )
     waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(initialMessage)
-    MenuState(state.context)
+    MenuState(state.context, state.studentId)
   }
 }

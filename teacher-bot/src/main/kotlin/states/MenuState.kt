@@ -1,6 +1,5 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
@@ -12,14 +11,13 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
-  userIdRegistry: TeacherIdRegistry,
   core: TeacherCore,
 ) {
   strictlyOn<MenuState> { state ->
     if (state.context.username == null) {
       return@strictlyOn null
     }
-    val userId = userIdRegistry.getUserId(state.context.id) ?: return@strictlyOn StartState(state.context)
+    val teacherId = state.teacherId
 
     val stickerMessage =
       bot.sendSticker(
@@ -39,17 +37,17 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
       when (callbackData) {
         Keyboards.checkGrades -> {
           bot.delete(menuMessage)
-          return@strictlyOn CheckGradesState(state.context)
+          return@strictlyOn CheckGradesState(state.context, state.teacherId)
         }
 
         Keyboards.getSolution -> {
           bot.delete(stickerMessage)
           bot.delete(menuMessage)
-          return@strictlyOn GettingSolutionState(state.context)
+          return@strictlyOn GettingSolutionState(state.context, state.teacherId)
         }
 
         Keyboards.viewStats -> {
-          val stats = core.getTeacherStats(userId)
+          val stats = core.getTeacherStats(teacherId)
           if (stats != null) {
             val globalStats = core.getGlobalStats()
 
@@ -74,10 +72,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
               replyMarkup = Keyboards.returnBack(),
             )
           }
-          return@strictlyOn MenuState(state.context)
+          return@strictlyOn MenuState(state.context, state.teacherId)
         }
       }
     }
-    return@strictlyOn GettingSolutionState(state.context)
+    return@strictlyOn GettingSolutionState(state.context, state.teacherId)
   }
 }

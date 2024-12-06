@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun adminRun(botToken: String, userIdRegistry: AdminIdRegistry, core: AdminCore) {
+suspend fun adminRun(botToken: String, adminIdRegistry: AdminIdRegistry, core: AdminCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -53,7 +53,7 @@ suspend fun adminRun(botToken: String, userIdRegistry: AdminIdRegistry, core: Ad
       startChain(StartState(it.from!!))
     }
 
-    strictlyOnStartState(userIdRegistry)
+    strictlyOnStartState(adminIdRegistry)
     strictlyOnMenuState()
     strictlyOnCreateCourseState(core)
     strictlyOnEditCourseState(core)

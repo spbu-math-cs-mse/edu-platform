@@ -5,13 +5,11 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.parentbot.run.parentRun
-import dev.inmo.tgbotapi.utils.RiskFeature
 import org.jetbrains.exposed.sql.Database
 
 /**
  * @param args bot token and telegram @username for mocking data.
  */
-@OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
 
@@ -22,7 +20,7 @@ suspend fun main(vararg args: String) {
     )
 
   val userIdRegistry = MockParentIdRegistry(1)
-
+  val parentStorage = MockParentStorage()
   val core =
     ParentCore(
       DatabaseStudentStorage(database),
@@ -30,5 +28,5 @@ suspend fun main(vararg args: String) {
       DatabaseSolutionDistributor(database),
     )
 
-  parentRun(botToken, userIdRegistry, core)
+  parentRun(botToken, userIdRegistry, parentStorage, core)
 }

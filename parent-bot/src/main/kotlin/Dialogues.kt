@@ -17,6 +17,10 @@ object Dialogues {
       "Свистни мне, когда захочешь порешать з-аф-аф-дачи! Также я помогу тебе не пропустить интересные" +
       " математические события - я тщательно за ними слежу!\n\n"
 
+  fun devAskForId(): String = "Введите свой id:"
+  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
+
   fun askFirstName(): String = "Как я могу к тебе обращаться? Напиши свое имя."
 
   fun askLastName(firstName: String): String = "Отлично, $firstName, введи свою фамилию \uD83D\uDC47"

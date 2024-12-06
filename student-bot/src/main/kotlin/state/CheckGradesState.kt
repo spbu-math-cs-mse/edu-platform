@@ -3,7 +3,6 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
@@ -19,31 +18,30 @@ import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
-  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
     val courses =
-      core.getStudentCourses(userIdRegistry.getUserId(state.context.id)!!)
+      core.getStudentCourses(state.studentId)
     val courseId: CourseId =
       queryCourseFromUser(state, courses)
-        ?: return@strictlyOn MenuState(state.context)
+        ?: return@strictlyOn MenuState(state.context, state.studentId)
     val course = courses.find { it.id == courseId }!!
 
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
     val assignmentId =
       queryAssignmentFromUser(state, assignmentsFromCourse)
-        ?: return@strictlyOn CheckGradesState(state.context)
+        ?: return@strictlyOn CheckGradesState(state.context, state.studentId)
     val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
 
     val gradedProblems =
       core.getGradingForAssignment(
         assignment.id,
-        userIdRegistry.getUserId(state.context.id)!!,
+        state.studentId,
       )
 
     respondWithGrades(state, assignment, gradedProblems)
-    MenuState(state.context)
+    MenuState(state.context, state.studentId)
   }
 }
 

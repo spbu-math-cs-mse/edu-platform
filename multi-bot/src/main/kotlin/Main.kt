@@ -15,12 +15,7 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
-import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
-import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
-import com.github.heheteam.commonlib.mock.MockParentIdRegistry
-import com.github.heheteam.commonlib.mock.MockStudentIdRegistry
-import com.github.heheteam.commonlib.mock.MockTeacherIdRegistry
+import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.run.parentRun
@@ -60,8 +55,9 @@ fun main(vararg args: String) {
   val studentStorage = DatabaseStudentStorage(database)
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
 
-  val studentIdRegistry = MockStudentIdRegistry(1L)
+  val parentStorage = MockParentStorage()
 
+  val studentIdRegistry = MockStudentIdRegistry(1L)
   val studentCore =
     StudentCore(
       solutionDistributor,
@@ -98,9 +94,9 @@ fun main(vararg args: String) {
     )
 
   runBlocking {
-    launch { studentRun(args[0], studentIdRegistry, studentCore) }
-    launch { teacherRun(args[1], teacherIdRegistry, teacherCore) }
+    launch { studentRun(args[0], studentIdRegistry, studentStorage, studentCore) }
+    launch { teacherRun(args[1], teacherIdRegistry, teacherStorage, teacherCore) }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
-    launch { parentRun(args[3], parentIdRegistry, parentCore) }
+    launch { parentRun(args[3], parentIdRegistry, parentStorage, parentCore) }
   }
 }

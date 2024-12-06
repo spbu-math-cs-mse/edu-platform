@@ -20,7 +20,7 @@ suspend fun main(vararg args: String) {
     )
 
   val userIdRegistry = MockParentIdRegistry(1)
-
+  val parentStorage = MockParentStorage()
   val core =
     ParentCore(
       DatabaseStudentStorage(database),
@@ -28,5 +28,5 @@ suspend fun main(vararg args: String) {
       DatabaseSolutionDistributor(database),
     )
 
-  parentRun(botToken, userIdRegistry, parentStorage = TODO(), core)
+  parentRun(botToken, userIdRegistry, parentStorage, core)
 }

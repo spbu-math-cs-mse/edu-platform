@@ -61,7 +61,6 @@ fun main(vararg args: String) {
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
 
   val studentIdRegistry = MockStudentIdRegistry(1L)
-
   val studentCore =
     StudentCore(
       solutionDistributor,
@@ -98,9 +97,9 @@ fun main(vararg args: String) {
     )
 
   runBlocking {
-    launch { studentRun(args[0], studentIdRegistry, studentCore) }
-    launch { teacherRun(args[1], teacherIdRegistry, teacherCore) }
+    launch { studentRun(args[0], studentIdRegistry, studentStorage, studentCore) }
+    launch { teacherRun(args[1], teacherIdRegistry, teacherStorage, teacherCore) }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
-    launch { parentRun(args[3], parentIdRegistry, parentCore) }
+    launch { parentRun(args[3], parentIdRegistry, parentStorage = TODO(), parentCore) }
   }
 }

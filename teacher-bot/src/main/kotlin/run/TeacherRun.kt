@@ -19,7 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun teacherRun(botToken: String, userIdRegistry: TeacherIdRegistry, teacherStorage: TeacherStorage, core: TeacherCore) {
+suspend fun teacherRun(botToken: String, teacherIdRegistry: TeacherIdRegistry, teacherStorage: TeacherStorage, core: TeacherCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -46,7 +46,7 @@ suspend fun teacherRun(botToken: String, userIdRegistry: TeacherIdRegistry, teac
       }
     }
 
-    strictlyOnStartState(userIdRegistry, teacherStorage, isDeveloperRun = true)
+    strictlyOnStartState(teacherIdRegistry, teacherStorage, isDeveloperRun = true)
     strictlyOnMenuState(core)
     strictlyOnGettingSolutionState(core)
     strictlyOnCheckGradesState(core)

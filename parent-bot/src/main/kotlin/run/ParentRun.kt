@@ -22,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun parentRun(botToken: String, userIdRegistry: ParentIdRegistry, parentStorage: ParentStorage, core: ParentCore) {
+suspend fun parentRun(botToken: String, parentIdRegistry: ParentIdRegistry, parentStorage: ParentStorage, core: ParentCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -47,7 +47,7 @@ suspend fun parentRun(botToken: String, userIdRegistry: ParentIdRegistry, parent
       }
     }
 
-    strictlyOnStartState(userIdRegistry, parentStorage, isDeveloperRun = true)
+    strictlyOnStartState(parentIdRegistry, parentStorage, isDeveloperRun = true)
     strictlyOnMenuState(core)
     strictlyOnGivingFeedbackState()
     strictlyOnChildPerformanceState(core)

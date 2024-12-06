@@ -24,7 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, studentStorage: StudentStorage, core: StudentCore) {
+suspend fun studentRun(botToken: String, studentIdRegistry: StudentIdRegistry, studentStorage: StudentStorage, core: StudentCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -49,7 +49,7 @@ suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, stud
       }
     }
 
-    strictlyOnStartState(userIdRegistry, studentStorage, isDeveloperRun = true)
+    strictlyOnStartState(studentIdRegistry, studentStorage, isDeveloperRun = true)
     strictlyOnMenuState()
     strictlyOnViewState(core)
     strictlyOnSignUpState(core)

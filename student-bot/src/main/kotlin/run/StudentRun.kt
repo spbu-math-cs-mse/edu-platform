@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.run
 
 import com.github.heheteam.commonlib.api.StudentIdRegistry
+import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
@@ -23,7 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, core: StudentCore) {
+suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, studentStorage: StudentStorage, core: StudentCore) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -48,12 +49,12 @@ suspend fun studentRun(botToken: String, userIdRegistry: StudentIdRegistry, core
       }
     }
 
-    strictlyOnStartState(isDeveloperRun = true)
+    strictlyOnStartState(userIdRegistry, studentStorage, isDeveloperRun = true)
     strictlyOnMenuState()
-    strictlyOnViewState(userIdRegistry, core)
-    strictlyOnSignUpState(userIdRegistry, core)
-    strictlyOnSendSolutionState(userIdRegistry, core)
-    strictlyOnCheckGradesState(userIdRegistry, core)
+    strictlyOnViewState(core)
+    strictlyOnSignUpState(core)
+    strictlyOnSendSolutionState(core)
+    strictlyOnCheckGradesState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

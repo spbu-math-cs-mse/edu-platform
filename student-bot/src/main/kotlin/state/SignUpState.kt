@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -10,7 +11,6 @@ import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.reply_markup
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
@@ -66,7 +66,7 @@ class SigningUpState(
   }
 
   private suspend fun BehaviourContext.courseIndex(message: ContentMessage<*>) {
-    val callbackData = waitDataCallbackQuery().first().data
+    val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
 
     if (callbackData == ButtonKey.APPLY) {
       return applyWithCourses(message)
@@ -110,7 +110,7 @@ class SigningUpState(
           replyMarkup = back(),
         )
 
-      waitDataCallbackQuery().first()
+      waitDataCallbackQueryWithUser(state.context.id).first()
       deleteMessage(botMessage)
 
       val newMessage =
@@ -154,7 +154,7 @@ class SigningUpState(
             replyMarkup = back(),
           )
 
-        waitDataCallbackQuery().first()
+        waitDataCallbackQueryWithUser(state.context.id).first()
         deleteMessage(botMessage)
 
         val newMessage =
@@ -179,7 +179,7 @@ class SigningUpState(
             replyMarkup = back(),
           )
 
-        waitDataCallbackQuery().first()
+        waitDataCallbackQueryWithUser(state.context.id).first()
         deleteMessage(botMessage)
 
         return

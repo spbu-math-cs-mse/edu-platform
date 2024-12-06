@@ -1,3 +1,5 @@
+package com.github.heheteam.parentbot
+
 import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton

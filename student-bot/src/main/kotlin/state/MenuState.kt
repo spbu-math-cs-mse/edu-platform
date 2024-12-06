@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.menuKeyboard
@@ -7,7 +8,6 @@ import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
@@ -20,7 +20,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
         replyMarkup = menuKeyboard(),
       )
 
-    val callback = waitDataCallbackQuery().first()
+    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(initialMessage)
     deleteMessage(stickerMessage)
     when (callback.data) {

@@ -3,13 +3,13 @@ package com.github.heheteam.teacherbot.states
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
@@ -25,24 +25,24 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),
       )
-      val firstName = waitTextMessage().first().content.text
+      val firstName = waitTextMessageWithUser(state.context.id).first().content.text
       bot.send(
         state.context,
         Dialogues.askLastName(firstName),
       )
-      val lastName = waitTextMessage().first().content.text
+      val lastName = waitTextMessageWithUser(state.context.id).first().content.text
       bot.send(
         state.context,
         Dialogues.askGrade(firstName, lastName),
         replyMarkup = Keyboards.askGrade(),
       )
-      waitDataCallbackQuery().first().data // discard class
+      waitDataCallbackQueryWithUser(state.context.id).first().data // discard class
       teacherId = teacherStorage.createTeacher()
       return@strictlyOn MenuState(state.context, teacherId)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val teacherIdFromText = waitTextMessage().first().content.text.toLongOrNull()?.let { TeacherId(it) }
+        val teacherIdFromText = waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let { TeacherId(it) }
         if (teacherIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue

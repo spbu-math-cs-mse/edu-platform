@@ -1,15 +1,15 @@
 package com.github.heheteam.parentbot.states
 
-import Dialogues
-import Keyboards
-import ParentCore
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.parentbot.Dialogues
+import com.github.heheteam.parentbot.Keyboards
+import com.github.heheteam.parentbot.ParentCore
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
@@ -31,7 +31,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
         replyMarkup = Keyboards.menu(core.getChildren(parentId)),
       )
 
-    when (val command = waitDataCallbackQuery().first().data) {
+    when (val command = waitDataCallbackQueryWithUser(state.context.id).first().data) {
       Keyboards.petDog -> {
         bot.delete(stickerMessage)
         bot.delete(menuMessage)

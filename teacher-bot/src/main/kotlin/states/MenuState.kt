@@ -1,5 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.TeacherCore
@@ -7,7 +8,6 @@ import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
@@ -33,7 +33,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
       )
 
     while (true) {
-      val callbackData = waitDataCallbackQuery().first().data
+      val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
       when (callbackData) {
         Keyboards.checkGrades -> {
           bot.delete(menuMessage)

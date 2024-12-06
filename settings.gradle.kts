@@ -10,6 +10,7 @@ include(
   ":parent-bot",
   ":teacher-bot",
   ":admin-bot",
+  ":multi-bot",
   ":crossbot-tests"
 )
 

@@ -10,3 +10,4 @@ teacher-bot/build/
 /build/spotless/*
 **/build/*
 **/.gradle/*
+.run/

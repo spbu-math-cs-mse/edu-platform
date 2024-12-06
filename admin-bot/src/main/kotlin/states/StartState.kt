@@ -4,10 +4,10 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.api.AdminId
 import com.github.heheteam.commonlib.api.AdminIdRegistry
 import com.github.heheteam.commonlib.api.toAdminId
+import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(adminIdRegistry: AdminIdRegistry) {
@@ -26,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(adminIdRegistr
 
     bot.send(state.context, Dialogues.devAskForId())
     id =
-      waitTextMessage()
+      waitTextMessageWithUser(state.context.id)
         .first()
         .content.text
         .toLongOrNull()
@@ -35,7 +35,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(adminIdRegistr
     while (id == null) {
       bot.send(state.context, Dialogues.devIdNotFound())
       id =
-        waitTextMessage()
+        waitTextMessageWithUser(state.context.id)
           .first()
           .content.text
           .toLongOrNull()

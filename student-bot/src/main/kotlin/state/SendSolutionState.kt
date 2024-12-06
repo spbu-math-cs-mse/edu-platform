@@ -4,6 +4,10 @@ import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
+import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
+import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
@@ -12,10 +16,6 @@ import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDocumentMessage
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitMediaMessage
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import dev.inmo.tgbotapi.extensions.utils.documentContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.mediaGroupContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.photoContentOrNull
@@ -70,10 +70,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
     while (true) {
       val content =
         flowOf(
-          waitDataCallbackQuery(),
-          waitTextMessage(),
-          waitMediaMessage(),
-          waitDocumentMessage(),
+          waitDataCallbackQueryWithUser(state.context.id),
+          waitTextMessageWithUser(state.context.id),
+          waitMediaMessageWithUser(state.context.id),
+          waitDocumentMessageWithUser(state.context.id),
         ).flattenMerge().first()
 
       if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
@@ -134,7 +134,7 @@ private suspend fun BehaviourContext.queryCourse(
   val message =
     bot.send(state.context, Dialogues.askCourseForSolution(), replyMarkup = buildCoursesSendingSelector(courses))
 
-  val callbackData = waitDataCallbackQuery().first().data
+  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -152,7 +152,7 @@ private suspend fun BehaviourContext.queryAssignments(
   val message =
     bot.send(state.context, Dialogues.askAssignmentFromSolution(), replyMarkup = buildAssignmentSendingSelector(assignments))
 
-  val callbackData = waitDataCallbackQuery().first().data
+  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -170,7 +170,7 @@ private suspend fun BehaviourContext.queryProblem(
   val message =
     bot.send(state.context, Dialogues.askAssignmentFromSolution(), replyMarkup = buildProblemSendingSelector(problems))
 
-  val callbackData = waitDataCallbackQuery().first().data
+  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -183,6 +183,6 @@ private suspend fun BehaviourContext.queryProblem(
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {
   val message = bot.send(state.context, Dialogues.tellToApplyForCourses(), replyMarkup = back())
-  waitDataCallbackQuery().first()
+  waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(message)
 }

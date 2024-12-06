@@ -1,3 +1,5 @@
+package com.github.heheteam.parentbot
+
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.*

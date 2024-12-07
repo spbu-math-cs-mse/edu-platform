@@ -9,7 +9,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry: AdminIdRegistry) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(adminIdRegistry: AdminIdRegistry) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     if (state.context.username == null) {
@@ -18,12 +18,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
 
     bot.send(state.context, Dialogues.greetings())
 
-    val result = userIdRegistry.getUserId(state.context.id)
+    val result = adminIdRegistry.getUserId(state.context.id)
     if (result.isErr) {
       return@strictlyOn MenuState(state.context)
     }
 
-    bot.send(state.context, Dialogues.askId())
+    bot.send(state.context, Dialogues.devAskForId())
     var id =
       waitTextMessageWithUser(state.context.id)
         .first()
@@ -32,7 +32,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
         ?.toAdminId()
 
     while (id == null) {
-      bot.send(state.context, Dialogues.askIdAgain())
+      bot.send(state.context, Dialogues.devIdNotFound())
       id =
         waitTextMessageWithUser(state.context.id)
           .first()

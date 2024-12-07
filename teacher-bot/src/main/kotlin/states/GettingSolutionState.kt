@@ -2,7 +2,6 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
@@ -31,12 +30,13 @@ import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
-  userIdRegistry: TeacherIdRegistry,
   core: TeacherCore,
 ) {
   strictlyOn<GettingSolutionState> { state ->
-    val userId = userIdRegistry.getUserId(state.context.id).value
-    val solution = core.querySolution(userId)
+
+    val teacherId = state.teacherId
+    val solution = core.querySolution(teacherId)
+
     if (solution == null) {
       bot.send(
         state.context,
@@ -123,7 +123,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               // TODO extract from maxscore of a problem
               core.assessSolution(
                 solution,
-                userId,
+                teacherId,
                 SolutionAssessment(1, ""),
               )
             }
@@ -140,7 +140,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               deleteMessage(getSolution)
               core.assessSolution(
                 solution,
-                userId,
+                teacherId,
                 SolutionAssessment(0, ""),
               )
             }
@@ -155,6 +155,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
         }
       }
     }
-    MenuState(state.context)
+    MenuState(state.context, state.teacherId)
   }
 }

@@ -14,6 +14,10 @@ object Dialogues {
       "• Отправлять обратную связь\n" +
       "• Выставлять оценки\n"
 
+  fun devAskForId(): String = "Введите свой id:"
+  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
+
   fun askFirstName(): String = "Как я могу к вам обращаться? Напишите ваше имя."
 
   fun askLastName(firstName: String): String = "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"

@@ -7,10 +7,8 @@ import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.run.studentRun
-import dev.inmo.tgbotapi.utils.RiskFeature
 import org.jetbrains.exposed.sql.Database
 
-@OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
 
@@ -38,5 +36,5 @@ suspend fun main(vararg args: String) {
       DatabaseGradeTable(database),
     )
 
-  studentRun(botToken, userIdRegistry, core)
+  studentRun(botToken, userIdRegistry, studentStorage, core)
 }

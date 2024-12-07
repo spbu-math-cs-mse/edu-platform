@@ -4,7 +4,6 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.teacherbot.*
 import com.github.heheteam.teacherbot.Keyboards.returnBack
@@ -23,16 +22,14 @@ import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
-  userIdRegistry: TeacherIdRegistry,
   core: TeacherCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
-    val userId = userIdRegistry.getUserId(state.context.id).value
-    val courses = core.getAvailableCourses(userId)
+    val courses = core.getAvailableCourses(state.teacherId)
 
     val courseId: CourseId =
       queryCourseFromUser(state, courses)
-        ?: return@strictlyOn MenuState(state.context)
+        ?: return@strictlyOn MenuState(state.context, state.teacherId)
     val course = courses.find { it.id == courseId }!!
 
     val gradedProblems = core.getGrading(course)
@@ -42,7 +39,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
         gradedProblems
           .withGradesToText(maxGrade)
     respondWithGrades(state, strGrades)
-    MenuState(state.context)
+    MenuState(state.context, state.teacherId)
   }
 }
 

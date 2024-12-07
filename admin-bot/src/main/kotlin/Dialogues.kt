@@ -17,9 +17,8 @@ object Dialogues {
       "• Отправлять решения задач\n" +
       "• Получать обратную связь от преподавателей"
 
-  fun askId(): String = "Пришли мне свой id"
-
-  fun askIdAgain(): String = "Такого id нет в моих базах. Попробуй еще раз"
+  fun devAskForId(): String = "Введите свой id:"
+  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
 
   fun menu(): String = "\u2705 Главное меню"
 }

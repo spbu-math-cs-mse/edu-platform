@@ -1,7 +1,6 @@
 package com.github.heheteam.parentbot.states
 
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.ParentIdRegistry
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.parentbot.Dialogues
@@ -14,11 +13,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
-  userIdRegistry: ParentIdRegistry,
   core: ParentCore,
 ) {
   strictlyOn<MenuState> { state ->
-    val userId = userIdRegistry.getUserId(state.context.id).value
+    val parentId = state.parentId
 
     val stickerMessage =
       bot.sendSticker(
@@ -30,7 +28,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
       bot.send(
         state.context,
         Dialogues.menu(),
-        replyMarkup = Keyboards.menu(core.getChildren(userId)),
+        replyMarkup = Keyboards.menu(core.getChildren(parentId)),
       )
 
     when (val command = waitDataCallbackQueryWithUser(state.context.id).first().data) {
@@ -39,18 +37,18 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
         bot.delete(menuMessage)
         bot.sendSticker(state.context, Dialogues.heartSticker)
         bot.send(state.context, Dialogues.petDog())
-        return@strictlyOn MenuState(state.context)
+        return@strictlyOn MenuState(state.context, state.parentId)
       }
 
       Keyboards.giveFeedback -> {
         bot.delete(menuMessage)
-        return@strictlyOn GivingFeedbackState(state.context)
+        return@strictlyOn GivingFeedbackState(state.context, state.parentId)
       }
 
       else -> {
         bot.delete(stickerMessage)
         bot.delete(menuMessage)
-        return@strictlyOn ChildPerformanceState(state.context, Student(StudentId(command.toLong())))
+        return@strictlyOn ChildPerformanceState(state.context, Student(StudentId(command.toLong())), state.parentId)
       }
     }
   }

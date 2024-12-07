@@ -3,7 +3,6 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
@@ -19,11 +18,10 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
-  userIdRegistry: StudentIdRegistry,
   core: StudentCore,
 ) {
   strictlyOn<SignUpState> { state ->
-    val studentId = userIdRegistry.getUserId(state.context.id).value
+    val studentId = state.studentId
     val courses = core.getCourses()
     val studentCourses = core.getStudentCourses(studentId).toMutableList()
     println(studentCourses)
@@ -51,7 +49,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
       signUp(initialMessage)
     }
 
-    MenuState(state.context)
+    MenuState(state.context, state.studentId)
   }
 }
 

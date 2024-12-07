@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.commonlib.Course
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -20,6 +21,7 @@ object Keyboards {
     )
 
   val createCourse = "create course"
+  val getTeachers = "get teachers"
 
   fun menu() =
     inlineKeyboard {
@@ -28,6 +30,9 @@ object Keyboards {
       }
       row {
         dataButton("Изменить курс", "edit course")
+      }
+      row {
+        dataButton("Список всех преподавателей", getTeachers)
       }
     }
 
@@ -62,4 +67,16 @@ object Keyboards {
         dataButton("Назад", returnBack)
       }
     }
+
+  val courseId = "courseId"
+  fun buildCoursesSelector(availableCourses: List<Course>) =
+    InlineKeyboardMarkup(
+      keyboard =
+      matrix {
+        availableCourses.forEach { course ->
+          row { dataButton(course.name, "$courseId ${course.id.id}") }
+        }
+        row { dataButton("Назад \uD83D\uDD19", returnBack) }
+      },
+    )
 }

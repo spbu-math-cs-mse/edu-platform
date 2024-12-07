@@ -3,6 +3,9 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -17,19 +20,21 @@ class DatabaseAssignmentStorage(
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
 
-  override fun resolveAssignment(assignmentId: AssignmentId): Assignment {
+  override fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>> {
     val row =
       transaction {
         AssignmentTable
           .selectAll()
           .where(
             AssignmentTable.id eq assignmentId.id,
-          ).single()
-      }
-    return Assignment(
-      assignmentId,
-      row[AssignmentTable.description],
-      row[AssignmentTable.course].value.toCourseId(),
+          ).singleOrNull()
+      } ?: return Err(ResolveError(assignmentId))
+    return Ok(
+      Assignment(
+        assignmentId,
+        row[AssignmentTable.description],
+        row[AssignmentTable.course].value.toCourseId(),
+      ),
     )
   }
 
@@ -47,16 +52,22 @@ class DatabaseAssignmentStorage(
         }
       }.value.toAssignmentId()
     problemNames
-      .map { problemStorage.createProblem(assignId, it) }
+      .map { problemStorage.createProblem(assignId, it, 1, "") } // TODO
     return assignId
   }
 
-  override fun getAssignmentsForCourse(courseId: CourseId): List<AssignmentId> =
+  override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> =
     transaction {
       AssignmentTable
         .selectAll()
         .where(
           AssignmentTable.course eq courseId.id,
-        ).map { it[AssignmentTable.id].value.toAssignmentId() }
+        ).map {
+          Assignment(
+            it[AssignmentTable.id].value.toAssignmentId(),
+            it[AssignmentTable.description],
+            it[AssignmentTable.course].value.toCourseId(),
+          )
+        }
     }
 }

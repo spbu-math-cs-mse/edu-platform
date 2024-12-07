@@ -77,7 +77,6 @@ class SigningUpState(
     val index =
       when {
         callbackData.contains(ButtonKey.COURSE_ID) -> {
-          val courseId = callbackData.split(" ").last()
           courses.indexOfFirst { it.id == CourseId(courseId.toLong()) }
         }
 

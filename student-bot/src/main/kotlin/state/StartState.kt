@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
+import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -20,7 +21,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentIdRegis
       return@strictlyOn null
     }
 
-    var studentId = studentIdRegistry.getUserId(state.context.id)
+    var studentId = studentIdRegistry.getUserId(state.context.id).get()
     if (!isDeveloperRun && studentId == null) {
       bot.send(state.context, Dialogues.greetings())
 
@@ -49,7 +50,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(studentIdRegis
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
         }
-        val student = studentStorage.resolveStudent(studentIdFromText)
+        val student = studentStorage.resolveStudent(studentIdFromText).get()
         if (student == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue

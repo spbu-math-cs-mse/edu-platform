@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.michaelbull.result.Result
 import java.time.LocalDateTime
 
 interface TeacherStatistics {
@@ -12,7 +13,7 @@ interface TeacherStatistics {
 
   fun recordNewSolution(solutionId: SolutionId)
 
-  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData?
+  fun resolveTeacherStats(teacherId: TeacherId): Result<TeacherStatsData, ResolveError<TeacherId>>
 
   fun getAllTeachersStats(): Map<TeacherId, TeacherStatsData>
 

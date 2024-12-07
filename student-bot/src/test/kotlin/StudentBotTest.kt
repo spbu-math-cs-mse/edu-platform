@@ -14,6 +14,7 @@ import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class StudentBotTest {
   private lateinit var coursesDistributor: CoursesDistributor
@@ -145,16 +146,19 @@ class StudentBotTest {
     }
     println(solutions)
 
-    val firstSolution = solutionDistributor.resolveSolution(solutions.first())
+    val firstSolutionResult = solutionDistributor.resolveSolution(solutions.first())
+    assertTrue(firstSolutionResult.isOk)
+    val firstSolution = firstSolutionResult.value
     assertEquals(SolutionType.TEXT, firstSolution.type)
     assertEquals("sample0", firstSolution.content.text)
 
-    val lastSolution = solutionDistributor.resolveSolution(solutions.last())
+    val lastSolutionResult = solutionDistributor.resolveSolution(solutions.last())
+    assertTrue(lastSolutionResult.isOk)
+    val lastSolution = lastSolutionResult.value
     assertEquals(SolutionId(5L), lastSolution.id)
-
     assertEquals(
       solutions
-        .map { solutionDistributor.resolveSolution(it).chatId }
+        .map { solutionDistributor.resolveSolution(it).value.chatId }
         .toSet(),
       setOf(chatId),
     )

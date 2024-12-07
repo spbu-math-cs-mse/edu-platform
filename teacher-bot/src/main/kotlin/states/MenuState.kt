@@ -17,6 +17,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
     if (state.context.username == null) {
       return@strictlyOn null
     }
+
     val teacherId = state.teacherId
 
     val stickerMessage =

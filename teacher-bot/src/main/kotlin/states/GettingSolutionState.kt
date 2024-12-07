@@ -33,8 +33,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
   core: TeacherCore,
 ) {
   strictlyOn<GettingSolutionState> { state ->
+
     val teacherId = state.teacherId
     val solution = core.querySolution(teacherId)
+
     if (solution == null) {
       bot.send(
         state.context,

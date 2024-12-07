@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
+import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
@@ -19,8 +20,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
 ) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
-    var teacherId = teacherIdRegistry.getUserId(state.context.id)
-    if (!isDeveloperRun && teacherId == null) {
+    var teacherId: TeacherId? = null
+    if (teacherIdRegistry.getUserId(state.context.id).isErr) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),
@@ -42,12 +43,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val teacherIdFromText = waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let { TeacherId(it) }
+        val teacherIdFromText =
+          waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let { TeacherId(it) }
         if (teacherIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
         }
-        val teacher = teacherStorage.resolveTeacher(teacherIdFromText)
+        val teacher = teacherStorage.resolveTeacher(teacherIdFromText).get()
         if (teacher == null) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue

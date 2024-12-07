@@ -1,11 +1,13 @@
 package com.github.heheteam.teacherbot.state
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.teacherbot.*
 import com.github.heheteam.teacherbot.Keyboards.returnBack
+import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.states.BotState
 import com.github.heheteam.teacherbot.states.CheckGradesState
 import com.github.heheteam.teacherbot.states.MenuState
@@ -23,8 +25,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
   core: TeacherCore,
 ) {
   strictlyOn<CheckGradesState> { state ->
-    val courses =
-      core.getAvailableCourses(state.teacherId)
+    val courses = core.getAvailableCourses(state.teacherId)
 
     val courseId: CourseId =
       queryCourseFromUser(state, courses)

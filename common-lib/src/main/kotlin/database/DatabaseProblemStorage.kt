@@ -1,10 +1,17 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.ProblemTable
-import org.jetbrains.exposed.sql.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseProblemStorage(
@@ -16,41 +23,45 @@ class DatabaseProblemStorage(
     }
   }
 
-  override fun resolveProblem(id: ProblemId): Problem {
+  override fun resolveProblem(problemId: ProblemId): Result<Problem, ResolveError<ProblemId>> {
     val row =
       transaction(database) {
         ProblemTable
           .selectAll()
-          .where(ProblemTable.id eq id.id)
-          .single()
-      }
-    return Problem(
-      id,
-      row[ProblemTable.number],
-      "",
-      1,
-      row[ProblemTable.assignmentId].value.toAssignmentId(),
+          .where(ProblemTable.id eq problemId.id)
+          .singleOrNull()
+      } ?: return Err(ResolveError(problemId))
+    return Ok(
+      Problem(
+        problemId,
+        row[ProblemTable.number],
+        row[ProblemTable.description],
+        row[ProblemTable.maxScore],
+        row[ProblemTable.assignmentId].value.toAssignmentId(),
+      ),
     )
   }
 
   override fun createProblem(
     assignmentId: AssignmentId,
     number: String,
+    maxScore: Grade,
+    description: String,
   ): ProblemId =
     transaction(database) {
       ProblemTable.insertAndGetId {
         it[ProblemTable.number] = number
         it[ProblemTable.assignmentId] = assignmentId.id
-        it[ProblemTable.maxScore] = 1
-        it[ProblemTable.description] = ""
+        it[ProblemTable.maxScore] = maxScore
+        it[ProblemTable.description] = description
       }
     }.value.toProblemId()
 
-  override fun getProblemsFromAssignment(id: AssignmentId): List<Problem> =
+  override fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
     transaction(database) {
       ProblemTable
         .selectAll()
-        .where(ProblemTable.assignmentId eq id.id)
+        .where(ProblemTable.assignmentId eq assignmentId.id)
         .map {
           Problem(
             it[ProblemTable.id].value.toProblemId(),

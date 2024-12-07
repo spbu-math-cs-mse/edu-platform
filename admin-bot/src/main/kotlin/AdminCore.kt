@@ -12,7 +12,8 @@ class AdminCore(
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
-  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> = scheduledMessagesDistributor.getMessagesUpToDate(date)
+  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
+    scheduledMessagesDistributor.getMessagesUpToDate(date)
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
@@ -33,9 +34,9 @@ class AdminCore(
       .groupBy { it.name }
       .mapValues { it.value.first() }
 
-  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id) != null
+  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
 
-  fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id) != null
+  fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
   fun studiesIn(
     id: StudentId,
@@ -59,22 +60,10 @@ class AdminCore(
   fun removeTeacher(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Boolean {
-    if (coursesDistributor.getTeacherCourses(teacherId).find { it.id == courseId } != null) {
-      coursesDistributor.removeTeacherFromCourse(teacherId, courseId)
-      return true
-    }
-    return false
-  }
+  ): Boolean = coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
 
   fun removeStudent(
     studentId: StudentId,
     courseId: CourseId,
-  ): Boolean {
-    if (coursesDistributor.getStudentCourses(studentId).find { it.id == courseId } != null) {
-      coursesDistributor.removeStudentFromCourse(studentId, courseId)
-      return true
-    }
-    return false
-  }
+  ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
 }

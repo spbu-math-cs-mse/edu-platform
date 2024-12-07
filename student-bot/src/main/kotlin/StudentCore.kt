@@ -33,10 +33,7 @@ class StudentCore(
     coursesDistributor
       .getStudentCourses(studentId)
 
-  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
-    assignmentStorage
-      .getAssignmentsForCourse(courseId)
-      .map { assignmentStorage.resolveAssignment(it) }
+  fun getCourseAssignments(courseId: CourseId): List<Assignment> = assignmentStorage.getAssignmentsForCourse(courseId)
 
   fun addRecord(
     studentId: StudentId,
@@ -76,5 +73,6 @@ class StudentCore(
     }
   }
 
-  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> = problemStorage.getProblemsFromAssignment(assignment.id)
+  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
+    problemStorage.getProblemsFromAssignment(assignment.id)
 }

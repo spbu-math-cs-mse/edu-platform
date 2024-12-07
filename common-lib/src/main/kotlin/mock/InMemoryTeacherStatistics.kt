@@ -1,12 +1,9 @@
 package com.github.heheteam.commonlib.mock
 
-import com.github.heheteam.commonlib.api.GlobalTeacherStats
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatistics
-import com.github.heheteam.commonlib.api.TeacherStatsData
-import dev.inmo.tgbotapi.utils.mapNotNullValues
+import com.github.heheteam.commonlib.api.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -30,20 +27,22 @@ class InMemoryTeacherStatistics : TeacherStatistics {
     solutionDistributor: SolutionDistributor,
   ) {
     val solution = solutionDistributor.resolveSolution(solutionId)
+    if (solution.isErr) return
+
     teacherStats
       .getOrPut(teacherId) { mutableListOf() }
-      .add(SolutionReview(solution.timestamp, timestamp))
+      .add(SolutionReview(solution.value.timestamp, timestamp))
     if (uncheckedSolutions > 0) {
       uncheckedSolutions--
     }
   }
 
-  override fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
-    val assessments = teacherStats[teacherId] ?: return null
+  override fun resolveTeacherStats(teacherId: TeacherId): Result<TeacherStatsData, ResolveError<TeacherId>> {
+    val assessments = teacherStats[teacherId] ?: return Err(ResolveError(teacherId, TeacherStatistics::class.simpleName))
 
     val totalAssessments = assessments.size
-    val lastAssessment = assessments.maxByOrNull { it.solutionReviewed } ?: return null
-    val firstAssessment = assessments.minByOrNull { it.solutionReviewed } ?: return null
+    val lastAssessment = assessments.maxByOrNull { it.solutionReviewed } ?: return Err(ResolveError(teacherId, TeacherStatistics::class.simpleName))
+    val firstAssessment = assessments.minByOrNull { it.solutionReviewed } ?: return Err(ResolveError(teacherId, TeacherStatistics::class.simpleName))
 
     val averagePerDay =
       totalAssessments / (
@@ -58,11 +57,13 @@ class InMemoryTeacherStatistics : TeacherStatistics {
         ChronoUnit.SECONDS.between(it.solutionSent, it.solutionReviewed).toDouble() / assessments.size
       }
 
-    return TeacherStatsData(
-      totalAssessments = totalAssessments,
-      lastAssessmentTime = lastAssessment.solutionReviewed,
-      averageAssessmentsPerDay = averagePerDay,
-      averageCheckTimeSeconds = averageCheckTime,
+    return Ok(
+      TeacherStatsData(
+        totalAssessments = totalAssessments,
+        lastAssessmentTime = lastAssessment.solutionReviewed,
+        averageAssessmentsPerDay = averagePerDay,
+        averageCheckTimeSeconds = averageCheckTime,
+      ),
     )
   }
 
@@ -83,10 +84,12 @@ class InMemoryTeacherStatistics : TeacherStatistics {
 
   override fun getAllTeachersStats(): Map<TeacherId, TeacherStatsData> =
     teacherStats.keys
-      .associateWith { getTeacherStats(it) }
-      .mapNotNullValues()
+      .associateWith { resolveTeacherStats(it) }
+      .filter { it.value.isOk }
+      .mapValues { it.value.value }
 
   fun addMockFilling(teacherId: TeacherId) {
-    teacherStats.getOrPut(teacherId) { mutableListOf() }.add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
+    teacherStats.getOrPut(teacherId) { mutableListOf() }
+      .add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
   }
 }

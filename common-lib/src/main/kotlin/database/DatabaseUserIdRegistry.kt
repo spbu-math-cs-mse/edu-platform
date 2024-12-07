@@ -5,6 +5,9 @@ import com.github.heheteam.commonlib.database.tables.AdminTable
 import com.github.heheteam.commonlib.database.tables.ParentTable
 import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.heheteam.commonlib.database.tables.TeacherTable
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -12,7 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DatabaseAdminIdRegistry(
   val database: Database,
 ) : AdminIdRegistry {
-  override fun getUserId(tgId: UserId): AdminId? {
+  override fun getUserId(tgId: UserId): Result<AdminId, ResolveError<UserId>> {
     val adminId =
       transaction(database) {
         AdminTable
@@ -22,15 +25,15 @@ class DatabaseAdminIdRegistry(
           .firstOrNull()
           ?.get(AdminTable.id)
           ?.value
-      } ?: return null
-    return AdminId(adminId)
+      } ?: return Err(ResolveError(tgId, AdminId::class.simpleName))
+    return Ok(AdminId(adminId))
   }
 }
 
 class DatabaseStudentIdRegistry(
   val database: Database,
 ) : StudentIdRegistry {
-  override fun getUserId(tgId: UserId): StudentId? {
+  override fun getUserId(tgId: UserId): Result<StudentId, ResolveError<UserId>> {
     val studentId =
       transaction(database) {
         StudentTable
@@ -40,8 +43,8 @@ class DatabaseStudentIdRegistry(
           .firstOrNull()
           ?.get(StudentTable.id)
           ?.value
-      } ?: return null
-    return StudentId(studentId)
+      } ?: return Err(ResolveError(tgId, StudentId::class.simpleName))
+    return Ok(StudentId(studentId))
   }
 }
 
@@ -49,7 +52,7 @@ class DatabaseTeacherIdRegistry(
   val database: Database,
 ) : TeacherIdRegistry {
 
-  override fun getUserId(tgId: UserId): TeacherId? {
+  override fun getUserId(tgId: UserId): Result<TeacherId, ResolveError<UserId>> {
     val teacherId =
       transaction(database) {
         TeacherTable
@@ -59,15 +62,15 @@ class DatabaseTeacherIdRegistry(
           .firstOrNull()
           ?.get(TeacherTable.id)
           ?.value
-      } ?: return null
-    return TeacherId(teacherId)
+      } ?: return Err(ResolveError(tgId, TeacherId::class.simpleName))
+    return Ok(TeacherId(teacherId))
   }
 }
 
 class DatabaseParentIdRegistry(
   val database: Database,
 ) : ParentIdRegistry {
-  override fun getUserId(tgId: UserId): ParentId? {
+  override fun getUserId(tgId: UserId): Result<ParentId, ResolveError<UserId>> {
     val parentId =
       transaction(database) {
         ParentTable
@@ -77,7 +80,7 @@ class DatabaseParentIdRegistry(
           .firstOrNull()
           ?.get(ParentTable.id)
           ?.value
-      } ?: return null
-    return ParentId(parentId)
+      } ?: return Err(ResolveError(tgId, ParentId::class.simpleName))
+    return Ok(ParentId(parentId))
   }
 }

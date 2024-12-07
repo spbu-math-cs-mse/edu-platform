@@ -6,6 +6,9 @@ import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
@@ -48,34 +51,14 @@ class DatabaseSolutionDistributor(
     gradeTable: GradeTable,
   ): Solution? =
     transaction(database) {
-      SolutionTable
+      val solution = SolutionTable
         .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
         .selectAll()
         .where { AssessmentTable.id.isNull() }
-        .map {
-          Solution(
-            it[SolutionTable.id].value.toSolutionId(),
-            StudentId(it[SolutionTable.studentId].value),
-            it[SolutionTable.chatId].toChatId().chatId,
-            MessageId(it[SolutionTable.messageId]),
-            ProblemId(it[SolutionTable.problemId].value),
-            SolutionContent(listOf(), it[SolutionTable.content]),
-            SolutionType.TEXT,
-            it[SolutionTable.timestamp].toJavaLocalDateTime(),
-          )
-        }
-    }.firstOrNull()
+        .firstOrNull() ?: return@transaction null
 
-  override fun resolveSolution(solutionId: SolutionId): Solution =
-    transaction(database) {
-      val solution =
-        SolutionTable
-          .selectAll()
-          .where { SolutionTable.id eq solutionId.id }
-          .first()
-
-      return@transaction Solution(
-        solutionId,
+      Solution(
+        solution[SolutionTable.id].value.toSolutionId(),
         StudentId(solution[SolutionTable.studentId].value),
         solution[SolutionTable.chatId].toChatId().chatId,
         MessageId(solution[SolutionTable.messageId]),
@@ -83,6 +66,28 @@ class DatabaseSolutionDistributor(
         SolutionContent(listOf(), solution[SolutionTable.content]),
         SolutionType.TEXT,
         solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+      )
+    }
+
+  override fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>> =
+    transaction(database) {
+      val solution =
+        SolutionTable
+          .selectAll()
+          .where { SolutionTable.id eq solutionId.id }
+          .singleOrNull() ?: return@transaction Err(ResolveError(solutionId))
+
+      Ok(
+        Solution(
+          solutionId,
+          StudentId(solution[SolutionTable.studentId].value),
+          solution[SolutionTable.chatId].toChatId().chatId,
+          MessageId(solution[SolutionTable.messageId]),
+          ProblemId(solution[SolutionTable.problemId].value),
+          SolutionContent(listOf(), solution[SolutionTable.content]),
+          SolutionType.TEXT,
+          solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+        ),
       )
     }
 }

@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.parentbot.Dialogues
 import com.github.heheteam.parentbot.Keyboards
+import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -20,7 +21,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentIdRegist
       return@strictlyOn null
     }
 
-    var parentId = parentIdRegistry.getUserId(state.context.id)
+    var parentId = parentIdRegistry.getUserId(state.context.id).get()
     if (!isDeveloperRun && parentId == null) {
       bot.send(state.context, Dialogues.greetings())
 

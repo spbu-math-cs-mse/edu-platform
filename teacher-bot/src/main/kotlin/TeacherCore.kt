@@ -2,6 +2,7 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
+import com.github.michaelbull.result.get
 import java.time.LocalDateTime
 
 class TeacherCore(
@@ -10,7 +11,10 @@ class TeacherCore(
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
 ) {
-  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? = teacherStatistics.getTeacherStats(teacherId)
+  fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
+    val result = teacherStatistics.resolveTeacherStats(teacherId)
+    return result.get()
+  }
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
@@ -36,7 +40,7 @@ class TeacherCore(
     )
   }
 
-  fun getGrading(course: Course): List<Pair<StudentId, Grade?>> {
+  fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)
     val grades =
       students.map { studentId ->

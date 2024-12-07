@@ -38,7 +38,8 @@ class DatabaseTest {
     val requiredId = coursesDistributor.getCourses().single().id
     assertEquals(id, requiredId)
     val resolvedCourse = coursesDistributor.resolveCourse(requiredId)
-    assertEquals(sampleDescription, resolvedCourse.name)
+    assertEquals(true, resolvedCourse.isOk)
+    assertEquals(sampleDescription, resolvedCourse.value.name)
   }
 
   @Test

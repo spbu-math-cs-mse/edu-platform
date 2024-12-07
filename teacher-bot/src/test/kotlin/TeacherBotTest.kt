@@ -9,7 +9,6 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDateTime
 import kotlin.test.BeforeTest
@@ -57,7 +56,7 @@ class TeacherBotTest {
         listOf("p1", "p2"),
         DatabaseProblemStorage(database),
       )
-    problemId = problemStorage.createProblem(assignmentId, "test problem")
+    problemId = problemStorage.createProblem(assignmentId, "test problem 1", 1, "test problem")
   }
 
   companion object {
@@ -76,8 +75,8 @@ class TeacherBotTest {
 
   @Test
   fun `test initial state`() {
-    val stats = statistics.getTeacherStats(teacherId)
-    assertNull(stats)
+    val stats = statistics.resolveTeacherStats(teacherId)
+    assertTrue(stats.isErr)
     assertEquals(0, statistics.getGlobalStats().totalUncheckedSolutions)
   }
 
@@ -95,8 +94,10 @@ class TeacherBotTest {
       solutionDistributor,
     )
 
-    val stats = statistics.getTeacherStats(teacherId)
-    assertEquals(1, stats!!.totalAssessments)
+    val statsResult = statistics.resolveTeacherStats(teacherId)
+    assertTrue(statsResult.isOk)
+    val stats = statsResult.value
+    assertEquals(1, stats.totalAssessments)
     assertEquals(1, statistics.getGlobalStats().totalUncheckedSolutions)
   }
 
@@ -122,8 +123,10 @@ class TeacherBotTest {
     )
     statistics.recordAssessment(teacherId, sol3, now, solutionDistributor)
 
-    val stats = statistics.getTeacherStats(teacherId)
-    assertEquals(1.0 * 60 * 60, stats!!.averageCheckTimeSeconds, 0.01)
+    val statsResult = statistics.resolveTeacherStats(teacherId)
+    assertTrue(statsResult.isOk)
+    val stats = statsResult.value
+    assertEquals(1.0 * 60 * 60, stats.averageCheckTimeSeconds, 0.01)
   }
 
   @Test

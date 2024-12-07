@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -21,5 +22,5 @@ interface SolutionDistributor {
     gradeTable: GradeTable,
   ): Solution?
 
-  fun resolveSolution(solutionId: SolutionId): Solution
+  fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>>
 }

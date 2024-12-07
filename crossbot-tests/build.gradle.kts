@@ -11,4 +11,5 @@ dependencies {
     implementation(project(":admin-bot"))
     implementation(libs.tgbotapi)
     implementation(libs.exposed.spring.boot.starter)
+    implementation(libs.kotlin.result)
 }

@@ -24,7 +24,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(userIdRegistry
     }
 
     bot.send(state.context, Dialogues.askId())
-    id =
+    var id =
       waitTextMessageWithUser(state.context.id)
         .first()
         .content.text

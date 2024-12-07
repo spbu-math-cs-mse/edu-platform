@@ -3,9 +3,7 @@ import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.CourseTeachers
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -33,15 +31,15 @@ class DatabaseCoursesDistributor(
           .map { 0L }
           .isNotEmpty()
       if (!exists) {
-        try {
+        Ok(Unit)
+
+        runCatching {
           CourseStudents.insert {
             it[CourseStudents.studentId] = studentId.id
             it[CourseStudents.courseId] = courseId.id
           }
-          Ok(Unit)
-        } catch (_: Throwable) {
-          Err(BindError(studentId, courseId))
-        }
+          Unit
+        }.mapError { BindError(studentId, courseId) }
       } else {
         Err(BindError(studentId, courseId))
       }

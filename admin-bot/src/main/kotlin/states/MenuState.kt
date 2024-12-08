@@ -3,6 +3,7 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.Keyboards.getTeachers
+import com.github.heheteam.adminbot.Keyboards.getProblems
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -27,6 +28,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
 
       getTeachers -> {
         GetTeachersState(state.context)
+      }
+
+      getProblems -> {
+        GetProblemsState(state.context)
       }
 
       else -> MenuState(state.context)

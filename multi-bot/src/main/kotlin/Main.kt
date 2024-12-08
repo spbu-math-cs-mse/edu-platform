@@ -83,6 +83,8 @@ fun main(vararg args: String) {
       coursesDistributor,
       studentStorage,
       teacherStorage,
+      assignmentStorage,
+      problemStorage,
     )
 
   val parentIdRegistry = MockParentIdRegistry(1L)

@@ -9,6 +9,8 @@ class AdminCore(
   private val coursesDistributor: CoursesDistributor,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
+  private val assignmentStorage: AssignmentStorage,
+  private val problemStorage: ProblemStorage,
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
@@ -66,4 +68,40 @@ class AdminCore(
     studentId: StudentId,
     courseId: CourseId,
   ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
+
+  fun getTeachersBulletList(): String {
+    val teachersList = teacherStorage.getTeachers()
+    val noTeachers = "Список преподавателей пуст!"
+    return if (teachersList.isNotEmpty()) {
+      teachersList.sortedBy { it.surname }
+        .joinToString("\n") { teacher ->
+          "- ${teacher.surname} ${teacher.name}"
+        }
+    } else {
+      noTeachers
+    }
+  }
+
+  fun getProblemsBulletList(course: Course): String {
+    val assignmentsList = assignmentStorage.getAssignmentsForCourse(course.id)
+    val noAssignments = "Список серий пуст!"
+    return if (assignmentsList.isNotEmpty()) {
+      assignmentsList
+        .joinToString("\n") { assignment ->
+          val problemsList = problemStorage.getProblemsFromAssignment(assignment.id)
+          val noProblems = "Задачи в этой серии отсутствуют."
+          "- ${assignment.description}:\n${
+            if (problemsList.isNotEmpty()) {
+              problemsList.joinToString("\n") { problem ->
+                "\t- задача ${problem.number}"
+              }
+            } else {
+              noProblems
+            }
+          }"
+        }
+    } else {
+      noAssignments
+    }
+  }
 }

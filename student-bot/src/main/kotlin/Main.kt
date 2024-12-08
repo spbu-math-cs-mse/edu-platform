@@ -1,8 +1,7 @@
 package com.github.heheteam.studentbot
 
 import DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -22,6 +21,8 @@ suspend fun main(vararg args: String) {
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor = DatabaseSolutionDistributor(database)
+  val notificationService = StudentNotificationService(bot)
+  val botEventBus = RedisBotEventBus()
 
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
 
@@ -34,6 +35,8 @@ suspend fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       DatabaseGradeTable(database),
+      notificationService,
+      botEventBus
     )
 
   studentRun(botToken, userIdRegistry, studentStorage, core)

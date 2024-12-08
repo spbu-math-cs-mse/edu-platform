@@ -34,6 +34,8 @@ object Keyboards {
       }
       row {
         dataButton("Список всех преподавателей", getTeachers)
+      }
+      row {
         dataButton("Список всех серий с задачами", getProblems)
       }
     }

@@ -81,7 +81,7 @@ class DatabaseSolutionDistributor(
             AssessmentTable.id.isNull() and (
               SolutionTable.problemId inList
                 problems.map { problem -> problem[ProblemTable.id] }
-            )
+              )
           }
           .firstOrNull() ?: return@transaction null
 

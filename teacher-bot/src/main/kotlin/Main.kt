@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
+import com.github.heheteam.commonlib.api.RedisBotEventBus
 
 /**
  * @param args bot token and telegram @username for mocking data.
@@ -24,6 +25,7 @@ suspend fun main(vararg args: String) {
 
   val userIdRegistry = MockTeacherIdRegistry(0L)
   val teacherStorage = DatabaseTeacherStorage(database)
+  val botEventBus = RedisBotEventBus()
 
   val core =
     TeacherCore(
@@ -31,6 +33,7 @@ suspend fun main(vararg args: String) {
       coursesDistributor,
       DatabaseSolutionDistributor(database),
       DatabaseGradeTable(database),
+      botEventBus
     )
 
   teacherRun(botToken, userIdRegistry, teacherStorage, core)

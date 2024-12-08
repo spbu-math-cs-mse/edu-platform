@@ -1,6 +1,8 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.Teacher
 import com.github.michaelbull.result.Result
 
 interface CoursesDistributor {
@@ -34,7 +36,7 @@ interface CoursesDistributor {
 
   fun createCourse(description: String): CourseId
 
-  fun getStudents(courseId: CourseId): List<StudentId>
+  fun getStudents(courseId: CourseId): List<Student>
 
-  fun getTeachers(courseId: CourseId): List<TeacherId>
+  fun getTeachers(courseId: CourseId): List<Teacher>
 }

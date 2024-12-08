@@ -11,3 +11,4 @@ teacher-bot/build/
 **/build/*
 **/.gradle/*
 .run/
+/common-lib/src/main/resources/*.yaml

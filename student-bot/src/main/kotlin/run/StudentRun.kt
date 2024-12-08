@@ -25,12 +25,6 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun studentRun(botToken: String, studentIdRegistry: StudentIdRegistry, studentStorage: StudentStorage, core: StudentCore) {
-  telegramBot(botToken) {
-    logger =
-      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-        println(defaultMessageFormatter(level, tag, message, throwable))
-      }
-  }
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling(
     botToken,

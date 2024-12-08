@@ -31,7 +31,6 @@ class TeacherCore(
     assessment: SolutionAssessment,
     timestamp: LocalDateTime = LocalDateTime.now(),
   ) {
-    println("Teacher $teacherId assessing solution from student ${solution.studentId}")
     gradeTable.assessSolution(
       solution.id,
       teacherId,
@@ -41,7 +40,6 @@ class TeacherCore(
       timestamp,
     )
     
-    println("Publishing grade event for solution ${solution.id}")
     botEventBus.publishGradeEvent(
       solution.studentId,
       solution.chatId,

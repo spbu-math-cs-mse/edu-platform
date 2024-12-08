@@ -32,7 +32,6 @@ class RedisBotEventBus(
         assessment: SolutionAssessment,
         problemId: ProblemId
     ) {
-        println("Publishing grade event to Redis")
         val simpleEvent = SimpleGradeEvent(
             studentId = studentId.id,
             chatId = chatId.long,
@@ -46,14 +45,12 @@ class RedisBotEventBus(
     }
     
     override fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, ProblemId) -> Unit) {
-        println("Subscribing to Redis grade events")
         val subscriberJedis = Jedis(redisHost, redisPort)
         
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 subscriberJedis.subscribe(object : JedisPubSub() {
                     override fun onMessage(channel: String, message: String) {
-                        println("Received message from Redis: $message")
                         val simpleEvent = Json.decodeFromString<SimpleGradeEvent>(message)
                         runBlocking {
                             handler(

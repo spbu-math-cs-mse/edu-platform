@@ -17,7 +17,6 @@ class StudentNotificationService(
       assessment: SolutionAssessment,
       problemId: ProblemId
     ) {
-        println("Preparing notification for student $studentId")
         val emoji = when {
             assessment.grade <= 0 -> "❌"
             assessment.grade < 5 -> "\uD83D\uDD36"
@@ -32,12 +31,10 @@ class StudentNotificationService(
             }
         }
 
-        println("Sending notification to chat $chatId")
         bot.reply(
             ChatId(chatId),
                 messageId,
                 message
         )
-        println("Notification sent successfully")
     }
 }

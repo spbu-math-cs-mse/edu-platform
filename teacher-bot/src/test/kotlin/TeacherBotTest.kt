@@ -49,6 +49,8 @@ class TeacherBotTest {
     teacherId = teacherStorage.createTeacher()
     studentId = studentStorage.createStudent()
     val courseId = coursesDistributor.createCourse("test course")
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    coursesDistributor.addStudentToCourse(studentId, courseId)
     val assignmentId =
       assignmentStorage.createAssignment(
         courseId,

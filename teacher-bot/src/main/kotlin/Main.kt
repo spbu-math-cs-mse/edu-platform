@@ -1,6 +1,7 @@
 package com.github.heheteam.teacherbot
 
 import DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
@@ -24,6 +25,7 @@ suspend fun main(vararg args: String) {
 
   val userIdRegistry = MockTeacherIdRegistry(0L)
   val teacherStorage = DatabaseTeacherStorage(database)
+  val botEventBus = RedisBotEventBus()
 
   val core =
     TeacherCore(
@@ -31,6 +33,7 @@ suspend fun main(vararg args: String) {
       coursesDistributor,
       DatabaseSolutionDistributor(database),
       DatabaseGradeTable(database),
+      botEventBus,
     )
 
   teacherRun(botToken, userIdRegistry, teacherStorage, core)

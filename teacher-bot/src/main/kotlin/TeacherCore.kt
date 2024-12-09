@@ -10,6 +10,7 @@ class TeacherCore(
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
+  private val botEventBus: BotEventBus,
 ) {
   fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
     val result = teacherStatistics.resolveTeacherStats(teacherId)
@@ -37,6 +38,14 @@ class TeacherCore(
       gradeTable,
       teacherStatistics,
       timestamp,
+    )
+
+    botEventBus.publishGradeEvent(
+      solution.studentId,
+      solution.chatId,
+      solution.messageId,
+      assessment,
+      solution.problemId,
     )
   }
 

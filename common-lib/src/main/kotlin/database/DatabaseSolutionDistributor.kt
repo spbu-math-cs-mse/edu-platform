@@ -67,7 +67,7 @@ class DatabaseSolutionDistributor(
           .where {
             AssessmentTable.id.isNull() and (
               CourseTable.id inList courses
-            )
+              )
           }
           .firstOrNull() ?: return@transaction null
 

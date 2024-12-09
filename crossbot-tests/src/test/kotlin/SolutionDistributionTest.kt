@@ -20,6 +20,7 @@ class SolutionDistributionTest {
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var studentStorage: StudentStorage
+  private lateinit var teacherStorage: TeacherStorage
   private lateinit var teacherCore: TeacherCore
   private lateinit var studentCore: StudentCore
 
@@ -41,6 +42,7 @@ class SolutionDistributionTest {
     gradeTable = DatabaseGradeTable(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
     studentCore =
       StudentCore(
@@ -125,7 +127,7 @@ class SolutionDistributionTest {
 
   @Test
   fun `solution distribution to course teachers test`() {
-    val teacherId = TeacherId(0L)
+    val teacherId = teacherStorage.createTeacher()
     teacherCore =
       TeacherCore(
         teacherStatistics,

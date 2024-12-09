@@ -51,7 +51,7 @@ class DatabaseSolutionDistributor(
     transaction(database) {
       val id =
         TeacherTable.select(TeacherTable.id)
-          .where(TeacherTable.tgId eq teacherId.id)
+          .where(TeacherTable.id eq teacherId.id)
           .firstOrNull() ?: return@transaction null
       val courses =
         CourseTeachers.select(CourseTeachers.courseId)
@@ -81,7 +81,7 @@ class DatabaseSolutionDistributor(
             AssessmentTable.id.isNull() and (
               SolutionTable.problemId inList
                 problems.map { problem -> problem[ProblemTable.id] }
-              )
+            )
           }
           .firstOrNull() ?: return@transaction null
 

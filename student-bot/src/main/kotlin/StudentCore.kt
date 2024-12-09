@@ -14,7 +14,7 @@ class StudentCore(
   private val assignmentStorage: AssignmentStorage,
   private val gradeTable: GradeTable,
   private val notificationService: NotificationService,
-  private val botEventBus: BotEventBus
+  private val botEventBus: BotEventBus,
 ) {
   init {
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problemId ->
@@ -89,14 +89,14 @@ class StudentCore(
     chatId: RawChatId,
     messageId: MessageId,
     assessment: SolutionAssessment,
-    problemId: ProblemId
+    problemId: ProblemId,
   ) {
     notificationService.notifyStudentAboutGrade(
       studentId,
       chatId,
       messageId,
       assessment,
-      problemId
+      problemId,
     )
   }
 }

@@ -8,13 +8,13 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
 class MockNotificationService : NotificationService {
-    override suspend fun notifyStudentAboutGrade(
-        studentId: StudentId,
-        chatId: RawChatId,
-        messageId: MessageId,
-        assessment: SolutionAssessment,
-        problemId: ProblemId
-    ) {
-        // Do nothing
-    }
+  override suspend fun notifyStudentAboutGrade(
+    studentId: StudentId,
+    chatId: RawChatId,
+    messageId: MessageId,
+    assessment: SolutionAssessment,
+    problemId: ProblemId,
+  ) {
+    // Do nothing
+  }
 } 

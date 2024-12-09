@@ -5,13 +5,13 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
 interface BotEventBus {
-    suspend fun publishGradeEvent(
-      studentId: StudentId,
-      chatId: RawChatId,
-      messageId: MessageId,
-      assessment: SolutionAssessment,
-      problemId: ProblemId
-    )
-    
-    fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, ProblemId) -> Unit)
+  fun publishGradeEvent(
+    studentId: StudentId,
+    chatId: RawChatId,
+    messageId: MessageId,
+    assessment: SolutionAssessment,
+    problemId: ProblemId,
+  )
+
+  fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, ProblemId) -> Unit)
 } 

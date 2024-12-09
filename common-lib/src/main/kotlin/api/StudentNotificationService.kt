@@ -8,33 +8,33 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
 class StudentNotificationService(
-    private val bot: TelegramBot
+  private val bot: TelegramBot,
 ) : NotificationService {
-    override suspend fun notifyStudentAboutGrade(
-      studentId: StudentId,
-      chatId: RawChatId,
-      messageId: MessageId,
-      assessment: SolutionAssessment,
-      problemId: ProblemId
-    ) {
-        val emoji = when {
-            assessment.grade <= 0 -> "❌"
-            assessment.grade < 5 -> "\uD83D\uDD36"
-            else -> "✅"
-        }
-        
-        val message = buildString {
-            append("Ваше решение задачи $problemId проверено!\n")
-            append("Оценка: $emoji ${assessment.grade}/5\n")
-            if (assessment.comment.isNotEmpty()) {
-                append("Комментарий преподавателя: ${assessment.comment}")
-            }
-        }
-
-        bot.reply(
-            ChatId(chatId),
-                messageId,
-                message
-        )
+  override suspend fun notifyStudentAboutGrade(
+    studentId: StudentId,
+    chatId: RawChatId,
+    messageId: MessageId,
+    assessment: SolutionAssessment,
+    problemId: ProblemId,
+  ) {
+    val emoji = when {
+      assessment.grade <= 0 -> "❌"
+      assessment.grade < 5 -> "\uD83D\uDD36"
+      else -> "✅"
     }
+
+    val message = buildString {
+      append("Ваше решение задачи $problemId проверено!\n")
+      append("Оценка: $emoji ${assessment.grade}/5\n")
+      if (assessment.comment.isNotEmpty()) {
+        append("Комментарий преподавателя: ${assessment.comment}")
+      }
+    }
+
+    bot.reply(
+      ChatId(chatId),
+      messageId,
+      message,
+    )
+  }
 }

@@ -27,10 +27,9 @@ suspend fun main(vararg args: String) {
   val solutionDistributor = DatabaseSolutionDistributor(database)
 
   val bot = telegramBot(botToken) {
-    logger =
-      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-        println(defaultMessageFormatter(level, tag, message, throwable))
-      }
+    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+      println(defaultMessageFormatter(level, tag, message, throwable))
+    }
   }
   val notificationService = StudentNotificationService(bot)
   val botEventBus = RedisBotEventBus()
@@ -47,7 +46,7 @@ suspend fun main(vararg args: String) {
       assignmentStorage,
       DatabaseGradeTable(database),
       notificationService,
-      botEventBus
+      botEventBus,
     )
 
   studentRun(botToken, userIdRegistry, studentStorage, core)

@@ -71,7 +71,7 @@ class StudentBotTest {
         assignmentStorage,
         gradeTable,
         MockNotificationService(),
-        MockBotEventBus()
+        MockBotEventBus(),
       )
   }
 

@@ -27,6 +27,7 @@ fun fillWithSamples(
   problemStorage: ProblemStorage,
   assignmentStorage: AssignmentStorage,
   studentStorage: StudentStorage,
+  teacherStorage: TeacherStorage,
 ): List<CourseId> {
   val realAnalysis =
     generateCourse(
@@ -81,6 +82,7 @@ fun fillWithSamples(
       linAlgebra,
     )
   }
+  (0..10).map { teacherStorage.createTeacher() }
   println("first student is ${students.first()}")
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

@@ -59,6 +59,7 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         studentStorage,
+        DatabaseTeacherStorage(database),
       )
     gradeTable = DatabaseGradeTable(database)
     studentCore =

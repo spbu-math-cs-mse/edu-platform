@@ -7,4 +7,6 @@ interface TeacherStorage {
   fun createTeacher(): TeacherId
 
   fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>>
+
+  fun getTeachers(): List<Teacher>
 }

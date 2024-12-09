@@ -2,10 +2,13 @@ package com.github.heheteam.adminbot
 
 import DatabaseCoursesDistributor
 import com.github.heheteam.adminbot.run.adminRun
+import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
+import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.utils.RiskFeature
 import org.jetbrains.exposed.sql.Database
 
@@ -21,12 +24,22 @@ suspend fun main(vararg args: String) {
 
   val userIdRegistry = MockAdminIdRegistry(0L)
 
+  val coursesDistributor = DatabaseCoursesDistributor(database)
+  val problemStorage = DatabaseProblemStorage(database)
+  val assignmentStorage = DatabaseAssignmentStorage(database)
+  val studentStorage = DatabaseStudentStorage(database)
+  val teacherStorage = DatabaseTeacherStorage(database)
+
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
+
   val core =
     AdminCore(
       InMemoryScheduledMessagesDistributor(),
-      DatabaseCoursesDistributor(database),
-      DatabaseStudentStorage(database),
-      DatabaseTeacherStorage(database),
+      coursesDistributor,
+      studentStorage,
+      teacherStorage,
+      assignmentStorage,
+      problemStorage,
     )
 
   adminRun(botToken, userIdRegistry, core)

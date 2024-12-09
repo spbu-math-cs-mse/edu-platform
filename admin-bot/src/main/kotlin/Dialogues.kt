@@ -21,4 +21,7 @@ object Dialogues {
   fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
 
   fun menu(): String = "\u2705 Главное меню"
+
+  fun noCoursesWasFound(): String = "Не было найдено никаких курсов!"
+  fun askCourse(): String = "Выберите курс:"
 }

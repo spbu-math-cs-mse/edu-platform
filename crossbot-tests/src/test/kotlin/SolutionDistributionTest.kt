@@ -55,78 +55,7 @@ class SolutionDistributionTest {
   }
 
   @Test
-  fun `solution distribution with existing student test`() {
-    val teacherId = TeacherId(0L)
-    teacherCore =
-      TeacherCore(
-        teacherStatistics,
-        coursesDistributor,
-        solutionDistributor,
-        gradeTable,
-      )
-
-    val studentId = studentStorage.createStudent()
-    val chatId = RawChatId(studentId.id)
-    val messageId = newMessageId()
-    val text = "sample solution\nwith lines\n..."
-
-    val problemId = createProblem()
-    studentCore.inputSolution(
-      studentId,
-      chatId,
-      messageId,
-      SolutionContent(text = text),
-      problemId,
-    )
-
-    val extractedSolutionResult =
-      solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
-      )
-    assertTrue(extractedSolutionResult.isOk)
-    val extractedSolution = extractedSolutionResult.value
-    val expectedText =
-      """sample solution
-      |with lines
-      |...
-      """.trimMargin()
-    assertEquals(expectedText, extractedSolution.content.text)
-    assertEquals(problemId, extractedSolution.problemId)
-    assertEquals(messageId, extractedSolution.messageId)
-
-    val solution = teacherCore.querySolution(teacherId)
-    assertNotNull(solution)
-
-    assertEquals(messageId, teacherCore.querySolution(teacherId)?.messageId)
-
-    assertEquals(extractedSolution.content.text, solution.content.text)
-    assertEquals(extractedSolution.chatId, solution.chatId)
-
-    teacherCore.assessSolution(
-      solution,
-      teacherId,
-      SolutionAssessment(5, "way to go"),
-    )
-
-    val emptySolution = teacherCore.querySolution(teacherId)
-    assertNull(emptySolution)
-  }
-
-  private fun createProblem(): ProblemId {
-    val courseId = coursesDistributor.createCourse("")
-    val assignment =
-      assignmentStorage.createAssignment(
-        courseId,
-        "",
-        listOf("1"),
-        problemStorage,
-      )
-    val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id
-    return problemId
-  }
-
-  @Test
-  fun `solution distribution to course teachers test`() {
+  fun `solution distribution with existing student and teacher test`() {
     val teacherId = teacherStorage.createTeacher()
     teacherCore =
       TeacherCore(
@@ -190,7 +119,7 @@ class SolutionDistributionTest {
     assertNull(emptySolution)
   }
 
-  private fun createProblem(courseId: CourseId): ProblemId {
+  private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
     val assignment =
       assignmentStorage.createAssignment(
         courseId,

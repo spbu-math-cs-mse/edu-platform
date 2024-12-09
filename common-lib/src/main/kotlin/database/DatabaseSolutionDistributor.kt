@@ -15,7 +15,6 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 
@@ -56,31 +55,18 @@ class DatabaseSolutionDistributor(
       val courses =
         CourseTeachers.select(CourseTeachers.courseId)
           .where(CourseTeachers.teacherId eq id[TeacherTable.id])
-          .toList()
-      val assignments =
-        AssignmentTable
-          .select(AssignmentTable.id)
-          .where(
-            AssignmentTable.course inList
-              courses.map { course -> course[CourseTeachers.courseId] },
-          )
-          .toList()
-      val problems =
-        ProblemTable
-          .select(ProblemTable.id)
-          .where(
-            ProblemTable.assignmentId inList
-              assignments.map { assignment -> assignment[AssignmentTable.id] },
-          )
+          .map { course -> course[CourseTeachers.courseId] }
 
       val solution =
         SolutionTable
           .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
+          .join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
+          .join(AssignmentTable, JoinType.INNER, onColumn = ProblemTable.assignmentId, otherColumn = AssignmentTable.id)
+          .join(CourseTable, JoinType.INNER, onColumn = AssignmentTable.course, otherColumn = CourseTable.id)
           .selectAll()
           .where {
             AssessmentTable.id.isNull() and (
-              SolutionTable.problemId inList
-                problems.map { problem -> problem[ProblemTable.id] }
+              CourseTable.id inList courses
             )
           }
           .firstOrNull() ?: return@transaction null

@@ -28,15 +28,16 @@ suspend fun main(vararg args: String) {
   val problemStorage = DatabaseProblemStorage(database)
   val assignmentStorage = DatabaseAssignmentStorage(database)
   val studentStorage = DatabaseStudentStorage(database)
+  val teacherStorage = DatabaseTeacherStorage(database)
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
   val core =
     AdminCore(
       InMemoryScheduledMessagesDistributor(),
       coursesDistributor,
       studentStorage,
-      DatabaseTeacherStorage(database),
+      teacherStorage,
       assignmentStorage,
       problemStorage,
     )

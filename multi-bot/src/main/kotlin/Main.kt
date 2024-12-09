@@ -53,7 +53,7 @@ fun main(vararg args: String) {
   val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
 
   val studentStorage = DatabaseStudentStorage(database)
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
   val parentStorage = MockParentStorage()
 

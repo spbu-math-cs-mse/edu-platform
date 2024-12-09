@@ -1,10 +1,13 @@
 import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.*
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
+import googlesheets.DataType
+import googlesheets.FancyCell
 
 class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheetId: String) {
   private val apiClient: Sheets
@@ -18,9 +21,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       com.google.api.client.http.javanet.NetHttpTransport(),
       com.google.api.client.json.gson.GsonFactory.getDefaultInstance(),
       HttpCredentialsAdapter(credentials),
-    )
-      .setApplicationName("Google Sheets API Demo")
-      .build()
+    ).setApplicationName("GoogleSheetsService").build()
   }
 
   private fun createCourseSheet(course: Course) {
@@ -51,66 +52,93 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       spreadsheet = apiClient.spreadsheets().get(spreadsheetId).execute()
     }
     val sheetId = spreadsheet.sheets.first { it.properties.title == course.name }.properties.sheetId
+    val data: List<List<FancyCell>> = composeTable(problems, assignments, students, performance)
 
-    val sortedProblems = problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.number })
-    val sortedAssignments = assignments.sortedWith(compareBy { it.id.id })
-    val assignmentIds = assignments.associateBy { it.id }
-    val assignmentSizes = assignments.associate { it.id to 0 }.toMutableMap()
-
-    val data: List<List<Any>> = listOf(
-      listOf("", "", "") + sortedProblems.map {
-        assignmentSizes[it.assignmentId] = assignmentSizes[it.assignmentId]?.let { i -> i + 1 } ?: 1
-        assignmentIds[it.assignmentId]?.description ?: ""
-      },
-      listOf("id", "surname", "name") + sortedProblems.map { it.number },
-    ) + students.map { student ->
-      listOf(student.id.id, student.surname, student.name) +
-        sortedProblems.map { problem -> performance[student.id]?.get(problem.id) ?: "" }
-    }
-
-    val updateRequests = data.mapIndexed { rowIndex, row ->
-      val rowData = RowData().setValues(
-        row.mapIndexed { colIndex, cellValue ->
-          // Create a CellData object for each cell in the row
-          CellData().setUserEnteredValue(
-            ExtendedValue().setStringValue(cellValue.toString()),
-          )
-        },
-      )
-
-      Request().setUpdateCells(
-        UpdateCellsRequest()
-          .setRange(
-            GridRange()
-              .setSheetId(sheetId)
-              .setStartRowIndex(rowIndex)
-              .setEndRowIndex(rowIndex + 1)
-              .setStartColumnIndex(0)
-              .setEndColumnIndex(row.size),
-          )
-          .setRows(listOf(rowData))
-          .setFields("userEnteredValue"),
-      )
-    }
-
-    var endColumn = 3
-    val mergeCellsRequests = sortedAssignments.map {
-      val startColumn = endColumn
-      endColumn += assignmentSizes[it.id] ?: 0
-      Request().setMergeCells(
-        MergeCellsRequest()
-          .setMergeType("MERGE_ALL")
-          .setRange(
-            GridRange().setSheetId(sheetId)
-              .setStartRowIndex(0).setEndRowIndex(1)
-              .setStartColumnIndex(startColumn).setEndColumnIndex(endColumn),
-          ),
-      )
-    }
-
-    val batchUpdateRequest = BatchUpdateSpreadsheetRequest()
-      .setRequests(mergeCellsRequests + updateRequests)
+    val batchUpdateRequest = BatchUpdateSpreadsheetRequest().setRequests(
+      generateUpdateRequests(data, sheetId)+
+      generateMergeRequests(data, sheetId)
+    )
 
     apiClient.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute()
+  }
+
+  private fun generateMergeRequests(
+    data: List<List<FancyCell>>,
+    sheetId: Int?,
+  ): List<Request> = data.mapIndexed { row, rowList ->
+    var column = 0
+    rowList.mapNotNull { cell ->
+      var request: Request? = null
+      if (cell.width > 1) {
+        request = Request().setMergeCells(
+          MergeCellsRequest()
+            .setMergeType("MERGE_ALL")
+            .setRange(gridRange(sheetId, row, row, column, column + cell.width)),
+        )
+      }
+      column += cell.width
+      return@mapNotNull request
+    }
+  }.flatten().toList()
+
+  private fun generateUpdateRequests(
+    data: List<List<FancyCell>>,
+    sheetId: Int?,
+  ): List<Request> = data.flatMapIndexed { rowIndex, row ->
+    val rowExtended = row.flatMap { cell ->
+      List(cell.width) {
+        cell
+      }
+    }
+
+    listOf(
+      Request().setUpdateCells(
+        UpdateCellsRequest()
+          .setRange(gridRange(sheetId, rowIndex, rowIndex + 1, 0, row.fold(0) { acc, cell -> acc + cell.width }))
+          .setRows(listOf(RowData().setValues(rowExtended.map { it.toCellData() })))
+          .setFields("userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment"),
+      ),
+    )
+  }
+
+  private fun gridRange(sheetId: Int?, startRow: Int, endRow: Int, startColumn: Int, endColumn: Int): GridRange =
+    GridRange().setSheetId(sheetId)
+      .setStartRowIndex(startRow).setEndRowIndex(endRow + 1)
+      .setStartColumnIndex(startColumn).setEndColumnIndex(endColumn)
+
+  private fun composeTable(
+    problems: List<Problem>,
+    assignments: List<Assignment>,
+    students: List<Student>,
+    performance: Map<StudentId, Map<ProblemId, Grade>>,
+  ): List<List<FancyCell>> {
+    val sortedProblems = problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.number })
+    val sortedAssignments = assignments.sortedWith(compareBy { it.id.id })
+    val assignmentSizes = mutableMapOf<AssignmentId, Int>()
+
+    for (problem in sortedProblems) {
+      assignmentSizes[problem.assignmentId] = assignmentSizes[problem.assignmentId]?.let { i -> i + 1 } ?: 1
+    }
+
+    return listOf(
+      // Row 1
+      // 3 empty cells for id, name, surname
+      List(3) { FancyCell() } +
+        // Assignments
+        sortedAssignments.map {
+          FancyCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0).bold().borders().centerAlign()
+        },
+      // Row 2
+      listOf("id", "surname", "name").map { FancyCell(it, DataType.STRING).bold().borders() } +
+        sortedProblems.map { FancyCell(it.number, DataType.STRING).bold() },
+    ) +
+      // Rows 3+
+      students.map { student ->
+        listOf(student.id.id, student.surname, student.name)
+          .map { FancyCell(it.toString(), DataType.STRING) } +
+
+          sortedProblems.map { problem -> performance[student.id]?.get(problem.id) ?: "" }
+            .map { FancyCell(it.toString(), DataType.STRING) }
+      }
   }
 }

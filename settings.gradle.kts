@@ -24,7 +24,6 @@ dependencyResolutionManagement {
       version("h2", "2.2.224")
       version("kotlin-result", "2.0.0")
       version("google-api-sheets", "v4-rev20241008-2.0.0")
-      version("google-http-client", "1.45.0")
       version("hoplite", "2.7.5")
 
       library("tgbotapi", "dev.inmo", "tgbotapi").versionRef("tgbotapi")
@@ -36,7 +35,6 @@ dependencyResolutionManagement {
       library("h2database", "com.h2database", "h2").versionRef("h2")
       library("kotlin-result" , "com.michael-bull.kotlin-result", "kotlin-result").versionRef("kotlin-result")
       library("google-api-services-sheets", "com.google.apis", "google-api-services-sheets").versionRef("google-api-sheets")
-      library("google-http-client-jackson2", "com.google.http-client", "google-http-client-jackson2").versionRef("google-http-client")
       library("hoplite-core", "com.sksamuel.hoplite", "hoplite-core").versionRef("hoplite")
       library("hoplite-yaml", "com.sksamuel.hoplite","hoplite-yaml").versionRef("hoplite")
     }

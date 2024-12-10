@@ -1,6 +1,7 @@
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
@@ -68,7 +69,7 @@ class DatabaseTest {
         student1Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(listOf(), ""),
+        SolutionContent(listOf(), "", SolutionType.TEXT),
         ProblemId(problemId.toLong()),
       )
     }
@@ -78,7 +79,7 @@ class DatabaseTest {
           student2Id,
           RawChatId(0),
           MessageId(0),
-          SolutionContent(listOf(), ""),
+          SolutionContent(listOf(), "", SolutionType.TEXT),
           ProblemId(problemId.toLong()),
         )
       assertEquals(id.id, problemId + 8L)

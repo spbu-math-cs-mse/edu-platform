@@ -36,8 +36,8 @@ data class Problem(
 enum class SolutionType {
   TEXT,
   PHOTO,
-  PHOTOS,
   DOCUMENT,
+  GROUP,
 }
 
 data class Solution(
@@ -63,8 +63,9 @@ data class Assignment(
 )
 
 data class SolutionContent(
-  val fileIds: List<String>? = null,
+  val filesURL: List<String>? = null,
   val text: String? = null,
+  val type: SolutionType? = null,
 )
 
 data class SolutionAssessment(

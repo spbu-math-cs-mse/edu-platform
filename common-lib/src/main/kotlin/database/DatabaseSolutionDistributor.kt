@@ -40,6 +40,8 @@ class DatabaseSolutionDistributor(
           it[SolutionTable.messageId] = messageId.long
           it[SolutionTable.problemId] = problemId.id
           it[SolutionTable.content] = solutionContent.text ?: ""
+          it[SolutionTable.fileUrl] = solutionContent.filesURL ?: listOf()
+          it[SolutionTable.solutionType] = solutionContent.type.toString()
           it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
         } get SolutionTable.id
       }.value
@@ -63,8 +65,8 @@ class DatabaseSolutionDistributor(
         solution[SolutionTable.chatId].toChatId().chatId,
         MessageId(solution[SolutionTable.messageId]),
         ProblemId(solution[SolutionTable.problemId].value),
-        SolutionContent(listOf(), solution[SolutionTable.content]),
-        SolutionType.TEXT,
+        SolutionContent(solution[SolutionTable.fileUrl], solution[SolutionTable.content]),
+        SolutionType.valueOf(solution[SolutionTable.solutionType]),
         solution[SolutionTable.timestamp].toJavaLocalDateTime(),
       )
     }
@@ -84,8 +86,8 @@ class DatabaseSolutionDistributor(
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(listOf(), solution[SolutionTable.content]),
-          SolutionType.TEXT,
+          SolutionContent(solution[SolutionTable.fileUrl], solution[SolutionTable.content]),
+          SolutionType.valueOf(solution[SolutionTable.solutionType]),
           solution[SolutionTable.timestamp].toJavaLocalDateTime(),
         ),
       )

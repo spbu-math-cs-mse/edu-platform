@@ -12,6 +12,7 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
+import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -21,11 +22,14 @@ import dev.inmo.tgbotapi.extensions.utils.mediaGroupContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.photoContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
+
+const val TOKEN = "your-bot-token" // kinda cringe it's needed
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
@@ -92,6 +96,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
           botMessage = bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
           continue
         }
+
         core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent, problem.id)
 
         deleteMessage(botMessage)
@@ -105,28 +110,31 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   }
 }
 
-private fun extractSolutionContent(content: CommonMessage<*>): SolutionContent? {
+suspend fun BehaviourContext.makeURL(content: MediaContent): String {
+  val contentInfo = bot.getFileAdditionalInfo(content)
+  return "https://api.telegram.org/file/bot$TOKEN/${contentInfo.filePath}"
+}
+
+private suspend fun BehaviourContext.extractSolutionContent(content: CommonMessage<*>): SolutionContent? {
   val textSolution = content.content.textContentOrNull()
   val photoSolution = content.content.photoContentOrNull()
-  val photosSolution =
-    content.content.mediaGroupContentOrNull()?.group?.mapNotNull {
-      it.content.photoContentOrNull() ?: it.content.documentContentOrNull()
-    }
+  val groupSolution = content.content.mediaGroupContentOrNull()
   val documentSolution = content.content.documentContentOrNull()
 
   return if (textSolution != null) {
-    SolutionContent(text = textSolution.text)
+    return SolutionContent(text = textSolution.text, type = SolutionType.TEXT)
   } else if (photoSolution != null) {
-    SolutionContent(text = SolutionType.PHOTO.toString(), fileIds = listOf(photoSolution.media.fileId.fileId))
-  } else if (photosSolution != null) {
-    SolutionContent(text = SolutionType.PHOTOS.toString(), fileIds = photosSolution.map { it.media.fileId.fileId })
+    SolutionContent(filesURL = listOf(makeURL(photoSolution)), type = SolutionType.PHOTO)
   } else if (documentSolution != null) {
-    SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution.media.fileId.fileId))
+    SolutionContent(filesURL = listOf(makeURL(documentSolution)), type = SolutionType.DOCUMENT)
+  } else if (groupSolution != null) {
+    SolutionContent(filesURL = groupSolution.group.map { makeURL(it.content) }, type = SolutionType.GROUP)
   } else {
     null
   }
-}
 
+  return null
+}
 private suspend fun BehaviourContext.queryCourse(
   state: SendSolutionState,
   courses: List<Course>,

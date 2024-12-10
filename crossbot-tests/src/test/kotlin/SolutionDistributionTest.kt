@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib
 import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.googlesheets.MockRatingRecorder
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore
@@ -49,6 +50,7 @@ class SolutionDistributionTest {
         problemStorage,
         assignmentStorage,
         gradeTable,
+        MockRatingRecorder(),
       )
   }
 
@@ -61,6 +63,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        MockRatingRecorder(),
       )
 
     val studentId = studentStorage.createStudent()
@@ -133,6 +136,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        MockRatingRecorder(),
       )
 
     val userId = studentStorage.createStudent()
@@ -187,6 +191,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        MockRatingRecorder(),
       )
 
     val userId1 = studentStorage.createStudent()

@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
 import kotlin.test.*
 
-@Ignore
+//@Ignore
 class GoogleSheetsTest {
   val database =
     Database.connect(
@@ -42,7 +42,7 @@ class GoogleSheetsTest {
     reset(database)
   }
 
-  @Ignore
+//  @Ignore
   @Test
   fun `update rating works`() {
     val course1Id = coursesDistributor.createCourse("course 1")

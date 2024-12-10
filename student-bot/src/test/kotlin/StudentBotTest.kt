@@ -3,6 +3,7 @@ import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.googlesheets.MockRatingRecorder
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.StudentCore
@@ -23,8 +24,10 @@ class StudentBotTest {
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
   private lateinit var studentStorage: StudentStorage
+  private lateinit var teacherStorage: TeacherStorage
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
+  private lateinit var ratingRecorder: RatingRecorder
 
   private fun createProblem(): ProblemId {
     val courseId = coursesDistributor.createCourse("")
@@ -52,6 +55,7 @@ class StudentBotTest {
     studentStorage = DatabaseStudentStorage(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
     courseIds =
       fillWithSamples(
@@ -59,8 +63,11 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         studentStorage,
+        teacherStorage,
       )
     gradeTable = DatabaseGradeTable(database)
+    ratingRecorder = MockRatingRecorder()
+
     studentCore =
       StudentCore(
         solutionDistributor,
@@ -68,6 +75,7 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         gradeTable,
+        ratingRecorder,
       )
   }
 

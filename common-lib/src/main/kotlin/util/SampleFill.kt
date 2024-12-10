@@ -27,6 +27,7 @@ fun fillWithSamples(
   problemStorage: ProblemStorage,
   assignmentStorage: AssignmentStorage,
   studentStorage: StudentStorage,
+  teacherStorage: TeacherStorage,
 ): List<CourseId> {
   val realAnalysis =
     generateCourse(
@@ -56,7 +57,18 @@ fun fillWithSamples(
       assignmentStorage,
       problemStorage,
     )
-  val students = (0..10).map { studentStorage.createStudent() }
+  val students = listOf(
+    "Алексей" to "Иванов",
+    "Мария" to "Петрова",
+    "Дмитрий" to "Сидоров",
+    "Анна" to "Смирнова",
+    "Иван" to "Кузнецов",
+    "Елена" to "Попова",
+    "Виктор" to "Семенов",
+    "Ольга" to "Соколова",
+    "Андрей" to "Михайлов",
+    "Николай" to "Васильев",
+  ).map { studentStorage.createStudent(it.first, it.second) }
   students.slice(0..<5).map { studentId ->
     coursesDistributor.addStudentToCourse(
       studentId,
@@ -81,6 +93,12 @@ fun fillWithSamples(
       linAlgebra,
     )
   }
-  println("first student is ${students.first()}")
+  println("first student is ${studentStorage.resolveStudent(students.first())}")
+
+  listOf(
+    "Григорий" to "Лебедев",
+    "Егор" to "Тихонов",
+  ).map { teacherStorage.createTeacher(it.first, it.second) }
+
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

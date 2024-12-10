@@ -53,7 +53,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       spreadsheet = apiClient.spreadsheets().get(spreadsheetId).execute()
     }
     val sheetId = spreadsheet.sheets.first { it.properties.title == course.name }.properties.sheetId
-    val table: ComposedTable = composeTable(problems, assignments, students, performance)
+    val table: ComposedTable = composeTable(course, problems, assignments, students, performance)
 
     val batchUpdateRequest = BatchUpdateSpreadsheetRequest().setRequests(
       generateUpdateRequests(table.cells, sheetId) +
@@ -131,6 +131,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       .setStartColumnIndex(startColumn).setEndColumnIndex(endColumn)
 
   private fun composeTable(
+    course: Course,
     problems: List<Problem>,
     assignments: List<Assignment>,
     students: List<Student>,
@@ -147,8 +148,8 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     return ComposedTable(
       listOf(
         // Row 1
-        // 3 empty cells for id, name, surname
-        List(3) { FancyCell() } +
+        // Name of the course
+        listOf(FancyCell(course.name, DataType.STRING, 3).centerAlign().bold().borders(2)) +
           // Assignments
           sortedAssignments.map {
             FancyCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0).bold().borders(2).centerAlign()
@@ -173,7 +174,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
         },
 
       // Column widths
-      listOf(null, null, null) + List<Int?>(sortedProblems.size) { 30 },
+      listOf(null, null, null) + List<Int?>(sortedProblems.size) { 40 },
     )
   }
 }

@@ -9,6 +9,7 @@ class AdminCore(
   private val coursesDistributor: CoursesDistributor,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
+  private val ratingRecorder: RatingRecorder,
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
@@ -20,7 +21,8 @@ class AdminCore(
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
   fun addCourse(courseName: String) {
-    coursesDistributor.createCourse(courseName)
+    val courseId = coursesDistributor.createCourse(courseName)
+    ratingRecorder.updateRating(courseId)
   }
 
   fun getCourse(courseName: String): Course? =
@@ -48,6 +50,7 @@ class AdminCore(
     courseId: CourseId,
   ) {
     coursesDistributor.addStudentToCourse(studentId, courseId)
+    ratingRecorder.updateRating(courseId)
   }
 
   fun registerTeacherForCourse(
@@ -65,5 +68,11 @@ class AdminCore(
   fun removeStudent(
     studentId: StudentId,
     courseId: CourseId,
-  ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
+  ): Boolean =
+    if (coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk) {
+      ratingRecorder.updateRating(courseId)
+      true
+    } else {
+      false
+    }
 }

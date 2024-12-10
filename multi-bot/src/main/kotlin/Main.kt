@@ -1,20 +1,13 @@
 package com.github.heheteam.multibot
 
 import DatabaseCoursesDistributor
+import GoogleSheetsService
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.TeacherStatistics
-import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.GoogleSheetsConfig
+import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.parentbot.ParentCore
@@ -23,6 +16,8 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.run.teacherRun
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.addResourceSource
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
@@ -33,13 +28,13 @@ import java.io.File
  * @param args tokens for bots in the FOLLOWING order: student, teacher, admin, parent
  */
 fun main(vararg args: String) {
-  val dbFile = File("./data/films.mv.db")
+  val dbFile = File("./data/edu-platform.mv.db")
   if (dbFile.exists()) {
     dbFile.delete()
   }
 
   val database = Database.connect(
-    "jdbc:h2:./data/films",
+    "jdbc:h2:./data/edu-platform",
     driver = "org.h2.Driver",
   )
 
@@ -50,12 +45,20 @@ fun main(vararg args: String) {
   val gradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
-
+  val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
+    InMemoryScheduledMessagesDistributor()
   val studentStorage = DatabaseStudentStorage(database)
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
   val parentStorage = MockParentStorage()
+
+  val config = ConfigLoaderBuilder
+    .default()
+    .addResourceSource("/google_sheets.yaml")
+    .build()
+    .loadConfigOrThrow<GoogleSheetsConfig>()
+  val googleSheetsService = GoogleSheetsService(config.serviceAccountKey, config.spreadsheetId)
+  val ratingRecorder = GoogleSheetsRatingRecorder(googleSheetsService, coursesDistributor, assignmentStorage, problemStorage, gradeTable, solutionDistributor)
 
   val studentIdRegistry = MockStudentIdRegistry(1L)
   val studentCore =
@@ -65,6 +68,7 @@ fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       gradeTable,
+      ratingRecorder,
     )
 
   val teacherIdRegistry = MockTeacherIdRegistry(1L)
@@ -74,6 +78,7 @@ fun main(vararg args: String) {
       coursesDistributor,
       solutionDistributor,
       gradeTable,
+      ratingRecorder,
     )
 
   val adminIdRegistry = MockAdminIdRegistry(1L)
@@ -83,6 +88,7 @@ fun main(vararg args: String) {
       coursesDistributor,
       studentStorage,
       teacherStorage,
+      ratingRecorder,
     )
 
   val parentIdRegistry = MockParentIdRegistry(1L)

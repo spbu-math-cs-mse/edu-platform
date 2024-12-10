@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.googlesheets.MockRatingRecorder
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import org.jetbrains.exposed.sql.Database
 import java.time.LocalDateTime
@@ -26,6 +27,7 @@ class AdminBotTest {
       DatabaseCoursesDistributor(database),
       DatabaseStudentStorage(database),
       DatabaseTeacherStorage(database),
+      MockRatingRecorder(),
     )
 
   private val course =

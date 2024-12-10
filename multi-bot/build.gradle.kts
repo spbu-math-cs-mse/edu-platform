@@ -16,4 +16,6 @@ dependencies {
 
     implementation(libs.tgbotapi)
     implementation(libs.exposed.spring.boot.starter)
+    implementation(libs.hoplite.core)
+    implementation(libs.hoplite.yaml)
 }

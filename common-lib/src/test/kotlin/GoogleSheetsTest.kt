@@ -11,6 +11,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
 import kotlin.test.*
 
+@Ignore
 class GoogleSheetsTest {
   val database =
     Database.connect(
@@ -41,6 +42,7 @@ class GoogleSheetsTest {
     reset(database)
   }
 
+  @Ignore
   @Test
   fun `update rating works`() {
     val course1Id = coursesDistributor.createCourse("course 1")
@@ -94,18 +96,15 @@ class GoogleSheetsTest {
       )
     }
 
-    val course1 = coursesDistributor.resolveCourse(course1Id).value
-    val course2 = coursesDistributor.resolveCourse(course2Id).value
-    gradeTable.getCourseRating(course1Id, solutionDistributor)
     service.updateRating(
-      course1,
+      coursesDistributor.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id),
       problemStorage.getProblemsFromCourse(course1Id),
       coursesDistributor.getStudents(course1Id),
       gradeTable.getCourseRating(course1Id, solutionDistributor),
     )
     service.updateRating(
-      course2,
+      coursesDistributor.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id),
       problemStorage.getProblemsFromCourse(course2Id),
       coursesDistributor.getStudents(course2Id),

@@ -2,12 +2,13 @@ import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.googlesheets.ComposedTable
+import com.github.heheteam.commonlib.googlesheets.DataType
+import com.github.heheteam.commonlib.googlesheets.FancyCell
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.*
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
-import googlesheets.DataType
-import googlesheets.FancyCell
 
 class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheetId: String) {
   private val apiClient: Sheets
@@ -52,11 +53,12 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       spreadsheet = apiClient.spreadsheets().get(spreadsheetId).execute()
     }
     val sheetId = spreadsheet.sheets.first { it.properties.title == course.name }.properties.sheetId
-    val data: List<List<FancyCell>> = composeTable(problems, assignments, students, performance)
+    val table: ComposedTable = composeTable(problems, assignments, students, performance)
 
     val batchUpdateRequest = BatchUpdateSpreadsheetRequest().setRequests(
-      generateUpdateRequests(data, sheetId)+
-      generateMergeRequests(data, sheetId)
+      generateUpdateRequests(table.cells, sheetId) +
+        generateResizeRequests(table.columnWidths, sheetId) +
+        generateMergeRequests(table.cells, sheetId),
     )
 
     apiClient.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute()
@@ -81,6 +83,28 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     }
   }.flatten().toList()
 
+  private fun generateResizeRequests(
+    columWidths: List<Int?>,
+    sheetId: Int?,
+  ): List<Request> = columWidths.mapIndexedNotNull { column, width ->
+    width ?: return@mapIndexedNotNull null
+
+    Request().setUpdateDimensionProperties(
+      UpdateDimensionPropertiesRequest()
+        .setRange(
+          DimensionRange()
+            .setSheetId(sheetId)
+            .setDimension("COLUMNS")
+            .setStartIndex(column)
+            .setEndIndex(column + 1),
+        )
+        .setProperties(
+          DimensionProperties().setPixelSize(width),
+        )
+        .setFields("pixelSize"),
+    )
+  }.toList()
+
   private fun generateUpdateRequests(
     data: List<List<FancyCell>>,
     sheetId: Int?,
@@ -96,7 +120,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
         UpdateCellsRequest()
           .setRange(gridRange(sheetId, rowIndex, rowIndex + 1, 0, row.fold(0) { acc, cell -> acc + cell.width }))
           .setRows(listOf(RowData().setValues(rowExtended.map { it.toCellData() })))
-          .setFields("userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment"),
+          .setFields("userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"),
       ),
     )
   }
@@ -111,7 +135,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     assignments: List<Assignment>,
     students: List<Student>,
     performance: Map<StudentId, Map<ProblemId, Grade>>,
-  ): List<List<FancyCell>> {
+  ): ComposedTable {
     val sortedProblems = problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.number })
     val sortedAssignments = assignments.sortedWith(compareBy { it.id.id })
     val assignmentSizes = mutableMapOf<AssignmentId, Int>()
@@ -120,25 +144,36 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       assignmentSizes[problem.assignmentId] = assignmentSizes[problem.assignmentId]?.let { i -> i + 1 } ?: 1
     }
 
-    return listOf(
-      // Row 1
-      // 3 empty cells for id, name, surname
-      List(3) { FancyCell() } +
-        // Assignments
-        sortedAssignments.map {
-          FancyCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0).bold().borders().centerAlign()
-        },
-      // Row 2
-      listOf("id", "surname", "name").map { FancyCell(it, DataType.STRING).bold().borders() } +
-        sortedProblems.map { FancyCell(it.number, DataType.STRING).bold() },
-    ) +
-      // Rows 3+
-      students.map { student ->
-        listOf(student.id.id, student.surname, student.name)
-          .map { FancyCell(it.toString(), DataType.STRING) } +
+    return ComposedTable(
+      listOf(
+        // Row 1
+        // 3 empty cells for id, name, surname
+        List(3) { FancyCell() } +
+          // Assignments
+          sortedAssignments.map {
+            FancyCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0).bold().borders(2).centerAlign()
+          },
+        // Row 2
+        listOf("id", "surname", "name").map { FancyCell(it, DataType.STRING).bold().borders() } +
+          sortedProblems.map { FancyCell(it.number, DataType.STRING).bold().borders().centerAlign() },
+      ) +
+        // Rows 3+
+        students.map { student ->
+          listOf(student.id.id, student.surname, student.name)
+            .map { FancyCell(it.toString(), DataType.STRING).borders() } +
 
-          sortedProblems.map { problem -> performance[student.id]?.get(problem.id) ?: "" }
-            .map { FancyCell(it.toString(), DataType.STRING) }
-      }
+            sortedProblems.asSequence().map { problem -> performance[student.id]?.get(problem.id) ?: "" }
+              .map { FancyCell(it.toString(), DataType.STRING).topBorder().bottomBorder().centerAlign() }
+              .mapIndexed { index, it ->
+                if (index == sortedProblems.size - 1 || sortedProblems[index].assignmentId != sortedProblems[index + 1].assignmentId) {
+                  it.rightBorder()
+                }
+                it
+              }
+        },
+
+      // Column widths
+      listOf(null, null, null) + List<Int?>(sortedProblems.size) { 30 },
+    )
   }
 }

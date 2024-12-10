@@ -7,7 +7,9 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.states.SolutionProvider.getSolutionWithURL
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -17,16 +19,24 @@ import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
+import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
+import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.media.TelegramMediaPhoto
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
+import io.ktor.server.util.url
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URI
+import java.net.URL
+import java.nio.channels.Channels
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
@@ -38,10 +48,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
     val solution = core.querySolution(teacherId)
 
     if (solution == null) {
-      bot.send(
+      val reply = bot.send(
         state.context,
         noSolutionsToCheck(),
+        replyMarkup = returnBack(),
       )
+      waitDataCallbackQuery().first()
+      deleteMessage(reply)
     } else {
       val getSolution: ContentMessage<*>
       var getMarkup: ContentMessage<*>? = null
@@ -58,7 +71,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
           getSolution =
             bot.sendPhoto(
               state.context,
-              InputFile.fromId(solution.content.fileIds!![0]),
+              getSolutionWithURL(solution.content.filesURL!!.first()),
               text =
               if (solution.content.text == null) {
                 solutionInfo(solution)
@@ -70,29 +83,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               },
               replyMarkup = Keyboards.solutionMenu(),
             )
-
-        SolutionType.PHOTOS -> {
-          getSolution =
-            bot.sendMediaGroup(
-              state.context,
-              listOf(
-                TelegramMediaPhoto(
-                  InputFile.fromId(solution.content.fileIds!![0]),
-                  solution.content.text,
-                ),
-              ) +
-                solution.content.fileIds!!
-                  .map { TelegramMediaPhoto(InputFile.fromId(it)) }
-                  .drop(1),
-            )
-          getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
-        }
 
         SolutionType.DOCUMENT ->
           getSolution =
             bot.sendDocument(
               state.context,
-              InputFile.fromId(solution.content.fileIds!![0]),
+              getSolutionWithURL(solution.content.filesURL!!.first()),
               text =
               if (solution.content.text == null) {
                 solutionInfo(solution)
@@ -104,6 +100,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               },
               replyMarkup = Keyboards.solutionMenu(),
             )
+
+        SolutionType.GROUP -> {
+          getSolution =
+            bot.sendMediaGroup(
+              state.context,
+              solution.content.filesURL!!.map {
+                TelegramMediaPhoto(
+                  getSolutionWithURL(it),
+                )
+              },
+            )
+          getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
+        }
       }
 
       when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
@@ -145,16 +154,37 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
               )
             }
 
-            Keyboards.returnBack -> {
+            returnBack -> {
               delete(getSolution)
-              if (getMarkup != null) {
-                delete(getMarkup)
-              }
             }
           }
         }
       }
+      if (getMarkup != null) {
+        delete(getMarkup)
+      }
     }
     MenuState(state.context, state.teacherId)
+  }
+}
+
+object SolutionProvider {
+  private var fileIndex = 0
+
+  fun getSolutionWithURL(fileURL: String): MultipartFile {
+    println(fileURL)
+    val url: URL = URI(fileURL).toURL()
+    val outputFileName: String = "solution_${fileIndex++}.pdf"
+    val file = File(outputFileName)
+
+    url.openStream().use {
+      Channels.newChannel(it).use { rbc ->
+        FileOutputStream(outputFileName).use { fos ->
+          fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
+        }
+      }
+    }
+
+    return file.asMultipartFile()
   }
 }

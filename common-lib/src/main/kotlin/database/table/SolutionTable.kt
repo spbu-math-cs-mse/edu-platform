@@ -10,5 +10,7 @@ object SolutionTable : LongIdTable("solution") {
   val messageId = long("messageId")
   val problemId = reference("problemId", ProblemTable.id)
   val content = varchar("content", 200)
+  val fileUrl = array<String>("filesURL", 200) // uhh, well...
+  val solutionType = varchar("contentType", 10)
   val timestamp = datetime("timestamp").defaultExpression(CurrentDateTime)
 }

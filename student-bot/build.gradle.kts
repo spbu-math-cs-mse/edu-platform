@@ -14,6 +14,6 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.kotlin.result)
     implementation(libs.hoplite.core)
-    implementation(libs.hoplite.yaml)
+    implementation(libs.hoplite.json)
     implementation(libs.postgresql)
 }

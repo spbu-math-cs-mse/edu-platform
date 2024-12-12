@@ -15,6 +15,6 @@ dependencies {
     implementation(libs.kotlin.result)
     implementation(libs.google.api.services.sheets)
     implementation(libs.hoplite.core)
-    implementation(libs.hoplite.yaml)
+    implementation(libs.hoplite.json)
     implementation(libs.postgresql)
 }

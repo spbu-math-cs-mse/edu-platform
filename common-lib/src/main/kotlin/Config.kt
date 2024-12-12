@@ -11,6 +11,6 @@ data class Config(
 
 fun loadConfig(): Config = ConfigLoaderBuilder
   .default()
-  .addPathSource(Path("./../config.yaml"))
+  .addPathSource(Path("./../config.json"))
   .build()
   .loadConfigOrThrow<Config>()

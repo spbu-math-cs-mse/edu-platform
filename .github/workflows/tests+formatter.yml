@@ -49,7 +49,7 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
           pwd
-          echo $CONFIG_FILE > config.yaml
+          echo $CONFIG_FILE > config.json
           echo $GOOGLE_API_KEY > google_api_key.json
 
       - name: Run Backend Tests

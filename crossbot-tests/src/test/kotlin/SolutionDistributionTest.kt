@@ -20,6 +20,7 @@ class SolutionDistributionTest {
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var studentStorage: StudentStorage
+  private lateinit var teacherStorage: TeacherStorage
   private lateinit var teacherCore: TeacherCore
   private lateinit var studentCore: StudentCore
 
@@ -41,6 +42,7 @@ class SolutionDistributionTest {
     gradeTable = DatabaseGradeTable(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
     studentCore =
       StudentCore(
@@ -53,8 +55,8 @@ class SolutionDistributionTest {
   }
 
   @Test
-  fun `solution distribution with existing student test`() {
-    val teacherId = TeacherId(0L)
+  fun `solution distribution with existing student and teacher test`() {
+    val teacherId = teacherStorage.createTeacher()
     teacherCore =
       TeacherCore(
         teacherStatistics,
@@ -68,7 +70,10 @@ class SolutionDistributionTest {
     val messageId = newMessageId()
     val text = "sample solution\nwith lines\n..."
 
-    val problemId = createProblem()
+    val courseId = coursesDistributor.createCourse("")
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+
+    val problemId = createProblem(courseId)
     studentCore.inputSolution(
       studentId,
       chatId,
@@ -77,9 +82,13 @@ class SolutionDistributionTest {
       problemId,
     )
 
+    assertNull(solutionDistributor.querySolution(teacherId, gradeTable).value)
+
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+
     val extractedSolutionResult =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
+        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
       )
     assertTrue(extractedSolutionResult.isOk)
     val extractedSolution = extractedSolutionResult.value
@@ -110,8 +119,7 @@ class SolutionDistributionTest {
     assertNull(emptySolution)
   }
 
-  private fun createProblem(): ProblemId {
-    val courseId = coursesDistributor.createCourse("")
+  private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
     val assignment =
       assignmentStorage.createAssignment(
         courseId,
@@ -151,7 +159,7 @@ class SolutionDistributionTest {
 
     val extractedSolutionResult =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
+        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
       )
     assertTrue(extractedSolutionResult.isOk)
     val extractedSolution = extractedSolutionResult.value

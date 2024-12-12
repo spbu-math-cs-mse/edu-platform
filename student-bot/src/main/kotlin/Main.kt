@@ -23,7 +23,7 @@ suspend fun main(vararg args: String) {
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor = DatabaseSolutionDistributor(database)
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, DatabaseTeacherStorage(database))
 
   val userIdRegistry = MockStudentIdRegistry(1L)
 

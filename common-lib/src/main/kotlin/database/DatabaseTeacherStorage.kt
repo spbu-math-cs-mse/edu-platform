@@ -48,4 +48,10 @@ class DatabaseTeacherStorage(
         ),
       )
     }
+
+  override fun getTeachers(): List<Teacher> =
+    transaction(database) {
+      TeacherTable.selectAll()
+        .map { Teacher(TeacherId(it[TeacherTable.id].value), it[TeacherTable.name], it[TeacherTable.surname]) }
+    }
 }

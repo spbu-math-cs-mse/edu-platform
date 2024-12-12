@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib
 import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.googlesheets.MockRatingRecorder
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore
@@ -24,17 +25,19 @@ class SolutionDistributionTest {
   private lateinit var studentCore: StudentCore
 
   private var messageId = 1L
-  private var databaseNum = 0L
 
   fun newMessageId(): MessageId = MessageId(messageId++)
 
   @BeforeEach
   fun setup() {
-    val database =
-      Database.connect(
-        "jdbc:h2:mem:test${databaseNum++};DB_CLOSE_DELAY=-1",
-        driver = "org.h2.Driver",
-      )
+    val config = loadConfig()
+
+    val database = Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     teacherStatistics = InMemoryTeacherStatistics()
@@ -49,6 +52,7 @@ class SolutionDistributionTest {
         problemStorage,
         assignmentStorage,
         gradeTable,
+        MockRatingRecorder(),
       )
   }
 
@@ -61,6 +65,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        MockRatingRecorder(),
       )
 
     val studentId = studentStorage.createStudent()
@@ -133,6 +138,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        MockRatingRecorder(),
       )
 
     val userId = studentStorage.createStudent()
@@ -187,6 +193,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        MockRatingRecorder(),
       )
 
     val userId1 = studentStorage.createStudent()

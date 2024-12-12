@@ -63,11 +63,15 @@ class DatabaseStudentStorage(
     }
   }
 
-  override fun createStudent(): StudentId =
+  override fun createStudent(
+    name: String,
+    surname: String,
+    tgId: Long,
+  ): StudentId =
     transaction(database) {
       StudentTable.insert {
-        it[StudentTable.name] = "defaultName"
-        it[StudentTable.surname] = "defaultSurname"
+        it[StudentTable.name] = name
+        it[StudentTable.surname] = surname
         it[StudentTable.tgId] = 0L
       } get StudentTable.id
     }.value.toStudentId()

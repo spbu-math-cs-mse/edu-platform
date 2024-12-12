@@ -1,8 +1,7 @@
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.googlesheets.MockRatingRecorder
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.StudentCore
@@ -23,8 +22,10 @@ class StudentBotTest {
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
   private lateinit var studentStorage: StudentStorage
+  private lateinit var teacherStorage: TeacherStorage
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
+  private lateinit var ratingRecorder: RatingRecorder
 
   private fun createProblem(): ProblemId {
     val courseId = coursesDistributor.createCourse("")
@@ -39,11 +40,14 @@ class StudentBotTest {
     return problemId
   }
 
-  private val database =
-    Database.connect(
-      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
 
   @BeforeEach
   fun setup() {
@@ -52,6 +56,7 @@ class StudentBotTest {
     studentStorage = DatabaseStudentStorage(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
     courseIds =
       fillWithSamples(
@@ -59,8 +64,12 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         studentStorage,
+        teacherStorage,
+        database,
       )
     gradeTable = DatabaseGradeTable(database)
+    ratingRecorder = MockRatingRecorder()
+
     studentCore =
       StudentCore(
         solutionDistributor,
@@ -68,6 +77,7 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         gradeTable,
+        ratingRecorder,
       )
   }
 
@@ -144,7 +154,6 @@ class StudentBotTest {
         }
       }
     }
-    println(solutions)
 
     val firstSolutionResult = solutionDistributor.resolveSolution(solutions.first())
     assertTrue(firstSolutionResult.isOk)

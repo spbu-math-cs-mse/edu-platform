@@ -25,20 +25,20 @@ class DatabaseTeacherStorage(
     }
   }
 
-  override fun createTeacher(): TeacherId =
+  override fun createTeacher(name: String, surname: String, tgId: Long): TeacherId =
     transaction(database) {
       TeacherTable.insert {
-        it[TeacherTable.name] = "defaultName"
-        it[TeacherTable.surname] = "defaultSurname"
-        it[TeacherTable.tgId] = 0L
+        it[TeacherTable.name] = name
+        it[TeacherTable.surname] = surname
+        it[TeacherTable.tgId] = tgId
       } get TeacherTable.id
     }.value.toTeacherId()
 
   override fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     transaction(database) {
-      val row = StudentTable
+      val row = TeacherTable
         .selectAll()
-        .where(StudentTable.id eq teacherId.id)
+        .where(TeacherTable.id eq teacherId.id)
         .singleOrNull() ?: return@transaction Err(ResolveError(teacherId))
       Ok(
         Teacher(

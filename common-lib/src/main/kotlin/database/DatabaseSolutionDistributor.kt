@@ -55,6 +55,7 @@ class DatabaseSolutionDistributor(
         .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
         .selectAll()
         .where { AssessmentTable.id.isNull() }
+        .orderBy(SolutionTable.timestamp)
         .firstOrNull() ?: return@transaction null
 
       Solution(

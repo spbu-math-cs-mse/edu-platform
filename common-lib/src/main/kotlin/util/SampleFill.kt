@@ -1,6 +1,8 @@
 package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.reset
+import org.jetbrains.exposed.sql.Database
 
 fun generateCourse(
   name: String,
@@ -28,7 +30,9 @@ fun fillWithSamples(
   assignmentStorage: AssignmentStorage,
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
+  database: Database,
 ): List<CourseId> {
+  reset(database)
   val realAnalysis =
     generateCourse(
       "Начала мат. анализа",

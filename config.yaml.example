@@ -1,0 +1,10 @@
+
+googleSheetsConfig:
+  serviceAccountKey: "./../google_api_key.json"
+  spreadsheetId: "SPREADSHEET_ID_12345"
+
+databaseConfig:
+  url: "jdbc:postgresql://localhost:<port>/<database>"
+  driver: "org.postgresql.Driver"
+  login: "<login>"
+  password: "<password>"

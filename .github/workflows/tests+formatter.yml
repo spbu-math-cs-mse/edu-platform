@@ -43,5 +43,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Load Config Files from Secrets
+        env:
+          CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          pwd
+          echo $CONFIG_FILE > config.yaml
+          echo $GOOGLE_API_KEY > google_api_key.json
+
       - name: Run Backend Tests
         run: ./gradlew check
+
+      - name: Store Reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/
+            **/build/test-results/

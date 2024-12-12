@@ -1,23 +1,27 @@
-import com.github.heheteam.commonlib.GoogleSheetsConfig
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
-import com.sksamuel.hoplite.ConfigLoaderBuilder
-import com.sksamuel.hoplite.addResourceSource
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertNotNull
 
-//@Ignore
+// @Ignore
 class GoogleSheetsTest {
-  val database =
-    Database.connect(
-      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
 
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val gradeTable = DatabaseGradeTable(database)
@@ -28,13 +32,10 @@ class GoogleSheetsTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStatistics = InMemoryTeacherStatistics()
 
-  private val config = ConfigLoaderBuilder
-    .default()
-    .addResourceSource("/google_sheets.yaml")
-    .build()
-    .loadConfigOrThrow<GoogleSheetsConfig>()
-
-  private val service = GoogleSheetsService(config.serviceAccountKey, config.spreadsheetId)
+  private val googleSheetsService = GoogleSheetsService(
+    config.googleSheetsConfig.serviceAccountKey,
+    config.googleSheetsConfig.spreadsheetId,
+  )
 
   @BeforeTest
   @AfterTest
@@ -42,7 +43,7 @@ class GoogleSheetsTest {
     reset(database)
   }
 
-//  @Ignore
+  //  @Ignore
   @Test
   fun `update rating works`() {
     val course1Id = coursesDistributor.createCourse("course 1")
@@ -96,14 +97,14 @@ class GoogleSheetsTest {
       )
     }
 
-    service.updateRating(
+    googleSheetsService.updateRating(
       coursesDistributor.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id),
       problemStorage.getProblemsFromCourse(course1Id),
       coursesDistributor.getStudents(course1Id),
       gradeTable.getCourseRating(course1Id, solutionDistributor),
     )
-    service.updateRating(
+    googleSheetsService.updateRating(
       coursesDistributor.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id),
       problemStorage.getProblemsFromCourse(course2Id),

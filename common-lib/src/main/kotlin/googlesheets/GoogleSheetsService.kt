@@ -9,13 +9,14 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.*
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
+import java.io.FileInputStream
 
 class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheetId: String) {
   private val apiClient: Sheets
 
   init {
     val credentials =
-      GoogleCredentials.fromStream(object {}.javaClass.classLoader.getResourceAsStream(serviceAccountKeyFile))
+      GoogleCredentials.fromStream(FileInputStream(serviceAccountKeyFile))
         .createScoped(listOf("https://www.googleapis.com/auth/spreadsheets"))
 
     apiClient = Sheets.Builder(

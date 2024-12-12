@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -20,11 +21,14 @@ class TeacherBotTest {
   private lateinit var teacherId: TeacherId
   private lateinit var studentId: StudentId
   private lateinit var problemId: ProblemId
-  val database =
-    Database.connect(
-      "jdbc:h2:./data/films",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database)
@@ -60,11 +64,14 @@ class TeacherBotTest {
   }
 
   companion object {
-    val database =
-      Database.connect(
-        "jdbc:h2:./data/films",
-        driver = "org.h2.Driver",
-      )
+    private val config = loadConfig()
+
+    private val database = Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
     @JvmStatic
     @AfterAll

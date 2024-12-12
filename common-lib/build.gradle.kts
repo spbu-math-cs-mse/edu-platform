@@ -16,4 +16,5 @@ dependencies {
     implementation(libs.google.api.services.sheets)
     implementation(libs.hoplite.core)
     implementation(libs.hoplite.yaml)
+    implementation(libs.postgresql)
 }

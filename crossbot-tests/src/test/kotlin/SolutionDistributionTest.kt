@@ -82,13 +82,13 @@ class SolutionDistributionTest {
       problemId,
     )
 
-    assertNull(solutionDistributor.querySolution(teacherId, gradeTable))
+    assertNull(solutionDistributor.querySolution(teacherId, gradeTable).value)
 
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
     val extractedSolutionResult =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
+        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
       )
     assertTrue(extractedSolutionResult.isOk)
     val extractedSolution = extractedSolutionResult.value
@@ -159,7 +159,7 @@ class SolutionDistributionTest {
 
     val extractedSolutionResult =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable)!!.id,
+        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
       )
     assertTrue(extractedSolutionResult.isOk)
     val extractedSolution = extractedSolutionResult.value

@@ -46,40 +46,62 @@ class DatabaseSolutionDistributor(
   override fun querySolution(
     teacherId: TeacherId,
     gradeTable: GradeTable,
-  ): Solution? =
+  ): Result<Solution?, SolutionResolveError> =
     transaction(database) {
-      val id =
+      val teacherRow =
         TeacherTable.select(TeacherTable.id)
           .where(TeacherTable.id eq teacherId.id)
-          .firstOrNull() ?: return@transaction null
+          .firstOrNull()
+          ?: return@transaction Err(TeacherDoesNotExist(teacherId))
       val courses =
         CourseTeachers.select(CourseTeachers.courseId)
-          .where(CourseTeachers.teacherId eq id[TeacherTable.id])
+          .where(CourseTeachers.teacherId eq teacherRow[TeacherTable.id])
           .map { course -> course[CourseTeachers.courseId] }
 
       val solution =
         SolutionTable
-          .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
-          .join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
-          .join(AssignmentTable, JoinType.INNER, onColumn = ProblemTable.assignmentId, otherColumn = AssignmentTable.id)
-          .join(CourseTable, JoinType.INNER, onColumn = AssignmentTable.course, otherColumn = CourseTable.id)
+          .join(
+            AssessmentTable,
+            JoinType.LEFT,
+            onColumn = SolutionTable.id,
+            otherColumn = AssessmentTable.solutionId,
+          )
+          .join(
+            ProblemTable,
+            JoinType.INNER,
+            onColumn = SolutionTable.problemId,
+            otherColumn = ProblemTable.id,
+          )
+          .join(
+            AssignmentTable,
+            JoinType.INNER,
+            onColumn = ProblemTable.assignmentId,
+            otherColumn = AssignmentTable.id,
+          )
+          .join(
+            CourseTable,
+            JoinType.INNER,
+            onColumn = AssignmentTable.course,
+            otherColumn = CourseTable.id,
+          )
           .selectAll()
           .where {
-            AssessmentTable.id.isNull() and (
-              CourseTable.id inList courses
-              )
+            AssessmentTable.id.isNull() and (CourseTable.id inList courses)
           }
-          .firstOrNull() ?: return@transaction null
+          .firstOrNull()
+          ?: return@transaction Ok(null)
 
-      Solution(
-        solution[SolutionTable.id].value.toSolutionId(),
-        StudentId(solution[SolutionTable.studentId].value),
-        solution[SolutionTable.chatId].toChatId().chatId,
-        MessageId(solution[SolutionTable.messageId]),
-        ProblemId(solution[SolutionTable.problemId].value),
-        SolutionContent(listOf(), solution[SolutionTable.content]),
-        SolutionType.TEXT,
-        solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+      Ok(
+        Solution(
+          solution[SolutionTable.id].value.toSolutionId(),
+          StudentId(solution[SolutionTable.studentId].value),
+          solution[SolutionTable.chatId].toChatId().chatId,
+          MessageId(solution[SolutionTable.messageId]),
+          ProblemId(solution[SolutionTable.problemId].value),
+          SolutionContent(listOf(), solution[SolutionTable.content]),
+          SolutionType.TEXT,
+          solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+        ),
       )
     }
 

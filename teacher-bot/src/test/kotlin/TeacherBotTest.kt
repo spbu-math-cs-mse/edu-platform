@@ -49,6 +49,8 @@ class TeacherBotTest {
     teacherId = teacherStorage.createTeacher()
     studentId = studentStorage.createStudent()
     val courseId = coursesDistributor.createCourse("test course")
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    coursesDistributor.addStudentToCourse(studentId, courseId)
     val assignmentId =
       assignmentStorage.createAssignment(
         courseId,
@@ -165,7 +167,7 @@ class TeacherBotTest {
       SolutionContent(text = "test"),
       problemId,
     )
-    val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!
+    val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database)).value!!
 
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(listOf(), text = "test"), solution.content)

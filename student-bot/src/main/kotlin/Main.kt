@@ -21,6 +21,7 @@ suspend fun main(vararg args: String) {
   )
 
   val studentStorage = DatabaseStudentStorage(database)
+  val teacherStorage = DatabaseTeacherStorage(database)
   val coursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
@@ -34,7 +35,7 @@ suspend fun main(vararg args: String) {
   val notificationService = StudentNotificationService(bot)
   val botEventBus = RedisBotEventBus()
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
 
   val userIdRegistry = MockStudentIdRegistry(1L)
 

@@ -25,6 +25,7 @@ class StudentBotTest {
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
   private lateinit var studentStorage: StudentStorage
+  private lateinit var teacherStorage: TeacherStorage
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
 
@@ -52,6 +53,7 @@ class StudentBotTest {
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
     problemStorage = DatabaseProblemStorage(database)
@@ -61,6 +63,8 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         studentStorage,
+        teacherStorage,
+        database,
       )
     gradeTable = DatabaseGradeTable(database)
     studentCore =

@@ -1,10 +1,9 @@
 package com.github.heheteam.teacherbot
 
-import DatabaseCoursesDistributor
-import GoogleSheetsService
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.teacherbot.run.teacherRun

@@ -11,5 +11,6 @@ teacher-bot/build/
 **/build/*
 **/.gradle/*
 .run/
-/google_api_key.json
-/config.json
+/common-lib/src/main/resources/config.json
+/common-lib/src/main/resources/google_api_key.json
+/common-lib/src/test/resources/google_api_key.json

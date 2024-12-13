@@ -1,8 +1,7 @@
 package com.github.heheteam.commonlib
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
-import com.sksamuel.hoplite.addPathSource
-import kotlin.io.path.Path
+import com.sksamuel.hoplite.addResourceSource
 
 data class Config(
   val databaseConfig: DatabaseConfig,
@@ -11,6 +10,6 @@ data class Config(
 
 fun loadConfig(): Config = ConfigLoaderBuilder
   .default()
-  .addPathSource(Path("./../config.json"))
+  .addResourceSource("/config.json")
   .build()
   .loadConfigOrThrow<Config>()

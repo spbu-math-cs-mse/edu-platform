@@ -1,22 +1,20 @@
+package com.github.heheteam.commonlib.googlesheets
+
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.googlesheets.ComposedTable
-import com.github.heheteam.commonlib.googlesheets.DataType
-import com.github.heheteam.commonlib.googlesheets.FancyCell
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.*
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
-import java.io.FileInputStream
 
 class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheetId: String) {
   private val apiClient: Sheets
 
   init {
     val credentials =
-      GoogleCredentials.fromStream(FileInputStream(serviceAccountKeyFile))
+      GoogleCredentials.fromStream(object {}.javaClass.classLoader.getResourceAsStream(serviceAccountKeyFile))
         .createScoped(listOf("https://www.googleapis.com/auth/spreadsheets"))
 
     apiClient = Sheets.Builder(
@@ -66,7 +64,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
   }
 
   private fun generateMergeRequests(
-    data: List<List<FancyCell>>,
+    data: List<List<FormattedCell>>,
     sheetId: Int?,
   ): List<Request> = data.mapIndexed { row, rowList ->
     var column = 0
@@ -107,7 +105,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
   }.toList()
 
   private fun generateUpdateRequests(
-    data: List<List<FancyCell>>,
+    data: List<List<FormattedCell>>,
     sheetId: Int?,
   ): List<Request> = data.flatMapIndexed { rowIndex, row ->
     val rowExtended = row.flatMap { cell ->
@@ -150,22 +148,22 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       listOf(
         // Row 1
         // Name of the course
-        listOf(FancyCell(course.name, DataType.STRING, 3).centerAlign().bold().borders(2)) +
+        listOf(FormattedCell(course.name, DataType.STRING, 3).centerAlign().bold().borders(2)) +
           // Assignments
           sortedAssignments.map {
-            FancyCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0).bold().borders(2).centerAlign()
+            FormattedCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0).bold().borders(2).centerAlign()
           },
         // Row 2
-        listOf("id", "surname", "name").map { FancyCell(it, DataType.STRING).bold().borders() } +
-          sortedProblems.map { FancyCell(it.number, DataType.STRING).bold().borders().centerAlign() },
+        listOf("id", "surname", "name").map { FormattedCell(it, DataType.STRING).bold().borders() } +
+          sortedProblems.map { FormattedCell(it.number, DataType.STRING).bold().borders().centerAlign() },
       ) +
         // Rows 3+
         students.map { student ->
           listOf(student.id.id, student.surname, student.name)
-            .map { FancyCell(it.toString(), DataType.STRING).borders() } +
+            .map { FormattedCell(it.toString(), DataType.STRING).borders() } +
 
             sortedProblems.asSequence().map { problem -> performance[student.id]?.get(problem.id) ?: "" }
-              .map { FancyCell(it.toString(), DataType.STRING).topBorder().bottomBorder().centerAlign() }
+              .map { FormattedCell(it.toString(), DataType.STRING).topBorder().bottomBorder().centerAlign() }
               .mapIndexed { index, it ->
                 if (index == sortedProblems.size - 1 || sortedProblems[index].assignmentId != sortedProblems[index + 1].assignmentId) {
                   it.rightBorder()

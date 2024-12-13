@@ -1,3 +1,5 @@
+package com.github.heheteam.commonlib.database
+
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher

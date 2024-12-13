@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib
 
-import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.googlesheets.MockRatingRecorder

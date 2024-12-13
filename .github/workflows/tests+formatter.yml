@@ -45,9 +45,8 @@ jobs:
           CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          pwd
-          echo $CONFIG_FILE > config.json
-          echo $GOOGLE_API_KEY > google_api_key.json
+          echo $CONFIG_FILE > common-lib/src/main/resources/config.json
+          echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
 
       - name: Run Backend Tests
         run: ./gradlew check

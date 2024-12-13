@@ -11,7 +11,7 @@ enum class DataType {
   ERROR,
 }
 
-internal class FancyCell(
+internal class FormattedCell(
   data: String = "",
   dataType: DataType = DataType.STRING,
   val width: Int = 1,
@@ -24,12 +24,12 @@ internal class FancyCell(
     .setUserEnteredValue(parse(data, dataType))
     .setUserEnteredFormat(cellFormat)
 
-  fun bold(): FancyCell {
+  fun bold(): FormattedCell {
     cellData.setUserEnteredFormat(cellFormat.setTextFormat(TextFormat().setBold(true)))
     return this
   }
 
-  fun borders(width: Int = 1): FancyCell {
+  fun borders(width: Int = 1): FormattedCell {
     cellFormat.apply {
       borders.setTop(Border().setWidth(width).setStyle("SOLID"))
       borders.setBottom(Border().setWidth(width).setStyle("SOLID"))
@@ -39,35 +39,35 @@ internal class FancyCell(
     return this
   }
 
-  fun rightBorder(width: Int = 1): FancyCell {
+  fun rightBorder(width: Int = 1): FormattedCell {
     cellFormat.apply {
       borders.setRight(Border().setWidth(width).setStyle("SOLID"))
     }
     return this
   }
 
-  fun leftBorder(width: Int = 1): FancyCell {
+  fun leftBorder(width: Int = 1): FormattedCell {
     cellFormat.apply {
       borders.setLeft(Border().setWidth(width).setStyle("SOLID"))
     }
     return this
   }
 
-  fun topBorder(width: Int = 1): FancyCell {
+  fun topBorder(width: Int = 1): FormattedCell {
     cellFormat.apply {
       borders.setTop(Border().setWidth(width).setStyle("SOLID"))
     }
     return this
   }
 
-  fun bottomBorder(width: Int = 1): FancyCell {
+  fun bottomBorder(width: Int = 1): FormattedCell {
     cellFormat.apply {
       borders.setBottom(Border().setWidth(width).setStyle("SOLID"))
     }
     return this
   }
 
-  fun centerAlign(): FancyCell {
+  fun centerAlign(): FormattedCell {
     cellData.setUserEnteredFormat(cellFormat.setHorizontalAlignment("CENTER"))
     return this
   }

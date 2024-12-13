@@ -1,11 +1,10 @@
 package com.github.heheteam.adminbot
 
-import DatabaseCoursesDistributor
-import GoogleSheetsService
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockAdminIdRegistry

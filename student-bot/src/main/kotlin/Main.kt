@@ -1,12 +1,11 @@
 package com.github.heheteam.studentbot
 
-import DatabaseCoursesDistributor
-import GoogleSheetsService
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.MockStudentIdRegistry
 import com.github.heheteam.commonlib.util.fillWithSamples

@@ -13,7 +13,6 @@ class TeacherCore(
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
-  private val ratingRecorder: RatingRecorder,
 ) {
   fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
     val result = teacherStatistics.resolveTeacherStats(teacherId)
@@ -33,17 +32,14 @@ class TeacherCore(
     teacherId: TeacherId,
     assessment: SolutionAssessment,
     timestamp: LocalDateTime = LocalDateTime.now(),
-  ) {
-    gradeTable.assessSolution(
-      solution.id,
-      teacherId,
-      assessment,
-      gradeTable,
-      teacherStatistics,
-      timestamp,
-    )
-    ratingRecorder.updateRating(solution.problemId)
-  }
+  ) = gradeTable.assessSolution(
+    solution.id,
+    teacherId,
+    assessment,
+    gradeTable,
+    teacherStatistics,
+    timestamp,
+  )
 
   fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)

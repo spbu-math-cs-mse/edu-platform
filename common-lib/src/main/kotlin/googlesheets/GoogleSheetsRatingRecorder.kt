@@ -51,4 +51,13 @@ class GoogleSheetsRatingRecorder(
       updateRating(courseId)
     }
   }
+
+  override fun updateRating(solutionId: SolutionId) {
+    scope.launch {
+      val problemId = solutionDistributor.resolveSolution(solutionId).value.problemId
+      val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
+      val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
+      updateRating(courseId)
+    }
+  }
 }

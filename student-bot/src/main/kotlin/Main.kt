@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
@@ -24,23 +25,25 @@ suspend fun main(vararg args: String) {
   )
 
   val studentStorage = DatabaseStudentStorage(database)
-  val coursesDistributor = DatabaseCoursesDistributor(database)
+  val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor = DatabaseSolutionDistributor(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-  val gradeTable = DatabaseGradeTable(database)
+  val databaseGradeTable = DatabaseGradeTable(database)
 
   val googleSheetsService =
     GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
   val ratingRecorder = GoogleSheetsRatingRecorder(
     googleSheetsService,
-    coursesDistributor,
+    databaseCoursesDistributor,
     assignmentStorage,
     problemStorage,
-    gradeTable,
+    databaseGradeTable,
     solutionDistributor,
   )
+  val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
 
   val userIdRegistry = MockStudentIdRegistry(1L)
@@ -52,7 +55,6 @@ suspend fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       DatabaseGradeTable(database),
-      ratingRecorder,
     )
 
   studentRun(botToken, userIdRegistry, studentStorage, core)

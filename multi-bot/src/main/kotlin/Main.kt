@@ -4,6 +4,8 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
+import com.github.heheteam.commonlib.facades.GradeTableFacade
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
@@ -39,17 +41,17 @@ fun main(vararg args: String) {
     config.databaseConfig.password,
   )
 
-  val coursesDistributor = DatabaseCoursesDistributor(database)
+  val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
-  val gradeTable: GradeTable = DatabaseGradeTable(database)
+  val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
   val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
     InMemoryScheduledMessagesDistributor()
   val studentStorage = DatabaseStudentStorage(database)
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+  fillWithSamples(databaseCoursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
 
   val parentStorage = MockParentStorage()
 
@@ -57,12 +59,15 @@ fun main(vararg args: String) {
     GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
   val ratingRecorder = GoogleSheetsRatingRecorder(
     googleSheetsService,
-    coursesDistributor,
+    databaseCoursesDistributor,
     assignmentStorage,
     problemStorage,
-    gradeTable,
+    databaseGradeTable,
     solutionDistributor,
   )
+
+  val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+  val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
 
   val studentIdRegistry = MockStudentIdRegistry(1L)
   val studentCore =
@@ -72,7 +77,6 @@ fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       gradeTable,
-      ratingRecorder,
     )
 
   val teacherIdRegistry = MockTeacherIdRegistry(1L)
@@ -82,7 +86,6 @@ fun main(vararg args: String) {
       coursesDistributor,
       solutionDistributor,
       gradeTable,
-      ratingRecorder,
     )
 
   val adminIdRegistry = MockAdminIdRegistry(1L)
@@ -92,7 +95,6 @@ fun main(vararg args: String) {
       coursesDistributor,
       studentStorage,
       teacherStorage,
-      ratingRecorder,
     )
 
   val parentIdRegistry = MockParentIdRegistry(1L)

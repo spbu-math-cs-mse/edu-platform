@@ -18,18 +18,6 @@ class DatabaseGradeTable(
     }
   }
 
-  override fun addAssessment(
-    teacherId: TeacherId,
-    solutionId: SolutionId,
-    assessment: SolutionAssessment,
-  ) {
-    AssessmentTable.insert {
-      it[AssessmentTable.solutionId] = solutionId.id
-      it[AssessmentTable.teacherId] = teacherId.id
-      it[AssessmentTable.grade] = assessment.grade
-    }
-  }
-
   override fun getStudentPerformance(
     studentId: StudentId,
     solutionDistributor: SolutionDistributor,

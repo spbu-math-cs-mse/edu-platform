@@ -2,10 +2,13 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
+import com.github.heheteam.commonlib.facades.GradeTableFacade
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockTeacherIdRegistry
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
@@ -23,23 +26,25 @@ suspend fun main(vararg args: String) {
     config.databaseConfig.password,
   )
 
-  val coursesDistributor = DatabaseCoursesDistributor(database)
+  val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
-  val gradeTable: GradeTable = DatabaseGradeTable(database)
+  val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
 
   val googleSheetsService =
     GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
   val ratingRecorder = GoogleSheetsRatingRecorder(
     googleSheetsService,
-    coursesDistributor,
+    databaseCoursesDistributor,
     assignmentStorage,
     problemStorage,
-    gradeTable,
+    databaseGradeTable,
     solutionDistributor,
   )
+  val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+  val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
 
   val teacherStatistics = InMemoryTeacherStatistics()
 
@@ -51,7 +56,6 @@ suspend fun main(vararg args: String) {
       coursesDistributor,
       solutionDistributor,
       gradeTable,
-      ratingRecorder,
     )
 
   teacherRun(botToken, userIdRegistry, teacherStorage, core)

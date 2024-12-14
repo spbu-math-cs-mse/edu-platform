@@ -13,7 +13,6 @@ class StudentCore(
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val gradeTable: GradeTable,
-  private val ratingRecorder: RatingRecorder,
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
@@ -39,10 +38,7 @@ class StudentCore(
   fun addRecord(
     studentId: StudentId,
     courseId: CourseId,
-  ) {
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-    ratingRecorder.updateRating(courseId)
-  }
+  ) = coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun getCourses(): List<Course> = coursesDistributor.getCourses()
 

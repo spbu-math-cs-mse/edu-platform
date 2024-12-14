@@ -3,6 +3,7 @@ package com.github.heheteam.adminbot
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
@@ -23,11 +24,11 @@ suspend fun main(vararg args: String) {
     config.databaseConfig.password,
   )
 
-  val coursesDistributor = DatabaseCoursesDistributor(database)
+  val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
-  val gradeTable: GradeTable = DatabaseGradeTable(database)
+  val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val scheduledMessagesDistributor: ScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
   val studentStorage = DatabaseStudentStorage(database)
@@ -36,12 +37,14 @@ suspend fun main(vararg args: String) {
     GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
   val ratingRecorder = GoogleSheetsRatingRecorder(
     googleSheetsService,
-    coursesDistributor,
+    databaseCoursesDistributor,
     assignmentStorage,
     problemStorage,
-    gradeTable,
+    databaseGradeTable,
     solutionDistributor,
   )
+
+  val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
 
   val userIdRegistry = MockAdminIdRegistry(0L)
   val core =
@@ -50,7 +53,6 @@ suspend fun main(vararg args: String) {
       coursesDistributor,
       studentStorage,
       teacherStorage,
-      ratingRecorder,
     )
 
   adminRun(botToken, userIdRegistry, core)

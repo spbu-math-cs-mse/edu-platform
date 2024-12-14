@@ -1,7 +1,13 @@
 package com.github.heheteam.commonlib.googlesheets
 
 import com.github.heheteam.commonlib.api.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 class GoogleSheetsRatingRecorder(
   private val googleSheetsService: GoogleSheetsService,
@@ -12,6 +18,7 @@ class GoogleSheetsRatingRecorder(
   private val solutionDistributor: SolutionDistributor,
 ) : RatingRecorder {
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+  private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
 
   init {
     coursesDistributor.getCourses().forEach { course ->
@@ -20,8 +27,12 @@ class GoogleSheetsRatingRecorder(
   }
 
   override fun updateRating(courseId: CourseId) {
-    runBlocking {
-      scope.launch {
+    scope.launch {
+      val mutex = courseMutexes[courseId] ?: run {
+        courseMutexes[courseId] = Mutex()
+        courseMutexes[courseId]!!
+      }
+      mutex.withLock {
         googleSheetsService.updateRating(
           coursesDistributor.resolveCourse(courseId).value,
           assignmentStorage.getAssignmentsForCourse(courseId),
@@ -37,13 +48,7 @@ class GoogleSheetsRatingRecorder(
     scope.launch {
       val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
       val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
-      googleSheetsService.updateRating(
-        coursesDistributor.resolveCourse(courseId).value,
-        assignmentStorage.getAssignmentsForCourse(courseId),
-        problemStorage.getProblemsFromCourse(courseId),
-        coursesDistributor.getStudents(courseId),
-        gradeTable.getCourseRating(courseId, solutionDistributor),
-      )
+      updateRating(courseId)
     }
   }
 }

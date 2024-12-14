@@ -1,6 +1,6 @@
 {
   "googleSheetsConfig": {
-    "serviceAccountKey": "/google_api_key.json",
+    "serviceAccountKey": "google_api_key.json",
     "spreadsheetId": "SPREADSHEET_ID_12345"
   },
   "databaseConfig": {

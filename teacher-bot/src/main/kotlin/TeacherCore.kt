@@ -44,7 +44,11 @@ class TeacherCore(
 
     problemStorage.resolveProblem(solution.problemId).map { problem ->
       botEventBus.publishGradeEvent(
-        solution.studentId, solution.chatId, solution.messageId, assessment, problem
+        solution.studentId,
+        solution.chatId,
+        solution.messageId,
+        assessment,
+        problem,
       )
     }
   }

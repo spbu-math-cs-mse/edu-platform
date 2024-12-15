@@ -7,4 +7,6 @@ interface TeacherStorage {
   fun createTeacher(name: String = "defaultName", surname: String = "defaultSurname", tgId: Long = 0L): TeacherId
 
   fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>>
+
+  fun getTeachers(): List<Teacher>
 }

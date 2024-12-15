@@ -29,8 +29,7 @@ class StudentBotTest {
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
 
-  private fun createProblem(): ProblemId {
-    val courseId = coursesDistributor.createCourse("")
+  private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
     val assignment =
       assignmentStorage.createAssignment(
         courseId,
@@ -53,9 +52,9 @@ class StudentBotTest {
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
-    teacherStorage = DatabaseTeacherStorage(database)
     assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
     courseIds =
       fillWithSamples(
@@ -64,7 +63,6 @@ class StudentBotTest {
         assignmentStorage,
         studentStorage,
         teacherStorage,
-        database,
       )
     gradeTable = DatabaseGradeTable(database)
     studentCore =
@@ -124,8 +122,11 @@ class StudentBotTest {
     val chatId = RawChatId(0)
 
     run {
-      val teacherId = TeacherId(0L)
+      val courseId = courseIds.first()
+      val teacherId = teacherStorage.createTeacher()
       val userId = studentStorage.createStudent()
+      coursesDistributor.addStudentToCourse(userId, courseId)
+      coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
       (0..4).forEach {
         studentCore.inputSolution(
@@ -133,12 +134,12 @@ class StudentBotTest {
           chatId,
           MessageId(it.toLong()),
           SolutionContent(text = "sample$it"),
-          createProblem(),
+          createProblem(courseId),
         )
       }
 
       repeat(5) {
-        val solution = solutionDistributor.querySolution(teacherId, gradeTable)
+        val solution = solutionDistributor.querySolution(teacherId, gradeTable).value
         if (solution != null) {
           solutions.add(solution.id)
           gradeTable.assessSolution(

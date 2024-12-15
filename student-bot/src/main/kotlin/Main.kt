@@ -35,7 +35,7 @@ suspend fun main(vararg args: String) {
   val notificationService = StudentNotificationService(bot)
   val botEventBus = RedisBotEventBus()
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
   val userIdRegistry = MockStudentIdRegistry(1L)
 

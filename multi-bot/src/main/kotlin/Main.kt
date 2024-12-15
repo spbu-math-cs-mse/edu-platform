@@ -49,7 +49,8 @@ fun main(vararg args: String) {
   val gradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
+  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor =
+    InMemoryScheduledMessagesDistributor()
 
   val studentStorage = DatabaseStudentStorage(database)
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
@@ -82,6 +83,7 @@ fun main(vararg args: String) {
       coursesDistributor,
       solutionDistributor,
       gradeTable,
+      problemStorage,
       botEventBus,
     )
 

@@ -67,6 +67,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        problemStorage,
         MockBotEventBus(),
       )
 
@@ -146,6 +147,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        problemStorage,
         MockBotEventBus(),
       )
 
@@ -201,6 +203,7 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        problemStorage,
         MockBotEventBus(),
       )
 

@@ -44,21 +44,16 @@ class TeacherCore(
 
     problemStorage.resolveProblem(solution.problemId).map { problem ->
       botEventBus.publishGradeEvent(
-        solution.studentId,
-        solution.chatId,
-        solution.messageId,
-        assessment,
-        problem
+        solution.studentId, solution.chatId, solution.messageId, assessment, problem
       )
     }
   }
 
   fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)
-    val grades =
-      students.map { studentId ->
-        studentId to gradeTable.getStudentPerformance(studentId, solutionDistributor).values.sum()
-      }
+    val grades = students.map { studentId ->
+      studentId to gradeTable.getStudentPerformance(studentId, solutionDistributor).values.sum()
+    }
     return grades
   }
 

@@ -26,7 +26,6 @@ class DatabaseTeacherStorage(
     }
   }
 
-
   override fun createTeacher(): TeacherId =
     transaction(database) {
       TeacherTable.insert {

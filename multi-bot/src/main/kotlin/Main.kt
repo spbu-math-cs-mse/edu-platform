@@ -46,15 +46,21 @@ fun main(vararg args: String) {
   val coursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
-  val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
+  val solutionDistributor: SolutionDistributor =
+    DatabaseSolutionDistributor(database)
   val gradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
+  val inMemoryScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
 
   val studentStorage = DatabaseStudentStorage(database)
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage)
-
+  fillWithSamples(
+    coursesDistributor,
+    problemStorage,
+    assignmentStorage,
+    studentStorage,
+  )
+  (1..10).map { teacherStorage.createTeacher() }
   val parentStorage = MockParentStorage()
 
   val studentIdRegistry = MockStudentIdRegistry(1L)
@@ -94,8 +100,22 @@ fun main(vararg args: String) {
     )
 
   runBlocking {
-    launch { studentRun(args[0], studentIdRegistry, studentStorage, studentCore) }
-    launch { teacherRun(args[1], teacherIdRegistry, teacherStorage, teacherCore) }
+    launch {
+      studentRun(
+        args[0],
+        studentIdRegistry,
+        studentStorage,
+        studentCore,
+      )
+    }
+    launch {
+      teacherRun(
+        args[1],
+        teacherIdRegistry,
+        teacherStorage,
+        teacherCore,
+      )
+    }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
     launch { parentRun(args[3], parentIdRegistry, parentStorage, parentCore) }
   }

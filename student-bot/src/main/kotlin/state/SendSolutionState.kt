@@ -29,11 +29,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
-const val TOKEN = "your-bot-token" // kinda cringe it's needed
-
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   core: StudentCore,
+  studentBotToken: String,
 ) {
   strictlyOn<SendSolutionState> { state ->
     val studentId = state.studentId
@@ -69,7 +68,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
     state.selectedCourse = course
 
-    var botMessage = bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
+    var botMessage = bot.send(
+      state.context,
+      Dialogues.tellValidSolutionTypes(),
+      replyMarkup = back(),
+    )
 
     while (true) {
       val content =
@@ -89,15 +92,25 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is CommonMessage<*>) {
         val messageId = content.messageId
 
-        val solutionContent = extractSolutionContent(content)
+        val solutionContent = extractSolutionContent(content, studentBotToken)
 
         if (solutionContent == null) {
           deleteMessage(botMessage)
-          botMessage = bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
+          botMessage = bot.send(
+            state.context,
+            Dialogues.tellSolutionTypeIsInvalid(),
+            replyMarkup = back(),
+          )
           continue
         }
 
-        core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent, problem.id)
+        core.inputSolution(
+          studentId,
+          state.context.id.chatId,
+          messageId,
+          solutionContent,
+          problem.id,
+        )
 
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
@@ -110,12 +123,18 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   }
 }
 
-suspend fun BehaviourContext.makeURL(content: MediaContent): String {
+suspend fun BehaviourContext.makeURL(
+  content: MediaContent,
+  studentBotToken: String,
+): String {
   val contentInfo = bot.getFileAdditionalInfo(content)
-  return "https://api.telegram.org/file/bot$TOKEN/${contentInfo.filePath}"
+  return "https://api.telegram.org/file/bot$studentBotToken/${contentInfo.filePath}"
 }
 
-private suspend fun BehaviourContext.extractSolutionContent(content: CommonMessage<*>): SolutionContent? {
+private suspend fun BehaviourContext.extractSolutionContent(
+  content: CommonMessage<*>,
+  studentBotToken: String,
+): SolutionContent? {
   val textSolution = content.content.textContentOrNull()
   val photoSolution = content.content.photoContentOrNull()
   val groupSolution = content.content.mediaGroupContentOrNull()
@@ -124,25 +143,43 @@ private suspend fun BehaviourContext.extractSolutionContent(content: CommonMessa
   return if (textSolution != null) {
     return SolutionContent(text = textSolution.text, type = SolutionType.TEXT)
   } else if (photoSolution != null) {
-    SolutionContent(filesURL = listOf(makeURL(photoSolution)), type = SolutionType.PHOTO)
+    SolutionContent(
+      filesURL = listOf(makeURL(photoSolution, studentBotToken)),
+      type = SolutionType.PHOTO,
+    )
   } else if (documentSolution != null) {
-    SolutionContent(filesURL = listOf(makeURL(documentSolution)), type = SolutionType.DOCUMENT)
+    SolutionContent(
+      filesURL = listOf(makeURL(documentSolution, studentBotToken)),
+      type = SolutionType.DOCUMENT,
+    )
   } else if (groupSolution != null) {
-    SolutionContent(filesURL = groupSolution.group.map { makeURL(it.content) }, type = SolutionType.GROUP)
+    SolutionContent(
+      filesURL = groupSolution.group.map {
+        makeURL(
+          it.content,
+          studentBotToken,
+        )
+      },
+      type = SolutionType.GROUP,
+    )
   } else {
     null
   }
-
-  return null
 }
+
 private suspend fun BehaviourContext.queryCourse(
   state: SendSolutionState,
   courses: List<Course>,
 ): Course? {
   val message =
-    bot.send(state.context, Dialogues.askCourseForSolution(), replyMarkup = buildCoursesSendingSelector(courses))
+    bot.send(
+      state.context,
+      Dialogues.askCourseForSolution(),
+      replyMarkup = buildCoursesSendingSelector(courses),
+    )
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  val callbackData =
+    waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -158,9 +195,14 @@ private suspend fun BehaviourContext.queryAssignments(
   assignments: List<Assignment>,
 ): Assignment? {
   val message =
-    bot.send(state.context, Dialogues.askAssignmentFromSolution(), replyMarkup = buildAssignmentSendingSelector(assignments))
+    bot.send(
+      state.context,
+      Dialogues.askAssignmentFromSolution(),
+      replyMarkup = buildAssignmentSendingSelector(assignments),
+    )
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  val callbackData =
+    waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -176,9 +218,14 @@ private suspend fun BehaviourContext.queryProblem(
   problems: List<Problem>,
 ): Problem? {
   val message =
-    bot.send(state.context, Dialogues.askAssignmentFromSolution(), replyMarkup = buildProblemSendingSelector(problems))
+    bot.send(
+      state.context,
+      Dialogues.askAssignmentFromSolution(),
+      replyMarkup = buildProblemSendingSelector(problems),
+    )
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  val callbackData =
+    waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -190,7 +237,11 @@ private suspend fun BehaviourContext.queryProblem(
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {
-  val message = bot.send(state.context, Dialogues.tellToApplyForCourses(), replyMarkup = back())
+  val message = bot.send(
+    state.context,
+    Dialogues.tellToApplyForCourses(),
+    replyMarkup = back(),
+  )
   waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(message)
 }

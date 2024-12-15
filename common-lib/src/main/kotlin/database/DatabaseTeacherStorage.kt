@@ -20,10 +20,12 @@ class DatabaseTeacherStorage(
 ) : TeacherStorage {
   init {
     transaction(database) {
+      SchemaUtils.create(TeacherTable)
       SchemaUtils.create(StudentTable)
       SchemaUtils.create(ParentStudents)
     }
   }
+
 
   override fun createTeacher(): TeacherId =
     transaction(database) {
@@ -36,9 +38,9 @@ class DatabaseTeacherStorage(
 
   override fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     transaction(database) {
-      val row = StudentTable
+      val row = TeacherTable
         .selectAll()
-        .where(StudentTable.id eq teacherId.id)
+        .where(TeacherTable.id eq teacherId.id)
         .singleOrNull() ?: return@transaction Err(ResolveError(teacherId))
       Ok(
         Teacher(

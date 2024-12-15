@@ -3,12 +3,7 @@ package com.github.heheteam.multibot
 import DatabaseCoursesDistributor
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.TeacherStatistics
-import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -23,6 +18,10 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.run.teacherRun
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.LogLevel
+import dev.inmo.kslog.common.defaultMessageFormatter
+import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
@@ -50,7 +49,8 @@ fun main(vararg args: String) {
   val gradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
+  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor =
+    InMemoryScheduledMessagesDistributor()
 
   val studentStorage = DatabaseStudentStorage(database)
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
@@ -58,6 +58,13 @@ fun main(vararg args: String) {
   val parentStorage = MockParentStorage()
 
   val studentIdRegistry = MockStudentIdRegistry(1L)
+  val bot = telegramBot(args[0]) {
+    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+      println(defaultMessageFormatter(level, tag, message, throwable))
+    }
+  }
+  val notificationService = StudentNotificationService(bot)
+  val botEventBus = RedisBotEventBus()
   val studentCore =
     StudentCore(
       solutionDistributor,
@@ -65,6 +72,8 @@ fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       gradeTable,
+      notificationService,
+      botEventBus,
     )
 
   val teacherIdRegistry = MockTeacherIdRegistry(1L)
@@ -74,6 +83,8 @@ fun main(vararg args: String) {
       coursesDistributor,
       solutionDistributor,
       gradeTable,
+      problemStorage,
+      botEventBus,
     )
 
   val adminIdRegistry = MockAdminIdRegistry(1L)

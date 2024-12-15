@@ -1,12 +1,15 @@
 package com.github.heheteam.studentbot
 
 import DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.run.studentRun
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.LogLevel
+import dev.inmo.kslog.common.defaultMessageFormatter
+import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import org.jetbrains.exposed.sql.Database
 
 suspend fun main(vararg args: String) {
@@ -18,12 +21,21 @@ suspend fun main(vararg args: String) {
   )
 
   val studentStorage = DatabaseStudentStorage(database)
+  val teacherStorage = DatabaseTeacherStorage(database)
   val coursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
   val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
   val solutionDistributor = DatabaseSolutionDistributor(database)
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, DatabaseTeacherStorage(database))
+  val bot = telegramBot(botToken) {
+    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+      println(defaultMessageFormatter(level, tag, message, throwable))
+    }
+  }
+  val notificationService = StudentNotificationService(bot)
+  val botEventBus = RedisBotEventBus()
+
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
   val userIdRegistry = MockStudentIdRegistry(1L)
 
@@ -34,6 +46,8 @@ suspend fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       DatabaseGradeTable(database),
+      notificationService,
+      botEventBus,
     )
 
   studentRun(botToken, userIdRegistry, studentStorage, core)

@@ -11,7 +11,7 @@ interface StudentStorage {
 
   fun getChildren(parentId: ParentId): List<Student>
 
-  fun createStudent(): StudentId
+  fun createStudent(name: String = "defaultName", surname: String = "defaultSurname", tgId: Long = 0L): StudentId
 
   fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>>
 }

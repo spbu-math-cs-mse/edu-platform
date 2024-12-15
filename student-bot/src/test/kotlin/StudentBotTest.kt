@@ -4,6 +4,8 @@ import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockBotEventBus
+import com.github.heheteam.commonlib.mock.MockNotificationService
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -60,7 +62,7 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         studentStorage,
-        DatabaseTeacherStorage(database),
+        teacherStorage,
       )
     gradeTable = DatabaseGradeTable(database)
     studentCore =
@@ -70,6 +72,8 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         gradeTable,
+        MockNotificationService(),
+        MockBotEventBus(),
       )
   }
 

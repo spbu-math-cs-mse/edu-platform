@@ -4,6 +4,8 @@ import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockBotEventBus
+import com.github.heheteam.commonlib.mock.MockNotificationService
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.types.MessageId
@@ -51,6 +53,8 @@ class SolutionDistributionTest {
         problemStorage,
         assignmentStorage,
         gradeTable,
+        MockNotificationService(),
+        MockBotEventBus(),
       )
   }
 
@@ -63,6 +67,8 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        problemStorage,
+        MockBotEventBus(),
       )
 
     val studentId = studentStorage.createStudent()
@@ -141,6 +147,8 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        problemStorage,
+        MockBotEventBus(),
       )
 
     val userId = studentStorage.createStudent()
@@ -195,6 +203,8 @@ class SolutionDistributionTest {
         coursesDistributor,
         solutionDistributor,
         gradeTable,
+        problemStorage,
+        MockBotEventBus(),
       )
 
     val userId1 = studentStorage.createStudent()

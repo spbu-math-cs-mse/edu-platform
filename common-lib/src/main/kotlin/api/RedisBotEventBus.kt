@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -30,7 +31,7 @@ class RedisBotEventBus(
     chatId: RawChatId,
     messageId: MessageId,
     assessment: SolutionAssessment,
-    problemId: ProblemId,
+    problem: Problem,
   ) {
     val simpleEvent = SimpleGradeEvent(
       studentId = studentId.id,
@@ -38,13 +39,13 @@ class RedisBotEventBus(
       messageId = messageId.long,
       grade = assessment.grade,
       comment = assessment.comment,
-      problemId = problemId.id,
+      problem = problem,
     )
     val event = Json.encodeToString(simpleEvent)
     jedis.publish(channel, event)
   }
 
-  override fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, ProblemId) -> Unit) {
+  override fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit) {
     val subscriberJedis = Jedis(redisHost, redisPort)
 
     CoroutineScope(Dispatchers.IO).launch {
@@ -59,7 +60,7 @@ class RedisBotEventBus(
                   RawChatId(simpleEvent.chatId),
                   MessageId(simpleEvent.messageId),
                   SolutionAssessment(simpleEvent.grade, simpleEvent.comment),
-                  ProblemId(simpleEvent.problemId),
+                  simpleEvent.problem,
                 )
               }
             }
@@ -80,6 +81,6 @@ class RedisBotEventBus(
     val messageId: Long,
     val grade: Int,
     val comment: String,
-    val problemId: Long,
+    val problem: Problem,
   )
 }

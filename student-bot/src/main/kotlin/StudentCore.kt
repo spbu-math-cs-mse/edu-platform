@@ -17,8 +17,8 @@ class StudentCore(
   private val botEventBus: BotEventBus,
 ) {
   init {
-    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problemId ->
-      notifyAboutGrade(studentId, chatId, messageId, assessment, problemId)
+    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
+      notifyAboutGrade(studentId, chatId, messageId, assessment, problem)
     }
   }
 
@@ -89,14 +89,14 @@ class StudentCore(
     chatId: RawChatId,
     messageId: MessageId,
     assessment: SolutionAssessment,
-    problemId: ProblemId,
+    problem: Problem,
   ) {
     notificationService.notifyStudentAboutGrade(
       studentId,
       chatId,
       messageId,
       assessment,
-      problemId,
+      problem,
     )
   }
 }

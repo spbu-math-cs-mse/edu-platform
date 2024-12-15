@@ -1,9 +1,12 @@
 package com.github.heheteam.commonlib.api
 
+import kotlinx.serialization.Serializable
+
 data class CourseId(
   val id: Long,
 )
 
+@Serializable
 data class ProblemId(
   val id: Long,
 )
@@ -28,6 +31,7 @@ data class SolutionId(
   val id: Long,
 )
 
+@Serializable
 data class AssignmentId(
   val id: Long,
 )

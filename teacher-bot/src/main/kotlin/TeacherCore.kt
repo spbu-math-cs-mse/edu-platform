@@ -3,6 +3,7 @@ package com.github.heheteam.teacherbot
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.map
 import java.time.LocalDateTime
 
 class TeacherCore(
@@ -10,6 +11,7 @@ class TeacherCore(
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
+  private val problemStorage: ProblemStorage,
   private val botEventBus: BotEventBus,
 ) {
   fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
@@ -40,13 +42,15 @@ class TeacherCore(
       timestamp,
     )
 
-    botEventBus.publishGradeEvent(
-      solution.studentId,
-      solution.chatId,
-      solution.messageId,
-      assessment,
-      solution.problemId,
-    )
+    problemStorage.resolveProblem(solution.problemId).map { problem ->
+      botEventBus.publishGradeEvent(
+        solution.studentId,
+        solution.chatId,
+        solution.messageId,
+        assessment,
+        problem
+      )
+    }
   }
 
   fun getGrading(course: Course): List<Pair<StudentId, Grade>> {

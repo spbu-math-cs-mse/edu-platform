@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.send.reply
@@ -15,17 +16,17 @@ class StudentNotificationService(
     chatId: RawChatId,
     messageId: MessageId,
     assessment: SolutionAssessment,
-    problemId: ProblemId,
+    problem: Problem,
   ) {
     val emoji = when {
       assessment.grade <= 0 -> "❌"
-      assessment.grade < 5 -> "\uD83D\uDD36"
+      assessment.grade < problem.maxScore -> "\uD83D\uDD36"
       else -> "✅"
     }
 
     val message = buildString {
-      append("Ваше решение задачи $problemId проверено!\n")
-      append("Оценка: $emoji ${assessment.grade}/5\n")
+      append("Ваше решение задачи ${problem.number}, серия ${problem.assignmentId.id} (id задачи: ${problem.id}) проверено!\n")
+      append("Оценка: $emoji ${assessment.grade}/${problem.maxScore}\n")
       if (assessment.comment.isNotEmpty()) {
         append("Комментарий преподавателя: ${assessment.comment}")
       }

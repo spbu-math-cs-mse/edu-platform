@@ -3,6 +3,7 @@ package com.github.heheteam.teacherbot
 import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.mock.*
@@ -33,6 +34,7 @@ suspend fun main(vararg args: String) {
       coursesDistributor,
       DatabaseSolutionDistributor(database),
       DatabaseGradeTable(database),
+      DatabaseProblemStorage(database),
       botEventBus,
     )
 

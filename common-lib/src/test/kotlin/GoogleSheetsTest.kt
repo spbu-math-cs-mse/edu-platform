@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
@@ -90,7 +91,7 @@ class GoogleSheetsTest {
       val solution = solutionDistributor.querySolution(teacher1Id, gradeTable)
       assertNotNull(solution)
       gradeTable.assessSolution(
-        solution.id,
+        solution.get()!!.id,
         teacher1Id,
         SolutionAssessment(solutionId % 2, "comment"),
         gradeTable,

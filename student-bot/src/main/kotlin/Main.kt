@@ -1,16 +1,17 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.MockStudentIdRegistry
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.run.studentRun
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.LogLevel
+import dev.inmo.kslog.common.defaultMessageFormatter
+import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import org.jetbrains.exposed.sql.Database
 
 suspend fun main(vararg args: String) {
@@ -43,10 +44,17 @@ suspend fun main(vararg args: String) {
     solutionDistributor,
   )
   val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+  val botEventBus = RedisBotEventBus()
+
+  val bot = telegramBot(botToken) {
+    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+      println(defaultMessageFormatter(level, tag, message, throwable))
+    }
+  }
+
+  val notificationService = StudentNotificationService(bot)
 
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
-
-  val userIdRegistry = MockStudentIdRegistry(1L)
 
   val core =
     StudentCore(
@@ -55,7 +63,9 @@ suspend fun main(vararg args: String) {
       problemStorage,
       assignmentStorage,
       DatabaseGradeTable(database),
+      notificationService,
+      botEventBus,
     )
 
-  studentRun(botToken, userIdRegistry, studentStorage, core)
+  studentRun(botToken, studentStorage, core)
 }

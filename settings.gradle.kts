@@ -37,6 +37,7 @@ dependencyResolutionManagement {
       library("kotlin-result" , "com.michael-bull.kotlin-result", "kotlin-result").versionRef("kotlin-result")
       library("google-api-services-sheets", "com.google.apis", "google-api-services-sheets").versionRef("google-api-sheets")
       library("hoplite-json", "com.sksamuel.hoplite","hoplite-json").versionRef("hoplite")
+      library("kotlin-result-coroutines" , "com.michael-bull.kotlin-result", "kotlin-result-coroutines").versionRef("kotlin-result")
     }
   }
 }

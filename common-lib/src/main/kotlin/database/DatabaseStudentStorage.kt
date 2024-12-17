@@ -4,9 +4,8 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.ParentStudents
 import com.github.heheteam.commonlib.database.tables.StudentTable
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.*
+import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -72,7 +71,7 @@ class DatabaseStudentStorage(
       StudentTable.insert {
         it[StudentTable.name] = name
         it[StudentTable.surname] = surname
-        it[StudentTable.tgId] = 0L
+        it[StudentTable.tgId] = tgId
       } get StudentTable.id
     }.value.toStudentId()
 
@@ -86,8 +85,27 @@ class DatabaseStudentStorage(
         Student(
           studentId,
           row[StudentTable.name],
-          row[StudentTable.name],
+          row[StudentTable.surname],
         ),
       )
     }
+
+  override fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> {
+    return transaction(database) {
+      val maybeRow = StudentTable
+        .selectAll()
+        .where { StudentTable.tgId eq (tgId.chatId.long) }
+        .limit(1)
+        .firstOrNull().toResultOr {
+          ResolveError(tgId, Student::class.simpleName)
+        }
+      maybeRow.map { row ->
+        Student(
+          row[StudentTable.id].value.toStudentId(),
+          row[StudentTable.name],
+          row[StudentTable.surname],
+        )
+      }
+    }
+  }
 }

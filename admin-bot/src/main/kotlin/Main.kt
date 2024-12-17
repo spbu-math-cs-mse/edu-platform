@@ -8,11 +8,9 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
-import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
-import dev.inmo.tgbotapi.utils.RiskFeature
+import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
 
-@OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   val config = loadConfig()
@@ -43,17 +41,19 @@ suspend fun main(vararg args: String) {
     databaseGradeTable,
     solutionDistributor,
   )
-
   val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
 
-  val userIdRegistry = MockAdminIdRegistry(0L)
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+
   val core =
     AdminCore(
       scheduledMessagesDistributor,
       coursesDistributor,
       studentStorage,
       teacherStorage,
+      assignmentStorage,
+      problemStorage,
     )
 
-  adminRun(botToken, userIdRegistry, core)
+  adminRun(botToken, core)
 }

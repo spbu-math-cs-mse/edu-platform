@@ -20,7 +20,7 @@ interface SolutionDistributor {
   fun querySolution(
     teacherId: TeacherId,
     gradeTable: GradeTable,
-  ): Solution?
+  ): Result<Solution?, SolutionResolveError>
 
   fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>>
 }

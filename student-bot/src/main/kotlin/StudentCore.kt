@@ -13,7 +13,15 @@ class StudentCore(
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val gradeTable: GradeTable,
+  private val notificationService: NotificationService,
+  private val botEventBus: BotEventBus,
 ) {
+  init {
+    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
+      notifyAboutGrade(studentId, chatId, messageId, assessment, problem)
+    }
+  }
+
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
@@ -73,4 +81,20 @@ class StudentCore(
 
   fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
     problemStorage.getProblemsFromAssignment(assignment.id)
+
+  suspend fun notifyAboutGrade(
+    studentId: StudentId,
+    chatId: RawChatId,
+    messageId: MessageId,
+    assessment: SolutionAssessment,
+    problem: Problem,
+  ) {
+    notificationService.notifyStudentAboutGrade(
+      studentId,
+      chatId,
+      messageId,
+      assessment,
+      problem,
+    )
+  }
 }

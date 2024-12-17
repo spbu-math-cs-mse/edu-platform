@@ -8,7 +8,6 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
-import com.github.heheteam.commonlib.mock.MockTeacherIdRegistry
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
@@ -45,10 +44,8 @@ suspend fun main(vararg args: String) {
   )
   val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
   val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
-
   val teacherStatistics = InMemoryTeacherStatistics()
-
-  val userIdRegistry = MockTeacherIdRegistry(0L)
+  val botEventBus = RedisBotEventBus()
 
   val core =
     TeacherCore(
@@ -56,7 +53,9 @@ suspend fun main(vararg args: String) {
       coursesDistributor,
       solutionDistributor,
       gradeTable,
+      problemStorage,
+      botEventBus,
     )
 
-  teacherRun(botToken, userIdRegistry, teacherStorage, core)
+  teacherRun(botToken, teacherStorage, core)
 }

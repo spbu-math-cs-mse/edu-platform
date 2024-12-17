@@ -5,7 +5,12 @@ import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
+import com.github.heheteam.commonlib.database.tables.AssignmentTable
+import com.github.heheteam.commonlib.database.tables.CourseTable
+import com.github.heheteam.commonlib.database.tables.CourseTeachers
+import com.github.heheteam.commonlib.database.tables.ProblemTable
 import com.github.heheteam.commonlib.database.tables.SolutionTable
+import com.github.heheteam.commonlib.database.tables.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -14,10 +19,8 @@ import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 
@@ -49,24 +52,62 @@ class DatabaseSolutionDistributor(
   override fun querySolution(
     teacherId: TeacherId,
     gradeTable: GradeTable,
-  ): Solution? =
+  ): Result<Solution?, SolutionResolveError> =
     transaction(database) {
-      val solution = SolutionTable
-        .join(AssessmentTable, JoinType.LEFT, onColumn = SolutionTable.id, otherColumn = AssessmentTable.solutionId)
-        .selectAll()
-        .where { AssessmentTable.id.isNull() }
-        .orderBy(SolutionTable.timestamp)
-        .firstOrNull() ?: return@transaction null
+      val teacherRow =
+        TeacherTable.select(TeacherTable.id)
+          .where(TeacherTable.id eq teacherId.id)
+          .firstOrNull()
+          ?: return@transaction Err(TeacherDoesNotExist(teacherId))
+      val courses =
+        CourseTeachers.select(CourseTeachers.courseId)
+          .where(CourseTeachers.teacherId eq teacherRow[TeacherTable.id])
+          .map { course -> course[CourseTeachers.courseId] }
 
-      Solution(
-        solution[SolutionTable.id].value.toSolutionId(),
-        StudentId(solution[SolutionTable.studentId].value),
-        solution[SolutionTable.chatId].toChatId().chatId,
-        MessageId(solution[SolutionTable.messageId]),
-        ProblemId(solution[SolutionTable.problemId].value),
-        SolutionContent(listOf(), solution[SolutionTable.content]),
-        SolutionType.TEXT,
-        solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+      val solution =
+        SolutionTable
+          .join(
+            AssessmentTable,
+            JoinType.LEFT,
+            onColumn = SolutionTable.id,
+            otherColumn = AssessmentTable.solutionId,
+          )
+          .join(
+            ProblemTable,
+            JoinType.INNER,
+            onColumn = SolutionTable.problemId,
+            otherColumn = ProblemTable.id,
+          )
+          .join(
+            AssignmentTable,
+            JoinType.INNER,
+            onColumn = ProblemTable.assignmentId,
+            otherColumn = AssignmentTable.id,
+          )
+          .join(
+            CourseTable,
+            JoinType.INNER,
+            onColumn = AssignmentTable.courseId,
+            otherColumn = CourseTable.id,
+          )
+          .selectAll()
+          .where {
+            AssessmentTable.id.isNull() and (CourseTable.id inList courses)
+          }
+          .firstOrNull()
+          ?: return@transaction Ok(null)
+
+      Ok(
+        Solution(
+          solution[SolutionTable.id].value.toSolutionId(),
+          StudentId(solution[SolutionTable.studentId].value),
+          solution[SolutionTable.chatId].toChatId().chatId,
+          MessageId(solution[SolutionTable.messageId]),
+          ProblemId(solution[SolutionTable.problemId].value),
+          SolutionContent(listOf(), solution[SolutionTable.content]),
+          SolutionType.TEXT,
+          solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+        ),
       )
     }
 

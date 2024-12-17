@@ -1,19 +1,7 @@
 package com.github.heheteam.adminbot.run
 
 import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.adminbot.states.BotState
-import com.github.heheteam.adminbot.states.StartState
-import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
-import com.github.heheteam.adminbot.states.strictlyOnAddStudentState
-import com.github.heheteam.adminbot.states.strictlyOnAddTeacherState
-import com.github.heheteam.adminbot.states.strictlyOnCreateCourseState
-import com.github.heheteam.adminbot.states.strictlyOnEditCourseState
-import com.github.heheteam.adminbot.states.strictlyOnEditDescriptionState
-import com.github.heheteam.adminbot.states.strictlyOnMenuState
-import com.github.heheteam.adminbot.states.strictlyOnRemoveStudentState
-import com.github.heheteam.adminbot.states.strictlyOnRemoveTeacherState
-import com.github.heheteam.adminbot.states.strictlyOnStartState
-import com.github.heheteam.commonlib.api.AdminIdRegistry
+import com.github.heheteam.adminbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -28,7 +16,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun adminRun(botToken: String, adminIdRegistry: AdminIdRegistry, core: AdminCore) {
+suspend fun adminRun(
+  botToken: String,
+  core: AdminCore,
+) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -50,10 +41,9 @@ suspend fun adminRun(botToken: String, adminIdRegistry: AdminIdRegistry, core: A
     command(
       "start",
     ) {
-      startChain(StartState(it.from!!))
+      startChain(MenuState(it.from!!))
     }
 
-    strictlyOnStartState(adminIdRegistry)
     strictlyOnMenuState()
     strictlyOnCreateCourseState(core)
     strictlyOnEditCourseState(core)
@@ -63,6 +53,8 @@ suspend fun adminRun(botToken: String, adminIdRegistry: AdminIdRegistry, core: A
     strictlyOnRemoveTeacherState(core)
     strictlyOnEditDescriptionState()
     strictlyOnAddScheduledMessageState(core)
+    strictlyOnGetTeachersState(core)
+    strictlyOnGetProblemsState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

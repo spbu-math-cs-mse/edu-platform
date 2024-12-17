@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.*
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.map
 import java.time.LocalDateTime
 
 class TeacherCore(
@@ -13,6 +14,8 @@ class TeacherCore(
   private val coursesDistributor: CoursesDistributor,
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
+  private val problemStorage: ProblemStorage,
+  private val botEventBus: BotEventBus,
 ) {
   fun getTeacherStats(teacherId: TeacherId): TeacherStatsData? {
     val result = teacherStatistics.resolveTeacherStats(teacherId)
@@ -21,34 +24,43 @@ class TeacherCore(
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
-  fun getQueryStats() = teacherStatistics.getGlobalStats()
-
   fun getAvailableCourses(teacherId: TeacherId): List<Course> = coursesDistributor.getTeacherCourses(teacherId)
 
-  fun querySolution(teacherId: TeacherId): Solution? = solutionDistributor.querySolution(teacherId, gradeTable)
+  fun querySolution(teacherId: TeacherId): Solution? = solutionDistributor.querySolution(teacherId, gradeTable).value
 
   fun assessSolution(
     solution: Solution,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
     timestamp: LocalDateTime = LocalDateTime.now(),
-  ) = gradeTable.assessSolution(
-    solution.id,
-    teacherId,
-    assessment,
-    gradeTable,
-    teacherStatistics,
-    timestamp,
-  )
+  ) {
+    gradeTable.assessSolution(
+      solution.id,
+      teacherId,
+      assessment,
+      gradeTable,
+      teacherStatistics,
+      timestamp,
+    )
+
+    problemStorage.resolveProblem(solution.problemId).map { problem ->
+      botEventBus.publishGradeEvent(
+        solution.studentId,
+        solution.chatId,
+        solution.messageId,
+        assessment,
+        problem,
+      )
+    }
+  }
 
   fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)
-    val grades =
-      students.map { student ->
-        student.id to gradeTable.getStudentPerformance(student.id, solutionDistributor).values.sum()
-      }
+    val grades = students.map { student ->
+      student.id to gradeTable.getStudentPerformance(student.id, solutionDistributor).values.sum()
+    }
     return grades
   }
 
-  fun getMaxGrade(course: Course): Grade = 5 // TODO: this needs to be fixed properly
+  fun getMaxGrade(): Grade = 5 // TODO: this needs to be fixed properly
 }

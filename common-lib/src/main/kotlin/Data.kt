@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib
 import com.github.heheteam.commonlib.api.*
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import kotlinx.serialization.Serializable
 
 typealias Grade = Int
 
@@ -16,7 +17,7 @@ data class Parent(
   val id: ParentId,
   val name: String = "",
   val surname: String = "",
-  val children: List<StudentId>,
+  val children: List<StudentId> = listOf(),
 )
 
 data class Teacher(
@@ -25,6 +26,7 @@ data class Teacher(
   val surname: String = "",
 )
 
+@Serializable
 data class Problem(
   val id: ProblemId,
   val number: String,

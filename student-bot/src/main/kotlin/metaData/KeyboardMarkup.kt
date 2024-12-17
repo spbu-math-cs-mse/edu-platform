@@ -14,7 +14,7 @@ fun buildCoursesSelector(availableCourses: List<Pair<Course, Boolean>>) =
     matrix {
       availableCourses.forEach { (course, status) ->
         val description = if (status) "${course.name} ✅" else course.name
-        row { dataButton(description, "${ButtonKey.COURSE_ID} ${course.id.id}") }
+        row { dataButton(description, "${ButtonKey.COURSE_ID} ${course.id}") }
       }
       row { dataButton("Записаться", ButtonKey.APPLY) }
       row { dataButton("Назад", ButtonKey.BACK) }
@@ -26,29 +26,18 @@ fun buildCoursesSendingSelector(availableCourses: List<Course>) =
     keyboard =
     matrix {
       availableCourses.forEach { course ->
-        row { dataButton(course.name, "${ButtonKey.COURSE_ID} ${course.id.id}") }
+        row { dataButton(course.name, "${ButtonKey.COURSE_ID} ${course.id}") }
       }
       row { dataButton("Назад", ButtonKey.BACK) }
     },
   )
 
-fun buildAssignmentSendingSelector(availableAssignments: List<Assignment>) =
+fun buildProblemSendingSelector(availableProblems: List<Pair<Assignment, Problem>>) =
   InlineKeyboardMarkup(
     keyboard =
     matrix {
-      availableAssignments.forEach { assignment ->
-        row { dataButton(assignment.description, "${ButtonKey.ASSIGNMENT_ID} ${assignment.id.id}") }
-      }
-      row { dataButton("Назад", ButtonKey.BACK) }
-    },
-  )
-
-fun buildProblemSendingSelector(availableProblems: List<Problem>) =
-  InlineKeyboardMarkup(
-    keyboard =
-    matrix {
-      availableProblems.forEach { problem ->
-        row { dataButton(problem.number, "${ButtonKey.PROBLEM_ID} ${problem.id.id}") }
+      availableProblems.forEach { (assignment, problem) ->
+        row { dataButton("${assignment.description}: ${problem.number}", "${ButtonKey.PROBLEM_ID} ${problem.id}") }
       }
       row { dataButton("Назад", ButtonKey.BACK) }
     },

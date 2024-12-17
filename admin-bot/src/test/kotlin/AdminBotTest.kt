@@ -2,10 +2,7 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ScheduledMessage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import org.jetbrains.exposed.sql.Database
@@ -31,6 +28,8 @@ class AdminBotTest {
       DatabaseCoursesDistributor(database),
       DatabaseStudentStorage(database),
       DatabaseTeacherStorage(database),
+      DatabaseAssignmentStorage(database),
+      DatabaseProblemStorage(database),
     )
 
   private val course =

@@ -82,7 +82,9 @@ fun fillWithSamples(
       linAlgebra,
     )
   }
-  (0..10).map { teacherStorage.createTeacher() }
-  println("first student is ${students.first()}")
+  val teachers = (0..3).map { teacherStorage.createTeacher() }
+  teachers.forEach { teacher ->
+    coursesDistributor.addTeacherToCourse(teacher, realAnalysis)
+  }
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

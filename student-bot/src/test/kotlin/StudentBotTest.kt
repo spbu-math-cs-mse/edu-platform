@@ -34,7 +34,7 @@ class StudentBotTest {
       assignmentStorage.createAssignment(
         courseId,
         "",
-        listOf("1"),
+        listOf(Triple("1", "", 1)),
         problemStorage,
       )
     val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id

@@ -15,7 +15,7 @@ fun generateCourse(
     assignmentStorage.createAssignment(
       courseId,
       "assignment ${courseId.id}.$assgnNum",
-      (0..problemsPerAssignment).map { Triple(it.toString(), "p${courseId.id}.$assgnNum.$it", 1) },
+      (0..problemsPerAssignment).map { Triple("p${courseId.id}.$assgnNum.$it", "", 1) },
       problemStorage,
     )
   }

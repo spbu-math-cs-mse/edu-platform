@@ -1,7 +1,6 @@
 package com.github.heheteam.parentbot.states
 
 import com.github.heheteam.commonlib.api.ParentId
-import com.github.heheteam.commonlib.api.ParentIdRegistry
 import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -14,14 +13,17 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(parentIdRegistry: ParentIdRegistry, parentStorage: ParentStorage, isDeveloperRun: Boolean = false) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
+  parentStorage: ParentStorage,
+  isDeveloperRun: Boolean = false,
+) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     if (state.context.username == null) {
       return@strictlyOn null
     }
 
-    var parentId = parentIdRegistry.getUserId(state.context.id).get()
+    var parentId = parentStorage.resolveByTgId(state.context.id).get()
     if (!isDeveloperRun && parentId == null) {
       bot.send(state.context, Dialogues.greetings())
 

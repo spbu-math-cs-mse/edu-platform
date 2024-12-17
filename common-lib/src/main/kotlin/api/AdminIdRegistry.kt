@@ -6,7 +6,3 @@ import dev.inmo.tgbotapi.types.UserId
 interface AdminIdRegistry {
   fun getUserId(tgId: UserId): Result<AdminId, ResolveError<UserId>>
 }
-
-interface ParentIdRegistry {
-  fun getUserId(tgId: UserId): Result<ParentId, ResolveError<UserId>>
-}

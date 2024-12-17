@@ -1,13 +1,8 @@
 package com.github.heheteam.parentbot.run
 
-import com.github.heheteam.commonlib.api.ParentIdRegistry
 import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.parentbot.ParentCore
-import com.github.heheteam.parentbot.states.StartState
-import com.github.heheteam.parentbot.states.strictlyOnChildPerformanceState
-import com.github.heheteam.parentbot.states.strictlyOnGivingFeedbackState
-import com.github.heheteam.parentbot.states.strictlyOnMenuState
-import com.github.heheteam.parentbot.states.strictlyOnStartState
+import com.github.heheteam.parentbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -22,7 +17,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun parentRun(botToken: String, parentIdRegistry: ParentIdRegistry, parentStorage: ParentStorage, core: ParentCore) {
+suspend fun parentRun(
+  botToken: String,
+  parentStorage: ParentStorage,
+  core: ParentCore,
+) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -47,7 +46,7 @@ suspend fun parentRun(botToken: String, parentIdRegistry: ParentIdRegistry, pare
       }
     }
 
-    strictlyOnStartState(parentIdRegistry, parentStorage, isDeveloperRun = true)
+    strictlyOnStartState(parentStorage, isDeveloperRun = true)
     strictlyOnMenuState(core)
     strictlyOnGivingFeedbackState()
     strictlyOnChildPerformanceState(core)

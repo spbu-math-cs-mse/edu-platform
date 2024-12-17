@@ -5,7 +5,10 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
-import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
+import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.run.parentRun
@@ -90,7 +93,6 @@ fun main(vararg args: String) {
       problemStorage,
     )
 
-  val parentIdRegistry = MockParentIdRegistry(1L)
   val parentCore =
     ParentCore(
       DatabaseStudentStorage(database),
@@ -102,6 +104,6 @@ fun main(vararg args: String) {
     launch { studentRun(args[0], studentStorage, studentCore) }
     launch { teacherRun(args[1], teacherStorage, teacherCore) }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
-    launch { parentRun(args[3], parentIdRegistry, parentStorage, parentCore) }
+    launch { parentRun(args[3], parentStorage, parentCore) }
   }
 }

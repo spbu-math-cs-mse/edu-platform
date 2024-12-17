@@ -32,17 +32,6 @@ fun buildCoursesSendingSelector(availableCourses: List<Course>) =
     },
   )
 
-fun buildAssignmentSendingSelector(availableAssignments: List<Assignment>) =
-  InlineKeyboardMarkup(
-    keyboard =
-    matrix {
-      availableAssignments.forEach { assignment ->
-        row { dataButton(assignment.description, "${ButtonKey.ASSIGNMENT_ID} ${assignment.id}") }
-      }
-      row { dataButton("Назад", ButtonKey.BACK) }
-    },
-  )
-
 fun buildProblemSendingSelector(availableProblems: List<Pair<Assignment, Problem>>) =
   InlineKeyboardMarkup(
     keyboard =

@@ -60,8 +60,4 @@ fun Long.toSolutionId() = SolutionId(this)
 
 fun Long.toStudentId() = StudentId(this)
 
-fun Long.toAdminId() = AdminId(this)
-
-fun Long.toParentId() = ParentId(this)
-
 fun Long.toTeacherId() = TeacherId(this)

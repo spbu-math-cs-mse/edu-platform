@@ -58,7 +58,7 @@ suspend fun studentRun(
     strictlyOnSignUpState(core)
     strictlyOnSendSolutionState(core)
     strictlyOnCheckGradesState(core)
-    strictlyOnPresetStudentState()
+    strictlyOnPresetStudentState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)
@@ -72,7 +72,7 @@ private fun findStartState(
 ) = if (developerOptions != null) {
   val presetStudent = developerOptions.presetStudent
   if (presetStudent != null) {
-    PresetStudentState(user, presetStudent)
+    PresetStudentState(user, presetStudent.id)
   } else {
     DevStartState(user)
   }

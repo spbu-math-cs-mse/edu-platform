@@ -9,32 +9,46 @@ data class CourseId(
 @Serializable
 data class ProblemId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 data class AdminId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 data class StudentId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 data class TeacherId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 data class ParentId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 data class SolutionId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 @Serializable
 data class AssignmentId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 fun Long.toCourseId() = CourseId(this)
 

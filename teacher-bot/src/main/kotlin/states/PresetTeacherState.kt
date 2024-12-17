@@ -14,10 +14,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPresetTeacherState(
   strictlyOn<PresetTeacherState> { state ->
     val courses = core.getAvailableCourses(state.teacherId)
     val coursesRepr =
-      courses.joinToString("\n") { course: Course -> "\u2605 " + course.name + " (id=${course.id.id})" }
+      courses.joinToString("\n") { course: Course -> "\u2605 " + course.name + " (id=${course.id})" }
     bot.send(
       state.context,
-      "Вы --- учитель id=${state.teacherId.id}.\nВы преподаете на курсах:\n$coursesRepr",
+      "Вы --- учитель id=${state.teacherId}.\nВы преподаете на курсах:\n$coursesRepr",
     )
     MenuState(state.context, state.teacherId)
   }

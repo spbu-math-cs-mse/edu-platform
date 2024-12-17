@@ -24,7 +24,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       return@strictlyOn null
     }
     val studentResolvedByTgId =
-      studentStorage.resolveByTgId(state.context.id).get()
+      studentStorage.resolveByTgId(state.context.id).get()?.id
     val studentId =
       studentResolvedByTgId ?: registerStudent(state.context, studentStorage)
 

@@ -15,5 +15,5 @@ interface StudentStorage {
   fun createStudent(name: String = "defaultName", surname: String = "defaultSurname", tgId: Long = 0L): StudentId
 
   fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>>
-  fun resolveByTgId(tgId: UserId): Result<StudentId, ResolveError<UserId>>
+  fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>>
 }

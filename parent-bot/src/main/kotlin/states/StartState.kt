@@ -23,7 +23,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       return@strictlyOn null
     }
 
-    var parentId = parentStorage.resolveByTgId(state.context.id).get()
+    var parentId = parentStorage.resolveByTgId(state.context.id).get()?.id
     if (!isDeveloperRun && parentId == null) {
       bot.send(state.context, Dialogues.greetings())
 
@@ -53,7 +53,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
           continue
         }
         val parent = parentStorage.resolveParent(parentIdFromText)
-        if (parent == null) {
+        if (parent.isErr) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue
         }

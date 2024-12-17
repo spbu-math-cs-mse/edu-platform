@@ -10,5 +10,5 @@ interface TeacherStorage {
   fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>>
 
   fun getTeachers(): List<Teacher>
-  fun resolveByTgId(tgId: UserId): Result<TeacherId, ResolveError<UserId>>
+  fun resolveByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>>
 }

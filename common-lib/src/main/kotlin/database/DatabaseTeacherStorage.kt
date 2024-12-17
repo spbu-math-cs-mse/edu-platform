@@ -29,7 +29,11 @@ class DatabaseTeacherStorage(
     }
   }
 
-  override fun createTeacher(name: String, surname: String, tgId: Long): TeacherId =
+  override fun createTeacher(
+    name: String,
+    surname: String,
+    tgId: Long,
+  ): TeacherId =
     transaction(database) {
       TeacherTable.insert {
         it[TeacherTable.name] = name
@@ -65,17 +69,18 @@ class DatabaseTeacherStorage(
         }
     }
 
-  override fun resolveByTgId(tgId: UserId): Result<TeacherId, ResolveError<UserId>> {
-    val teacherId =
-      transaction(database) {
-        TeacherTable
-          .select(TeacherTable.id)
-          .where { TeacherTable.tgId eq (tgId.chatId.long) }
-          .limit(1)
-          .firstOrNull()
-          ?.get(TeacherTable.id)
-          ?.value
-      } ?: return Err(ResolveError(tgId, TeacherId::class.simpleName))
-    return Ok(TeacherId(teacherId))
-  }
+  override fun resolveByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
+    transaction(database) {
+      val row = TeacherTable
+        .selectAll()
+        .where(TeacherTable.tgId eq tgId.chatId.long)
+        .singleOrNull() ?: return@transaction Err(ResolveError(tgId))
+      Ok(
+        Teacher(
+          row[TeacherTable.id].value.toTeacherId(),
+          row[TeacherTable.name],
+          row[TeacherTable.surname],
+        ),
+      )
+    }
 }

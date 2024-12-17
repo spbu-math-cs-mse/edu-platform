@@ -70,9 +70,9 @@ private fun findStartState(
   developerOptions: DeveloperOptions?,
   user: User,
 ) = if (developerOptions != null) {
-  val presetStudent = developerOptions.presetStudent
+  val presetStudent = developerOptions.presetStudentId
   if (presetStudent != null) {
-    PresetStudentState(user, presetStudent.id)
+    PresetStudentState(user, presetStudent)
   } else {
     DevStartState(user)
   }

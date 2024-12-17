@@ -1,6 +1,9 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.*
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map

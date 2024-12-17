@@ -98,7 +98,7 @@ class DatabaseStudentStorage(
           .firstOrNull()
           ?.get(StudentTable.id)
           ?.value
-      } ?: return Err(ResolveError(tgId, StudentId::class.simpleName))
+      } ?: return Err(ResolveError(tgId, Student::class.simpleName))
     return Ok(StudentId(studentId))
   }
 }

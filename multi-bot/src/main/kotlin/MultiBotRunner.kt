@@ -22,7 +22,6 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.run.teacherRun
-import com.github.michaelbull.result.get
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -38,6 +37,7 @@ class MultiBotRunner : CliktCommand() {
   val adminBotToken: String by option().required().help("admin bot token")
   val parentBotToken: String by option().required().help("parent bot token")
   val presetStudentId: Long? by option().long()
+  val presetTeacherId: Long? by option().long()
 
   override fun run() {
     val dbFile = File("./data/films.mv.db")
@@ -120,20 +120,26 @@ class MultiBotRunner : CliktCommand() {
         DatabaseGradeTable(database),
         DatabaseSolutionDistributor(database),
       )
-    val presetStudent = presetStudentId?.let {
-      studentStorage.resolveStudent(it.toStudentId()).get()
-        ?: throw RuntimeException("Failed to resolve student id=$it")
-    }
+    val presetStudent = presetStudentId?.toStudentId()
+    val presetTeacher = presetTeacherId?.toTeacherId()
+    val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
     runBlocking {
       launch {
         studentRun(
           studentBotToken,
           studentStorage,
           studentCore,
-          DeveloperOptions(presetStudent),
+          developerOptions,
         )
       }
-      launch { teacherRun(teacherBotToken, teacherStorage, teacherCore) }
+      launch {
+        teacherRun(
+          teacherBotToken,
+          teacherStorage,
+          teacherCore,
+          developerOptions,
+        )
+      }
       launch { adminRun(adminBotToken, adminIdRegistry, adminCore) }
       launch { parentRun(parentBotToken, parentStorage, parentCore) }
     }

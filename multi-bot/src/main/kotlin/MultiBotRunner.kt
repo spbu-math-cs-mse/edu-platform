@@ -12,7 +12,6 @@ import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
-import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -103,7 +102,6 @@ class MultiBotRunner : CliktCommand() {
         botEventBus,
       )
 
-    val adminIdRegistry = MockAdminIdRegistry(1L)
     val adminCore =
       AdminCore(
         inMemoryScheduledMessagesDistributor,
@@ -140,7 +138,7 @@ class MultiBotRunner : CliktCommand() {
           developerOptions,
         )
       }
-      launch { adminRun(adminBotToken, adminIdRegistry, adminCore) }
+      launch { adminRun(adminBotToken, adminCore) }
       launch { parentRun(parentBotToken, parentStorage, parentCore) }
     }
   }

@@ -24,8 +24,6 @@ class TeacherCore(
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
-  fun getQueryStats() = teacherStatistics.getGlobalStats()
-
   fun getAvailableCourses(teacherId: TeacherId): List<Course> = coursesDistributor.getTeacherCourses(teacherId)
 
   fun querySolution(teacherId: TeacherId): Solution? = solutionDistributor.querySolution(teacherId, gradeTable).value
@@ -64,5 +62,5 @@ class TeacherCore(
     return grades
   }
 
-  fun getMaxGrade(course: Course): Grade = 5 // TODO: this needs to be fixed properly
+  fun getMaxGrade(): Grade = 5 // TODO: this needs to be fixed properly
 }

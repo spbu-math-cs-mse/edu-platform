@@ -5,7 +5,6 @@ import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.teacherbot.*
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.states.BotState
@@ -33,7 +32,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     val course = courses.find { it.id == courseId }!!
 
     val gradedProblems = core.getGrading(course)
-    val maxGrade = core.getMaxGrade(course)
+    val maxGrade = core.getMaxGrade()
     val strGrades =
       "Оценки учеников на курсе ${course.name}:\n" +
         gradedProblems

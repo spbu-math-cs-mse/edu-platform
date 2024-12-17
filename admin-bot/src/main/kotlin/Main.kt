@@ -7,7 +7,6 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
-import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
 import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
 
@@ -19,8 +18,6 @@ suspend fun main(vararg args: String) {
       "jdbc:h2:./data/films",
       driver = "org.h2.Driver",
     )
-
-  val adminIdRegistry = MockAdminIdRegistry(0L)
 
   val coursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage = DatabaseProblemStorage(database)
@@ -40,5 +37,5 @@ suspend fun main(vararg args: String) {
       problemStorage,
     )
 
-  adminRun(botToken, adminIdRegistry, core)
+  adminRun(botToken, core)
 }

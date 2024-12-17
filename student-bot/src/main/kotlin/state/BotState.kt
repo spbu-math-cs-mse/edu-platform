@@ -11,6 +11,11 @@ data class StartState(
   override val context: User,
 ) : BotState
 
+data class DevStartState(
+  override val context: User,
+  val queryIdMessage: String? = null,
+) : BotState
+
 data class MenuState(
   override val context: User,
   val studentId: StudentId,

@@ -1,6 +1,5 @@
 package com.github.heheteam.studentbot.run
 
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.state.*
@@ -20,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(RiskFeature::class)
 suspend fun studentRun(
   botToken: String,
-  studentIdRegistry: StudentIdRegistry,
   studentStorage: StudentStorage,
   core: StudentCore,
   isDeveloperRun: Boolean = true,
@@ -54,10 +52,7 @@ suspend fun studentRun(
       }
     }
 
-    strictlyOnStartState(
-      studentIdRegistry,
-      studentStorage,
-    )
+    strictlyOnStartState(studentStorage)
     strictlyOnDeveloperStartState(studentStorage)
     strictlyOnMenuState()
     strictlyOnViewState(core)

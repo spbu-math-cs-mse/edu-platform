@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AdminTable
 import com.github.heheteam.commonlib.database.tables.ParentTable
-import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.heheteam.commonlib.database.tables.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -27,24 +26,6 @@ class DatabaseAdminIdRegistry(
           ?.value
       } ?: return Err(ResolveError(tgId, AdminId::class.simpleName))
     return Ok(AdminId(adminId))
-  }
-}
-
-class DatabaseStudentIdRegistry(
-  val database: Database,
-) : StudentIdRegistry {
-  override fun getUserId(tgId: UserId): Result<StudentId, ResolveError<UserId>> {
-    val studentId =
-      transaction(database) {
-        StudentTable
-          .select(StudentTable.id)
-          .where { StudentTable.tgId eq (tgId.chatId.long) }
-          .limit(1)
-          .firstOrNull()
-          ?.get(StudentTable.id)
-          ?.value
-      } ?: return Err(ResolveError(tgId, StudentId::class.simpleName))
-    return Ok(StudentId(studentId))
   }
 }
 

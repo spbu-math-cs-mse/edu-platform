@@ -1,7 +1,6 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.StudentIdRegistry
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -17,7 +16,6 @@ import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
-  studentIdRegistry: StudentIdRegistry,
   studentStorage: StudentStorage,
 ) {
   strictlyOn<StartState> { state ->
@@ -26,7 +24,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       return@strictlyOn null
     }
     val studentResolvedByTgId =
-      studentIdRegistry.getUserId(state.context.id).get()
+      studentStorage.resolveByTgId(state.context.id).get()
     val studentId =
       studentResolvedByTgId ?: registerStudent(state.context, studentStorage)
 

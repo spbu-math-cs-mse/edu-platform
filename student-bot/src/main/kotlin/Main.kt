@@ -1,9 +1,11 @@
 package com.github.heheteam.studentbot
 
 import DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.RedisBotEventBus
+import com.github.heheteam.commonlib.api.StudentNotificationService
 import com.github.heheteam.commonlib.database.*
-import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.run.studentRun
 import dev.inmo.kslog.common.KSLog
@@ -37,8 +39,6 @@ suspend fun main(vararg args: String) {
 
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
-  val userIdRegistry = MockStudentIdRegistry(1L)
-
   val core =
     StudentCore(
       solutionDistributor,
@@ -50,5 +50,5 @@ suspend fun main(vararg args: String) {
       botEventBus,
     )
 
-  studentRun(botToken, userIdRegistry, studentStorage, core)
+  studentRun(botToken, studentStorage, core)
 }

@@ -4,12 +4,7 @@ import DatabaseCoursesDistributor
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.*
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.parentbot.ParentCore
@@ -49,15 +44,13 @@ fun main(vararg args: String) {
   val gradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-  val inMemoryScheduledMessagesDistributor: InMemoryScheduledMessagesDistributor =
-    InMemoryScheduledMessagesDistributor()
+  val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
 
   val studentStorage = DatabaseStudentStorage(database)
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
   val parentStorage = MockParentStorage()
 
-  val studentIdRegistry = MockStudentIdRegistry(1L)
   val bot = telegramBot(args[0]) {
     logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
       println(defaultMessageFormatter(level, tag, message, throwable))
@@ -107,7 +100,7 @@ fun main(vararg args: String) {
     )
 
   runBlocking {
-    launch { studentRun(args[0], studentIdRegistry, studentStorage, studentCore) }
+    launch { studentRun(args[0], studentStorage, studentCore) }
     launch { teacherRun(args[1], teacherIdRegistry, teacherStorage, teacherCore) }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
     launch { parentRun(args[3], parentIdRegistry, parentStorage, parentCore) }

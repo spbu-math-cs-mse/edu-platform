@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -86,4 +87,18 @@ class DatabaseStudentStorage(
         ),
       )
     }
+
+  override fun resolveByTgId(tgId: UserId): Result<StudentId, ResolveError<UserId>> {
+    val studentId =
+      transaction(database) {
+        StudentTable
+          .select(StudentTable.id)
+          .where { StudentTable.tgId eq (tgId.chatId.long) }
+          .limit(1)
+          .firstOrNull()
+          ?.get(StudentTable.id)
+          ?.value
+      } ?: return Err(ResolveError(tgId, StudentId::class.simpleName))
+    return Ok(StudentId(studentId))
+  }
 }

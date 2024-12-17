@@ -1,4 +1,5 @@
 import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.ProblemState
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
@@ -84,6 +85,36 @@ class DatabaseTest {
       assertEquals(id.id, problemId + 8L)
     }
 
+    var gradesS1A1 = mapOf(ProblemId(1) to null, ProblemId(2) to null, ProblemId(3) to null)
+      .mapValues { ProblemState(it.value, false) }
+    assertEquals(gradesS1A1, gradeTable.getStudentPerformance(student1Id, assignment1Id, solutionDistributor))
+    var gradesS1A2 = mapOf(ProblemId(4) to null, ProblemId(5) to null, ProblemId(6) to null)
+      .mapValues { ProblemState(it.value, false) }
+    assertEquals(gradesS1A2, gradeTable.getStudentPerformance(student1Id, assignment2Id, solutionDistributor))
+    var gradesS1A3 = mapOf(ProblemId(7) to null, ProblemId(8) to null)
+      .mapValues { ProblemState(it.value, false) }
+    assertEquals(gradesS1A3, gradeTable.getStudentPerformance(student1Id, assignment3Id, solutionDistributor))
+
+    assertEquals(
+      gradesS1A1 + gradesS1A2 + gradesS1A3,
+      gradeTable.getStudentPerformance(student1Id, solutionDistributor),
+    )
+
+    var gradesS2A1 = mapOf(ProblemId(1) to null, ProblemId(2) to null, ProblemId(3) to null)
+      .mapValues { ProblemState(it.value, false) }
+    assertEquals(gradesS2A1, gradeTable.getStudentPerformance(student2Id, assignment1Id, solutionDistributor))
+    var gradesS2A2 = mapOf(ProblemId(4) to null)
+      .mapValues { ProblemState(it.value, false) }
+    assertEquals(gradesS2A2, gradeTable.getStudentPerformance(student2Id, assignment2Id, solutionDistributor))
+    var gradesS2A3 = mapOf<ProblemId, Grade>()
+      .mapValues { ProblemState(it.value, false) }
+    assertEquals(gradesS2A3, gradeTable.getStudentPerformance(student2Id, assignment3Id, solutionDistributor))
+
+    assertEquals(
+      gradesS2A1 + gradesS2A2 + gradesS2A3,
+      gradeTable.getStudentPerformance(student2Id, solutionDistributor),
+    )
+
     repeat(10) {
       val solution = solutionDistributor.querySolution(teacher1Id, gradeTable).value
       assertNotNull(solution)
@@ -106,11 +137,14 @@ class DatabaseTest {
         teacherStatistics,
       )
     }
-    val gradesS1A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 1)
+    gradesS1A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 1)
+      .mapValues { ProblemState(it.value, true) }
     assertEquals(gradesS1A1, gradeTable.getStudentPerformance(student1Id, assignment1Id, solutionDistributor))
-    val gradesS1A2 = mapOf(ProblemId(4) to 1, ProblemId(5) to 1, ProblemId(6) to 1)
+    gradesS1A2 = mapOf(ProblemId(4) to 1, ProblemId(5) to 1, ProblemId(6) to 1)
+      .mapValues { ProblemState(it.value, true) }
     assertEquals(gradesS1A2, gradeTable.getStudentPerformance(student1Id, assignment2Id, solutionDistributor))
-    val gradesS1A3 = mapOf(ProblemId(7) to 1, ProblemId(8) to 1)
+    gradesS1A3 = mapOf(ProblemId(7) to 1, ProblemId(8) to 1)
+      .mapValues { ProblemState(it.value, true) }
     assertEquals(gradesS1A3, gradeTable.getStudentPerformance(student1Id, assignment3Id, solutionDistributor))
 
     assertEquals(
@@ -118,11 +152,14 @@ class DatabaseTest {
       gradeTable.getStudentPerformance(student1Id, solutionDistributor),
     )
 
-    val gradesS2A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 0)
+    gradesS2A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 0)
+      .mapValues { ProblemState(it.value, true) }
     assertEquals(gradesS2A1, gradeTable.getStudentPerformance(student2Id, assignment1Id, solutionDistributor))
-    val gradesS2A2 = mapOf(ProblemId(4) to 0)
+    gradesS2A2 = mapOf(ProblemId(4) to 0)
+      .mapValues { ProblemState(it.value, true) }
     assertEquals(gradesS2A2, gradeTable.getStudentPerformance(student2Id, assignment2Id, solutionDistributor))
-    val gradesS2A3 = mapOf<ProblemId, Grade>()
+    gradesS2A3 = mapOf<ProblemId, Grade>()
+      .mapValues { ProblemState(it.value, true) }
     assertEquals(gradesS2A3, gradeTable.getStudentPerformance(student2Id, assignment3Id, solutionDistributor))
 
     assertEquals(

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.ProblemState
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssessmentTable
@@ -35,40 +35,50 @@ class DatabaseGradeTable(
   override fun getStudentPerformance(
     studentId: StudentId,
     solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> =
+  ): Map<ProblemId, ProblemState> =
     transaction(database) {
       AssessmentTable
         .join(
           SolutionTable,
-          JoinType.INNER,
+          JoinType.RIGHT,
           onColumn = AssessmentTable.solutionId,
           otherColumn = SolutionTable.id,
         ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id and AssessmentTable.grade.isNotNull() }
-        .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
+        .where { SolutionTable.studentId eq studentId.id }
+        .associate { it[SolutionTable.problemId].value.toProblemId() to
+          ProblemState(
+            it[AssessmentTable.grade],
+            //true
+            isChecked(SolutionId(it[SolutionTable.id].value)),
+          )
+        }
     }
 
   override fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: AssignmentId,
     solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> =
+  ): Map<ProblemId, ProblemState> =
     transaction(database) {
       AssessmentTable
         .join(
           SolutionTable,
-          JoinType.INNER,
-          onColumn = AssessmentTable.solutionId,
+          JoinType.RIGHT,onColumn = AssessmentTable.solutionId,
           otherColumn = SolutionTable.id,
         ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
         .selectAll()
         .where {
           (SolutionTable.studentId eq studentId.id) and
-            (ProblemTable.assignmentId eq assignmentId.id) and
-            AssessmentTable.grade.isNotNull()
-        }.associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
-    }
+            (ProblemTable.assignmentId eq assignmentId.id)
+        }.associate {
+          it[SolutionTable.problemId].value.toProblemId() to
+            ProblemState(
+              it[AssessmentTable.grade],
+              isChecked(SolutionId(it[SolutionTable.id].value)),
+            )
+        }
+  }
 
   override fun assessSolution(
     solutionId: SolutionId,

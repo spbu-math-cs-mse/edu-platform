@@ -25,7 +25,7 @@ class StudentCore(
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): List<Pair<Problem, Grade?>> {
+  ): List<Pair<Problem, ProblemState>> {
     val grades =
       gradeTable
         .getStudentPerformance(studentId, assignmentId, solutionDistributor)
@@ -33,7 +33,7 @@ class StudentCore(
       problemStorage
         .getProblemsFromAssignment(assignmentId)
         .sortedBy { problem -> problem.number }
-        .map { problem -> problem to grades[problem.id] }
+        .map { problem -> problem to (grades[problem.id] ?: ProblemState(null, true)) }
     return gradedProblems
   }
 

@@ -7,6 +7,11 @@ import kotlinx.serialization.Serializable
 
 typealias Grade = Int
 
+data class ProblemState(
+  val grade: Grade?,
+  val isChecked: Boolean,
+)
+
 data class Student(
   val id: StudentId,
   val name: String = "",

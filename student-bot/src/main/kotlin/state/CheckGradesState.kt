@@ -48,7 +48,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
 private suspend fun BehaviourContext.respondWithGrades(
   state: CheckGradesState,
   assignment: Assignment,
-  gradedProblems: List<Pair<Problem, Grade?>>,
+  gradedProblems: List<Pair<Problem, ProblemState>>,
 ) {
   val strGrades =
     "Оценки за серию ${assignment.description}:\n" +
@@ -147,13 +147,24 @@ private suspend fun BehaviourContext.queryCourseFromUser(
   return CourseId(courseId)
 }
 
-fun List<Pair<Problem, Grade?>>.withGradesToText() =
-  joinToString(separator = "\n") { (problem, grade) ->
+fun List<Pair<Problem, ProblemState>>.withGradesToText() =
+  joinToString(separator = "\n") { (problem, state) ->
     "№${problem.number} — " +
-      when {
-        grade == null -> "не сдано"
-        grade <= 0 -> "❌ 0/${problem.maxScore}"
-        grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-        else -> "✅ $grade/${problem.maxScore}"
+
+      if (!state.isChecked && state.grade == null) {
+        "на проверке"
+      } else {
+        if (!state.isChecked) {
+          "на проверке, текущий балл "
+        } else {
+          ""
+        } + when {
+          state.grade == null -> "не сдано"
+          state.grade!! <= 0 -> "❌ 0/${problem.maxScore}"
+          state.grade!! < problem.maxScore -> "\uD83D\uDD36 $state.grade/${problem.maxScore}"
+          else -> "✅ $state.grade/${problem.maxScore}"
+        }
       }
+
+
   }

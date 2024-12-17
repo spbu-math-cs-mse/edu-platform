@@ -16,4 +16,5 @@ dependencies {
 
     implementation(libs.tgbotapi)
     implementation(libs.exposed.spring.boot.starter)
+    implementation("com.github.ajalt.clikt:clikt:5.0.2")
 }

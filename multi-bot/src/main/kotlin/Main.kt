@@ -1,6 +1,11 @@
 package com.github.heheteam.multibot
 
 import DatabaseCoursesDistributor
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
@@ -25,85 +30,92 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 import java.io.File
 
-// this is a sample multi-bot running main
-/**
- * @param args tokens for bots in the FOLLOWING order: student, teacher, admin, parent
- */
-fun main(vararg args: String) {
-  val dbFile = File("./data/films.mv.db")
-  if (dbFile.exists()) {
-    dbFile.delete()
-  }
+class MultiBotRunner : CliktCommand() {
+  val studentBotToken: String by option().required().help("student bot token")
+  val teacherBotToken: String by option().required().help("teacher bot token")
+  val adminBotToken: String by option().required().help("admin bot token")
+  val parentBotToken: String by option().required().help("parent bot token")
 
-  val database = Database.connect(
-    "jdbc:h2:./data/films",
-    driver = "org.h2.Driver",
-  )
+  override fun run() {
+    val dbFile = File("./data/films.mv.db")
+    if (dbFile.exists()) {
+      dbFile.delete()
+    }
 
-  val coursesDistributor = DatabaseCoursesDistributor(database)
-  val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-  val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
-  val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
-  val gradeTable: GradeTable = DatabaseGradeTable(database)
-  val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-  val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-  val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
+    val database = Database.connect(
+      "jdbc:h2:./data/films",
+      driver = "org.h2.Driver",
+    )
 
-  val studentStorage = DatabaseStudentStorage(database)
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
+    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
+    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
+    val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
+    val gradeTable: GradeTable = DatabaseGradeTable(database)
+    val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
+    val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
+    val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
 
-  val parentStorage = MockParentStorage()
+    val studentStorage = DatabaseStudentStorage(database)
+    fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage)
 
-  val bot = telegramBot(args[0]) {
-    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-      println(defaultMessageFormatter(level, tag, message, throwable))
+    val parentStorage = MockParentStorage()
+
+    val bot = telegramBot(studentBotToken) {
+      logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+        println(defaultMessageFormatter(level, tag, message, throwable))
+      }
+    }
+    val notificationService = StudentNotificationService(bot)
+    val botEventBus = RedisBotEventBus()
+    val studentCore =
+      StudentCore(
+        solutionDistributor,
+        coursesDistributor,
+        problemStorage,
+        assignmentStorage,
+        gradeTable,
+        notificationService,
+        botEventBus,
+      )
+
+    val teacherCore =
+      TeacherCore(
+        inMemoryTeacherStatistics,
+        coursesDistributor,
+        solutionDistributor,
+        gradeTable,
+        problemStorage,
+        botEventBus,
+      )
+
+    val adminIdRegistry = MockAdminIdRegistry(1L)
+    val adminCore =
+      AdminCore(
+        inMemoryScheduledMessagesDistributor,
+        coursesDistributor,
+        studentStorage,
+        teacherStorage,
+        assignmentStorage,
+        problemStorage,
+      )
+
+    val parentCore =
+      ParentCore(
+        DatabaseStudentStorage(database),
+        DatabaseGradeTable(database),
+        DatabaseSolutionDistributor(database),
+      )
+
+    runBlocking {
+      launch { studentRun(studentBotToken, studentStorage, studentCore) }
+      launch { teacherRun(teacherBotToken, teacherStorage, teacherCore) }
+      launch { adminRun(adminBotToken, adminIdRegistry, adminCore) }
+      launch { parentRun(parentBotToken, parentStorage, parentCore) }
     }
   }
-  val notificationService = StudentNotificationService(bot)
-  val botEventBus = RedisBotEventBus()
-  val studentCore =
-    StudentCore(
-      solutionDistributor,
-      coursesDistributor,
-      problemStorage,
-      assignmentStorage,
-      gradeTable,
-      notificationService,
-      botEventBus,
-    )
+}
 
-  val teacherCore =
-    TeacherCore(
-      inMemoryTeacherStatistics,
-      coursesDistributor,
-      solutionDistributor,
-      gradeTable,
-      problemStorage,
-      botEventBus,
-    )
-
-  val adminIdRegistry = MockAdminIdRegistry(1L)
-  val adminCore =
-    AdminCore(
-      inMemoryScheduledMessagesDistributor,
-      coursesDistributor,
-      studentStorage,
-      teacherStorage,
-      assignmentStorage,
-      problemStorage,
-    )
-
-  val parentCore =
-    ParentCore(
-      DatabaseStudentStorage(database),
-      DatabaseGradeTable(database),
-      DatabaseSolutionDistributor(database),
-    )
-
-  runBlocking {
-    launch { studentRun(args[0], studentStorage, studentCore) }
-    launch { teacherRun(args[1], teacherStorage, teacherCore) }
-    launch { adminRun(args[2], adminIdRegistry, adminCore) }
-    launch { parentRun(args[3], parentStorage, parentCore) }
-  }
+fun main(vararg args: String) {
+  MultiBotRunner().main(args)
 }

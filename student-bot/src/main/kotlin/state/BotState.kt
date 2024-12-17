@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.StudentId
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
@@ -14,6 +15,11 @@ data class StartState(
 data class DevStartState(
   override val context: User,
   val queryIdMessage: String? = null,
+) : BotState
+
+data class PresetStudentState(
+  override val context: User,
+  val student: Student,
 ) : BotState
 
 data class MenuState(

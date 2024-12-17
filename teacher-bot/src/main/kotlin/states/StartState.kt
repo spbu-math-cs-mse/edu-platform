@@ -19,30 +19,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     var teacherId: TeacherId? = null
-    if (teacherStorage.resolveByTgId(state.context.id).isErr) {
-      bot.send(
-        state.context,
-        Dialogues.greetings() + Dialogues.askFirstName(),
-      )
-      val firstName = waitTextMessageWithUser(state.context.id).first().content.text
-      bot.send(
-        state.context,
-        Dialogues.askLastName(firstName),
-      )
-      val lastName = waitTextMessageWithUser(state.context.id).first().content.text
-      bot.send(
-        state.context,
-        Dialogues.askGrade(firstName, lastName),
-        replyMarkup = Keyboards.askGrade(),
-      )
-      waitDataCallbackQueryWithUser(state.context.id).first().data // discard class
-      teacherId = teacherStorage.createTeacher()
-      return@strictlyOn MenuState(state.context, teacherId)
-    } else if (isDeveloperRun) {
+    if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
         val teacherIdFromText =
-          waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let { TeacherId(it) }
+          waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()
+            ?.let { TeacherId(it) }
         if (teacherIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
@@ -55,6 +37,27 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
         teacherId = teacherIdFromText
         break
       }
+    } else if (teacherStorage.resolveByTgId(state.context.id).isErr) {
+      bot.send(
+        state.context,
+        Dialogues.greetings() + Dialogues.askFirstName(),
+      )
+      val firstName =
+        waitTextMessageWithUser(state.context.id).first().content.text
+      bot.send(
+        state.context,
+        Dialogues.askLastName(firstName),
+      )
+      val lastName =
+        waitTextMessageWithUser(state.context.id).first().content.text
+      bot.send(
+        state.context,
+        Dialogues.askGrade(firstName, lastName),
+        replyMarkup = Keyboards.askGrade(),
+      )
+      waitDataCallbackQueryWithUser(state.context.id).first().data // discard class
+      teacherId = teacherStorage.createTeacher()
+      return@strictlyOn MenuState(state.context, teacherId)
     }
     bot.send(
       state.context,

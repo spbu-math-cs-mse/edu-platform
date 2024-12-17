@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
@@ -24,7 +24,6 @@ suspend fun main(vararg args: String) {
   val coursesDistributor = DatabaseCoursesDistributor(database)
   val inMemoryTeacherStatistics = InMemoryTeacherStatistics()
 
-  val userIdRegistry = MockTeacherIdRegistry(0L)
   val teacherStorage = DatabaseTeacherStorage(database)
   val botEventBus = RedisBotEventBus()
 
@@ -38,5 +37,5 @@ suspend fun main(vararg args: String) {
       botEventBus,
     )
 
-  teacherRun(botToken, userIdRegistry, teacherStorage, core)
+  teacherRun(botToken, teacherStorage, core)
 }

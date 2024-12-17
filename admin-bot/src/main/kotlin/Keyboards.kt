@@ -78,7 +78,7 @@ object Keyboards {
       keyboard =
       matrix {
         availableCourses.forEach { course ->
-          row { dataButton(course.name, "$courseId ${course.id.id}") }
+          row { dataButton(course.name, "$courseId ${course.id}") }
         }
         row { dataButton("Назад \uD83D\uDD19", returnBack) }
       },

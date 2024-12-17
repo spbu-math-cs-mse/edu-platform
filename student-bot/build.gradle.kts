@@ -13,4 +13,5 @@ dependencies {
     implementation(libs.tgbotapi)
     implementation(libs.exposed.core)
     implementation(libs.kotlin.result)
+    implementation(libs.kotlin.result.coroutines)
 }

@@ -14,8 +14,8 @@ fun generateCourse(
   (0..assignmentsPerCourse).map { assgnNum ->
     assignmentStorage.createAssignment(
       courseId,
-      "assignment ${courseId.id}.$assgnNum",
-      (0..problemsPerAssignment).map { ("p${courseId.id}.$assgnNum.$it") },
+      "assignment $courseId.$assgnNum",
+      (0..problemsPerAssignment).map { ("p$courseId.$assgnNum.$it") },
       problemStorage,
     )
   }
@@ -82,7 +82,9 @@ fun fillWithSamples(
       linAlgebra,
     )
   }
-  (0..10).map { teacherStorage.createTeacher() }
-  println("first student is ${students.first()}")
+  val teachers = (0..3).map { teacherStorage.createTeacher() }
+  teachers.forEach { teacher ->
+    coursesDistributor.addTeacherToCourse(teacher, realAnalysis)
+  }
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

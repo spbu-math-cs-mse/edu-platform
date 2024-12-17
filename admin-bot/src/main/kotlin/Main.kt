@@ -7,12 +7,9 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
-import com.github.heheteam.commonlib.mock.MockAdminIdRegistry
 import com.github.heheteam.commonlib.util.fillWithSamples
-import dev.inmo.tgbotapi.utils.RiskFeature
 import org.jetbrains.exposed.sql.Database
 
-@OptIn(RiskFeature::class)
 suspend fun main(vararg args: String) {
   val botToken = args.first()
 
@@ -21,8 +18,6 @@ suspend fun main(vararg args: String) {
       "jdbc:h2:./data/films",
       driver = "org.h2.Driver",
     )
-
-  val userIdRegistry = MockAdminIdRegistry(0L)
 
   val coursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage = DatabaseProblemStorage(database)
@@ -42,5 +37,5 @@ suspend fun main(vararg args: String) {
       problemStorage,
     )
 
-  adminRun(botToken, userIdRegistry, core)
+  adminRun(botToken, core)
 }

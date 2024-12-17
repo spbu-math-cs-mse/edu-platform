@@ -28,5 +28,5 @@ sealed interface SolutionResolveError {
 }
 
 class TeacherDoesNotExist(val id: TeacherId) : SolutionResolveError {
-  override fun toUserMessage(): String = "Учитель id=${id.id} не существует"
+  override fun toUserMessage(): String = "Учитель id=$id не существует"
 }

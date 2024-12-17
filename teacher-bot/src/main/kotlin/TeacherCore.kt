@@ -1,6 +1,9 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.*
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
@@ -20,8 +23,6 @@ class TeacherCore(
   }
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
-
-  fun getQueryStats() = teacherStatistics.getGlobalStats()
 
   fun getAvailableCourses(teacherId: TeacherId): List<Course> = coursesDistributor.getTeacherCourses(teacherId)
 
@@ -61,5 +62,5 @@ class TeacherCore(
     return grades
   }
 
-  fun getMaxGrade(course: Course): Grade = 5 // TODO: this needs to be fixed properly
+  fun getMaxGrade(): Grade = 5 // TODO: this needs to be fixed properly
 }

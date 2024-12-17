@@ -31,6 +31,7 @@ dependencyResolutionManagement {
       library("exposed-spring-boot-starter", "org.jetbrains.exposed", "exposed-spring-boot-starter").versionRef("exposed")
       library("h2database", "com.h2database", "h2").versionRef("h2")
       library("kotlin-result" , "com.michael-bull.kotlin-result", "kotlin-result").versionRef("kotlin-result")
+      library("kotlin-result-coroutines" , "com.michael-bull.kotlin-result", "kotlin-result-coroutines").versionRef("kotlin-result")
     }
   }
 }

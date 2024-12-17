@@ -3,7 +3,7 @@ package com.github.heheteam.parentbot
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.parentbot.run.parentRun
 import org.jetbrains.exposed.sql.Database
 
@@ -19,7 +19,6 @@ suspend fun main(vararg args: String) {
       driver = "org.h2.Driver",
     )
 
-  val userIdRegistry = MockParentIdRegistry(1)
   val parentStorage = MockParentStorage()
   val core =
     ParentCore(
@@ -28,5 +27,5 @@ suspend fun main(vararg args: String) {
       DatabaseSolutionDistributor(database),
     )
 
-  parentRun(botToken, userIdRegistry, parentStorage, core)
+  parentRun(botToken, parentStorage, core)
 }

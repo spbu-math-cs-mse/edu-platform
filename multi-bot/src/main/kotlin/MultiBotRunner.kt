@@ -1,6 +1,5 @@
 package com.github.heheteam.multibot
 
-import DatabaseCoursesDistributor
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
@@ -69,6 +68,7 @@ class MultiBotRunner : CliktCommand() {
       assignmentStorage,
       studentStorage,
       teacherStorage,
+      database,
     )
 
     val parentStorage = MockParentStorage()

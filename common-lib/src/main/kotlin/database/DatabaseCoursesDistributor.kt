@@ -1,8 +1,14 @@
+package com.github.heheteam.commonlib.database
+
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.tables.CourseTable
 import com.github.heheteam.commonlib.database.tables.CourseTeachers
+import com.github.heheteam.commonlib.database.tables.StudentTable
+import com.github.heheteam.commonlib.database.tables.TeacherTable
 import com.github.michaelbull.result.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -152,19 +158,33 @@ class DatabaseCoursesDistributor(
       } get CourseTable.id
     }.value.toCourseId()
 
-  override fun getStudents(courseId: CourseId): List<StudentId> =
+  override fun getStudents(courseId: CourseId): List<Student> =
     transaction(database) {
       CourseStudents
+        .join(StudentTable, JoinType.INNER, onColumn = CourseStudents.studentId, otherColumn = StudentTable.id)
         .selectAll()
         .where(CourseStudents.courseId eq courseId.id)
-        .map { it[CourseStudents.studentId].value.toStudentId() }
+        .map {
+          Student(
+            it[CourseStudents.studentId].value.toStudentId(),
+            it[StudentTable.name].toString(),
+            it[StudentTable.surname].toString(),
+          )
+        }
     }
 
-  override fun getTeachers(courseId: CourseId): List<TeacherId> =
+  override fun getTeachers(courseId: CourseId): List<Teacher> =
     transaction(database) {
       CourseTeachers
+        .join(TeacherTable, JoinType.INNER, onColumn = CourseTeachers.teacherId, otherColumn = TeacherTable.id)
         .selectAll()
         .where(CourseTeachers.courseId eq courseId.id)
-        .map { it[CourseTeachers.teacherId].value.toTeacherId() }
+        .map {
+          Teacher(
+            it[CourseTeachers.teacherId].value.toTeacherId(),
+            it[TeacherTable.name].toString(),
+            it[TeacherTable.surname].toString(),
+          )
+        }
     }
 }

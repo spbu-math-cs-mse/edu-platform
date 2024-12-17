@@ -1,6 +1,8 @@
 package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.reset
+import org.jetbrains.exposed.sql.Database
 
 fun generateCourse(
   name: String,
@@ -28,7 +30,9 @@ fun fillWithSamples(
   assignmentStorage: AssignmentStorage,
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
+  database: Database,
 ): List<CourseId> {
+  reset(database)
   val realAnalysis =
     generateCourse(
       "Начала мат. анализа",
@@ -57,7 +61,18 @@ fun fillWithSamples(
       assignmentStorage,
       problemStorage,
     )
-  val students = (0..10).map { studentStorage.createStudent() }
+  val students = listOf(
+    "Алексей" to "Иванов",
+    "Мария" to "Петрова",
+    "Дмитрий" to "Сидоров",
+    "Анна" to "Смирнова",
+    "Иван" to "Кузнецов",
+    "Елена" to "Попова",
+    "Виктор" to "Семенов",
+    "Ольга" to "Соколова",
+    "Андрей" to "Михайлов",
+    "Николай" to "Васильев",
+  ).map { studentStorage.createStudent(it.first, it.second) }
   students.slice(0..<5).map { studentId ->
     coursesDistributor.addStudentToCourse(
       studentId,
@@ -82,9 +97,12 @@ fun fillWithSamples(
       linAlgebra,
     )
   }
-  val teachers = (0..3).map { teacherStorage.createTeacher() }
-  teachers.forEach { teacher ->
-    coursesDistributor.addTeacherToCourse(teacher, realAnalysis)
-  }
+  println("first student is ${studentStorage.resolveStudent(students.first())}")
+
+  listOf(
+    "Григорий" to "Лебедев",
+    "Егор" to "Тихонов",
+  ).map { teacherStorage.createTeacher(it.first, it.second) }
+
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

@@ -3,6 +3,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import org.jetbrains.exposed.sql.Database
 import java.time.LocalDateTime
@@ -12,11 +13,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AdminBotTest {
-  private val database =
-    Database.connect(
-      "jdbc:h2:./data/films",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
 
   private val core =
     AdminCore(

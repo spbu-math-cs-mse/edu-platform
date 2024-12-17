@@ -46,9 +46,7 @@ class StudentCore(
   fun addRecord(
     studentId: StudentId,
     courseId: CourseId,
-  ) {
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-  }
+  ) = coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun getCourses(): List<Course> = coursesDistributor.getCourses()
 

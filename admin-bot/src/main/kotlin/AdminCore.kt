@@ -21,9 +21,7 @@ class AdminCore(
 
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
-  fun addCourse(courseName: String) {
-    coursesDistributor.createCourse(courseName)
-  }
+  fun addCourse(courseName: String) = coursesDistributor.createCourse(courseName)
 
   fun getCourse(courseName: String): Course? =
     coursesDistributor
@@ -48,9 +46,7 @@ class AdminCore(
   fun registerStudentForCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ) {
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-  }
+  ) = coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun registerTeacherForCourse(
     teacherId: TeacherId,

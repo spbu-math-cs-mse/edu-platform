@@ -55,7 +55,7 @@ class TeacherBotTest {
       assignmentStorage.createAssignment(
         courseId,
         "test assignment",
-        listOf("p1", "p2"),
+        listOf(Triple("p1", "", 1), Triple("p2", "", 1)),
         DatabaseProblemStorage(database),
       )
     problemId = problemStorage.createProblem(assignmentId, "test problem 1", 1, "test problem")

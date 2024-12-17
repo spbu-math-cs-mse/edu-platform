@@ -11,12 +11,6 @@ class MockAdminIdRegistry(
   override fun getUserId(tgId: UserId): Result<AdminId, ResolveError<UserId>> = Ok(AdminId(usedId))
 }
 
-class MockTeacherIdRegistry(
-  val usedId: Long,
-) : TeacherIdRegistry {
-  override fun getUserId(tgId: UserId): Result<TeacherId, ResolveError<UserId>> = Ok(TeacherId(usedId))
-}
-
 class MockParentIdRegistry(
   val usedId: Long,
 ) : ParentIdRegistry {

@@ -1,6 +1,5 @@
 package com.github.heheteam.teacherbot.run
 
-import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
@@ -19,7 +18,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun teacherRun(botToken: String, teacherIdRegistry: TeacherIdRegistry, teacherStorage: TeacherStorage, core: TeacherCore) {
+suspend fun teacherRun(
+  botToken: String,
+  teacherStorage: TeacherStorage,
+  core: TeacherCore,
+) {
   telegramBot(botToken) {
     logger =
       KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -46,7 +49,10 @@ suspend fun teacherRun(botToken: String, teacherIdRegistry: TeacherIdRegistry, t
       }
     }
 
-    strictlyOnStartState(teacherIdRegistry, teacherStorage, isDeveloperRun = true)
+    strictlyOnStartState(
+      teacherStorage,
+      isDeveloperRun = true,
+    )
     strictlyOnMenuState(core)
     strictlyOnGettingSolutionState(core)
     strictlyOnCheckGradesState(core)

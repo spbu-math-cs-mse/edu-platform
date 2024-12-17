@@ -69,7 +69,6 @@ fun main(vararg args: String) {
       botEventBus,
     )
 
-  val teacherIdRegistry = MockTeacherIdRegistry(1L)
   val teacherCore =
     TeacherCore(
       inMemoryTeacherStatistics,
@@ -101,7 +100,7 @@ fun main(vararg args: String) {
 
   runBlocking {
     launch { studentRun(args[0], studentStorage, studentCore) }
-    launch { teacherRun(args[1], teacherIdRegistry, teacherStorage, teacherCore) }
+    launch { teacherRun(args[1], teacherStorage, teacherCore) }
     launch { adminRun(args[2], adminIdRegistry, adminCore) }
     launch { parentRun(args[3], parentIdRegistry, parentStorage, parentCore) }
   }

@@ -1,13 +1,17 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.api.ResolveError
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.database.tables.ParentStudents
 import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.heheteam.commonlib.database.tables.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -52,6 +56,26 @@ class DatabaseTeacherStorage(
   override fun getTeachers(): List<Teacher> =
     transaction(database) {
       TeacherTable.selectAll()
-        .map { Teacher(TeacherId(it[TeacherTable.id].value), it[TeacherTable.name], it[TeacherTable.surname]) }
+        .map {
+          Teacher(
+            TeacherId(it[TeacherTable.id].value),
+            it[TeacherTable.name],
+            it[TeacherTable.surname],
+          )
+        }
     }
+
+  override fun resolveByTgId(tgId: UserId): Result<TeacherId, ResolveError<UserId>> {
+    val teacherId =
+      transaction(database) {
+        TeacherTable
+          .select(TeacherTable.id)
+          .where { TeacherTable.tgId eq (tgId.chatId.long) }
+          .limit(1)
+          .firstOrNull()
+          ?.get(TeacherTable.id)
+          ?.value
+      } ?: return Err(ResolveError(tgId, TeacherId::class.simpleName))
+    return Ok(TeacherId(teacherId))
+  }
 }

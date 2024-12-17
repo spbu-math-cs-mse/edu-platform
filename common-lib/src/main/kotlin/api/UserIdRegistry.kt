@@ -7,10 +7,6 @@ interface AdminIdRegistry {
   fun getUserId(tgId: UserId): Result<AdminId, ResolveError<UserId>>
 }
 
-interface TeacherIdRegistry {
-  fun getUserId(tgId: UserId): Result<TeacherId, ResolveError<UserId>>
-}
-
 interface ParentIdRegistry {
   fun getUserId(tgId: UserId): Result<ParentId, ResolveError<UserId>>
 }

@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherIdRegistry
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -14,14 +13,13 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
-  teacherIdRegistry: TeacherIdRegistry,
   teacherStorage: TeacherStorage,
   isDeveloperRun: Boolean = false,
 ) {
   strictlyOn<StartState> { state ->
     bot.sendSticker(state.context, Dialogues.greetingSticker)
     var teacherId: TeacherId? = null
-    if (teacherIdRegistry.getUserId(state.context.id).isErr) {
+    if (teacherStorage.resolveByTgId(state.context.id).isErr) {
       bot.send(
         state.context,
         Dialogues.greetings() + Dialogues.askFirstName(),

@@ -1,7 +1,12 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.api.*
+import dev.inmo.tgbotapi.types.message.textsources.RegularTextSource
+import dev.inmo.tgbotapi.types.message.textsources.TextSource
+import dev.inmo.tgbotapi.types.message.textsources.bold
+import dev.inmo.tgbotapi.utils.RiskFeature
 import java.time.LocalDateTime
 
 class AdminCore(
@@ -23,6 +28,14 @@ class AdminCore(
 
   fun addCourse(courseName: String) {
     coursesDistributor.createCourse(courseName)
+  }
+
+  fun addAssignment(
+    courseId: CourseId,
+    description: String,
+    problemsDescriptions: List<Triple<String, String, Grade>>,
+  ) {
+    assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
   }
 
   fun getCourse(courseName: String): Course? =
@@ -82,26 +95,36 @@ class AdminCore(
     }
   }
 
-  fun getProblemsBulletList(course: Course): String {
+  @OptIn(RiskFeature::class)
+  fun getProblemsEntitiesList(course: Course): List<TextSource> {
     val assignmentsList = assignmentStorage.getAssignmentsForCourse(course.id)
     val noAssignments = "Список серий пуст!"
     return if (assignmentsList.isNotEmpty()) {
-      assignmentsList
-        .joinToString("\n") { assignment ->
-          val problemsList = problemStorage.getProblemsFromAssignment(assignment.id)
-          val noProblems = "Задачи в этой серии отсутствуют."
-          "- ${assignment.description}:\n${
-            if (problemsList.isNotEmpty()) {
-              problemsList.joinToString("\n") { problem ->
-                "\t- задача ${problem.number}"
-              }
-            } else {
-              noProblems
-            }
-          }"
-        }
+      val entitiesList: MutableList<TextSource> = mutableListOf()
+      assignmentsList.forEachIndexed { index, assignment ->
+        val problemsList = problemStorage.getProblemsFromAssignment(assignment.id)
+        val noProblems = "Задачи в этой серии отсутствуют."
+        entitiesList.addAll(
+          listOf(
+            RegularTextSource("\uD83D\uDCDA "),
+            bold(assignment.description),
+            RegularTextSource(
+              ":\n${
+                if (problemsList.isNotEmpty()) {
+                  problemsList.joinToString("\n") { problem ->
+                    "    \uD83C\uDFAF задача ${problem.number}"
+                  }
+                } else {
+                  noProblems
+                }
+              }${if (index == (assignmentsList.size - 1)) "" else "\n\n"}",
+            ),
+          ),
+        )
+      }
+      entitiesList
     } else {
-      noAssignments
+      listOf(RegularTextSource(noAssignments))
     }
   }
 }

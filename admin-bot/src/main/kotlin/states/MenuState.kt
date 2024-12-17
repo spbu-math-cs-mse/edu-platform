@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.Keyboards
+import com.github.heheteam.adminbot.Keyboards.createAssignment
 import com.github.heheteam.adminbot.Keyboards.getProblems
 import com.github.heheteam.adminbot.Keyboards.getTeachers
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -34,6 +35,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
 
       getProblems -> {
         GetProblemsState(state.context)
+      }
+
+      createAssignment -> {
+        CreateAssignmentState(state.context)
       }
 
       else -> MenuState(state.context)

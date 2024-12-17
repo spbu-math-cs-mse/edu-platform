@@ -23,6 +23,7 @@ object Keyboards {
   val createCourse = "create course"
   val getTeachers = "get teachers"
   val getProblems = "get problems"
+  val createAssignment = "create assignment"
 
   fun menu() =
     inlineKeyboard {
@@ -37,6 +38,9 @@ object Keyboards {
       }
       row {
         dataButton("Список всех серий с задачами", getProblems)
+      }
+      row {
+        dataButton("Создать серию", createAssignment)
       }
     }
 

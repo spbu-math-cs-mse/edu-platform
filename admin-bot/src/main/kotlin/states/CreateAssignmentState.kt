@@ -18,6 +18,9 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
@@ -149,7 +152,12 @@ private suspend fun BehaviourContext.queryProblemsDescriptions(
           continue
         }
 
-        problemsDescriptions = parseProblemsDescriptions(state, messages, problemsDescriptionsFromText) ?: continue
+        val parsedProblemsDescriptions = parseProblemsDescriptions(problemsDescriptionsFromText)
+        if (parsedProblemsDescriptions.isErr) {
+          handleError(state, messages, parsedProblemsDescriptions.error)
+          continue
+        }
+        problemsDescriptions = parsedProblemsDescriptions.value
         break
       }
     }
@@ -173,11 +181,9 @@ private suspend fun BehaviourContext.handleError(
   )
 }
 
-private suspend fun BehaviourContext.parseProblemsDescriptions(
-  state: CreateAssignmentState,
-  messages: MutableList<ContentMessage<TextContent>>,
+internal fun parseProblemsDescriptions(
   problemsDescriptionsFromText: String,
-): List<ProblemDescription>? {
+): Result<List<ProblemDescription>, String> {
   val problemsDescriptions = mutableListOf<ProblemDescription>()
   for (problemDescription in problemsDescriptionsFromText.lines()) {
     val arguments = """[^\s"]+|"([^"]*)"""".toRegex().findAll(problemDescription)
@@ -186,13 +192,11 @@ private suspend fun BehaviourContext.parseProblemsDescriptions(
 
     when {
       arguments.isEmpty() -> {
-        handleError(state, messages, incorrectProblemDescriptionEmpty())
-        return null
+        return Err(incorrectProblemDescriptionEmpty())
       }
 
       arguments.size > 3 -> {
-        handleError(state, messages, incorrectProblemDescriptionTooManyArguments(problemDescription))
-        return null
+        return Err(incorrectProblemDescriptionTooManyArguments(problemDescription))
       }
 
       else -> {
@@ -204,13 +208,10 @@ private suspend fun BehaviourContext.parseProblemsDescriptions(
           },
         )
         val maxScore = arguments.last().toIntOrNull()
-        if (maxScore == null) {
-          handleError(state, messages, incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
-          return null
-        }
+          ?: return Err(incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
         problemsDescriptions.add(ProblemDescription(arguments[0], arguments[1], maxScore))
       }
     }
   }
-  return problemsDescriptions
+  return Ok(problemsDescriptions)
 }

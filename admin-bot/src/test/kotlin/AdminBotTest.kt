@@ -13,65 +13,65 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AdminBotTest {
-  private val config = loadConfig()
+    private val config = loadConfig()
 
-  private val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
-
-  private val core =
-    AdminCore(
-      InMemoryScheduledMessagesDistributor(),
-      DatabaseCoursesDistributor(database),
-      DatabaseStudentStorage(database),
-      DatabaseTeacherStorage(database),
-      DatabaseAssignmentStorage(database),
-      DatabaseProblemStorage(database),
+    private val database = Database.connect(
+        config.databaseConfig.url,
+        config.databaseConfig.driver,
+        config.databaseConfig.login,
+        config.databaseConfig.password,
     )
 
-  private val course =
-    Course(
-      CourseId(1L),
-      "",
-    )
+    private val core =
+        AdminCore(
+            InMemoryScheduledMessagesDistributor(),
+            DatabaseCoursesDistributor(database),
+            DatabaseStudentStorage(database),
+            DatabaseTeacherStorage(database),
+            DatabaseAssignmentStorage(database),
+            DatabaseProblemStorage(database),
+        )
 
-  @BeforeTest
-  @AfterTest
-  fun setup() {
-    reset(database)
-  }
+    private val course =
+        Course(
+            CourseId(1L),
+            "",
+        )
 
-  @Test
-  fun scheduledMessagesDistributorTest() {
-    val date1 = LocalDateTime.now()
-    val date2 = date1.plusDays(1)
-    val message1 = ScheduledMessage(course, date1.minusHours(1), "message 1")
-    val message2 = ScheduledMessage(course, date2.minusHours(1), "message 2")
+    @BeforeTest
+    @AfterTest
+    fun setup() {
+        reset(database)
+    }
 
-    assertEquals(listOf(), core.getMessagesUpToDate(date1))
-    assertEquals(listOf(), core.getMessagesUpToDate(date2))
-    core.addMessage(message1)
-    core.addMessage(message2)
-    assertEquals(listOf(message1), core.getMessagesUpToDate(date1))
-    assertEquals(listOf(message1, message2), core.getMessagesUpToDate(date2))
-    core.markMessagesUpToDateAsSent(date1)
-    assertEquals(listOf(), core.getMessagesUpToDate(date1))
-    assertEquals(listOf(message2), core.getMessagesUpToDate(date2))
-  }
+    @Test
+    fun scheduledMessagesDistributorTest() {
+        val date1 = LocalDateTime.now()
+        val date2 = date1.plusDays(1)
+        val message1 = ScheduledMessage(course, date1.minusHours(1), "message 1")
+        val message2 = ScheduledMessage(course, date2.minusHours(1), "message 2")
 
-  @Test
-  fun coursesTableTest() {
-    val courseName = "course 1"
-    assertEquals(false, core.courseExists(courseName))
-    assertEquals(null, core.getCourse(courseName))
-    assertEquals(mapOf(), core.getCourses())
+        assertEquals(listOf(), core.getMessagesUpToDate(date1))
+        assertEquals(listOf(), core.getMessagesUpToDate(date2))
+        core.addMessage(message1)
+        core.addMessage(message2)
+        assertEquals(listOf(message1), core.getMessagesUpToDate(date1))
+        assertEquals(listOf(message1, message2), core.getMessagesUpToDate(date2))
+        core.markMessagesUpToDateAsSent(date1)
+        assertEquals(listOf(), core.getMessagesUpToDate(date1))
+        assertEquals(listOf(message2), core.getMessagesUpToDate(date2))
+    }
 
-    core.addCourse(courseName)
-    assertEquals(true, core.courseExists(courseName))
-    assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName))
-    assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses())
-  }
+    @Test
+    fun coursesTableTest() {
+        val courseName = "course 1"
+        assertEquals(false, core.courseExists(courseName))
+        assertEquals(null, core.getCourse(courseName))
+        assertEquals(mapOf(), core.getCourses())
+
+        core.addCourse(courseName)
+        assertEquals(true, core.courseExists(courseName))
+        assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName))
+        assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses())
+    }
 }

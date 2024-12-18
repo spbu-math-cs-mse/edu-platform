@@ -17,36 +17,43 @@ import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
-  strictlyOn<GivingFeedbackState> { state ->
-    val giveFeedbackMessage =
-      bot.send(
-        state.context,
-        Dialogues.giveFeedback(),
-        replyMarkup = Keyboards.returnBack(),
-      )
+    strictlyOn<GivingFeedbackState> { state ->
+        val giveFeedbackMessage =
+            bot.send(
+                state.context,
+                Dialogues.giveFeedback(),
+                replyMarkup = Keyboards.returnBack(),
+            )
 
-    when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
-      is DataCallbackQuery -> {
-        val command = response.data
-        if (command == Keyboards.returnBack) {
-          delete(giveFeedbackMessage)
+        when (
+            val response = flowOf(
+                waitDataCallbackQueryWithUser(state.context.id),
+                waitTextMessageWithUser(state.context.id)
+            ).flattenMerge().first()
+        ) {
+            is DataCallbackQuery -> {
+                val command = response.data
+                if (command == Keyboards.returnBack) {
+                    delete(giveFeedbackMessage)
+                }
+            }
+
+            is CommonMessage<*> -> {
+                val feedback = response.content
+                println(
+                    "Feedback by user @${state.context.username}: \n\"$feedback\""
+                ) // TODO: implement receiving feedback
+
+                bot.sendSticker(
+                    state.context,
+                    Dialogues.okSticker,
+                )
+                bot.send(
+                    state.context,
+                    Dialogues.acceptFeedback(),
+                )
+            }
         }
-      }
-
-      is CommonMessage<*> -> {
-        val feedback = response.content
-        println("Feedback by user @${state.context.username}: \n\"$feedback\"") // TODO: implement receiving feedback
-
-        bot.sendSticker(
-          state.context,
-          Dialogues.okSticker,
-        )
-        bot.send(
-          state.context,
-          Dialogues.acceptFeedback(),
-        )
-      }
+        MenuState(state.context, state.parentId)
     }
-    MenuState(state.context, state.parentId)
-  }
 }

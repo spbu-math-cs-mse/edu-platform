@@ -8,19 +8,19 @@ import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 
 interface SolutionDistributor {
-  fun inputSolution(
-    studentId: StudentId,
-    chatId: RawChatId,
-    messageId: MessageId,
-    solutionContent: SolutionContent,
-    problemId: ProblemId,
-    timestamp: LocalDateTime = LocalDateTime.now(),
-  ): SolutionId
+    fun inputSolution(
+        studentId: StudentId,
+        chatId: RawChatId,
+        messageId: MessageId,
+        solutionContent: SolutionContent,
+        problemId: ProblemId,
+        timestamp: LocalDateTime = LocalDateTime.now(),
+    ): SolutionId
 
-  fun querySolution(
-    teacherId: TeacherId,
-    gradeTable: GradeTable,
-  ): Result<Solution?, SolutionResolveError>
+    fun querySolution(
+        teacherId: TeacherId,
+        gradeTable: GradeTable,
+    ): Result<Solution?, SolutionResolveError>
 
-  fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>>
+    fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>>
 }

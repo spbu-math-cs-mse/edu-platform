@@ -30,116 +30,116 @@ import org.jetbrains.exposed.sql.Database
 import java.io.File
 
 class MultiBotRunner : CliktCommand() {
-  val studentBotToken: String by option().required().help("student bot token")
-  val teacherBotToken: String by option().required().help("teacher bot token")
-  val adminBotToken: String by option().required().help("admin bot token")
-  val parentBotToken: String by option().required().help("parent bot token")
-  val presetStudentId: Long? by option().long()
-  val presetTeacherId: Long? by option().long()
+    val studentBotToken: String by option().required().help("student bot token")
+    val teacherBotToken: String by option().required().help("teacher bot token")
+    val adminBotToken: String by option().required().help("admin bot token")
+    val parentBotToken: String by option().required().help("parent bot token")
+    val presetStudentId: Long? by option().long()
+    val presetTeacherId: Long? by option().long()
 
-  override fun run() {
-    val dbFile = File("./data/films.mv.db")
-    if (dbFile.exists()) {
-      dbFile.delete()
-    }
+    override fun run() {
+        val dbFile = File("./data/films.mv.db")
+        if (dbFile.exists()) {
+            dbFile.delete()
+        }
 
-    val database = Database.connect(
-      "jdbc:h2:./data/films",
-      driver = "org.h2.Driver",
-    )
+        val database = Database.connect(
+            "jdbc:h2:./data/films",
+            driver = "org.h2.Driver",
+        )
 
-    val coursesDistributor = DatabaseCoursesDistributor(database)
-    val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-    val assignmentStorage: AssignmentStorage =
-      DatabaseAssignmentStorage(database)
-    val solutionDistributor: SolutionDistributor =
-      DatabaseSolutionDistributor(database)
-    val gradeTable: GradeTable = DatabaseGradeTable(database)
-    val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-    val inMemoryTeacherStatistics: TeacherStatistics =
-      InMemoryTeacherStatistics()
-    val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
-      InMemoryScheduledMessagesDistributor()
+        val coursesDistributor = DatabaseCoursesDistributor(database)
+        val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
+        val assignmentStorage: AssignmentStorage =
+            DatabaseAssignmentStorage(database)
+        val solutionDistributor: SolutionDistributor =
+            DatabaseSolutionDistributor(database)
+        val gradeTable: GradeTable = DatabaseGradeTable(database)
+        val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
+        val inMemoryTeacherStatistics: TeacherStatistics =
+            InMemoryTeacherStatistics()
+        val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
+            InMemoryScheduledMessagesDistributor()
 
-    val studentStorage = DatabaseStudentStorage(database)
-    fillWithSamples(
-      coursesDistributor,
-      problemStorage,
-      assignmentStorage,
-      studentStorage,
-      teacherStorage,
-      database,
-    )
+        val studentStorage = DatabaseStudentStorage(database)
+        fillWithSamples(
+            coursesDistributor,
+            problemStorage,
+            assignmentStorage,
+            studentStorage,
+            teacherStorage,
+            database,
+        )
 
-    val parentStorage = MockParentStorage()
+        val parentStorage = MockParentStorage()
 
-    val bot = telegramBot(studentBotToken) {
-      logger =
-        KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-          println(defaultMessageFormatter(level, tag, message, throwable))
+        val bot = telegramBot(studentBotToken) {
+            logger =
+                KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+                    println(defaultMessageFormatter(level, tag, message, throwable))
+                }
+        }
+        val notificationService = StudentNotificationService(bot)
+        val botEventBus = RedisBotEventBus()
+        val studentCore =
+            StudentCore(
+                solutionDistributor,
+                coursesDistributor,
+                problemStorage,
+                assignmentStorage,
+                gradeTable,
+                notificationService,
+                botEventBus,
+            )
+
+        val teacherCore =
+            TeacherCore(
+                inMemoryTeacherStatistics,
+                coursesDistributor,
+                solutionDistributor,
+                gradeTable,
+                problemStorage,
+                botEventBus,
+            )
+
+        val adminCore =
+            AdminCore(
+                inMemoryScheduledMessagesDistributor,
+                coursesDistributor,
+                studentStorage,
+                teacherStorage,
+                assignmentStorage,
+                problemStorage,
+            )
+
+        val parentCore =
+            ParentCore(
+                DatabaseStudentStorage(database),
+                DatabaseGradeTable(database),
+                DatabaseSolutionDistributor(database),
+            )
+        val presetStudent = presetStudentId?.toStudentId()
+        val presetTeacher = presetTeacherId?.toTeacherId()
+        val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
+        runBlocking {
+            launch {
+                studentRun(
+                    studentBotToken,
+                    studentStorage,
+                    studentCore,
+                    developerOptions,
+                )
+            }
+            launch {
+                teacherRun(
+                    teacherBotToken,
+                    teacherStorage,
+                    teacherCore,
+                    developerOptions,
+                )
+            }
+            launch { adminRun(adminBotToken, adminCore) }
+            launch { parentRun(parentBotToken, parentStorage, parentCore) }
         }
     }
-    val notificationService = StudentNotificationService(bot)
-    val botEventBus = RedisBotEventBus()
-    val studentCore =
-      StudentCore(
-        solutionDistributor,
-        coursesDistributor,
-        problemStorage,
-        assignmentStorage,
-        gradeTable,
-        notificationService,
-        botEventBus,
-      )
-
-    val teacherCore =
-      TeacherCore(
-        inMemoryTeacherStatistics,
-        coursesDistributor,
-        solutionDistributor,
-        gradeTable,
-        problemStorage,
-        botEventBus,
-      )
-
-    val adminCore =
-      AdminCore(
-        inMemoryScheduledMessagesDistributor,
-        coursesDistributor,
-        studentStorage,
-        teacherStorage,
-        assignmentStorage,
-        problemStorage,
-      )
-
-    val parentCore =
-      ParentCore(
-        DatabaseStudentStorage(database),
-        DatabaseGradeTable(database),
-        DatabaseSolutionDistributor(database),
-      )
-    val presetStudent = presetStudentId?.toStudentId()
-    val presetTeacher = presetTeacherId?.toTeacherId()
-    val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
-    runBlocking {
-      launch {
-        studentRun(
-          studentBotToken,
-          studentStorage,
-          studentCore,
-          developerOptions,
-        )
-      }
-      launch {
-        teacherRun(
-          teacherBotToken,
-          teacherStorage,
-          teacherCore,
-          developerOptions,
-        )
-      }
-      launch { adminRun(adminBotToken, adminCore) }
-      launch { parentRun(parentBotToken, parentStorage, parentCore) }
-    }
-  }
 }

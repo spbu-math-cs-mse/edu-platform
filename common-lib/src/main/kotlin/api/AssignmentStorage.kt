@@ -4,14 +4,14 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.michaelbull.result.Result
 
 interface AssignmentStorage {
-  fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>>
+    fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>>
 
-  fun createAssignment(
-    courseId: CourseId,
-    description: String,
-    problemNames: List<String>,
-    problemStorage: ProblemStorage,
-  ): AssignmentId
+    fun createAssignment(
+        courseId: CourseId,
+        description: String,
+        problemNames: List<String>,
+        problemStorage: ProblemStorage,
+    ): AssignmentId
 
-  fun getAssignmentsForCourse(courseId: CourseId): List<Assignment>
+    fun getAssignmentsForCourse(courseId: CourseId): List<Assignment>
 }

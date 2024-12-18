@@ -21,80 +21,80 @@ import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
-  core: TeacherCore,
+    core: TeacherCore,
 ) {
-  strictlyOn<CheckGradesState> { state ->
-    val courses = core.getAvailableCourses(state.teacherId)
+    strictlyOn<CheckGradesState> { state ->
+        val courses = core.getAvailableCourses(state.teacherId)
 
-    val courseId: CourseId =
-      queryCourseFromUser(state, courses)
-        ?: return@strictlyOn MenuState(state.context, state.teacherId)
-    val course = courses.find { it.id == courseId }!!
+        val courseId: CourseId =
+            queryCourseFromUser(state, courses)
+                ?: return@strictlyOn MenuState(state.context, state.teacherId)
+        val course = courses.find { it.id == courseId }!!
 
-    val gradedProblems = core.getGrading(course)
-    val maxGrade = core.getMaxGrade()
-    val strGrades =
-      "Оценки учеников на курсе ${course.name}:\n" +
-        gradedProblems
-          .withGradesToText(maxGrade)
-    respondWithGrades(state, strGrades)
-    MenuState(state.context, state.teacherId)
-  }
+        val gradedProblems = core.getGrading(course)
+        val maxGrade = core.getMaxGrade()
+        val strGrades =
+            "Оценки учеников на курсе ${course.name}:\n" +
+                gradedProblems
+                    .withGradesToText(maxGrade)
+        respondWithGrades(state, strGrades)
+        MenuState(state.context, state.teacherId)
+    }
 }
 
 private suspend fun BehaviourContext.respondWithGrades(
-  state: CheckGradesState,
-  strGrades: String,
+    state: CheckGradesState,
+    strGrades: String,
 ) {
-  val gradesMessage =
-    bot.send(
-      state.context,
-      text = strGrades,
-      replyMarkup = returnBack(),
-    )
-  waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(state.context.id, gradesMessage.messageId)
+    val gradesMessage =
+        bot.send(
+            state.context,
+            text = strGrades,
+            replyMarkup = returnBack(),
+        )
+    waitDataCallbackQueryWithUser(state.context.id).first()
+    deleteMessage(state.context.id, gradesMessage.messageId)
 }
 
 private suspend fun BehaviourContext.queryCourseFromUser(
-  state: CheckGradesState,
-  courses: List<Course>,
+    state: CheckGradesState,
+    courses: List<Course>,
 ): CourseId? {
-  val chooseCourseMessage =
-    bot.send(
-      state.context,
-      text = "Выберите курс",
-      replyMarkup =
-      InlineKeyboardMarkup(
-        keyboard =
-        matrix {
-          courses.forEach {
-            row {
-              dataButton(
-                it.name,
-                "courseId ${it.id}",
-              )
-            }
-          }
-          row { dataButton("Назад", returnBack) }
-        },
-      ),
-    )
+    val chooseCourseMessage =
+        bot.send(
+            state.context,
+            text = "Выберите курс",
+            replyMarkup =
+            InlineKeyboardMarkup(
+                keyboard =
+                matrix {
+                    courses.forEach {
+                        row {
+                            dataButton(
+                                it.name,
+                                "courseId ${it.id}",
+                            )
+                        }
+                    }
+                    row { dataButton("Назад", returnBack) }
+                },
+            ),
+        )
 
-  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(state.context.id, chooseCourseMessage.messageId)
-  val courseId: String?
-  when {
-    callback.data.contains("courseId") -> {
-      courseId = callback.data.split(" ").last()
+    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
+    deleteMessage(state.context.id, chooseCourseMessage.messageId)
+    val courseId: String?
+    when {
+        callback.data.contains("courseId") -> {
+            courseId = callback.data.split(" ").last()
+        }
+
+        else -> return null
     }
-
-    else -> return null
-  }
-  return CourseId(courseId.toLong())
+    return CourseId(courseId.toLong())
 }
 
 fun List<Pair<StudentId, Grade?>>.withGradesToText(maxGrade: Grade) =
-  joinToString(separator = "\n") { (studentId, grade) ->
-    "Ученик $studentId : $grade/$maxGrade"
-  }
+    joinToString(separator = "\n") { (studentId, grade) ->
+        "Ученик $studentId : $grade/$maxGrade"
+    }

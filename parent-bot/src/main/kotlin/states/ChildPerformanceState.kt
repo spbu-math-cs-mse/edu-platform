@@ -10,18 +10,18 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(
-  core: ParentCore,
+    core: ParentCore,
 ) {
-  strictlyOn<ChildPerformanceState> { state ->
-    bot.sendSticker(state.context, Dialogues.nerdSticker)
-    bot.send(
-      state.context,
-      Dialogues.childPerformance(state.child, core),
-      replyMarkup = Keyboards.returnBack(),
-    )
+    strictlyOn<ChildPerformanceState> { state ->
+        bot.sendSticker(state.context, Dialogues.nerdSticker)
+        bot.send(
+            state.context,
+            Dialogues.childPerformance(state.child, core),
+            replyMarkup = Keyboards.returnBack(),
+        )
 
-    waitDataCallbackQueryWithUser(state.context.id).first()
+        waitDataCallbackQueryWithUser(state.context.id).first()
 
-    MenuState(state.context, state.parentId)
-  }
+        MenuState(state.context, state.parentId)
+    }
 }

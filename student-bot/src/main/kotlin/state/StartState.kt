@@ -16,45 +16,45 @@ import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
-  studentStorage: StudentStorage,
+    studentStorage: StudentStorage,
 ) {
-  strictlyOn<StartState> { state ->
-    bot.sendSticker(state.context, Dialogues.greetingSticker)
-    if (state.context.username == null) {
-      return@strictlyOn null
-    }
-    val studentResolvedByTgId =
-      studentStorage.resolveByTgId(state.context.id).get()?.id
-    val studentId =
-      studentResolvedByTgId ?: registerStudent(state.context, studentStorage)
+    strictlyOn<StartState> { state ->
+        bot.sendSticker(state.context, Dialogues.greetingSticker)
+        if (state.context.username == null) {
+            return@strictlyOn null
+        }
+        val studentResolvedByTgId =
+            studentStorage.resolveByTgId(state.context.id).get()?.id
+        val studentId =
+            studentResolvedByTgId ?: registerStudent(state.context, studentStorage)
 
-    MenuState(state.context, studentId)
-  }
+        MenuState(state.context, studentId)
+    }
 }
 
 private suspend fun BehaviourContext.registerStudent(
-  tgUser: User,
-  studentStorage: StudentStorage,
+    tgUser: User,
+    studentStorage: StudentStorage,
 ): StudentId {
-  bot.send(tgUser, Dialogues.greetings())
-  bot.send(tgUser, Dialogues.askFirstName())
-  val firstName =
-    waitTextMessageWithUser(tgUser.id).first().content.text
+    bot.send(tgUser, Dialogues.greetings())
+    bot.send(tgUser, Dialogues.askFirstName())
+    val firstName =
+        waitTextMessageWithUser(tgUser.id).first().content.text
 
-  bot.send(tgUser, Dialogues.askLastName(firstName))
-  val lastName =
-    waitTextMessageWithUser(tgUser.id).first().content.text
+    bot.send(tgUser, Dialogues.askLastName(firstName))
+    val lastName =
+        waitTextMessageWithUser(tgUser.id).first().content.text
 
-  val askGradeMessage =
-    bot.send(
-      tgUser,
-      Dialogues.askGrade(firstName, lastName),
-      replyMarkup = Keyboards.askGrade(),
-    )
+    val askGradeMessage =
+        bot.send(
+            tgUser,
+            Dialogues.askGrade(firstName, lastName),
+            replyMarkup = Keyboards.askGrade(),
+        )
 
-  // discard student class data
-  waitDataCallbackQueryWithUser(tgUser.id).first().data
-  val newStudent = studentStorage.createStudent()
-  editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
-  return newStudent
+    // discard student class data
+    waitDataCallbackQueryWithUser(tgUser.id).first().data
+    val newStudent = studentStorage.createStudent()
+    editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
+    return newStudent
 }

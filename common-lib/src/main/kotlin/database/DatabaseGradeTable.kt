@@ -46,12 +46,13 @@ class DatabaseGradeTable(
         ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
         .selectAll()
         .where { SolutionTable.studentId eq studentId.id }
-        .associate { it[SolutionTable.problemId].value.toProblemId() to
-          ProblemState(
-            it[AssessmentTable.grade],
-            //true
-            isChecked(SolutionId(it[SolutionTable.id].value)),
-          )
+        .associate {
+          it[SolutionTable.problemId].value.toProblemId() to
+            ProblemState(
+              it[AssessmentTable.grade],
+              // true
+              isChecked(SolutionId(it[SolutionTable.id].value)),
+            )
         }
     }
 
@@ -64,7 +65,8 @@ class DatabaseGradeTable(
       AssessmentTable
         .join(
           SolutionTable,
-          JoinType.RIGHT,onColumn = AssessmentTable.solutionId,
+          JoinType.RIGHT,
+          onColumn = AssessmentTable.solutionId,
           otherColumn = SolutionTable.id,
         ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
         .selectAll()
@@ -78,7 +80,7 @@ class DatabaseGradeTable(
               isChecked(SolutionId(it[SolutionTable.id].value)),
             )
         }
-  }
+    }
 
   override fun assessSolution(
     solutionId: SolutionId,

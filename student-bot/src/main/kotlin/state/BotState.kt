@@ -7,26 +7,26 @@ import dev.inmo.tgbotapi.types.chat.User
 
 sealed interface BotState : State
 
-data class StartState(
+internal data class StartState(
     override val context: User,
 ) : BotState
 
-data class DevStartState(
+internal data class DevStartState(
     override val context: User,
     val queryIdMessage: String? = null,
 ) : BotState
 
-data class PresetStudentState(
+internal data class PresetStudentState(
     override val context: User,
     val studentId: StudentId,
 ) : BotState
 
-data class MenuState(
+internal data class MenuState(
     override val context: User,
     val studentId: StudentId,
 ) : BotState
 
-data class ViewState(
+internal data class ViewState(
     override val context: User,
     val studentId: StudentId,
 ) : BotState
@@ -36,13 +36,13 @@ data class SignUpState(
     val studentId: StudentId,
 ) : BotState
 
-data class SendSolutionState(
+internal data class SendSolutionState(
     override val context: User,
     val studentId: StudentId,
     var selectedCourse: Course? = null,
 ) : BotState
 
-data class CheckGradesState(
+internal data class CheckGradesState(
     override val context: User,
     val studentId: StudentId,
 ) : BotState

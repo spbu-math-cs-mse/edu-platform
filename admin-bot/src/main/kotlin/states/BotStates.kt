@@ -6,61 +6,61 @@ import dev.inmo.tgbotapi.types.chat.User
 
 sealed interface BotState : State
 
-data class StartState(
+internal data class StartState(
     override val context: User,
 ) : BotState
 
-data class MenuState(
+internal data class MenuState(
     override val context: User,
 ) : BotState
 
-data class CreateCourseState(
+internal data class CreateCourseState(
     override val context: User,
 ) : BotState
 
-data class GetTeachersState(
+internal data class GetTeachersState(
     override val context: User,
 ) : BotState
 
-data class GetProblemsState(
+internal data class GetProblemsState(
     override val context: User,
 ) : BotState
 
-data class EditCourseState(
+internal data class EditCourseState(
     override val context: User,
 ) : BotState
 
-data class AddStudentState(
-    override val context: User,
-    val course: Course,
-    val courseName: String,
-) : BotState
-
-data class RemoveStudentState(
+internal data class AddStudentState(
     override val context: User,
     val course: Course,
     val courseName: String,
 ) : BotState
 
-data class AddTeacherState(
+internal data class RemoveStudentState(
     override val context: User,
     val course: Course,
     val courseName: String,
 ) : BotState
 
-data class RemoveTeacherState(
+internal data class AddTeacherState(
     override val context: User,
     val course: Course,
     val courseName: String,
 ) : BotState
 
-data class EditDescriptionState(
+internal data class RemoveTeacherState(
     override val context: User,
     val course: Course,
     val courseName: String,
 ) : BotState
 
-data class AddScheduledMessageState(
+internal data class EditDescriptionState(
+    override val context: User,
+    val course: Course,
+    val courseName: String,
+) : BotState
+
+internal data class AddScheduledMessageState(
     override val context: User,
     val course: Course,
     val courseName: String,

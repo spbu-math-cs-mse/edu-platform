@@ -11,7 +11,7 @@ import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
 
-suspend fun main(vararg args: String) {
+private suspend fun main(vararg args: String) {
     val botToken = args.first()
     val config = loadConfig()
 

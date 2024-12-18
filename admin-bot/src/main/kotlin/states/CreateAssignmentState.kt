@@ -36,6 +36,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.merge
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateAssignmentState(core: AdminCore) {
   strictlyOn<CreateAssignmentState> { state ->
@@ -117,7 +118,6 @@ private suspend fun BehaviourContext.queryAssignmentDescription(
   }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun BehaviourContext.queryProblemsDescriptions(
   state: CreateAssignmentState,
 ): List<ProblemDescription>? {
@@ -133,10 +133,10 @@ private suspend fun BehaviourContext.queryProblemsDescriptions(
   val problemsDescriptions: List<ProblemDescription>
   while (true) {
     when (
-      val response = flowOf(
+      val response = merge(
         waitDataCallbackQueryWithUser(state.context.id),
         waitTextMessageWithUser(state.context.id),
-      ).flattenMerge().first()
+      ).first()
     ) {
       is DataCallbackQuery -> {
         if (response.data == returnBack) {
@@ -188,7 +188,7 @@ internal fun parseProblemsDescriptions(
   for (problemDescription in problemsDescriptionsFromText.lines()) {
     val arguments = """[^\s"]+|"([^"]*)"""".toRegex().findAll(problemDescription)
       .map { it.groups[1]?.value ?: it.value }
-      .toMutableList()
+      .toList()
 
     when {
       arguments.isEmpty() -> {
@@ -200,16 +200,9 @@ internal fun parseProblemsDescriptions(
       }
 
       else -> {
-        while (arguments.size < 3) arguments.add(
-          when (arguments.size) {
-            1 -> ""
-            2 -> "1"
-            else -> ""
-          },
-        )
-        val maxScore = arguments.last().toIntOrNull()
+        val maxScore = arguments.elementAtOrElse(2) { "1" }.toIntOrNull()
           ?: return Err(incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
-        problemsDescriptions.add(ProblemDescription(arguments[0], arguments[1], maxScore))
+        problemsDescriptions.add(ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore))
       }
     }
   }

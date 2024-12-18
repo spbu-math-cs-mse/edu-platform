@@ -104,21 +104,16 @@ class AdminCore(
       assignmentsList.forEachIndexed { index, assignment ->
         val problemsList = problemStorage.getProblemsFromAssignment(assignment.id)
         val noProblems = "Задачи в этой серии отсутствуют."
+        val problems = if (problemsList.isNotEmpty()) {
+          problemsList.joinToString("\n") { problem -> "    \uD83C\uDFAF задача ${problem.number}" }
+        } else {
+          noProblems
+        }
         entitiesList.addAll(
           listOf(
             RegularTextSource("\uD83D\uDCDA "),
             bold(assignment.description),
-            RegularTextSource(
-              ":\n${
-                if (problemsList.isNotEmpty()) {
-                  problemsList.joinToString("\n") { problem ->
-                    "    \uD83C\uDFAF задача ${problem.number}"
-                  }
-                } else {
-                  noProblems
-                }
-              }${if (index == (assignmentsList.size - 1)) "" else "\n\n"}",
-            ),
+            RegularTextSource(":\n$problems${if (index == (assignmentsList.size - 1)) "" else "\n\n"}"),
           ),
         )
       }

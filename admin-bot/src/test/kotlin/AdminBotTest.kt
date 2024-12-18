@@ -1,6 +1,7 @@
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.states.parseProblemsDescriptions
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.database.*
@@ -75,7 +76,15 @@ class AdminBotTest {
       "2 \"\" 5\n" +
       "3a \"Лёгкая задача\"\n" +
       "3b \"Сложная задача\" 10"
-    assertTrue(parseProblemsDescriptions(problemsDescriptions).isOk)
+    val parsedProblemsDescriptions = parseProblemsDescriptions(problemsDescriptions)
+    assertTrue(parsedProblemsDescriptions.isOk)
+    val expectedProblemsDescriptions = listOf(
+      ProblemDescription("1"),
+      ProblemDescription("2", maxScore = 5),
+      ProblemDescription("3a", "Лёгкая задача"),
+      ProblemDescription("3b", "Сложная задача", 10),
+    )
+    assertEquals(expectedProblemsDescriptions, parsedProblemsDescriptions.value)
 
     problemsDescriptions = "1 2 3 4\n" +
       "2 \"\" 5\n" +

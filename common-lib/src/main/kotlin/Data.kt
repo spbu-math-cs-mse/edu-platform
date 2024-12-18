@@ -37,8 +37,8 @@ data class Problem(
 
 data class ProblemDescription(
   val number: String,
-  val description: String,
-  val maxScore: Grade,
+  val description: String = "",
+  val maxScore: Grade = 1,
 )
 
 enum class SolutionType {

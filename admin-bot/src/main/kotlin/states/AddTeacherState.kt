@@ -29,9 +29,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
       }
 
       else -> {
+        core.registerTeacherForCourse(TeacherId(id), state.course.id)
         send(
           state.context,
-          "Sorry, not implemented",
+          "Преподаватель $id успешно добавлен на курс ${state.courseName}",
         )
         MenuState(state.context)
       }

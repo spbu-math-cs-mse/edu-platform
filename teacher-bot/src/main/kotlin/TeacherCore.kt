@@ -56,7 +56,7 @@ class TeacherCore(
   fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)
     val grades = students.map { studentId ->
-      studentId to gradeTable.getStudentPerformance(studentId, solutionDistributor).values.sum()
+      studentId to gradeTable.getStudentPerformance(studentId, solutionDistributor).map { it.value.grade ?: 0 }.sum()
     }
     return grades
   }

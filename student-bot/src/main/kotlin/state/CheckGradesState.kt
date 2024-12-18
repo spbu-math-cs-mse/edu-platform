@@ -150,21 +150,14 @@ private suspend fun BehaviourContext.queryCourseFromUser(
 fun List<Pair<Problem, ProblemState>>.withGradesToText() =
   joinToString(separator = "\n") { (problem, state) ->
     "№${problem.number} — " +
-
-      if (!state.isChecked && state.grade == null) {
+      if (!state.isChecked) {
         "на проверке"
       } else {
-        if (!state.isChecked) {
-          "на проверке, текущий балл "
-        } else {
-          ""
-        } + when {
+        when {
           state.grade == null -> "не сдано"
           state.grade!! <= 0 -> "❌ 0/${problem.maxScore}"
-          state.grade!! < problem.maxScore -> "\uD83D\uDD36 $state.grade/${problem.maxScore}"
-          else -> "✅ $state.grade/${problem.maxScore}"
+          state.grade!! < problem.maxScore -> "\uD83D\uDD36 ${state.grade}/${problem.maxScore}"
+          else -> "✅ ${state.grade}/${problem.maxScore}"
         }
       }
-
-
   }

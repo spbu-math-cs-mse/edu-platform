@@ -35,6 +35,12 @@ data class Problem(
   val assignmentId: AssignmentId,
 )
 
+data class ProblemDescription(
+  val number: String,
+  val description: String,
+  val maxScore: Grade,
+)
+
 enum class SolutionType {
   TEXT,
   PHOTO,

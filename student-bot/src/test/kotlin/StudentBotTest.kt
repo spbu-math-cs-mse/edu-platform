@@ -1,3 +1,4 @@
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
@@ -34,7 +35,7 @@ class StudentBotTest {
       assignmentStorage.createAssignment(
         courseId,
         "",
-        listOf(Triple("1", "", 1)),
+        listOf(ProblemDescription("1", "", 1)),
         problemStorage,
       )
     val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id

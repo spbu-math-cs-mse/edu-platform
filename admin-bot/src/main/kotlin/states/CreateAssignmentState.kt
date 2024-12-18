@@ -14,7 +14,7 @@ import com.github.heheteam.adminbot.Dialogues.problemsDescriptionsAreNotTexts
 import com.github.heheteam.adminbot.Keyboards.buildCoursesSelector
 import com.github.heheteam.adminbot.Keyboards.returnBack
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -117,17 +117,18 @@ private suspend fun BehaviourContext.queryAssignmentDescription(
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun BehaviourContext.queryProblemsDescriptions(
   state: CreateAssignmentState,
-): List<Triple<String, String, Grade>>? {
-  val messages: MutableList<ContentMessage<TextContent>> = mutableListOf()
-  messages.add(
-    bot.send(
-      state.context,
-      text = askProblemsDescriptions(),
-      replyMarkup = returnBack(),
-    ),
-  )
-  val problemsDescriptions = mutableListOf<Triple<String, String, Grade>>()
-  outer@ while (true) {
+): List<ProblemDescription>? {
+  val messages = mutableListOf<ContentMessage<TextContent>>().apply {
+    add(
+      bot.send(
+        state.context,
+        text = askProblemsDescriptions(),
+        replyMarkup = returnBack(),
+      ),
+    )
+  }
+  val problemsDescriptions: List<ProblemDescription>
+  while (true) {
     when (
       val response = flowOf(
         waitDataCallbackQueryWithUser(state.context.id),
@@ -144,64 +145,72 @@ private suspend fun BehaviourContext.queryProblemsDescriptions(
       is CommonMessage<*> -> {
         val problemsDescriptionsFromText = response.content.textContentOrNull()?.text
         if (problemsDescriptionsFromText == null) {
-          editMessageReplyMarkup(messages.last(), replyMarkup = null)
-          messages.add(bot.send(state.context, problemsDescriptionsAreNotTexts(), replyMarkup = returnBack()))
-          continue@outer
+          handleError(state, messages, problemsDescriptionsAreNotTexts())
+          continue
         }
-        for (problemDescription in problemsDescriptionsFromText.split("\n")) {
-          val arguments =
-            """[^\s"]+|"(.*?)"""".toRegex().findAll(problemDescription).map { it.value.replace("\"", "") }
-              .toMutableList()
-          if (arguments.isEmpty()) {
-            editMessageReplyMarkup(messages.last(), replyMarkup = null)
-            messages.add(
-              bot.send(
-                state.context,
-                incorrectProblemDescriptionEmpty(),
-                replyMarkup = returnBack(),
-              ),
-            )
-            problemsDescriptions.clear()
-            continue@outer
-          }
-          if (arguments.size > 3) {
-            editMessageReplyMarkup(messages.last(), replyMarkup = null)
-            messages.add(
-              bot.send(
-                state.context,
-                incorrectProblemDescriptionTooManyArguments(problemDescription),
-                replyMarkup = returnBack(),
-              ),
-            )
-            problemsDescriptions.clear()
-            continue@outer
-          }
-          if (arguments.size == 1) {
-            arguments.add("")
-          }
-          if (arguments.size == 2) {
-            arguments.add("1")
-          }
-          val maxScore = arguments.last().toIntOrNull()
-          if (maxScore == null) {
-            editMessageReplyMarkup(messages.last(), replyMarkup = null)
-            messages.add(
-              bot.send(
-                state.context,
-                incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()),
-                replyMarkup = returnBack(),
-              ),
-            )
-            problemsDescriptions.clear()
-            continue@outer
-          } else {
-            problemsDescriptions.add(Triple(arguments[0], arguments[1], maxScore))
-          }
-        }
+
+        problemsDescriptions = parseProblemsDescriptions(state, messages, problemsDescriptionsFromText) ?: continue
         break
       }
     }
   }
   messages.forEach { delete(it) }
+  return problemsDescriptions
+}
+
+private suspend fun BehaviourContext.handleError(
+  state: CreateAssignmentState,
+  messages: MutableList<ContentMessage<TextContent>>,
+  errorMessage: String,
+) {
+  editMessageReplyMarkup(messages.last(), replyMarkup = null)
+  messages.add(
+    bot.send(
+      state.context,
+      errorMessage,
+      replyMarkup = returnBack(),
+    ),
+  )
+}
+
+private suspend fun BehaviourContext.parseProblemsDescriptions(
+  state: CreateAssignmentState,
+  messages: MutableList<ContentMessage<TextContent>>,
+  problemsDescriptionsFromText: String,
+): List<ProblemDescription>? {
+  val problemsDescriptions = mutableListOf<ProblemDescription>()
+  for (problemDescription in problemsDescriptionsFromText.lines()) {
+    val arguments = """[^\s"]+|"([^"]*)"""".toRegex().findAll(problemDescription)
+      .map { it.groups[1]?.value ?: it.value }
+      .toMutableList()
+
+    when {
+      arguments.isEmpty() -> {
+        handleError(state, messages, incorrectProblemDescriptionEmpty())
+        return null
+      }
+
+      arguments.size > 3 -> {
+        handleError(state, messages, incorrectProblemDescriptionTooManyArguments(problemDescription))
+        return null
+      }
+
+      else -> {
+        while (arguments.size < 3) arguments.add(
+          when (arguments.size) {
+            1 -> ""
+            2 -> "1"
+            else -> ""
+          },
+        )
+        val maxScore = arguments.last().toIntOrNull()
+        if (maxScore == null) {
+          handleError(state, messages, incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
+          return null
+        }
+        problemsDescriptions.add(ProblemDescription(arguments[0], arguments[1], maxScore))
+      }
+    }
+  }
   return problemsDescriptions
 }

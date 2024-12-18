@@ -1,3 +1,4 @@
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
@@ -55,7 +56,7 @@ class TeacherBotTest {
       assignmentStorage.createAssignment(
         courseId,
         "test assignment",
-        listOf(Triple("p1", "", 1), Triple("p2", "", 1)),
+        listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)),
         DatabaseProblemStorage(database),
       )
     problemId = problemStorage.createProblem(assignmentId, "test problem 1", 1, "test problem")

@@ -130,7 +130,7 @@ class SolutionDistributionTest {
       assignmentStorage.createAssignment(
         courseId,
         "",
-        listOf(Triple("1", "", 1)),
+        listOf(ProblemDescription("1", "", 1)),
         problemStorage,
       )
     val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id

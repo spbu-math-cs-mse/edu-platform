@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.michaelbull.result.Result
 
 interface AssignmentStorage {
@@ -10,7 +10,7 @@ interface AssignmentStorage {
   fun createAssignment(
     courseId: CourseId,
     description: String,
-    problemsDescriptions: List<Triple<String, String, Grade>>,
+    problemsDescriptions: List<ProblemDescription>,
     problemStorage: ProblemStorage,
   ): AssignmentId
 

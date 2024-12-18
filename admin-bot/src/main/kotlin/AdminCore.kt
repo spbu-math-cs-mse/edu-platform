@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.*
 import dev.inmo.tgbotapi.types.message.textsources.RegularTextSource
 import dev.inmo.tgbotapi.types.message.textsources.TextSource
@@ -33,7 +33,7 @@ class AdminCore(
   fun addAssignment(
     courseId: CourseId,
     description: String,
-    problemsDescriptions: List<Triple<String, String, Grade>>,
+    problemsDescriptions: List<ProblemDescription>,
   ) {
     assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
   }

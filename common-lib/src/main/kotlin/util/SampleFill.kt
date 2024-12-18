@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.util
 
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.*
 
 fun generateCourse(
@@ -15,7 +16,7 @@ fun generateCourse(
     assignmentStorage.createAssignment(
       courseId,
       "assignment ${courseId.id}.$assgnNum",
-      (0..problemsPerAssignment).map { Triple("p${courseId.id}.$assgnNum.$it", "", 1) },
+      (0..problemsPerAssignment).map { ProblemDescription("p${courseId.id}.$assgnNum.$it", "", 1) },
       problemStorage,
     )
   }

@@ -17,7 +17,7 @@ data class Parent(
   val id: ParentId,
   val name: String = "",
   val surname: String = "",
-  val children: List<StudentId>,
+  val children: List<StudentId> = listOf(),
 )
 
 data class Teacher(

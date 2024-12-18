@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib
 
-import DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
@@ -27,17 +26,19 @@ class SolutionDistributionTest {
   private lateinit var studentCore: StudentCore
 
   private var messageId = 1L
-  private var databaseNum = 0L
 
   fun newMessageId(): MessageId = MessageId(messageId++)
 
   @BeforeEach
   fun setup() {
-    val database =
-      Database.connect(
-        "jdbc:h2:mem:test${databaseNum++};DB_CLOSE_DELAY=-1",
-        driver = "org.h2.Driver",
-      )
+    val config = loadConfig()
+
+    val database = Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     teacherStatistics = InMemoryTeacherStatistics()

@@ -3,9 +3,7 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.tables.AssessmentTable
-import com.github.heheteam.commonlib.database.tables.ProblemTable
-import com.github.heheteam.commonlib.database.tables.SolutionTable
+import com.github.heheteam.commonlib.database.tables.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,18 +15,6 @@ class DatabaseGradeTable(
   init {
     transaction(database) {
       SchemaUtils.create(AssessmentTable)
-    }
-  }
-
-  override fun addAssessment(
-    teacherId: TeacherId,
-    solutionId: SolutionId,
-    assessment: SolutionAssessment,
-  ) {
-    AssessmentTable.insert {
-      it[AssessmentTable.solutionId] = solutionId.id
-      it[AssessmentTable.teacherId] = teacherId.id
-      it[AssessmentTable.grade] = assessment.grade
     }
   }
 
@@ -69,6 +55,28 @@ class DatabaseGradeTable(
             AssessmentTable.grade.isNotNull()
         }.associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }
+
+  override fun getCourseRating(
+    courseId: CourseId,
+    solutionDistributor: SolutionDistributor,
+  ): Map<StudentId, Map<ProblemId, Grade>> = transaction(database) {
+    AssessmentTable
+      .join(
+        SolutionTable,
+        JoinType.INNER,
+        onColumn = AssessmentTable.solutionId,
+        otherColumn = SolutionTable.id,
+      ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
+      .join(AssignmentTable, JoinType.INNER, onColumn = ProblemTable.assignmentId, otherColumn = AssignmentTable.id)
+      .selectAll()
+      .where {
+        (AssignmentTable.courseId eq courseId.id) and
+          AssessmentTable.grade.isNotNull()
+      }.groupBy { it[SolutionTable.studentId].value.toStudentId() }
+      .mapValues { (_, trios) -> // Transform each group into a Map
+        trios.associate { it[ProblemTable.id].value.toProblemId() to it[AssessmentTable.grade] }
+      }
+  }
 
   override fun assessSolution(
     solutionId: SolutionId,

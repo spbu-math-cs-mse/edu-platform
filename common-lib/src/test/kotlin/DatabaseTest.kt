@@ -1,7 +1,4 @@
-import com.github.heheteam.commonlib.Grade
-import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
@@ -11,11 +8,14 @@ import org.jetbrains.exposed.sql.Database
 import kotlin.test.*
 
 class DatabaseTest {
-  val database =
-    Database.connect(
-      "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
 
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val gradeTable = DatabaseGradeTable(database)

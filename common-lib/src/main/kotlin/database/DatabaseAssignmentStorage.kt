@@ -34,7 +34,7 @@ class DatabaseAssignmentStorage(
       Assignment(
         assignmentId,
         row[AssignmentTable.description],
-        row[AssignmentTable.course].value.toCourseId(),
+        row[AssignmentTable.courseId].value.toCourseId(),
       ),
     )
   }
@@ -49,7 +49,7 @@ class DatabaseAssignmentStorage(
       transaction(database) {
         AssignmentTable.insertAndGetId {
           it[AssignmentTable.description] = description
-          it[AssignmentTable.course] = courseId.id
+          it[AssignmentTable.courseId] = courseId.id
         }
       }.value.toAssignmentId()
     problemsDescriptions
@@ -62,12 +62,12 @@ class DatabaseAssignmentStorage(
       AssignmentTable
         .selectAll()
         .where(
-          AssignmentTable.course eq courseId.id,
+          AssignmentTable.courseId eq courseId.id,
         ).map {
           Assignment(
             it[AssignmentTable.id].value.toAssignmentId(),
             it[AssignmentTable.description],
-            it[AssignmentTable.course].value.toCourseId(),
+            it[AssignmentTable.courseId].value.toCourseId(),
           )
         }
     }

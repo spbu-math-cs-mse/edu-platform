@@ -4,7 +4,13 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.tables.*
+import com.github.heheteam.commonlib.database.tables.AssessmentTable
+import com.github.heheteam.commonlib.database.tables.AssignmentTable
+import com.github.heheteam.commonlib.database.tables.CourseTable
+import com.github.heheteam.commonlib.database.tables.CourseTeachers
+import com.github.heheteam.commonlib.database.tables.ProblemTable
+import com.github.heheteam.commonlib.database.tables.SolutionTable
+import com.github.heheteam.commonlib.database.tables.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -81,7 +87,7 @@ class DatabaseSolutionDistributor(
           .join(
             CourseTable,
             JoinType.INNER,
-            onColumn = AssignmentTable.course,
+            onColumn = AssignmentTable.courseId,
             otherColumn = CourseTable.id,
           )
           .selectAll()

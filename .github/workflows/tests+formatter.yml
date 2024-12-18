@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - '**'
-  pull_request:
-    branches:
-      - '**'
 
 jobs:
   setup-environment:
@@ -43,5 +40,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Load Config Files from Secrets
+        env:
+          CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          echo $CONFIG_FILE > common-lib/src/main/resources/config.json
+          echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
+
       - name: Run Backend Tests
         run: ./gradlew check
+
+      - name: Store Reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/
+            **/build/test-results/

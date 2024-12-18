@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.util
 
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.reset
 import org.jetbrains.exposed.sql.Database
@@ -17,7 +18,7 @@ fun generateCourse(
     assignmentStorage.createAssignment(
       courseId,
       "assignment $courseId.$assgnNum",
-      (0..problemsPerAssignment).map { ("p$courseId.$assgnNum.$it") },
+      (0..problemsPerAssignment).map { ProblemDescription("p$courseId.$assgnNum.$it", "", 1) },
       problemStorage,
     )
   }

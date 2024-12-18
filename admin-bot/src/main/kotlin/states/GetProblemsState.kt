@@ -27,10 +27,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGetProblemsState(core: Ad
 
     val course = queryCourse(state, courses) ?: return@strictlyOn MenuState(state.context)
 
-    val problems = core.getProblemsBulletList(course)
+    val problems = core.getProblemsEntitiesList(course)
     val problemsMessage = bot.send(
       state.context,
-      text = problems,
+      entities = problems,
       replyMarkup = returnBack(),
     )
 

@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.tables.AssignmentTable
 import com.github.michaelbull.result.Err
@@ -41,7 +42,7 @@ class DatabaseAssignmentStorage(
   override fun createAssignment(
     courseId: CourseId,
     description: String,
-    problemNames: List<String>,
+    problemsDescriptions: List<ProblemDescription>,
     problemStorage: ProblemStorage,
   ): AssignmentId {
     val assignId =
@@ -51,8 +52,8 @@ class DatabaseAssignmentStorage(
           it[AssignmentTable.courseId] = courseId.id
         }
       }.value.toAssignmentId()
-    problemNames
-      .map { problemStorage.createProblem(assignId, it, 1, "") } // TODO
+    problemsDescriptions
+      .map { problemStorage.createProblem(assignId, it.number, it.maxScore, it.description) }
     return assignId
   }
 

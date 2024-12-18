@@ -58,11 +58,11 @@ class DatabaseTest {
     coursesDistributor.addTeacherToCourse(teacher1Id, course2Id)
 
     val assignment1Id =
-      assignmentStorage.createAssignment(course1Id, "assignment 1", listOf("p1", "p2", "p3"), problemStorage)
+      assignmentStorage.createAssignment(course1Id, "assignment 1", listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1), ProblemDescription("p3", "", 1)), problemStorage)
     val assignment2Id =
-      assignmentStorage.createAssignment(course1Id, "assignment 2", listOf("p1", "p2", "p3"), problemStorage)
+      assignmentStorage.createAssignment(course1Id, "assignment 2", listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1), ProblemDescription("p3", "", 1)), problemStorage)
     val assignment3Id =
-      assignmentStorage.createAssignment(course2Id, "assignment 3", listOf("p1", "p2"), problemStorage)
+      assignmentStorage.createAssignment(course2Id, "assignment 3", listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)), problemStorage)
 
     for (problemId in 1..8) {
       solutionDistributor.inputSolution(

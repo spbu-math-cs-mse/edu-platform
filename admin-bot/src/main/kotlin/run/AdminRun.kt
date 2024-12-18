@@ -55,6 +55,7 @@ suspend fun adminRun(
     strictlyOnAddScheduledMessageState(core)
     strictlyOnGetTeachersState(core)
     strictlyOnGetProblemsState(core)
+    strictlyOnCreateAssignmentState(core)
 
     allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
       println(it)

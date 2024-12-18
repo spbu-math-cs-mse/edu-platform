@@ -1,3 +1,4 @@
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
@@ -63,10 +64,10 @@ class GoogleSheetsTest {
     coursesDistributor.addTeacherToCourse(teacher1Id, course1Id)
     coursesDistributor.addTeacherToCourse(teacher1Id, course2Id)
 
-    assignmentStorage.createAssignment(course1Id, "assignment 1", listOf("p1", "p2", "p3"), problemStorage)
-    assignmentStorage.createAssignment(course1Id, "assignment 2", listOf("p1", "p2", "p3"), problemStorage)
-    assignmentStorage.createAssignment(course1Id, "assignment 3", listOf("p1", "p2", "p3"), problemStorage)
-    assignmentStorage.createAssignment(course2Id, "assignment 1", listOf("p1", "p2", "p3", "p4"), problemStorage)
+    assignmentStorage.createAssignment(course1Id, "assignment 1", listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")), problemStorage)
+    assignmentStorage.createAssignment(course1Id, "assignment 2", listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")), problemStorage)
+    assignmentStorage.createAssignment(course1Id, "assignment 3", listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")), problemStorage)
+    assignmentStorage.createAssignment(course2Id, "assignment 1", listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3"), ProblemDescription("p4")), problemStorage)
 
     for (problemId in 1..11) {
       solutionDistributor.inputSolution(

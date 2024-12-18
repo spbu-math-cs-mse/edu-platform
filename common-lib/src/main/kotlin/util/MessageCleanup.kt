@@ -5,10 +5,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 
 suspend fun <R> BehaviourContext.withMessageCleanup(
-  message: ContentMessage<*>,
-  f: suspend BehaviourContext.() -> R,
+    message: ContentMessage<*>,
+    f: suspend BehaviourContext.() -> R,
 ): R {
-  val result = f()
-  delete(message)
-  return result
+    val result = f()
+    delete(message)
+    return result
 }

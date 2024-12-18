@@ -30,7 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Spotless Check
+      - name: Run Detekt Check
         run: ./gradlew detektAll
 
   run-backend-tests:

@@ -13,43 +13,47 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
-  core: ParentCore,
+    core: ParentCore,
 ) {
-  strictlyOn<MenuState> { state ->
-    val parentId = state.parentId
+    strictlyOn<MenuState> { state ->
+        val parentId = state.parentId
 
-    val stickerMessage =
-      bot.sendSticker(
-        state.context,
-        Dialogues.typingSticker,
-      )
+        val stickerMessage =
+            bot.sendSticker(
+                state.context,
+                Dialogues.typingSticker,
+            )
 
-    val menuMessage =
-      bot.send(
-        state.context,
-        Dialogues.menu(),
-        replyMarkup = Keyboards.menu(core.getChildren(parentId)),
-      )
+        val menuMessage =
+            bot.send(
+                state.context,
+                Dialogues.menu(),
+                replyMarkup = Keyboards.menu(core.getChildren(parentId)),
+            )
 
-    when (val command = waitDataCallbackQueryWithUser(state.context.id).first().data) {
-      Keyboards.petDog -> {
-        bot.delete(stickerMessage)
-        bot.delete(menuMessage)
-        bot.sendSticker(state.context, Dialogues.heartSticker)
-        bot.send(state.context, Dialogues.petDog())
-        return@strictlyOn MenuState(state.context, state.parentId)
-      }
+        when (val command = waitDataCallbackQueryWithUser(state.context.id).first().data) {
+            Keyboards.petDog -> {
+                bot.delete(stickerMessage)
+                bot.delete(menuMessage)
+                bot.sendSticker(state.context, Dialogues.heartSticker)
+                bot.send(state.context, Dialogues.petDog())
+                return@strictlyOn MenuState(state.context, state.parentId)
+            }
 
-      Keyboards.giveFeedback -> {
-        bot.delete(menuMessage)
-        return@strictlyOn GivingFeedbackState(state.context, state.parentId)
-      }
+            Keyboards.giveFeedback -> {
+                bot.delete(menuMessage)
+                return@strictlyOn GivingFeedbackState(state.context, state.parentId)
+            }
 
-      else -> {
-        bot.delete(stickerMessage)
-        bot.delete(menuMessage)
-        return@strictlyOn ChildPerformanceState(state.context, Student(StudentId(command.toLong())), state.parentId)
-      }
+            else -> {
+                bot.delete(stickerMessage)
+                bot.delete(menuMessage)
+                return@strictlyOn ChildPerformanceState(
+                    state.context,
+                    Student(StudentId(command.toLong())),
+                    state.parentId
+                )
+            }
+        }
     }
-  }
 }

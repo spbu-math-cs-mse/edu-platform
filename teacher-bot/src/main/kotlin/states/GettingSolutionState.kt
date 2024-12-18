@@ -30,131 +30,136 @@ import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
-  core: TeacherCore,
+    core: TeacherCore,
 ) {
-  strictlyOn<GettingSolutionState> { state ->
+    strictlyOn<GettingSolutionState> { state ->
 
-    val teacherId = state.teacherId
-    val solution = core.querySolution(teacherId)
+        val teacherId = state.teacherId
+        val solution = core.querySolution(teacherId)
 
-    if (solution == null) {
-      bot.send(
-        state.context,
-        noSolutionsToCheck(),
-      )
-    } else {
-      val getSolution: ContentMessage<*>
-      var getMarkup: ContentMessage<*>? = null
-      when (solution.type) {
-        SolutionType.TEXT ->
-          getSolution =
+        if (solution == null) {
             bot.send(
-              state.context,
-              solution.content.text!! + "\n\n\n" + solutionInfo(solution),
-              replyMarkup = Keyboards.solutionMenu(),
+                state.context,
+                noSolutionsToCheck(),
             )
+        } else {
+            val getSolution: ContentMessage<*>
+            var getMarkup: ContentMessage<*>? = null
+            when (solution.type) {
+                SolutionType.TEXT ->
+                    getSolution =
+                        bot.send(
+                            state.context,
+                            solution.content.text!! + "\n\n\n" + solutionInfo(solution),
+                            replyMarkup = Keyboards.solutionMenu(),
+                        )
 
-        SolutionType.PHOTO ->
-          getSolution =
-            bot.sendPhoto(
-              state.context,
-              InputFile.fromId(solution.content.fileIds!![0]),
-              text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+                SolutionType.PHOTO ->
+                    getSolution =
+                        bot.sendPhoto(
+                            state.context,
+                            InputFile.fromId(solution.content.fileIds!![0]),
+                            text =
+                            if (solution.content.text == null) {
+                                solutionInfo(solution)
+                            } else {
+                                solution.content.text + "\n\n\n" +
+                                    solutionInfo(
+                                        solution,
+                                    )
+                            },
+                            replyMarkup = Keyboards.solutionMenu(),
+                        )
 
-        SolutionType.PHOTOS -> {
-          getSolution =
-            bot.sendMediaGroup(
-              state.context,
-              listOf(
-                TelegramMediaPhoto(
-                  InputFile.fromId(solution.content.fileIds!![0]),
-                  solution.content.text,
-                ),
-              ) +
-                solution.content.fileIds!!
-                  .map { TelegramMediaPhoto(InputFile.fromId(it)) }
-                  .drop(1),
-            )
-          getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
+                SolutionType.PHOTOS -> {
+                    getSolution =
+                        bot.sendMediaGroup(
+                            state.context,
+                            listOf(
+                                TelegramMediaPhoto(
+                                    InputFile.fromId(solution.content.fileIds!![0]),
+                                    solution.content.text,
+                                ),
+                            ) +
+                                solution.content.fileIds!!
+                                    .map { TelegramMediaPhoto(InputFile.fromId(it)) }
+                                    .drop(1),
+                        )
+                    getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
+                }
+
+                SolutionType.DOCUMENT ->
+                    getSolution =
+                        bot.sendDocument(
+                            state.context,
+                            InputFile.fromId(solution.content.fileIds!![0]),
+                            text =
+                            if (solution.content.text == null) {
+                                solutionInfo(solution)
+                            } else {
+                                solution.content.text + "\n\n\n" +
+                                    solutionInfo(
+                                        solution,
+                                    )
+                            },
+                            replyMarkup = Keyboards.solutionMenu(),
+                        )
+            }
+
+            when (
+                val response = flowOf(
+                    waitDataCallbackQueryWithUser(state.context.id),
+                    waitTextMessageWithUser(state.context.id)
+                ).flattenMerge().first()
+            ) {
+                is DataCallbackQuery -> {
+                    val command = response.data
+                    when (command) {
+                        Keyboards.goodSolution -> {
+                            try {
+                                bot.reply(
+                                    ChatId(solution.chatId),
+                                    solution.messageId,
+                                    "good",
+                                )
+                            } catch (e: CommonRequestException) {
+                            }
+                            deleteMessage(getSolution)
+                            // TODO extract from maxscore of a problem
+                            core.assessSolution(
+                                solution,
+                                teacherId,
+                                SolutionAssessment(1, ""),
+                            )
+                        }
+
+                        Keyboards.badSolution -> {
+                            try {
+                                bot.reply(
+                                    ChatId(solution.chatId),
+                                    solution.messageId,
+                                    "bad",
+                                )
+                            } catch (e: CommonRequestException) {
+                            }
+                            deleteMessage(getSolution)
+                            core.assessSolution(
+                                solution,
+                                teacherId,
+                                SolutionAssessment(0, ""),
+                            )
+                        }
+
+                        Keyboards.returnBack -> {
+                            delete(getSolution)
+                            if (getMarkup != null) {
+                                delete(getMarkup)
+                            }
+                        }
+                    }
+                }
+            }
         }
-
-        SolutionType.DOCUMENT ->
-          getSolution =
-            bot.sendDocument(
-              state.context,
-              InputFile.fromId(solution.content.fileIds!![0]),
-              text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
-              replyMarkup = Keyboards.solutionMenu(),
-            )
-      }
-
-      when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
-        is DataCallbackQuery -> {
-          val command = response.data
-          when (command) {
-            Keyboards.goodSolution -> {
-              try {
-                bot.reply(
-                  ChatId(solution.chatId),
-                  solution.messageId,
-                  "good",
-                )
-              } catch (e: CommonRequestException) {
-              }
-              deleteMessage(getSolution)
-              // TODO extract from maxscore of a problem
-              core.assessSolution(
-                solution,
-                teacherId,
-                SolutionAssessment(1, ""),
-              )
-            }
-
-            Keyboards.badSolution -> {
-              try {
-                bot.reply(
-                  ChatId(solution.chatId),
-                  solution.messageId,
-                  "bad",
-                )
-              } catch (e: CommonRequestException) {
-              }
-              deleteMessage(getSolution)
-              core.assessSolution(
-                solution,
-                teacherId,
-                SolutionAssessment(0, ""),
-              )
-            }
-
-            Keyboards.returnBack -> {
-              delete(getSolution)
-              if (getMarkup != null) {
-                delete(getMarkup)
-              }
-            }
-          }
-        }
-      }
+        MenuState(state.context, state.teacherId)
     }
-    MenuState(state.context, state.teacherId)
-  }
 }

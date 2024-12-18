@@ -18,41 +18,41 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun parentRun(
-  botToken: String,
-  parentStorage: ParentStorage,
-  core: ParentCore,
+    botToken: String,
+    parentStorage: ParentStorage,
+    core: ParentCore,
 ) {
-  telegramBot(botToken) {
-    logger =
-      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-        println(defaultMessageFormatter(level, tag, message, throwable))
-      }
-  }
-
-  telegramBotWithBehaviourAndFSMAndStartLongPolling(
-    botToken,
-    CoroutineScope(Dispatchers.IO),
-    onStateHandlingErrorHandler = { state, e ->
-      println("Thrown error on $state")
-      e.printStackTrace()
-      state
-    },
-  ) {
-    println(getMe())
-
-    command("start") {
-      if (it.from != null) {
-        startChain(StartState(it.from!!))
-      }
+    telegramBot(botToken) {
+        logger =
+            KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+                println(defaultMessageFormatter(level, tag, message, throwable))
+            }
     }
 
-    strictlyOnStartState(parentStorage, isDeveloperRun = true)
-    strictlyOnMenuState(core)
-    strictlyOnGivingFeedbackState()
-    strictlyOnChildPerformanceState(core)
+    telegramBotWithBehaviourAndFSMAndStartLongPolling(
+        botToken,
+        CoroutineScope(Dispatchers.IO),
+        onStateHandlingErrorHandler = { state, e ->
+            println("Thrown error on $state")
+            e.printStackTrace()
+            state
+        },
+    ) {
+        println(getMe())
 
-    allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-      println(it)
-    }
-  }.second.join()
+        command("start") {
+            if (it.from != null) {
+                startChain(StartState(it.from!!))
+            }
+        }
+
+        strictlyOnStartState(parentStorage, isDeveloperRun = true)
+        strictlyOnMenuState(core)
+        strictlyOnGivingFeedbackState()
+        strictlyOnChildPerformanceState(core)
+
+        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
+            println(it)
+        }
+    }.second.join()
 }

@@ -9,19 +9,19 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnViewState(
-  core: StudentCore,
+    core: StudentCore,
 ) {
-  strictlyOn<ViewState> { state ->
-    val studentId = state.studentId
-    val studentCourses = core.getCoursesBulletList(studentId)
-    val initialMessage =
-      bot.send(
-        state.context,
-        text = studentCourses,
-        replyMarkup = back(),
-      )
-    waitDataCallbackQueryWithUser(state.context.id).first()
-    deleteMessage(initialMessage)
-    MenuState(state.context, state.studentId)
-  }
+    strictlyOn<ViewState> { state ->
+        val studentId = state.studentId
+        val studentCourses = core.getCoursesBulletList(studentId)
+        val initialMessage =
+            bot.send(
+                state.context,
+                text = studentCourses,
+                replyMarkup = back(),
+            )
+        waitDataCallbackQueryWithUser(state.context.id).first()
+        deleteMessage(initialMessage)
+        MenuState(state.context, state.studentId)
+    }
 }

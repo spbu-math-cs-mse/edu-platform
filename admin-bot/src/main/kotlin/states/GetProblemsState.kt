@@ -15,45 +15,45 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGetProblemsState(core: AdminCore) {
-  strictlyOn<GetProblemsState> { state ->
-    val courses = core.getCourses().values.toList()
-    if (courses.isEmpty()) {
-      bot.send(
-        state.context,
-        text = noCoursesWasFound(),
-      )
-      return@strictlyOn MenuState(state.context)
+    strictlyOn<GetProblemsState> { state ->
+        val courses = core.getCourses().values.toList()
+        if (courses.isEmpty()) {
+            bot.send(
+                state.context,
+                text = noCoursesWasFound(),
+            )
+            return@strictlyOn MenuState(state.context)
+        }
+
+        val course = queryCourse(state, courses) ?: return@strictlyOn MenuState(state.context)
+
+        val problems = core.getProblemsBulletList(course)
+        val problemsMessage = bot.send(
+            state.context,
+            text = problems,
+            replyMarkup = returnBack(),
+        )
+
+        waitDataCallbackQueryWithUser(state.context.id).first()
+        deleteMessage(problemsMessage)
+        MenuState(state.context)
     }
-
-    val course = queryCourse(state, courses) ?: return@strictlyOn MenuState(state.context)
-
-    val problems = core.getProblemsBulletList(course)
-    val problemsMessage = bot.send(
-      state.context,
-      text = problems,
-      replyMarkup = returnBack(),
-    )
-
-    waitDataCallbackQueryWithUser(state.context.id).first()
-    deleteMessage(problemsMessage)
-    MenuState(state.context)
-  }
 }
 
 private suspend fun BehaviourContext.queryCourse(
-  state: GetProblemsState,
-  courses: List<Course>,
+    state: GetProblemsState,
+    courses: List<Course>,
 ): Course? {
-  val message =
-    bot.send(state.context, askCourse(), replyMarkup = buildCoursesSelector(courses))
+    val message =
+        bot.send(state.context, askCourse(), replyMarkup = buildCoursesSelector(courses))
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  deleteMessage(message)
+    val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+    deleteMessage(message)
 
-  if (callbackData == returnBack) {
-    return null
-  }
+    if (callbackData == returnBack) {
+        return null
+    }
 
-  val courseId = callbackData.split(" ").last()
-  return courses.first { it.id == CourseId(courseId.toLong()) }
+    val courseId = callbackData.split(" ").last()
+    return courses.first { it.id == CourseId(courseId.toLong()) }
 }

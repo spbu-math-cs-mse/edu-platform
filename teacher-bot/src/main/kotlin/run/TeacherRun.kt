@@ -22,64 +22,64 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun teacherRun(
-  botToken: String,
-  teacherStorage: TeacherStorage,
-  core: TeacherCore,
-  developerOptions: DeveloperOptions? = DeveloperOptions(),
+    botToken: String,
+    teacherStorage: TeacherStorage,
+    core: TeacherCore,
+    developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
-  telegramBot(botToken) {
-    logger =
-      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-        println(defaultMessageFormatter(level, tag, message, throwable))
-      }
-  }
+    telegramBot(botToken) {
+        logger =
+            KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+                println(defaultMessageFormatter(level, tag, message, throwable))
+            }
+    }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
-    botToken,
-    CoroutineScope(Dispatchers.IO),
-    onStateHandlingErrorHandler = { state, e ->
-      println("Thrown error on $state")
-      e.printStackTrace()
-      state
-    },
-  ) {
-    println(getMe())
-
-    command(
-      "start",
+    telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
+        botToken,
+        CoroutineScope(Dispatchers.IO),
+        onStateHandlingErrorHandler = { state, e ->
+            println("Thrown error on $state")
+            e.printStackTrace()
+            state
+        },
     ) {
-      val user = it.from
-      if (user != null) {
-        val startingState = findStartState(developerOptions, user)
-        startChain(startingState)
-      }
-    }
+        println(getMe())
 
-    strictlyOnStartState(
-      teacherStorage,
-      isDeveloperRun = true,
-    )
-    strictlyOnMenuState(core)
-    strictlyOnGettingSolutionState(core)
-    strictlyOnCheckGradesState(core)
-    strictlyOnPresetTeacherState(core)
+        command(
+            "start",
+        ) {
+            val user = it.from
+            if (user != null) {
+                val startingState = findStartState(developerOptions, user)
+                startChain(startingState)
+            }
+        }
 
-    allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-      println(it)
-    }
-  }.second.join()
+        strictlyOnStartState(
+            teacherStorage,
+            isDeveloperRun = true,
+        )
+        strictlyOnMenuState(core)
+        strictlyOnGettingSolutionState(core)
+        strictlyOnCheckGradesState(core)
+        strictlyOnPresetTeacherState(core)
+
+        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
+            println(it)
+        }
+    }.second.join()
 }
 
 private fun findStartState(
-  developerOptions: DeveloperOptions?,
-  user: User,
+    developerOptions: DeveloperOptions?,
+    user: User,
 ) = if (developerOptions != null) {
-  val presetTeacher = developerOptions.presetTeacherId
-  if (presetTeacher != null) {
-    PresetTeacherState(user, presetTeacher)
-  } else {
-    StartState(user)
-  }
+    val presetTeacher = developerOptions.presetTeacherId
+    if (presetTeacher != null) {
+        PresetTeacherState(user, presetTeacher)
+    } else {
+        StartState(user)
+    }
 } else {
-  StartState(user)
+    StartState(user)
 }

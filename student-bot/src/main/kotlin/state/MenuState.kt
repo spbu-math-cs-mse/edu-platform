@@ -25,67 +25,67 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
-  strictlyOn<MenuState> { state ->
-    val stickerMessage =
-      bot.sendSticker(state.context.id, Dialogues.typingSticker)
-    val initialMessage =
-      bot.send(
-        state.context,
-        text = Dialogues.menu(),
-        replyMarkup = menuKeyboard(),
-      )
+    strictlyOn<MenuState> { state ->
+        val stickerMessage =
+            bot.sendSticker(state.context.id, Dialogues.typingSticker)
+        val initialMessage =
+            bot.send(
+                state.context,
+                text = Dialogues.menu(),
+                replyMarkup = menuKeyboard(),
+            )
 
-    val datacallbacks =
-      waitDataCallbackQueryWithUser(state.context.id).map { callback ->
-        handleCallback(initialMessage, stickerMessage, callback, state)
-      }
-    val texts = waitTextMessageWithUser(state.context.id).map { t ->
-      handleTextMessage(t, state.context)
+        val datacallbacks =
+            waitDataCallbackQueryWithUser(state.context.id).map { callback ->
+                handleCallback(initialMessage, stickerMessage, callback, state)
+            }
+        val texts = waitTextMessageWithUser(state.context.id).map { t ->
+            handleTextMessage(t, state.context)
+        }
+        merge(datacallbacks, texts).firstNotNull()
     }
-    merge(datacallbacks, texts).firstNotNull()
-  }
 }
 
 private suspend fun BehaviourContext.handleTextMessage(
-  t: CommonMessage<TextContent>,
-  user: User,
+    t: CommonMessage<TextContent>,
+    user: User,
 ): PresetStudentState? {
-  val re = Regex("/setid ([0-9]+)")
-  val match = re.matchEntire(t.content.text)
-  return if (match != null) {
-    val newIdStr = match.groups[1]?.value ?: return null
-    val newId = newIdStr.toLongOrNull() ?: run {
-      logger.error("input id $newIdStr is not long!")
-      return null
+    val re = Regex("/setid ([0-9]+)")
+    val match = re.matchEntire(t.content.text)
+    return if (match != null) {
+        val newIdStr = match.groups[1]?.value ?: return null
+        val newId = newIdStr.toLongOrNull() ?: run {
+            logger.error("input id $newIdStr is not long!")
+            return null
+        }
+        PresetStudentState(user, newId.toStudentId())
+    } else {
+        bot.sendMessage(user.id, "Unrecognized command")
+        null
     }
-    PresetStudentState(user, newId.toStudentId())
-  } else {
-    bot.sendMessage(user.id, "Unrecognized command")
-    null
-  }
 }
 
 private suspend fun BehaviourContext.handleCallback(
-  initialMessage: ContentMessage<TextContent>,
-  stickerMessage: ContentMessage<StickerContent>,
-  callback: DataCallbackQuery,
-  state: MenuState,
+    initialMessage: ContentMessage<TextContent>,
+    stickerMessage: ContentMessage<StickerContent>,
+    callback: DataCallbackQuery,
+    state: MenuState,
 ): BotState {
-  deleteMessage(initialMessage)
-  deleteMessage(stickerMessage)
-  return when (callback.data) {
-    ButtonKey.VIEW -> ViewState(state.context, state.studentId)
-    ButtonKey.SIGN_UP -> SignUpState(state.context, state.studentId)
-    ButtonKey.SEND_SOLUTION -> SendSolutionState(
-      state.context,
-      state.studentId,
-    )
+    deleteMessage(initialMessage)
+    deleteMessage(stickerMessage)
+    return when (callback.data) {
+        ButtonKey.VIEW -> ViewState(state.context, state.studentId)
+        ButtonKey.SIGN_UP -> SignUpState(state.context, state.studentId)
+        ButtonKey.SEND_SOLUTION -> SendSolutionState(
+            state.context,
+            state.studentId,
+        )
 
-    ButtonKey.CHECK_GRADES -> CheckGradesState(
-      state.context,
-      state.studentId,
-    )
+        ButtonKey.CHECK_GRADES -> CheckGradesState(
+            state.context,
+            state.studentId,
+        )
 
-    else -> MenuState(state.context, state.studentId)
-  }
+        else -> MenuState(state.context, state.studentId)
+    }
 }

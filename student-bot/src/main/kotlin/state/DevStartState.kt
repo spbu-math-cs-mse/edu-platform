@@ -15,36 +15,36 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnDeveloperStartState(
-  studentStorage: StudentStorage,
+    studentStorage: StudentStorage,
 ) {
-  strictlyOn<DevStartState> { state ->
-    if (state.context.username == null) {
-      return@strictlyOn null
+    strictlyOn<DevStartState> { state ->
+        if (state.context.username == null) {
+            return@strictlyOn null
+        }
+        val queryIdText = state.queryIdMessage ?: Dialogues.devAskForId()
+        withMessageCleanup(bot.send(state.context, queryIdText)) {
+            tryQueryAndResolveStudent(state, studentStorage)
+        }
     }
-    val queryIdText = state.queryIdMessage ?: Dialogues.devAskForId()
-    withMessageCleanup(bot.send(state.context, queryIdText)) {
-      tryQueryAndResolveStudent(state, studentStorage)
-    }
-  }
 }
 
 private suspend fun BehaviourContext.tryQueryAndResolveStudent(
-  state: DevStartState,
-  studentStorage: StudentStorage,
+    state: DevStartState,
+    studentStorage: StudentStorage,
 ): BotState {
-  val maybeStudent = coroutineBinding {
-    val studentIdFromText = waitTextMessageWithUser(state.context.id)
-      .first().content.text.toLongOrNull()?.toStudentId()
-      .toResultOr { Dialogues.devIdIsNotLong() }.bind()
-    studentStorage.resolveStudent(studentIdFromText)
-      .mapError { Dialogues.devIdNotFound() }.bind()
-  }
-  return maybeStudent.mapBoth(
-    success = {
-      MenuState(state.context, it.id)
-    },
-    failure = { errorTryAgainMessage ->
-      DevStartState(state.context, errorTryAgainMessage)
-    },
-  )
+    val maybeStudent = coroutineBinding {
+        val studentIdFromText = waitTextMessageWithUser(state.context.id)
+            .first().content.text.toLongOrNull()?.toStudentId()
+            .toResultOr { Dialogues.devIdIsNotLong() }.bind()
+        studentStorage.resolveStudent(studentIdFromText)
+            .mapError { Dialogues.devIdNotFound() }.bind()
+    }
+    return maybeStudent.mapBoth(
+        success = {
+            MenuState(state.context, it.id)
+        },
+        failure = { errorTryAgainMessage ->
+            DevStartState(state.context, errorTryAgainMessage)
+        },
+    )
 }

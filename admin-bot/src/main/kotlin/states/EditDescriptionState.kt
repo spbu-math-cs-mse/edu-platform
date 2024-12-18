@@ -7,27 +7,27 @@ import dev.inmo.tgbotapi.utils.newLine
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
-  strictlyOn<EditDescriptionState> { state ->
-    send(
-      state.context,
-    ) {
-      +"Введите новое описание курса ${state.courseName}. Текущее описание:" + newLine + newLine
-      +state.course.name
-    }
-    val message = waitTextMessageWithUser(state.context.id).first()
-    val answer = message.content.text
-    when {
-      answer == "/stop" -> MenuState(state.context)
-
-      else -> {
-//        state.course.name = answer TODO: implement this feature
+    strictlyOn<EditDescriptionState> { state ->
         send(
-          state.context,
-          "Описание курса ${state.courseName} успешно обновлено",
-        )
+            state.context,
+        ) {
+            +"Введите новое описание курса ${state.courseName}. Текущее описание:" + newLine + newLine
+            +state.course.name
+        }
+        val message = waitTextMessageWithUser(state.context.id).first()
+        val answer = message.content.text
+        when {
+            answer == "/stop" -> MenuState(state.context)
 
-        MenuState(state.context)
-      }
+            else -> {
+//        state.course.name = answer TODO: implement this feature
+                send(
+                    state.context,
+                    "Описание курса ${state.courseName} успешно обновлено",
+                )
+
+                MenuState(state.context)
+            }
+        }
     }
-  }
 }

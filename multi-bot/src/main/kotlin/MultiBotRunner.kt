@@ -9,6 +9,7 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockParentStorage
@@ -27,7 +28,6 @@ import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
-import java.io.File
 
 class MultiBotRunner : CliktCommand() {
   val studentBotToken: String by option().required().help("student bot token")
@@ -38,14 +38,12 @@ class MultiBotRunner : CliktCommand() {
   val presetTeacherId: Long? by option().long()
 
   override fun run() {
-    val dbFile = File("./data/films.mv.db")
-    if (dbFile.exists()) {
-      dbFile.delete()
-    }
-
+    val config = loadConfig()
     val database = Database.connect(
-      "jdbc:h2:./data/films",
-      driver = "org.h2.Driver",
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
     )
 
     val coursesDistributor = DatabaseCoursesDistributor(database)

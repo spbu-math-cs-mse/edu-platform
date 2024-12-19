@@ -12,29 +12,31 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
     send(
       state.context,
     ) {
-      +"Введите ID преподавателя, которого хотите добавить на курс ${state.courseName}"
+      +"Введите ID преподавателей (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию."
     }
     val message = waitTextMessageWithUser(state.context.id).first()
     val input = message.content.text
-    val id = input.toLongOrNull()
-    when {
-      input == "/stop" -> MenuState(state.context)
+    if (input == "/stop") {
+      return@strictlyOn MenuState(state.context)
+    }
+    val ids = input.split(",").map { it.trim().toLongOrNull() }
+    ids.forEach { id ->
+      when {
+        id == null || !core.teacherExists(TeacherId(id)) -> {
+          send(
+            state.context,
+            "Преподавателя с идентификатором $input не существует. Попробуйте ещё раз!",
+          )
+        }
 
-      id == null || !core.teacherExists(TeacherId(id)) -> {
-        send(
-          state.context,
-          "Преподавателя с идентификатором $input не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
-        )
-        AddTeacherState(state.context, state.course, state.courseName)
-      }
-
-      else -> {
-        send(
-          state.context,
-          "Sorry, not implemented",
-        )
-        MenuState(state.context)
+        else -> {
+          send(
+            state.context,
+            "Sorry, not implemented",
+          )
+        }
       }
     }
+    MenuState(state.context)
   }
 }

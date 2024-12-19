@@ -11,38 +11,39 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
   strictlyOn<AddStudentState> { state ->
     send(
       state.context,
-      "Введите ID ученика, которого хотите добавить на курс ${state.courseName}",
+      "Введите ID учеников (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию.",
     )
     val message = waitTextMessageWithUser(state.context.id).first()
     val input = message.content.text
-    val id = input.toLongOrNull()
-    when {
-      input == "/stop" -> MenuState(state.context)
+    if (input == "/stop") {
+      return@strictlyOn MenuState(state.context)
+    }
+    val ids = input.split(",").map { it.trim().toLongOrNull() }
+    ids.forEach { id ->
+      when {
+        id == null || !core.studentExists(StudentId(id)) -> {
+          send(
+            state.context,
+            "Ученика с идентификатором $id не существует. Попробуйте ещё раз!",
+          )
+        }
 
-      id == null || !core.studentExists(StudentId(id)) -> {
-        send(
-          state.context,
-          "Ученика с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
-        )
-        AddStudentState(state.context, state.course, state.courseName)
-      }
+        core.studiesIn(StudentId(id), state.course) -> {
+          send(
+            state.context,
+            "Ученик $id уже есть на курсе ${state.courseName}!",
+          )
+        }
 
-      core.studiesIn(StudentId(id), state.course) -> {
-        send(
-          state.context,
-          "Ученик $id уже есть на курсе ${state.courseName}",
-        )
-        MenuState(state.context)
-      }
-
-      else -> {
-        core.registerStudentForCourse(StudentId(id), state.course.id)
-        send(
-          state.context,
-          "Ученик $id успешно добавлен на курс ${state.courseName}",
-        )
-        MenuState(state.context)
+        else -> {
+          core.registerStudentForCourse(StudentId(id), state.course.id)
+          send(
+            state.context,
+            "Ученик $id успешно добавлен на курс ${state.courseName}!",
+          )
+        }
       }
     }
+    MenuState(state.context)
   }
 }

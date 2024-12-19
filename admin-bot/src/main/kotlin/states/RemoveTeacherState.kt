@@ -12,36 +12,38 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: 
     send(
       state.context,
     ) {
-      +"Введите ID преподавателя, которого хотите убрать с курса ${state.courseName}"
+      +"Введите ID преподавателей (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."
     }
     val message = waitTextMessageWithUser(state.context.id).first()
     val input = message.content.text
-    val id = input.toLongOrNull()
-    when {
-      input == "/stop" -> MenuState(state.context)
-
-      id == null || !core.teacherExists(TeacherId(id)) -> {
-        send(
-          state.context,
-          "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз или отправьте /stop, чтобы отменить операцию",
-        )
-        RemoveTeacherState(state.context, state.course, state.courseName)
-      }
-
-      else -> {
-        if (core.removeTeacher(TeacherId(id), state.course.id)) {
+    if (input == "/stop") {
+      return@strictlyOn MenuState(state.context)
+    }
+    val ids = input.split(",").map { it.trim().toLongOrNull() }
+    ids.forEach { id ->
+      when {
+        id == null || !core.teacherExists(TeacherId(id)) -> {
           send(
             state.context,
-            "Преподаватель $id успешно удалён с курса ${state.courseName}",
-          )
-        } else {
-          send(
-            state.context,
-            "Преподавателя $id нет на курсе ${state.courseName}",
+            "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз!",
           )
         }
-        MenuState(state.context)
+
+        else -> {
+          if (core.removeTeacher(TeacherId(id), state.course.id)) {
+            send(
+              state.context,
+              "Преподаватель $id успешно удалён с курса ${state.courseName}!",
+            )
+          } else {
+            send(
+              state.context,
+              "Преподавателя $id нет на курсе ${state.courseName}!",
+            )
+          }
+        }
       }
     }
+    MenuState(state.context)
   }
 }

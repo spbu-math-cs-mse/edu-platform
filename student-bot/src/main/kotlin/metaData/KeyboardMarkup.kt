@@ -32,12 +32,19 @@ fun buildCoursesSendingSelector(availableCourses: List<Course>) =
     },
   )
 
-fun buildProblemSendingSelector(availableProblems: List<Pair<Assignment, Problem>>) =
+fun buildProblemSendingSelector(availableProblems: Map<Assignment, List<Problem>>) =
   InlineKeyboardMarkup(
     keyboard =
     matrix {
-      availableProblems.forEach { (assignment, problem) ->
-        row { dataButton("${assignment.description}: ${problem.number}", "${ButtonKey.PROBLEM_ID} ${problem.id}") }
+      availableProblems.forEach { (assignment, problems) ->
+        row {
+          problems.forEach { problem ->
+            dataButton(
+              "${assignment.description}: ${problem.number}",
+              "${ButtonKey.PROBLEM_ID} ${problem.id}",
+            )
+          }
+        }
       }
       row { dataButton("Назад", ButtonKey.BACK) }
     },

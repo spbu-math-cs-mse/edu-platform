@@ -54,16 +54,16 @@ object Keyboards {
   fun editCourse() =
     inlineKeyboard {
       row {
-        dataButton("Добавить ученика", addStudent)
+        dataButton("Добавить учеников", addStudent)
       }
       row {
-        dataButton("Убрать ученика", removeStudent)
+        dataButton("Убрать учеников", removeStudent)
       }
       row {
-        dataButton("Добавить преподавателя", addTeacher)
+        dataButton("Добавить преподавателей", addTeacher)
       }
       row {
-        dataButton("Убрать преподавателя", removeTeacher)
+        dataButton("Убрать преподавателей", removeTeacher)
       }
       row {
         dataButton("Изменить описание", editDescription)

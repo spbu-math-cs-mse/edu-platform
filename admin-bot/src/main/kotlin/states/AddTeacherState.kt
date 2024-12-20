@@ -25,7 +25,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: Adm
         id == null || !core.teacherExists(TeacherId(id)) -> {
           send(
             state.context,
-            "Преподавателя с идентификатором $input не существует. Попробуйте ещё раз!",
+            "Преподавателя с идентификатором $id не существует. Попробуйте ещё раз!",
           )
         }
 

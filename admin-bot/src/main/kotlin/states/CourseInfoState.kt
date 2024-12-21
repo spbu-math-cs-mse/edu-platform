@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.message.textsources.bold
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCourseInfoState(core: AdminCore) {
@@ -31,13 +32,58 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCourseInfoState(core: Adm
       return@strictlyOn MenuState(state.context)
     }
 
-    println("callbackdata = ${callback.data}")
     val courseId = callback.data.split(" ").last()
     val course = courses.first { it.id == CourseId(courseId.toLong()) }
+    val stats = core.getCourseStatistics(course.id)
 
-    // TODO: Implement course information display
-    bot.send(state.context, "TODO: Show detailed information about course ${course.name}")
+    val statsMessage = bot.send(
+      state.context,
+      replyMarkup = Keyboards.returnBack()
+    ) {
+      +"📊 Статистика курса "
+      +bold(course.name)
+      +"\n\n"
 
+      +"👥 Участники:\n"
+      +"• Студентов: ${stats.studentsCount}\n"
+      +"• Преподавателей: ${stats.teachersCount}\n\n"
+
+      +"📚 Учебные материалы:\n"
+      +"• Количество серий заданий: ${stats.assignmentsCount}\n"
+      +"• Всего задач: ${stats.totalProblems}\n"
+      +"• Суммарный максимальный балл: ${stats.totalMaxScore}\n\n"
+
+      if (stats.assignments.isNotEmpty()) {
+        +"📝 Серии заданий:\n"
+        stats.assignments.forEach { assignment ->
+          +"• ${assignment.description}\n"
+        }
+        +"\n"
+      }
+
+      +"👨‍🏫 ID преподавателей:\n"
+      if (stats.teachers.isEmpty()) {
+        +"Нет преподавателей\n"
+      } else {
+        stats.teachers.forEach { teacherId ->
+          +"• $teacherId\n"
+        }
+      }
+      +"\n"
+
+      +"👨‍🎓 ID студентов:\n"
+      if (stats.students.isEmpty()) {
+        +"Нет студентов\n"
+      } else {
+        stats.students.forEach { studentId ->
+          +"• $studentId\n"
+        }
+      }
+    }
+
+
+    waitDataCallbackQueryWithUser(state.context.id).first()
+    deleteMessage(statsMessage)
     MenuState(state.context)
   }
 } 

@@ -118,4 +118,29 @@ class AdminCore(
       listOf(RegularTextSource(noAssignments))
     }
   }
+
+  fun getCourseStatistics(courseId: CourseId): CourseStatistics {
+    val students = coursesDistributor.getStudents(courseId)
+    val teachers = coursesDistributor.getTeachers(courseId)
+    val assignments = assignmentStorage.getAssignmentsForCourse(courseId)
+
+    var totalProblems = 0
+    var totalMaxScore = 0
+    assignments.forEach { assignment ->
+      val problems = problemStorage.getProblemsFromAssignment(assignment.id)
+      totalProblems += problems.size
+      totalMaxScore += problems.sumOf { it.maxScore }
+    }
+
+    return CourseStatistics(
+      studentsCount = students.size,
+      teachersCount = teachers.size,
+      assignmentsCount = assignments.size,
+      totalProblems = totalProblems,
+      totalMaxScore = totalMaxScore,
+      students = students,
+      teachers = teachers,
+      assignments = assignments
+    )
+  }
 }

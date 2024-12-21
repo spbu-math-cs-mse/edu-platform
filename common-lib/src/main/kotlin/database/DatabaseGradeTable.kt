@@ -51,7 +51,7 @@ class DatabaseGradeTable(
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    assignmentId: AssignmentId,
+    assignmentId: List<AssignmentId>,
     solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade> =
     transaction(database) {
@@ -65,7 +65,7 @@ class DatabaseGradeTable(
         .selectAll()
         .where {
           (SolutionTable.studentId eq studentId.id) and
-            (ProblemTable.assignmentId eq assignmentId.id) and
+            (ProblemTable.assignmentId inList assignmentId.map { it.id }) and
             AssessmentTable.grade.isNotNull()
         }.associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }

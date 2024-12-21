@@ -23,11 +23,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallb
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.ChatId
-import dev.inmo.tgbotapi.types.media.TelegramMediaPhoto
+import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
-import io.ktor.server.util.url
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
@@ -106,7 +105,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             bot.sendMediaGroup(
               state.context,
               solution.content.filesURL!!.map {
-                TelegramMediaPhoto(
+                TelegramMediaDocument(
                   getSolutionWithURL(it),
                 )
               },
@@ -172,9 +171,8 @@ object SolutionProvider {
   private var fileIndex = 0
 
   fun getSolutionWithURL(fileURL: String): MultipartFile {
-    println(fileURL)
     val url: URL = URI(fileURL).toURL()
-    val outputFileName: String = "solution_${fileIndex++}.pdf"
+    val outputFileName: String = "solution_${fileIndex++}.${fileURL.substringAfterLast(".")}"
     val file = File(outputFileName)
 
     url.openStream().use {

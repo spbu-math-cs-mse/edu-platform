@@ -29,19 +29,43 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     val course = courses.find { it.id == courseId }!!
 
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
-    val assignmentId =
-      queryAssignmentFromUser(state, assignmentsFromCourse)
-        ?: return@strictlyOn CheckGradesState(state.context, state.studentId)
-    val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
 
-    val gradedProblems =
-      core.getGradingForAssignment(
-        assignment.id,
-        state.studentId,
-      )
+    val viewMode = askGradesType(state)
 
-    respondWithGrades(state, assignment, gradedProblems)
-    MenuState(state.context, state.studentId)
+    when (viewMode) {
+      ButtonKey.STUDENT_GRADES -> {
+        val assignmentId =
+          queryAssignmentFromUser(state, assignmentsFromCourse)
+            ?: return@strictlyOn CheckGradesState(state.context, state.studentId)
+        val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
+
+        val gradedProblems =
+          core.getGradingForAssignment(
+            assignment.id,
+            state.studentId,
+          )
+
+        respondWithGrades(state, assignment, gradedProblems)
+        MenuState(state.context, state.studentId)
+      }
+
+      ButtonKey.TOP_GRADES -> {
+        println(courseId)
+        val topGrades = core.getTopGrades(courseId)
+
+        respondWithTopGrades(state, topGrades)
+
+        MenuState(state.context, state.studentId)
+      }
+
+      ButtonKey.BACK -> {
+        CheckGradesState(state.context, state.studentId)
+      }
+
+      else -> {
+        MenuState(state.context, state.studentId)
+      }
+    }
   }
 }
 
@@ -147,6 +171,62 @@ private suspend fun BehaviourContext.queryCourseFromUser(
   return CourseId(courseId)
 }
 
+private suspend fun BehaviourContext.askGradesType(
+  state: CheckGradesState,
+): String {
+  val viewMode = bot.send(
+    state.context,
+    text = "Какие оценки посмотреть?",
+    replyMarkup =
+    InlineKeyboardMarkup(
+      keyboard =
+      matrix {
+        row { dataButton("Моя успеваемость", ButtonKey.STUDENT_GRADES) }
+        row { dataButton("Лучшие на курсе", ButtonKey.TOP_GRADES) }
+        row { dataButton("Назад", ButtonKey.BACK) }
+      },
+    ),
+  )
+
+  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
+  deleteMessage(viewMode)
+
+  return callback.data
+}
+
+private suspend fun BehaviourContext.respondWithTopGrades(
+  state: CheckGradesState,
+  topGrades: List<Grade>,
+) {
+  if (topGrades.isEmpty()) {
+    val gradesMessage =
+      bot.send(
+        state.context,
+        text = "Еще никто не получал оценок на курсе!",
+        replyMarkup = back(),
+      )
+
+    waitDataCallbackQueryWithUser(state.context.id).first()
+    deleteMessage(gradesMessage)
+
+    return
+  }
+
+  val strTopGrades =
+    "Лучшие результаты на курсе:\n" +
+      topGrades
+        .withTopGradesToText()
+
+  val gradesMessage =
+    bot.send(
+      state.context,
+      text = strTopGrades,
+      replyMarkup = back(),
+    )
+  waitDataCallbackQueryWithUser(state.context.id).first()
+  deleteMessage(gradesMessage)
+}
+
 fun List<Pair<Problem, Grade?>>.withGradesToText() =
   joinToString(separator = "\n") { (problem, grade) ->
     "№${problem.number} — " +
@@ -157,3 +237,14 @@ fun List<Pair<Problem, Grade?>>.withGradesToText() =
         else -> "✅ $grade/${problem.maxScore}"
       }
   }
+
+fun List<Grade>.withTopGradesToText() =
+  this.withIndex()
+    .joinToString(separator = "\n") { (index, grade) ->
+      when (index) {
+        0 -> "\uD83E\uDD47 $grade"
+        1 -> "\uD83E\uDD48 $grade"
+        2 -> "\uD83E\uDD49 $grade"
+        else -> "${index + 1}. $grade"
+      }
+    }

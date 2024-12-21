@@ -38,7 +38,7 @@ class TeacherBotTest {
       studentId,
       RawChatId(0L),
       MessageId(0L),
-      SolutionContent(),
+      SolutionContent(text = "", type = SolutionType.TEXT),
       problemId,
       timestamp,
     )
@@ -162,7 +162,7 @@ class TeacherBotTest {
       studentId,
       RawChatId(0),
       MessageId(0),
-      SolutionContent(text = "test"),
+      SolutionContent(text = "test", type = SolutionType.TEXT),
       problemId,
     )
     val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!

@@ -10,4 +10,6 @@ object ButtonKey {
   const val ASSIGNMENT_ID = "assignmentId"
   const val PROBLEM_ID = "problemId"
   const val CHECK_GRADES = "checkGrades"
+  const val STUDENT_GRADES = "viewStudentGrades"
+  const val TOP_GRADES = "viewTopGrades"
 }

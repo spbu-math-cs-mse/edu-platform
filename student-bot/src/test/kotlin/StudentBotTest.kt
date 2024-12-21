@@ -124,7 +124,7 @@ class StudentBotTest {
           userId,
           chatId,
           MessageId(it.toLong()),
-          SolutionContent(text = "sample$it"),
+          SolutionContent(text = "sample$it", type = SolutionType.TEXT),
           createProblem(),
         )
       }

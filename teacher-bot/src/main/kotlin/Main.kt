@@ -60,7 +60,7 @@ suspend fun main(vararg args: String) {
       problemStorage,
       botEventBus,
       assignmentStorage,
-      studentStorage
+      studentStorage,
     )
 
   teacherRun(botToken, teacherStorage, core)

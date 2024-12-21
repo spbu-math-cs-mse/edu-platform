@@ -153,7 +153,7 @@ class AdminCore(
       uncheckedSolutions = totalSolutions - checkedSolutions,
       students = students,
       teachers = teachers,
-      assignments = assignments
+      assignments = assignments,
     )
   }
 }

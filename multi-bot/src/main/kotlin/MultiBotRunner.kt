@@ -108,7 +108,7 @@ class MultiBotRunner : CliktCommand() {
         teacherStorage,
         assignmentStorage,
         problemStorage,
-        solutionDistributor
+        solutionDistributor,
       )
 
     val parentCore =

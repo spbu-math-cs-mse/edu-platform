@@ -23,4 +23,8 @@ interface SolutionDistributor {
   ): Result<Solution?, SolutionResolveError>
 
   fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>>
+
+  fun getSolutionsForProblem(problemId: ProblemId): List<SolutionId>
+
+  fun isSolutionAssessed(solutionId: SolutionId): Boolean
 }

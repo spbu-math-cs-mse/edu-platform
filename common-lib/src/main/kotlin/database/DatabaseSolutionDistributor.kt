@@ -132,4 +132,22 @@ class DatabaseSolutionDistributor(
         ),
       )
     }
+
+  override fun getSolutionsForProblem(problemId: ProblemId): List<SolutionId> =
+    transaction(database) {
+      SolutionTable
+        .selectAll()
+        .where { SolutionTable.problemId eq problemId.id }
+        .map { row ->
+          SolutionId(row[SolutionTable.id].value)
+        }
+    }
+
+  override fun isSolutionAssessed(solutionId: SolutionId): Boolean =
+    transaction(database) {
+      AssessmentTable
+        .select(AssessmentTable.id)
+        .where { AssessmentTable.solutionId eq solutionId.id }
+        .firstOrNull() != null
+    }
 }

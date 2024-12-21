@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
@@ -31,6 +32,7 @@ suspend fun main(vararg args: String) {
   val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
   val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
+  val studentStorage = DatabaseStudentStorage(database)
 
   val googleSheetsService =
     GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
@@ -47,6 +49,8 @@ suspend fun main(vararg args: String) {
   val teacherStatistics = InMemoryTeacherStatistics()
   val botEventBus = RedisBotEventBus()
 
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+
   val core =
     TeacherCore(
       teacherStatistics,
@@ -55,6 +59,8 @@ suspend fun main(vararg args: String) {
       gradeTable,
       problemStorage,
       botEventBus,
+      assignmentStorage,
+      studentStorage,
     )
 
   teacherRun(botToken, teacherStorage, core)

@@ -49,9 +49,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
     val assignments = core.getCourseAssignments(course.id)
 
-    val problems = assignments.flatMap { assignment ->
-      core.getProblemsFromAssignment(assignment).map { problem -> assignment to problem }
-    }
+    val problems = assignments.associateWith { core.getProblemsFromAssignment(it) }
     val problem = queryProblem(state, problems)
     if (problem == null) {
       deleteMessage(stickerMessage)
@@ -142,12 +140,15 @@ private suspend fun BehaviourContext.queryCourse(
 
 private suspend fun BehaviourContext.queryProblem(
   state: SendSolutionState,
-  problems: List<Pair<Assignment, Problem>>,
+  problems: Map<Assignment, List<Problem>>,
 ): Problem? {
   val message =
     bot.send(state.context, Dialogues.askProblem(), replyMarkup = buildProblemSendingSelector(problems))
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  while (callbackData == ButtonKey.FICTITIOUS) {
+    callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  }
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -155,7 +156,7 @@ private suspend fun BehaviourContext.queryProblem(
   }
 
   val problemId = callbackData.split(" ").last()
-  return problems.single { it.second.id == ProblemId(problemId.toLong()) }.second
+  return problems.values.flatten().single { it.id == ProblemId(problemId.toLong()) }
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {

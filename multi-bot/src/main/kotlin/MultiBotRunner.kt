@@ -98,6 +98,8 @@ class MultiBotRunner : CliktCommand() {
         gradeTable,
         problemStorage,
         botEventBus,
+        assignmentStorage,
+        studentStorage,
       )
 
     val adminCore =

@@ -70,6 +70,8 @@ class SolutionDistributionTest {
         gradeTable,
         problemStorage,
         MockBotEventBus(),
+        assignmentStorage,
+        studentStorage,
       )
 
     val studentId = studentStorage.createStudent()
@@ -150,6 +152,8 @@ class SolutionDistributionTest {
         gradeTable,
         problemStorage,
         MockBotEventBus(),
+        assignmentStorage,
+        studentStorage,
       )
 
     val userId = studentStorage.createStudent()
@@ -206,6 +210,8 @@ class SolutionDistributionTest {
         gradeTable,
         problemStorage,
         MockBotEventBus(),
+        assignmentStorage,
+        studentStorage,
       )
 
     val userId1 = studentStorage.createStudent()

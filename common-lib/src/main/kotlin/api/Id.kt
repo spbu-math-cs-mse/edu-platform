@@ -2,9 +2,12 @@ package com.github.heheteam.commonlib.api
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 data class CourseId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 @Serializable
 data class ProblemId(

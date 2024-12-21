@@ -10,4 +10,5 @@ object ButtonKey {
   const val ASSIGNMENT_ID = "assignmentId"
   const val PROBLEM_ID = "problemId"
   const val CHECK_GRADES = "checkGrades"
+  const val FICTITIOUS = "fictitious"
 }

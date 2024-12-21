@@ -145,7 +145,10 @@ private suspend fun BehaviourContext.queryProblem(
   val message =
     bot.send(state.context, Dialogues.askProblem(), replyMarkup = buildProblemSendingSelector(problems))
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  while (callbackData == ButtonKey.FICTITIOUS) {
+    callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  }
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {

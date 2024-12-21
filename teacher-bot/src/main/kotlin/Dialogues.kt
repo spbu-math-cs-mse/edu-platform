@@ -1,4 +1,5 @@
 package com.github.heheteam.teacherbot
+
 import com.github.heheteam.commonlib.*
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
@@ -33,8 +34,10 @@ object Dialogues {
 
   fun solutionNotSent(): String = "Ошибка, попробуйте ещё раз..."
 
-  // TODO: add more of student and problem info
-  fun solutionInfo(solution: Solution): String = "Ученик отправил задачу ${solution.problemId}"
+  fun solutionInfo(student: Student, assignment: Assignment, problem: Problem): String =
+    "Ученик: ${student.surname} ${student.name}\n" +
+      "Серия: ${assignment.description}\n" +
+      "Задача: ${problem.number}"
 
   fun menu(): String = "\u2705 Главное меню"
 

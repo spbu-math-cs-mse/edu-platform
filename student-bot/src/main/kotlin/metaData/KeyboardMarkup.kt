@@ -37,10 +37,11 @@ fun buildProblemSendingSelector(availableProblems: Map<Assignment, List<Problem>
     keyboard =
     matrix {
       availableProblems.forEach { (assignment, problems) ->
+        row { dataButton("${assignment.description}:", ButtonKey.FICTITIOUS) }
         row {
           problems.forEach { problem ->
             dataButton(
-              "${assignment.description}: ${problem.number}",
+              problem.number,
               "${ButtonKey.PROBLEM_ID} ${problem.id}",
             )
           }

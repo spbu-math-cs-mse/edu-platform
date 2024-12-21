@@ -36,120 +36,151 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
     val teacherId = state.teacherId
     val solution = core.querySolution(teacherId)
-
     if (solution == null) {
       bot.send(
         state.context,
         noSolutionsToCheck(),
       )
-    } else {
-      val getSolution: ContentMessage<*>
-      var getMarkup: ContentMessage<*>? = null
-      when (solution.type) {
-        SolutionType.TEXT ->
-          getSolution =
-            bot.send(
-              state.context,
-              solution.content.text!! + "\n\n\n" + solutionInfo(solution),
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
 
-        SolutionType.PHOTO ->
-          getSolution =
-            bot.sendPhoto(
-              state.context,
-              InputFile.fromId(solution.content.fileIds!![0]),
-              text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+    val student = core.resolveStudent(solution.studentId)
+    if (student.isErr) {
+      bot.send(
+        state.context,
+        student.error.toString(),
+      )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
 
-        SolutionType.PHOTOS -> {
-          getSolution =
-            bot.sendMediaGroup(
-              state.context,
-              listOf(
-                TelegramMediaPhoto(
-                  InputFile.fromId(solution.content.fileIds!![0]),
-                  solution.content.text,
-                ),
-              ) +
-                solution.content.fileIds!!
-                  .map { TelegramMediaPhoto(InputFile.fromId(it)) }
-                  .drop(1),
-            )
-          getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
-        }
+    val problem = core.resolveProblem(solution.problemId)
+    if (problem.isErr) {
+      bot.send(
+        state.context,
+        problem.error.toString(),
+      )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
 
-        SolutionType.DOCUMENT ->
-          getSolution =
-            bot.sendDocument(
-              state.context,
-              InputFile.fromId(solution.content.fileIds!![0]),
-              text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+    val assignment = core.resolveAssignment(problem.value.assignmentId)
+    if (assignment.isErr) {
+      bot.send(
+        state.context,
+        assignment.error.toString(),
+      )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
+
+    val getSolution: ContentMessage<*>
+    var getMarkup: ContentMessage<*>? = null
+    when (solution.type) {
+      SolutionType.TEXT ->
+        getSolution =
+          bot.send(
+            state.context,
+            solution.content.text!! + "\n\n\n" + solutionInfo(student.value, assignment.value, problem.value),
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+
+      SolutionType.PHOTO ->
+        getSolution =
+          bot.sendPhoto(
+            state.context,
+            InputFile.fromId(solution.content.fileIds!![0]),
+            text =
+            if (solution.content.text == null) {
+              solutionInfo(student.value, assignment.value, problem.value)
+            } else {
+              solution.content.text + "\n\n\n" +
+                solutionInfo(student.value, assignment.value, problem.value)
+            },
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+
+      SolutionType.PHOTOS -> {
+        getSolution =
+          bot.sendMediaGroup(
+            state.context,
+            listOf(
+              TelegramMediaPhoto(
+                InputFile.fromId(solution.content.fileIds!![0]),
+                solution.content.text,
+              ),
+            ) +
+              solution.content.fileIds!!
+                .map { TelegramMediaPhoto(InputFile.fromId(it)) }
+                .drop(1),
+          )
+        getMarkup = bot.send(
+          state.context,
+          solutionInfo(student.value, assignment.value, problem.value),
+          replyMarkup = Keyboards.solutionMenu(),
+        )
       }
 
-      when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
-        is DataCallbackQuery -> {
-          val command = response.data
-          when (command) {
-            Keyboards.goodSolution -> {
-              try {
-                bot.reply(
-                  ChatId(solution.chatId),
-                  solution.messageId,
-                  "good",
-                )
-              } catch (e: CommonRequestException) {
-              }
-              deleteMessage(getSolution)
-              // TODO extract from maxscore of a problem
-              core.assessSolution(
-                solution,
-                teacherId,
-                SolutionAssessment(1, ""),
-              )
-            }
+      SolutionType.DOCUMENT ->
+        getSolution =
+          bot.sendDocument(
+            state.context,
+            InputFile.fromId(solution.content.fileIds!![0]),
+            text =
+            if (solution.content.text == null) {
+              solutionInfo(student.value, assignment.value, problem.value)
+            } else {
+              solution.content.text + "\n\n\n" +
+                solutionInfo(student.value, assignment.value, problem.value)
+            },
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+    }
 
-            Keyboards.badSolution -> {
-              try {
-                bot.reply(
-                  ChatId(solution.chatId),
-                  solution.messageId,
-                  "bad",
-                )
-              } catch (e: CommonRequestException) {
-              }
-              deleteMessage(getSolution)
-              core.assessSolution(
-                solution,
-                teacherId,
-                SolutionAssessment(0, ""),
+    when (
+      val response =
+        flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge()
+          .first()
+    ) {
+      is DataCallbackQuery -> {
+        val command = response.data
+        when (command) {
+          Keyboards.goodSolution -> {
+            try {
+              bot.reply(
+                ChatId(solution.chatId),
+                solution.messageId,
+                "good",
               )
+            } catch (e: CommonRequestException) {
             }
+            deleteMessage(getSolution)
+            // TODO extract from maxscore of a problem
+            core.assessSolution(
+              solution,
+              teacherId,
+              SolutionAssessment(1, ""),
+            )
+          }
 
-            Keyboards.returnBack -> {
-              delete(getSolution)
-              if (getMarkup != null) {
-                delete(getMarkup)
-              }
+          Keyboards.badSolution -> {
+            try {
+              bot.reply(
+                ChatId(solution.chatId),
+                solution.messageId,
+                "bad",
+              )
+            } catch (e: CommonRequestException) {
+            }
+            deleteMessage(getSolution)
+            core.assessSolution(
+              solution,
+              teacherId,
+              SolutionAssessment(0, ""),
+            )
+          }
+
+          Keyboards.returnBack -> {
+            delete(getSolution)
+            if (getMarkup != null) {
+              delete(getMarkup)
             }
           }
         }

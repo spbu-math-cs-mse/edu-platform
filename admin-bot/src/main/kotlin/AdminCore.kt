@@ -1,8 +1,13 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.adminbot.Dialogues.duplicatedId
+import com.github.heheteam.adminbot.Dialogues.idIsNotLong
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.message.textsources.RegularTextSource
 import dev.inmo.tgbotapi.types.message.textsources.TextSource
 import dev.inmo.tgbotapi.types.message.textsources.bold
@@ -51,10 +56,30 @@ class AdminCore(
 
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
+  fun processStringIds(stringIds: List<String>): Result<List<Long>, String> {
+    val ids = mutableListOf<Long>()
+    val setOfStringIds = mutableSetOf<String>()
+
+    stringIds.forEach { stringId ->
+      if (stringId in setOfStringIds) {
+        return Err(duplicatedId(stringId))
+      }
+      ids.add(stringId.toLongOrNull() ?: return Err(idIsNotLong(stringId)))
+      setOfStringIds.add(stringId)
+    }
+
+    return Ok(ids)
+  }
+
   fun studiesIn(
     id: StudentId,
     course: Course,
   ): Boolean = coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
+
+  fun teachesIn(
+    id: TeacherId,
+    course: Course,
+  ): Boolean = coursesDistributor.getTeacherCourses(id).find { it.id == course.id } != null
 
   fun registerStudentForCourse(
     studentId: StudentId,

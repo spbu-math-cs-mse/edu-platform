@@ -53,6 +53,7 @@ suspend fun main(vararg args: String) {
       teacherStorage,
       assignmentStorage,
       problemStorage,
+      solutionDistributor,
     )
 
   adminRun(botToken, core)

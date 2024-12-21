@@ -29,6 +29,7 @@ class AdminBotTest {
       DatabaseTeacherStorage(database),
       DatabaseAssignmentStorage(database),
       DatabaseProblemStorage(database),
+      DatabaseSolutionDistributor(database),
     )
 
   private val course =

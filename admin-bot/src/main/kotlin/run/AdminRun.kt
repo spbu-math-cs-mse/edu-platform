@@ -46,6 +46,7 @@ suspend fun adminRun(
 
     strictlyOnMenuState()
     strictlyOnCreateCourseState(core)
+    strictlyOnCourseInfoState(core)
     strictlyOnEditCourseState(core)
     strictlyOnAddStudentState(core)
     strictlyOnRemoveStudentState(core)

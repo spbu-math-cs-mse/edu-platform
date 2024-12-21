@@ -69,3 +69,7 @@ data class AddScheduledMessageState(
   val course: Course,
   val courseName: String,
 ) : BotState
+
+data class CourseInfoState(
+  override val context: User,
+) : BotState

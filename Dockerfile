@@ -29,5 +29,6 @@ FROM eclipse-temurin:21-jre-jammy AS runtime
 WORKDIR /edu-platform
 
 COPY --from=build edu-platform/multi-bot/build/libs/multi-bot-1.0.jar multi-bot.jar
+COPY --from=build edu-platform/bot_tokens bot_tokens
 
 CMD java -jar multi-bot.jar $(cat ./bot_tokens)

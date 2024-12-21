@@ -110,11 +110,11 @@ private fun extractSolutionContent(content: CommonMessage<*>): SolutionContent? 
   return if (textSolution != null) {
     SolutionContent(text = textSolution.text)
   } else if (photoSolution != null) {
-    SolutionContent(text = SolutionType.PHOTO.toString(), fileIds = listOf(photoSolution.media.fileId.fileId))
+    SolutionContent(text = photoSolution.text, fileIds = listOf(photoSolution.media.fileId.fileId))
   } else if (photosSolution != null) {
-    SolutionContent(text = SolutionType.PHOTOS.toString(), fileIds = photosSolution.map { it.media.fileId.fileId })
+    SolutionContent(text = photosSolution.first().text, fileIds = photosSolution.map { it.media.fileId.fileId })
   } else if (documentSolution != null) {
-    SolutionContent(text = SolutionType.DOCUMENT.toString(), fileIds = listOf(documentSolution.media.fileId.fileId))
+    SolutionContent(text = documentSolution.text, fileIds = listOf(documentSolution.media.fileId.fileId))
   } else {
     null
   }

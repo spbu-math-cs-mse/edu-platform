@@ -1,13 +1,13 @@
 {
   "googleSheetsConfig": {
     "serviceAccountKey": "google_api_key.json",
-    "spreadsheetId": "SPREADSHEET_ID_12345"
+    "spreadsheetId": "1uP0XqbRCac9rFiBslD5tRVDMLvYbzCLM_W6t_BAhxes"
   },
   "databaseConfig": {
-    "url": "jdbc:postgresql://localhost:<port>/<database>",
-    "driver": "org.postgresql.Driver",
-    "login": "<login>",
-    "password": "<password>"
+    "url": "jdbc:h2:./data/edu-platform",
+    "driver": "org.h2.Driver",
+    "login": "",
+    "password": ""
   },
   "redisConfig" : {
     "host": "localhost",

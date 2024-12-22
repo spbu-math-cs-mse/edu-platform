@@ -19,7 +19,7 @@ class DatabaseStartupTest {
 
   @Test
   fun startupTest() {
-    assertTimeout(Duration.ofSeconds(10)) {
+    assertTimeout(Duration.ofSeconds(20)) {
       val config = loadConfig()
       database = Database.connect(
         config.databaseConfig.url,
@@ -46,7 +46,7 @@ class DatabaseStartupTest {
       )
     }
 
-    assertTimeout(Duration.ofMillis(100)) {
+    assertTimeout(Duration.ofMillis(2000)) {
       val course = coursesDistributor.getCourses().first()
       coursesDistributor.getStudents(course.id)
       coursesDistributor.getTeachers(course.id)

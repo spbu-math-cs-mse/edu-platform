@@ -2,19 +2,11 @@
 services:
   backend:
     build:
-      secrets:
-        - config_file
-        - google_api_key
-        - bot_tokens
       context: .
       dockerfile: Dockerfile
     env_file:
       - .env
     container_name: edu-platform
-    secrets:
-      - bot_tokens
-      - config_file
-      - google_api_key
     depends_on:
       - postgres
       - redis
@@ -44,13 +36,6 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
 
 secrets:
-  bot_tokens:
-    file: ./secrets/bot_tokens
-  config_file:
-    file: ./secrets/config.json
-  google_api_key:
-    file: ./secrets/google_api_key.json
-
   db_user:
     file: ./secrets/db_user
   db_password:

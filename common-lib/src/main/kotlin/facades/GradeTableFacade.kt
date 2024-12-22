@@ -17,7 +17,7 @@ class GradeTableFacade(
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    assignmentId: AssignmentId,
+    assignmentId: List<AssignmentId>,
     solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
 

@@ -40,7 +40,7 @@ class StudentCore(
   fun getTopGrades(
     courseId: CourseId,
   ): List<Int> {
-    val students = getStudentsFromCourse(courseId)
+    val students = getStudentsFromCourse(courseId).map { it.id }
     val assignments = getCourseAssignments(courseId).map { it.id }
     val grades =
       students

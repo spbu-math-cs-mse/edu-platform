@@ -2,8 +2,11 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.*
 import com.github.heheteam.commonlib.api.*
+import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.UserId
+import java.time.LocalDateTime
 
 // this class represents a service given by the bot;
 // students ids are parameters in this class
@@ -15,11 +18,45 @@ class StudentCore(
   private val gradeTable: GradeTable,
   private val notificationService: NotificationService,
   private val botEventBus: BotEventBus,
+  private val messagesDistributor: ScheduledMessagesDistributor,
+  private val studentStorage: StudentStorage,
 ) {
   init {
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
       notifyAboutGrade(studentId, chatId, messageId, assessment, problem)
     }
+  }
+
+  fun updateTgId(
+    studentId: StudentId,
+    tgId: UserId,
+  ): Result<Unit, ResolveError<StudentId>> {
+    println("updateTgId $studentId $tgId")
+    return studentStorage.updateTgId(studentId, tgId)
+  }
+
+  // returns list of chatId to message content
+  fun sendMessagesIfExistUnsent(date: LocalDateTime): List<Pair<Long, String>> {
+    val messagesToSent = messagesDistributor.getUnsentMessagesUpToDate(date)
+    val allMessages = messagesToSent.flatMap { message ->
+      val students = coursesDistributor.getStudents(message.courseId)
+      println(students)
+      students.map { it.tgChatId to message.message }
+    }
+    messagesDistributor.markMessagesUpToDateAsSent(date)
+    return allMessages
+  }
+
+  fun tmpSendSampleMessage(courseId: CourseId, date: LocalDateTime) {
+    messagesDistributor.addMessage(
+      ScheduledMessage(
+        courseId,
+        date,
+        "Обратите пожалуйста внимание на обновления по расписанию",
+      ),
+    )
+    println("Scheduled message for course id=$courseId on time $date")
+    println("On this course: ${coursesDistributor.getStudents(courseId)}")
   }
 
   fun getGradingForAssignment(
@@ -41,7 +78,8 @@ class StudentCore(
     coursesDistributor
       .getStudentCourses(studentId)
 
-  fun getCourseAssignments(courseId: CourseId): List<Assignment> = assignmentStorage.getAssignmentsForCourse(courseId)
+  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
+    assignmentStorage.getAssignmentsForCourse(courseId)
 
   fun addRecord(
     studentId: StudentId,

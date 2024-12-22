@@ -7,6 +7,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPresetStudentState(core: StudentCore) {
   strictlyOn<PresetStudentState> { state ->
+    val result = core.updateTgId(state.studentId, state.context.id)
+    if (result.isErr) {
+      println("Failed to update tg id!")
+    } else {
+      println("update sucessfull")
+    }
     val courses = core.getStudentCourses(state.studentId)
     val coursesRepr =
       courses.joinToString("\n") { course: Course -> "\u2605 " + course.name + " (id=${course.id})" }

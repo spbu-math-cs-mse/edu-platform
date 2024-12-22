@@ -20,7 +20,7 @@ class AdminCore(
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
   fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
-    scheduledMessagesDistributor.getMessagesUpToDate(date)
+    scheduledMessagesDistributor.getUnsentMessagesUpToDate(date)
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 

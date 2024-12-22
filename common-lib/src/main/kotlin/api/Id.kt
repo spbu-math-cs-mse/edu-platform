@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 data class CourseId(
   val id: Long,
-)
+) {
+  override fun toString(): String = "$id"
+}
 
 @Serializable
 data class ProblemId(

@@ -1,6 +1,9 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.*
+import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.adminbot.dateFormatter
+import com.github.heheteam.adminbot.timeFormatter
+import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -42,7 +45,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddScheduledMessageState(
         date.format(dateFormatter) + newLine +
         "Курс: " + state.courseName
     }
-    core.addMessage(ScheduledMessage(state.course, LocalDateTime.of(date, time), text))
+    core.addMessage(ScheduledMessage(state.course.id, LocalDateTime.of(date, time), text))
     MenuState(state.context)
   }
 }

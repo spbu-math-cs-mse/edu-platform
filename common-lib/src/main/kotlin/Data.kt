@@ -11,6 +11,7 @@ data class Student(
   val id: StudentId,
   val name: String = "",
   val surname: String = "",
+  val tgChatId: Long = -1,
 )
 
 data class Parent(

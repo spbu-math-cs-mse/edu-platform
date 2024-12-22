@@ -169,6 +169,7 @@ class DatabaseCoursesDistributor(
             it[CourseStudents.studentId].value.toStudentId(),
             it[StudentTable.name].toString(),
             it[StudentTable.surname].toString(),
+            it[StudentTable.tgId],
           )
         }
     }

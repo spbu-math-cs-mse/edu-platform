@@ -88,6 +88,8 @@ class MultiBotRunner : CliktCommand() {
         gradeTable,
         notificationService,
         botEventBus,
+        inMemoryScheduledMessagesDistributor,
+        studentStorage,
       )
 
     val teacherCore =

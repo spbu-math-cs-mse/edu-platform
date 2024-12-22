@@ -239,7 +239,7 @@ class SolutionDistributionTest {
         SolutionContent(
           filesURL = fileIds1,
           text = SolutionType.DOCUMENT.toString(),
-          type = SolutionType.DOCUMENT
+          type = SolutionType.DOCUMENT,
         ),
         createProblem(),
       )

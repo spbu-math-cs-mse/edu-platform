@@ -88,7 +88,7 @@ class SolutionDistributionTest {
       studentId,
       chatId,
       messageId,
-      SolutionContent(text = text),
+      SolutionContent(text = text, type = SolutionType.TEXT),
       problemId,
     )
 
@@ -228,7 +228,7 @@ class SolutionDistributionTest {
           userId1,
           chatId1,
           messageId,
-          SolutionContent(text = text),
+          SolutionContent(text = text, type = SolutionType.TEXT),
           createProblem(),
         )
       }
@@ -239,6 +239,7 @@ class SolutionDistributionTest {
         SolutionContent(
           filesURL = fileIds1,
           text = SolutionType.DOCUMENT.toString(),
+          type = SolutionType.DOCUMENT
         ),
         createProblem(),
       )
@@ -275,7 +276,7 @@ class SolutionDistributionTest {
         userId2,
         chatId2,
         messageId2,
-        SolutionContent(text = text2),
+        SolutionContent(text = text2, type = SolutionType.TEXT),
         createProblem(),
       )
     }

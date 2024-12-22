@@ -1,6 +1,7 @@
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
@@ -74,7 +75,7 @@ class GoogleSheetsTest {
         student1Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(listOf(), ""),
+        SolutionContent(listOf(), "", SolutionType.TEXT),
         ProblemId(problemId.toLong()),
       )
     }
@@ -83,7 +84,7 @@ class GoogleSheetsTest {
         student2Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(listOf(), ""),
+        SolutionContent(listOf(), "", SolutionType.TEXT),
         ProblemId(problemId.toLong() * 2),
       )
     }

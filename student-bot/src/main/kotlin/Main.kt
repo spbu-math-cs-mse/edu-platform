@@ -44,7 +44,7 @@ suspend fun main(vararg args: String) {
     solutionDistributor,
   )
   val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
-  val botEventBus = RedisBotEventBus()
+  val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
 
   val bot = telegramBot(botToken) {
     logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->

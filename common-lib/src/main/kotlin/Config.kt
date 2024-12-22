@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.addResourceSource
 data class Config(
   val databaseConfig: DatabaseConfig,
   val googleSheetsConfig: GoogleSheetsConfig,
+  val redisConfig: RedisConfig,
 )
 
 fun loadConfig(): Config = ConfigLoaderBuilder

@@ -189,10 +189,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             delete(getSolution)
           }
         }
-        if (getMarkup != null) {
-          delete(getMarkup)
-        }
       }
+    }
+    if (getMarkup != null) {
+      delete(getMarkup)
     }
     MenuState(state.context, state.teacherId)
   }

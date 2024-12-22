@@ -8,6 +8,7 @@ import com.github.heheteam.adminbot.Dialogues.noIdInInput
 import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
+import com.github.heheteam.adminbot.processStringIds
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -36,7 +37,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: Adm
         )
         continue
       }
-      val processedIds = core.processStringIds(splitIds)
+      val processedIds = processStringIds(splitIds)
       if (processedIds.isErr) {
         send(
           state.context,

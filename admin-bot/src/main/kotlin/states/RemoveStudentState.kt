@@ -8,6 +8,7 @@ import com.github.heheteam.adminbot.Dialogues.noIdInInput
 import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyDoesNotExistForStudentRemoving
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentRemoving
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
+import com.github.heheteam.adminbot.processStringIds
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -37,7 +38,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveStudentState(core: 
         )
         continue
       }
-      val processedIds = core.processStringIds(splitIds)
+      val processedIds = processStringIds(splitIds)
       if (processedIds.isErr) {
         send(
           state.context,

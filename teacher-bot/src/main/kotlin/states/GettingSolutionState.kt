@@ -86,7 +86,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
     val getSolution: ContentMessage<*>
     var getMarkup: ContentMessage<*>? = null
     val files: MutableList<Pair<MultipartFile, File>> = mutableListOf()
-    when (solution.type) {
+    when (solution.content.type!!) {
       SolutionType.TEXT ->
         getSolution =
           bot.send(

@@ -106,8 +106,11 @@ class DatabaseSolutionDistributor(
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(solution[SolutionTable.fileUrl], solution[SolutionTable.content]),
-          SolutionType.valueOf(solution[SolutionTable.solutionType]),
+          SolutionContent(
+            solution[SolutionTable.fileUrl],
+            solution[SolutionTable.content],
+            SolutionType.valueOf(solution[SolutionTable.solutionType]),
+          ),
           solution[SolutionTable.timestamp].toJavaLocalDateTime(),
         ),
       )
@@ -128,8 +131,11 @@ class DatabaseSolutionDistributor(
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(solution[SolutionTable.fileUrl], solution[SolutionTable.content]),
-          SolutionType.valueOf(solution[SolutionTable.solutionType]),
+          SolutionContent(
+            solution[SolutionTable.fileUrl],
+            solution[SolutionTable.content],
+            SolutionType.valueOf(solution[SolutionTable.solutionType]),
+          ),
           solution[SolutionTable.timestamp].toJavaLocalDateTime(),
         ),
       )

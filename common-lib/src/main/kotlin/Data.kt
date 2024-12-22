@@ -55,7 +55,6 @@ data class Solution(
   val messageId: MessageId,
   val problemId: ProblemId,
   val content: SolutionContent,
-  val type: SolutionType,
   val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
 

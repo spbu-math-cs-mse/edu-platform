@@ -33,7 +33,7 @@ object Dialogues {
   fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 
   fun askCourseForSolution(): String = "Выбери курс для отправки решения:"
-  fun askAssignmentFromSolution(): String = "Выбери серию из курса:"
+  fun askProblem(): String = "Выбери задачу:"
 
   fun tellSolutionIsSent(): String = "Решение отправлено на проверку!"
 

@@ -18,6 +18,18 @@ data class CreateCourseState(
   override val context: User,
 ) : BotState
 
+data class GetTeachersState(
+  override val context: User,
+) : BotState
+
+data class GetProblemsState(
+  override val context: User,
+) : BotState
+
+data class CreateAssignmentState(
+  override val context: User,
+) : BotState
+
 data class EditCourseState(
   override val context: User,
 ) : BotState

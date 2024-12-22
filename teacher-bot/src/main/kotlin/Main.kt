@@ -1,10 +1,14 @@
 package com.github.heheteam.teacherbot
 
-import DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.mock.*
+import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
+import com.github.heheteam.commonlib.facades.GradeTableFacade
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
+import com.github.heheteam.commonlib.loadConfig
+import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
+import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
@@ -13,25 +17,51 @@ import org.jetbrains.exposed.sql.Database
  */
 suspend fun main(vararg args: String) {
   val botToken = args.first()
+  val config = loadConfig()
 
   val database = Database.connect(
-    "jdbc:h2:./data/films",
-    driver = "org.h2.Driver",
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
   )
 
-  val coursesDistributor = DatabaseCoursesDistributor(database)
-  val inMemoryTeacherStatistics = InMemoryTeacherStatistics()
+  val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
+  val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
+  val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
+  val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
+  val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
+  val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
+  val studentStorage = DatabaseStudentStorage(database)
 
-  val userIdRegistry = MockTeacherIdRegistry(0L)
-  val teacherStorage = DatabaseTeacherStorage(database)
+  val googleSheetsService =
+    GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
+  val ratingRecorder = GoogleSheetsRatingRecorder(
+    googleSheetsService,
+    databaseCoursesDistributor,
+    assignmentStorage,
+    problemStorage,
+    databaseGradeTable,
+    solutionDistributor,
+  )
+  val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+  val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
+  val teacherStatistics = InMemoryTeacherStatistics()
+  val botEventBus = RedisBotEventBus()
+
+  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
 
   val core =
     TeacherCore(
-      inMemoryTeacherStatistics,
+      teacherStatistics,
       coursesDistributor,
-      DatabaseSolutionDistributor(database),
-      DatabaseGradeTable(database),
+      solutionDistributor,
+      gradeTable,
+      problemStorage,
+      botEventBus,
+      assignmentStorage,
+      studentStorage,
     )
 
-  teacherRun(botToken, userIdRegistry, teacherStorage, core)
+  teacherRun(botToken, teacherStorage, core)
 }

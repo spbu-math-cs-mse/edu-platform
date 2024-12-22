@@ -1,9 +1,11 @@
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -20,11 +22,14 @@ class TeacherBotTest {
   private lateinit var teacherId: TeacherId
   private lateinit var studentId: StudentId
   private lateinit var problemId: ProblemId
-  val database =
-    Database.connect(
-      "jdbc:h2:./data/films",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database)
@@ -49,22 +54,27 @@ class TeacherBotTest {
     teacherId = teacherStorage.createTeacher()
     studentId = studentStorage.createStudent()
     val courseId = coursesDistributor.createCourse("test course")
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    coursesDistributor.addStudentToCourse(studentId, courseId)
     val assignmentId =
       assignmentStorage.createAssignment(
         courseId,
         "test assignment",
-        listOf("p1", "p2"),
+        listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)),
         DatabaseProblemStorage(database),
       )
     problemId = problemStorage.createProblem(assignmentId, "test problem 1", 1, "test problem")
   }
 
   companion object {
-    val database =
-      Database.connect(
-        "jdbc:h2:./data/films",
-        driver = "org.h2.Driver",
-      )
+    private val config = loadConfig()
+
+    private val database = Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
     @JvmStatic
     @AfterAll
@@ -165,7 +175,7 @@ class TeacherBotTest {
       SolutionContent(text = "test", type = SolutionType.TEXT),
       problemId,
     )
-    val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database))!!
+    val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database)).value!!
 
     assertEquals(studentId, solution.studentId)
     assertEquals(SolutionContent(listOf(), text = "test"), solution.content)

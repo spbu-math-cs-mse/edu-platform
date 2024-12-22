@@ -1,6 +1,9 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -26,7 +29,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
     val courseId: CourseId =
       queryCourseFromUser(state, courses)
         ?: return@strictlyOn MenuState(state.context, state.studentId)
-    val course = courses.find { it.id == courseId }!!
 
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
 
@@ -105,7 +107,7 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
             row {
               dataButton(
                 it.description,
-                "${ButtonKey.ASSIGNMENT_ID} ${it.id.id}",
+                "${ButtonKey.ASSIGNMENT_ID} ${it.id}",
               )
             }
           }
@@ -146,7 +148,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
             row {
               dataButton(
                 it.name,
-                "${ButtonKey.COURSE_ID} ${it.id.id}",
+                "${ButtonKey.COURSE_ID} ${it.id}",
               )
             }
           }

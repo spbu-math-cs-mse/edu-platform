@@ -1,7 +1,6 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -53,13 +52,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
     val assignments = core.getCourseAssignments(course.id)
 
-    val assignment = queryAssignments(state, assignments)
-    if (assignment == null) {
-      deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context, state.studentId)
-    }
-
-    val problems = core.getProblemsFromAssignment(assignment)
+    val problems = assignments.associateWith { core.getProblemsFromAssignment(it) }
     val problem = queryProblem(state, problems)
     if (problem == null) {
       deleteMessage(stickerMessage)
@@ -190,42 +183,17 @@ private suspend fun BehaviourContext.queryCourse(
   return courses.first { it.id == CourseId(courseId.toLong()) }
 }
 
-private suspend fun BehaviourContext.queryAssignments(
-  state: SendSolutionState,
-  assignments: List<Assignment>,
-): Assignment? {
-  val message =
-    bot.send(
-      state.context,
-      Dialogues.askAssignmentFromSolution(),
-      replyMarkup = buildAssignmentSendingSelector(assignments),
-    )
-
-  val callbackData =
-    waitDataCallbackQueryWithUser(state.context.id).first().data
-  deleteMessage(message)
-
-  if (callbackData == ButtonKey.BACK) {
-    return null
-  }
-
-  val assignmentId = callbackData.split(" ").last()
-  return assignments.first { it.id == AssignmentId(assignmentId.toLong()) }
-}
-
 private suspend fun BehaviourContext.queryProblem(
   state: SendSolutionState,
-  problems: List<Problem>,
+  problems: Map<Assignment, List<Problem>>,
 ): Problem? {
   val message =
-    bot.send(
-      state.context,
-      Dialogues.askAssignmentFromSolution(),
-      replyMarkup = buildProblemSendingSelector(problems),
-    )
+    bot.send(state.context, Dialogues.askProblem(), replyMarkup = buildProblemSendingSelector(problems))
 
-  val callbackData =
-    waitDataCallbackQueryWithUser(state.context.id).first().data
+  var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  while (callbackData == ButtonKey.FICTITIOUS) {
+    callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  }
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -233,7 +201,7 @@ private suspend fun BehaviourContext.queryProblem(
   }
 
   val problemId = callbackData.split(" ").last()
-  return problems.single { it.id == ProblemId(problemId.toLong()) }
+  return problems.values.flatten().single { it.id == ProblemId(problemId.toLong()) }
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {

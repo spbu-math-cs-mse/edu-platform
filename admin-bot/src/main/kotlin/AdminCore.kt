@@ -1,7 +1,17 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.adminbot.Dialogues.duplicatedId
+import com.github.heheteam.adminbot.Dialogues.idIsNotLong
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.message.textsources.RegularTextSource
+import dev.inmo.tgbotapi.types.message.textsources.TextSource
+import dev.inmo.tgbotapi.types.message.textsources.bold
+import dev.inmo.tgbotapi.utils.RiskFeature
 import java.time.LocalDateTime
 
 class AdminCore(
@@ -9,6 +19,8 @@ class AdminCore(
   private val coursesDistributor: CoursesDistributor,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
+  private val assignmentStorage: AssignmentStorage,
+  private val problemStorage: ProblemStorage,
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
@@ -19,8 +31,14 @@ class AdminCore(
 
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
-  fun addCourse(courseName: String) {
-    coursesDistributor.createCourse(courseName)
+  fun addCourse(courseName: String) = coursesDistributor.createCourse(courseName)
+
+  fun addAssignment(
+    courseId: CourseId,
+    description: String,
+    problemsDescriptions: List<ProblemDescription>,
+  ) {
+    assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
   }
 
   fun getCourse(courseName: String): Course? =
@@ -38,17 +56,35 @@ class AdminCore(
 
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
+  fun processStringIds(stringIds: List<String>): Result<List<Long>, String> {
+    val ids = mutableListOf<Long>()
+    val setOfStringIds = mutableSetOf<String>()
+
+    stringIds.forEach { stringId ->
+      if (stringId in setOfStringIds) {
+        return Err(duplicatedId(stringId))
+      }
+      ids.add(stringId.toLongOrNull() ?: return Err(idIsNotLong(stringId)))
+      setOfStringIds.add(stringId)
+    }
+
+    return Ok(ids)
+  }
+
   fun studiesIn(
     id: StudentId,
     course: Course,
   ): Boolean = coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
 
+  fun teachesIn(
+    id: TeacherId,
+    course: Course,
+  ): Boolean = coursesDistributor.getTeacherCourses(id).find { it.id == course.id } != null
+
   fun registerStudentForCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ) {
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-  }
+  ) = coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun registerTeacherForCourse(
     teacherId: TeacherId,
@@ -66,4 +102,45 @@ class AdminCore(
     studentId: StudentId,
     courseId: CourseId,
   ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
+
+  fun getTeachersBulletList(): String {
+    val teachersList = teacherStorage.getTeachers()
+    val noTeachers = "Список преподавателей пуст!"
+    return if (teachersList.isNotEmpty()) {
+      teachersList.sortedBy { it.surname }
+        .joinToString("\n") { teacher ->
+          "- ${teacher.surname} ${teacher.name}"
+        }
+    } else {
+      noTeachers
+    }
+  }
+
+  @OptIn(RiskFeature::class)
+  fun getProblemsEntitiesList(course: Course): List<TextSource> {
+    val assignmentsList = assignmentStorage.getAssignmentsForCourse(course.id)
+    val noAssignments = "Список серий пуст!"
+    return if (assignmentsList.isNotEmpty()) {
+      val entitiesList: MutableList<TextSource> = mutableListOf()
+      assignmentsList.forEachIndexed { index, assignment ->
+        val problemsList = problemStorage.getProblemsFromAssignment(assignment.id)
+        val noProblems = "Задачи в этой серии отсутствуют."
+        val problems = if (problemsList.isNotEmpty()) {
+          problemsList.joinToString("\n") { problem -> "    \uD83C\uDFAF задача ${problem.number}" }
+        } else {
+          noProblems
+        }
+        entitiesList.addAll(
+          listOf(
+            RegularTextSource("\uD83D\uDCDA "),
+            bold(assignment.description),
+            RegularTextSource(":\n$problems${if (index == (assignmentsList.size - 1)) "" else "\n\n"}"),
+          ),
+        )
+      }
+      entitiesList
+    } else {
+      listOf(RegularTextSource(noAssignments))
+    }
+  }
 }

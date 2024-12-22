@@ -15,6 +15,11 @@ data class MenuState(
   val teacherId: TeacherId,
 ) : BotState
 
+data class PresetTeacherState(
+  override val context: User,
+  val teacherId: TeacherId,
+) : BotState
+
 data class GettingSolutionState(
   override val context: User,
   val teacherId: TeacherId,

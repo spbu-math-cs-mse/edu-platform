@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.commonlib.Course
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -20,6 +21,9 @@ object Keyboards {
     )
 
   val createCourse = "create course"
+  val getTeachers = "get teachers"
+  val getProblems = "get problems"
+  val createAssignment = "create assignment"
 
   fun menu() =
     inlineKeyboard {
@@ -28,6 +32,15 @@ object Keyboards {
       }
       row {
         dataButton("Изменить курс", "edit course")
+      }
+      row {
+        dataButton("Список всех преподавателей", getTeachers)
+      }
+      row {
+        dataButton("Список всех серий с задачами", getProblems)
+      }
+      row {
+        dataButton("Создать серию", createAssignment)
       }
     }
 
@@ -41,16 +54,16 @@ object Keyboards {
   fun editCourse() =
     inlineKeyboard {
       row {
-        dataButton("Добавить ученика", addStudent)
+        dataButton("Добавить учеников", addStudent)
       }
       row {
-        dataButton("Убрать ученика", removeStudent)
+        dataButton("Убрать учеников", removeStudent)
       }
       row {
-        dataButton("Добавить преподавателя", addTeacher)
+        dataButton("Добавить преподавателей", addTeacher)
       }
       row {
-        dataButton("Убрать преподавателя", removeTeacher)
+        dataButton("Убрать преподавателей", removeTeacher)
       }
       row {
         dataButton("Изменить описание", editDescription)
@@ -62,4 +75,16 @@ object Keyboards {
         dataButton("Назад", returnBack)
       }
     }
+
+  val courseId = "courseId"
+  fun buildCoursesSelector(availableCourses: List<Course>) =
+    InlineKeyboardMarkup(
+      keyboard =
+      matrix {
+        availableCourses.forEach { course ->
+          row { dataButton(course.name, "$courseId ${course.id}") }
+        }
+        row { dataButton("Назад \uD83D\uDD19", returnBack) }
+      },
+    )
 }

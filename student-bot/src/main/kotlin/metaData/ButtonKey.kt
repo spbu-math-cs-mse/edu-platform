@@ -12,4 +12,5 @@ object ButtonKey {
   const val CHECK_GRADES = "checkGrades"
   const val STUDENT_GRADES = "viewStudentGrades"
   const val TOP_GRADES = "viewTopGrades"
+  const val FICTITIOUS = "fictitious"
 }

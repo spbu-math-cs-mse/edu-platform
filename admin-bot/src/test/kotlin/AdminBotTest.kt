@@ -1,24 +1,25 @@
 import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.adminbot.states.parseProblemsDescriptions
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ScheduledMessage
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import org.jetbrains.exposed.sql.Database
 import java.time.LocalDateTime
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class AdminBotTest {
-  private val database =
-    Database.connect(
-      "jdbc:h2:./data/films",
-      driver = "org.h2.Driver",
-    )
+  private val config = loadConfig()
+
+  private val database = Database.connect(
+    config.databaseConfig.url,
+    config.databaseConfig.driver,
+    config.databaseConfig.login,
+    config.databaseConfig.password,
+  )
 
   private val core =
     AdminCore(
@@ -26,6 +27,8 @@ class AdminBotTest {
       DatabaseCoursesDistributor(database),
       DatabaseStudentStorage(database),
       DatabaseTeacherStorage(database),
+      DatabaseAssignmentStorage(database),
+      DatabaseProblemStorage(database),
     )
 
   private val course =
@@ -69,5 +72,40 @@ class AdminBotTest {
     assertEquals(true, core.courseExists(courseName))
     assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName))
     assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses())
+  }
+
+  @Test
+  fun parsingProblemsDescriptionsTest() {
+    var problemsDescriptions = "1\n" +
+      "2 \"\" 5\n" +
+      "3a \"Лёгкая задача\"\n" +
+      "3b \"Сложная задача\" 10"
+    val parsedProblemsDescriptions = parseProblemsDescriptions(problemsDescriptions)
+    assertTrue(parsedProblemsDescriptions.isOk)
+    val expectedProblemsDescriptions = listOf(
+      ProblemDescription("1"),
+      ProblemDescription("2", maxScore = 5),
+      ProblemDescription("3a", "Лёгкая задача"),
+      ProblemDescription("3b", "Сложная задача", 10),
+    )
+    assertEquals(expectedProblemsDescriptions, parsedProblemsDescriptions.value)
+
+    problemsDescriptions = "1 2 3 4\n" +
+      "2 \"\" 5\n" +
+      "3a \"Лёгкая задача\"\n" +
+      "3b \"Сложная задача\" 10"
+    assertTrue(parseProblemsDescriptions(problemsDescriptions).isErr)
+
+    problemsDescriptions = "1\n" +
+      "\n" +
+      "3a \"Лёгкая задача\"\n" +
+      "3b \"Сложная задача\" 10"
+    assertTrue(parseProblemsDescriptions(problemsDescriptions).isErr)
+
+    problemsDescriptions = "1\n" +
+      "2 \"\" b\n" +
+      "3a \"Лёгкая задача\"\n" +
+      "3b \"Сложная задача\" 10"
+    assertTrue(parseProblemsDescriptions(problemsDescriptions).isErr)
   }
 }

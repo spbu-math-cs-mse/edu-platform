@@ -45,7 +45,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
     val teacherId = state.teacherId
     val solution = core.querySolution(teacherId)
-
     if (solution == null) {
       val reply = bot.send(
         state.context,
@@ -54,113 +53,145 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
       )
       waitDataCallbackQuery().first()
       deleteMessage(reply)
-    } else {
-      val getSolution: ContentMessage<*>
-      var getMarkup: ContentMessage<*>? = null
-      when (solution.type) {
-        SolutionType.TEXT ->
-          getSolution =
-            bot.send(
-              state.context,
-              solution.content.text!! + "\n\n\n" + solutionInfo(solution),
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
 
-        SolutionType.PHOTO ->
-          getSolution =
-            bot.sendPhoto(
-              state.context,
-              getSolutionWithURL(solution.content.filesURL!!.first()),
-              text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+    val student = core.resolveStudent(solution.studentId)
+    if (student.isErr) {
+      bot.send(
+        state.context,
+        student.error.toString(),
+      )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
 
-        SolutionType.DOCUMENT ->
-          getSolution =
-            bot.sendDocument(
-              state.context,
-              getSolutionWithURL(solution.content.filesURL!!.first()),
-              text =
-              if (solution.content.text == null) {
-                solutionInfo(solution)
-              } else {
-                solution.content.text + "\n\n\n" +
-                  solutionInfo(
-                    solution,
-                  )
-              },
-              replyMarkup = Keyboards.solutionMenu(),
-            )
+    val problem = core.resolveProblem(solution.problemId)
+    if (problem.isErr) {
+      bot.send(
+        state.context,
+        problem.error.toString(),
+      )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
 
-        SolutionType.GROUP -> {
-          getSolution =
-            bot.sendMediaGroup(
-              state.context,
-              solution.content.filesURL!!.map {
-                TelegramMediaDocument(
-                  getSolutionWithURL(it),
-                )
-              },
-            )
-          getMarkup = bot.send(state.context, solutionInfo(solution), replyMarkup = Keyboards.solutionMenu())
-        }
+    val assignment = core.resolveAssignment(problem.value.assignmentId)
+    if (assignment.isErr) {
+      bot.send(
+        state.context,
+        assignment.error.toString(),
+      )
+      return@strictlyOn MenuState(state.context, state.teacherId)
+    }
+
+    val getSolution: ContentMessage<*>
+    var getMarkup: ContentMessage<*>? = null
+    when (solution.type) {
+      SolutionType.TEXT ->
+        getSolution =
+          bot.send(
+            state.context,
+            solution.content.text!! + "\n\n\n" + solutionInfo(student.value, assignment.value, problem.value),
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+
+      SolutionType.PHOTO ->
+        getSolution =
+          bot.sendPhoto(
+            state.context,
+            getSolutionWithURL(solution.content.filesURL!!.first()),
+            text =
+            if (solution.content.text == null) {
+              solutionInfo(student.value, assignment.value, problem.value)
+            } else {
+              solution.content.text + "\n\n\n" +
+                solutionInfo(student.value, assignment.value, problem.value)
+            },
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+
+      SolutionType.DOCUMENT ->
+        getSolution =
+          bot.sendDocument(
+            state.context,
+            getSolutionWithURL(solution.content.filesURL!!.first()),
+            text =
+            if (solution.content.text == null) {
+              solutionInfo(student.value, assignment.value, problem.value)
+            } else {
+              solution.content.text + "\n\n\n" +
+                solutionInfo(student.value, assignment.value, problem.value)
+            },
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+
+      SolutionType.GROUP -> {
+        getSolution =
+          bot.sendMediaGroup(
+            state.context,
+            solution.content.filesURL!!.map {
+              TelegramMediaDocument(
+                getSolutionWithURL(it),
+              )
+            },
+          )
+        getMarkup = bot.send(
+          state.context,
+          solutionInfo(student.value, assignment.value, problem.value),
+          replyMarkup = Keyboards.solutionMenu(),
+        )
       }
+    }
 
-      when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
-        is DataCallbackQuery -> {
-          val command = response.data
-          when (command) {
-            Keyboards.goodSolution -> {
-              try {
-                bot.reply(
-                  ChatId(solution.chatId),
-                  solution.messageId,
-                  "good",
-                )
-              } catch (e: CommonRequestException) {
-              }
-              deleteMessage(getSolution)
-              // TODO extract from maxscore of a problem
-              core.assessSolution(
-                solution,
-                teacherId,
-                SolutionAssessment(1, ""),
+    when (
+      val response =
+        flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge()
+          .first()
+    ) {
+      is DataCallbackQuery -> {
+        val command = response.data
+        when (command) {
+          Keyboards.goodSolution -> {
+            try {
+              bot.reply(
+                ChatId(solution.chatId),
+                solution.messageId,
+                "good",
               )
+            } catch (e: CommonRequestException) {
             }
+            deleteMessage(getSolution)
+            // TODO extract from maxscore of a problem
+            core.assessSolution(
+              solution,
+              teacherId,
+              SolutionAssessment(1, ""),
+            )
+          }
 
-            Keyboards.badSolution -> {
-              try {
-                bot.reply(
-                  ChatId(solution.chatId),
-                  solution.messageId,
-                  "bad",
-                )
-              } catch (e: CommonRequestException) {
-              }
-              deleteMessage(getSolution)
-              core.assessSolution(
-                solution,
-                teacherId,
-                SolutionAssessment(0, ""),
+          Keyboards.badSolution -> {
+            try {
+              bot.reply(
+                ChatId(solution.chatId),
+                solution.messageId,
+                "bad",
               )
+            } catch (e: CommonRequestException) {
             }
+            deleteMessage(getSolution)
+            core.assessSolution(
+              solution,
+              teacherId,
+              SolutionAssessment(0, ""),
+            )
+          }
 
-            returnBack -> {
-              delete(getSolution)
-            }
+          returnBack -> {
+            delete(getSolution)
           }
         }
-      }
-      if (getMarkup != null) {
-        delete(getMarkup)
+        if (getMarkup != null) {
+          delete(getMarkup)
+        }
       }
     }
     MenuState(state.context, state.teacherId)

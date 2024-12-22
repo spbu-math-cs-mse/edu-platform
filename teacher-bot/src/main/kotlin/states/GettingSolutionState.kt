@@ -85,6 +85,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
     val getSolution: ContentMessage<*>
     var getMarkup: ContentMessage<*>? = null
+    val files: MutableList<Pair<MultipartFile, File>> = mutableListOf()
     when (solution.type) {
       SolutionType.TEXT ->
         getSolution =
@@ -94,11 +95,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             replyMarkup = Keyboards.solutionMenu(),
           )
 
-      SolutionType.PHOTO ->
+      SolutionType.PHOTO -> {
+        files.add(getSolutionWithURL(solution.content.filesURL!!.first()))
         getSolution =
           bot.sendPhoto(
             state.context,
-            getSolutionWithURL(solution.content.filesURL!!.first()),
+            files.first().first,
             text =
             if (solution.content.text == null) {
               solutionInfo(student.value, assignment.value, problem.value)
@@ -108,12 +110,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             },
             replyMarkup = Keyboards.solutionMenu(),
           )
+      }
 
-      SolutionType.DOCUMENT ->
+      SolutionType.DOCUMENT -> {
+        files.add(getSolutionWithURL(solution.content.filesURL!!.first()))
         getSolution =
           bot.sendDocument(
             state.context,
-            getSolutionWithURL(solution.content.filesURL!!.first()),
+            files.first().first,
             text =
             if (solution.content.text == null) {
               solutionInfo(student.value, assignment.value, problem.value)
@@ -123,16 +127,18 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             },
             replyMarkup = Keyboards.solutionMenu(),
           )
+      }
 
       SolutionType.GROUP -> {
+        files.addAll(
+          solution.content.filesURL!!.map {
+            getSolutionWithURL(it)
+          },
+        )
         getSolution =
           bot.sendMediaGroup(
             state.context,
-            solution.content.filesURL!!.map {
-              TelegramMediaDocument(
-                getSolutionWithURL(it),
-              )
-            },
+            files.map { TelegramMediaDocument(it.first) },
           )
         getMarkup = bot.send(
           state.context,
@@ -194,6 +200,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
     if (getMarkup != null) {
       delete(getMarkup)
     }
+    files.forEach {
+      if (it.second.exists()) {
+        it.second.delete()
+      }
+    }
     MenuState(state.context, state.teacherId)
   }
 }
@@ -201,7 +212,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 object SolutionProvider {
   private var fileIndex = 0
 
-  fun getSolutionWithURL(fileURL: String): MultipartFile {
+  fun getSolutionWithURL(fileURL: String): Pair<MultipartFile, File> {
     val url: URL = URI(fileURL).toURL()
     val outputFileName: String = "solution_${fileIndex++}.${fileURL.substringAfterLast(".")}"
     val file = File(outputFileName)
@@ -214,6 +225,6 @@ object SolutionProvider {
       }
     }
 
-    return file.asMultipartFile()
+    return file.asMultipartFile() to file
   }
 }

@@ -214,7 +214,7 @@ object SolutionProvider {
 
   fun getSolutionWithURL(fileURL: String): Pair<MultipartFile, File> {
     val url: URL = URI(fileURL).toURL()
-    val outputFileName: String = "solution_${fileIndex++}.${fileURL.substringAfterLast(".")}"
+    val outputFileName: String = "solution${fileIndex++}.${fileURL.substringAfterLast(".")}"
     val file = File(outputFileName)
 
     url.openStream().use {

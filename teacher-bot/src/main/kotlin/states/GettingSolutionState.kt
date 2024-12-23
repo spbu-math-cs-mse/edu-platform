@@ -20,6 +20,7 @@ import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
+import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.ChatId
@@ -193,6 +194,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
           returnBack -> {
             delete(getSolution)
+          }
+        }
+      }
+      is ContentMessage<*> -> {
+        val message = response.content.textContentOrNull()?.text
+        if (message != null) {
+          if (message.endsWith("OK")) {
+            deleteMessage(getSolution)
+            core.assessSolution(
+              solution,
+              teacherId,
+              SolutionAssessment(1, message.dropLast(2).trim()),
+            )
           }
         }
       }

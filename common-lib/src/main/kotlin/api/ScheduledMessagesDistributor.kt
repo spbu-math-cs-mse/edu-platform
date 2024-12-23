@@ -1,10 +1,9 @@
 package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.Course
 import java.time.LocalDateTime
 
 data class ScheduledMessage(
-  val course: Course,
+  val courseId: CourseId,
   val date: LocalDateTime,
   val message: String,
 )
@@ -12,7 +11,7 @@ data class ScheduledMessage(
 interface ScheduledMessagesDistributor {
   fun addMessage(message: ScheduledMessage)
 
-  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage>
+  fun getUnsentMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage>
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime)
 }

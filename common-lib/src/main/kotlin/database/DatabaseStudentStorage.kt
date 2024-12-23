@@ -6,11 +6,8 @@ import com.github.heheteam.commonlib.database.tables.ParentStudents
 import com.github.heheteam.commonlib.database.tables.StudentTable
 import com.github.michaelbull.result.*
 import dev.inmo.tgbotapi.types.UserId
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseStudentStorage(
@@ -56,6 +53,7 @@ class DatabaseStudentStorage(
               studentId.toStudentId(),
               it[StudentTable.name],
               it[StudentTable.name],
+              it[StudentTable.tgId],
             )
           }.single()
       }
@@ -86,6 +84,7 @@ class DatabaseStudentStorage(
           studentId,
           row[StudentTable.name],
           row[StudentTable.surname],
+          row[StudentTable.tgId],
         ),
       )
     }
@@ -104,8 +103,21 @@ class DatabaseStudentStorage(
           row[StudentTable.id].value.toStudentId(),
           row[StudentTable.name],
           row[StudentTable.surname],
+          row[StudentTable.tgId],
         )
       }
     }
+  }
+
+  override fun updateTgId(
+    studentId: StudentId,
+    tgId: UserId,
+  ): Result<Unit, ResolveError<StudentId>> {
+    val updated = transaction {
+      StudentTable.update({ StudentTable.id eq studentId.id }) {
+        it[StudentTable.tgId] = tgId.chatId.long
+      }
+    }
+    return if (updated == 1) Ok(Unit) else Err(ResolveError(studentId))
   }
 }

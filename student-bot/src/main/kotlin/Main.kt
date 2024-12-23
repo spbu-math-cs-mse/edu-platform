@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
+import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.run.studentRun
 import dev.inmo.kslog.common.KSLog
@@ -65,6 +66,8 @@ suspend fun main(vararg args: String) {
       DatabaseGradeTable(database),
       notificationService,
       botEventBus,
+      InMemoryScheduledMessagesDistributor(),
+      studentStorage,
     )
 
   studentRun(botToken, studentStorage, core)

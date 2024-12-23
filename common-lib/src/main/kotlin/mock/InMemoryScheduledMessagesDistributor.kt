@@ -11,14 +11,14 @@ class InMemoryScheduledMessagesDistributor(
     messages[message] = false
   }
 
-  override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> {
+  override fun getUnsentMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> {
     val res = mutableListOf<ScheduledMessage>()
-    for (message in messages) {
-      if (!message.value && date.isAfter(message.key.date)) {
-        res.addLast(message.key)
+    for ((message, isSent) in messages) {
+      if (!isSent && date.isAfter(message.date)) {
+        res.addLast(message)
       }
     }
-    return res.toList()
+    return res
   }
 
   override fun markMessagesUpToDateAsSent(date: LocalDateTime) {

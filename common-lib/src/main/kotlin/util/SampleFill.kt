@@ -104,6 +104,7 @@ fun fillWithSamples(
     "Григорий" to "Лебедев",
     "Егор" to "Тихонов",
   ).map { teacherStorage.createTeacher(it.first, it.second) }
+    .forEach { coursesDistributor.addTeacherToCourse(it, realAnalysis) }
 
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

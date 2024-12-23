@@ -11,6 +11,7 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.*
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
+import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -20,6 +21,7 @@ import dev.inmo.tgbotapi.extensions.utils.mediaGroupContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.photoContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -29,6 +31,7 @@ import kotlinx.coroutines.flow.flowOf
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   core: StudentCore,
+  studentBotToken: String,
 ) {
   strictlyOn<SendSolutionState> { state ->
     val studentId = state.studentId
@@ -58,7 +61,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
     state.selectedCourse = course
 
-    var botMessage = bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
+    var botMessage = bot.send(
+      state.context,
+      Dialogues.tellValidSolutionTypes(),
+      replyMarkup = back(),
+    )
 
     while (true) {
       val content =
@@ -78,14 +85,25 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is CommonMessage<*>) {
         val messageId = content.messageId
 
-        val solutionContent = extractSolutionContent(content)
+        val solutionContent = extractSolutionContent(content, studentBotToken)
 
         if (solutionContent == null) {
           deleteMessage(botMessage)
-          botMessage = bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
+          botMessage = bot.send(
+            state.context,
+            Dialogues.tellSolutionTypeIsInvalid(),
+            replyMarkup = back(),
+          )
           continue
         }
-        core.inputSolution(studentId, state.context.id.chatId, messageId, solutionContent, problem.id)
+
+        core.inputSolution(
+          studentId,
+          state.context.id.chatId,
+          messageId,
+          solutionContent,
+          problem.id,
+        )
 
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
@@ -98,23 +116,45 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   }
 }
 
-private fun extractSolutionContent(content: CommonMessage<*>): SolutionContent? {
+suspend fun BehaviourContext.makeURL(
+  content: MediaContent,
+  studentBotToken: String,
+): String {
+  val contentInfo = bot.getFileAdditionalInfo(content)
+  return "https://api.telegram.org/file/bot$studentBotToken/${contentInfo.filePath}"
+}
+
+private suspend fun BehaviourContext.extractSolutionContent(
+  content: CommonMessage<*>,
+  studentBotToken: String,
+): SolutionContent? {
   val textSolution = content.content.textContentOrNull()
   val photoSolution = content.content.photoContentOrNull()
-  val photosSolution =
-    content.content.mediaGroupContentOrNull()?.group?.mapNotNull {
-      it.content.photoContentOrNull() ?: it.content.documentContentOrNull()
-    }
+  val groupSolution = content.content.mediaGroupContentOrNull()
   val documentSolution = content.content.documentContentOrNull()
 
   return if (textSolution != null) {
-    SolutionContent(text = textSolution.text)
+    return SolutionContent(text = textSolution.text, type = SolutionType.TEXT)
   } else if (photoSolution != null) {
-    SolutionContent(text = photoSolution.text, fileIds = listOf(photoSolution.media.fileId.fileId))
-  } else if (photosSolution != null) {
-    SolutionContent(text = photosSolution.first().text, fileIds = photosSolution.map { it.media.fileId.fileId })
+    SolutionContent(
+      filesURL = listOf(makeURL(photoSolution, studentBotToken)),
+      type = SolutionType.PHOTO,
+    )
   } else if (documentSolution != null) {
-    SolutionContent(text = documentSolution.text, fileIds = listOf(documentSolution.media.fileId.fileId))
+    SolutionContent(
+      filesURL = listOf(makeURL(documentSolution, studentBotToken)),
+      type = SolutionType.DOCUMENT,
+    )
+  } else if (groupSolution != null) {
+    SolutionContent(
+      filesURL = groupSolution.group.map {
+        makeURL(
+          it.content,
+          studentBotToken,
+        )
+      },
+      type = SolutionType.GROUP,
+    )
   } else {
     null
   }
@@ -125,9 +165,14 @@ private suspend fun BehaviourContext.queryCourse(
   courses: List<Course>,
 ): Course? {
   val message =
-    bot.send(state.context, Dialogues.askCourseForSolution(), replyMarkup = buildCoursesSendingSelector(courses))
+    bot.send(
+      state.context,
+      Dialogues.askCourseForSolution(),
+      replyMarkup = buildCoursesSendingSelector(courses),
+    )
 
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
+  val callbackData =
+    waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -160,7 +205,11 @@ private suspend fun BehaviourContext.queryProblem(
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {
-  val message = bot.send(state.context, Dialogues.tellToApplyForCourses(), replyMarkup = back())
+  val message = bot.send(
+    state.context,
+    Dialogues.tellToApplyForCourses(),
+    replyMarkup = back(),
+  )
   waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(message)
 }

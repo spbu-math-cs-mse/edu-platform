@@ -7,7 +7,9 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.states.SolutionProvider.getSolutionWithURL
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -17,9 +19,11 @@ import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
+import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
+import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.ChatId
-import dev.inmo.tgbotapi.types.media.TelegramMediaPhoto
+import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
@@ -27,6 +31,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URI
+import java.net.URL
+import java.nio.channels.Channels
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
@@ -37,10 +46,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
     val teacherId = state.teacherId
     val solution = core.querySolution(teacherId)
     if (solution == null) {
-      bot.send(
+      val reply = bot.send(
         state.context,
         noSolutionsToCheck(),
+        replyMarkup = returnBack(),
       )
+      waitDataCallbackQuery().first()
+      deleteMessage(reply)
       return@strictlyOn MenuState(state.context, state.teacherId)
     }
 
@@ -73,7 +85,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
     val getSolution: ContentMessage<*>
     var getMarkup: ContentMessage<*>? = null
-    when (solution.type) {
+    val files: MutableList<Pair<MultipartFile, File>> = mutableListOf()
+    when (solution.content.type!!) {
       SolutionType.TEXT ->
         getSolution =
           bot.send(
@@ -82,11 +95,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             replyMarkup = Keyboards.solutionMenu(),
           )
 
-      SolutionType.PHOTO ->
+      SolutionType.PHOTO -> {
+        files.add(getSolutionWithURL(solution.content.filesURL!!.first()))
         getSolution =
           bot.sendPhoto(
             state.context,
-            InputFile.fromId(solution.content.fileIds!![0]),
+            files.first().first,
             text =
             if (solution.content.text == null) {
               solutionInfo(student.value, assignment.value, problem.value)
@@ -96,20 +110,35 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             },
             replyMarkup = Keyboards.solutionMenu(),
           )
+      }
 
-      SolutionType.PHOTOS -> {
+      SolutionType.DOCUMENT -> {
+        files.add(getSolutionWithURL(solution.content.filesURL!!.first()))
+        getSolution =
+          bot.sendDocument(
+            state.context,
+            files.first().first,
+            text =
+            if (solution.content.text == null) {
+              solutionInfo(student.value, assignment.value, problem.value)
+            } else {
+              solution.content.text + "\n\n\n" +
+                solutionInfo(student.value, assignment.value, problem.value)
+            },
+            replyMarkup = Keyboards.solutionMenu(),
+          )
+      }
+
+      SolutionType.GROUP -> {
+        files.addAll(
+          solution.content.filesURL!!.map {
+            getSolutionWithURL(it)
+          },
+        )
         getSolution =
           bot.sendMediaGroup(
             state.context,
-            listOf(
-              TelegramMediaPhoto(
-                InputFile.fromId(solution.content.fileIds!![0]),
-                solution.content.text,
-              ),
-            ) +
-              solution.content.fileIds!!
-                .map { TelegramMediaPhoto(InputFile.fromId(it)) }
-                .drop(1),
+            files.map { TelegramMediaDocument(it.first) },
           )
         getMarkup = bot.send(
           state.context,
@@ -117,21 +146,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
           replyMarkup = Keyboards.solutionMenu(),
         )
       }
-
-      SolutionType.DOCUMENT ->
-        getSolution =
-          bot.sendDocument(
-            state.context,
-            InputFile.fromId(solution.content.fileIds!![0]),
-            text =
-            if (solution.content.text == null) {
-              solutionInfo(student.value, assignment.value, problem.value)
-            } else {
-              solution.content.text + "\n\n\n" +
-                solutionInfo(student.value, assignment.value, problem.value)
-            },
-            replyMarkup = Keyboards.solutionMenu(),
-          )
     }
 
     when (
@@ -177,15 +191,40 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             )
           }
 
-          Keyboards.returnBack -> {
+          returnBack -> {
             delete(getSolution)
-            if (getMarkup != null) {
-              delete(getMarkup)
-            }
           }
         }
       }
     }
+    if (getMarkup != null) {
+      delete(getMarkup)
+    }
+    files.forEach {
+      if (it.second.exists()) {
+        it.second.delete()
+      }
+    }
     MenuState(state.context, state.teacherId)
+  }
+}
+
+object SolutionProvider {
+  private var fileIndex = 0
+
+  fun getSolutionWithURL(fileURL: String): Pair<MultipartFile, File> {
+    val url: URL = URI(fileURL).toURL()
+    val outputFileName: String = "solution${fileIndex++}.${fileURL.substringAfterLast(".")}"
+    val file = File(outputFileName)
+
+    url.openStream().use {
+      Channels.newChannel(it).use { rbc ->
+        FileOutputStream(outputFileName).use { fos ->
+          fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
+        }
+      }
+    }
+
+    return file.asMultipartFile() to file
   }
 }

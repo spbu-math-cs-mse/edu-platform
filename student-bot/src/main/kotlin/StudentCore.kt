@@ -28,13 +28,30 @@ class StudentCore(
   ): List<Pair<Problem, Grade?>> {
     val grades =
       gradeTable
-        .getStudentPerformance(studentId, assignmentId, solutionDistributor)
+        .getStudentPerformance(studentId, listOf(assignmentId), solutionDistributor)
     val gradedProblems =
       problemStorage
         .getProblemsFromAssignment(assignmentId)
         .sortedBy { problem -> problem.number }
         .map { problem -> problem to grades[problem.id] }
     return gradedProblems
+  }
+
+  fun getTopGrades(
+    courseId: CourseId,
+  ): List<Int> {
+    val students = getStudentsFromCourse(courseId).map { it.id }
+    val assignments = getCourseAssignments(courseId).map { it.id }
+    val grades =
+      students
+        .map { studentId ->
+          gradeTable
+            .getStudentPerformance(studentId, assignments, solutionDistributor).values.sum()
+        }
+        .sortedDescending()
+        .take(5)
+        .filter { it != 0 }
+    return grades
   }
 
   fun getStudentCourses(studentId: StudentId): List<Course> =
@@ -97,4 +114,6 @@ class StudentCore(
       problem,
     )
   }
+
+  fun getStudentsFromCourse(courseId: CourseId) = coursesDistributor.getStudents(courseId)
 }

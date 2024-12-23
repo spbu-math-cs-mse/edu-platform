@@ -24,6 +24,7 @@ class DatabaseTeacherStorage(
 ) : TeacherStorage {
   init {
     transaction(database) {
+      SchemaUtils.create(TeacherTable)
       SchemaUtils.create(StudentTable)
       SchemaUtils.create(ParentStudents)
     }

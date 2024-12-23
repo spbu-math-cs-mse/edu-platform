@@ -136,7 +136,7 @@ class StudentBotTest {
           userId,
           chatId,
           MessageId(it.toLong()),
-          SolutionContent(text = "sample$it"),
+          SolutionContent(text = "sample$it", type = SolutionType.TEXT),
           createProblem(courseId),
         )
       }
@@ -160,7 +160,7 @@ class StudentBotTest {
     val firstSolutionResult = solutionDistributor.resolveSolution(solutions.first())
     assertTrue(firstSolutionResult.isOk)
     val firstSolution = firstSolutionResult.value
-    assertEquals(SolutionType.TEXT, firstSolution.type)
+    assertEquals(SolutionType.TEXT, firstSolution.content.type)
     assertEquals("sample0", firstSolution.content.text)
 
     val lastSolutionResult = solutionDistributor.resolveSolution(solutions.last())

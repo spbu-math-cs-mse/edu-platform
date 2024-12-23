@@ -32,13 +32,14 @@ class SolutionDistributionTest {
   @BeforeEach
   fun setup() {
     val config = loadConfig()
-
     val database = Database.connect(
       config.databaseConfig.url,
       config.databaseConfig.driver,
       config.databaseConfig.login,
       config.databaseConfig.password,
     )
+    reset(database)
+
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     teacherStatistics = InMemoryTeacherStatistics()
@@ -57,11 +58,6 @@ class SolutionDistributionTest {
         MockNotificationService(),
         MockBotEventBus(),
       )
-  }
-
-  @Test
-  fun `solution distribution with existing student and teacher test`() {
-    val teacherId = teacherStorage.createTeacher()
     teacherCore =
       TeacherCore(
         teacherStatistics,
@@ -73,6 +69,11 @@ class SolutionDistributionTest {
         assignmentStorage,
         studentStorage,
       )
+  }
+
+  @Test
+  fun `solution distribution with simple text`() {
+    val teacherId = teacherStorage.createTeacher()
 
     val studentId = studentStorage.createStudent()
     val chatId = RawChatId(studentId.id)
@@ -87,7 +88,7 @@ class SolutionDistributionTest {
       studentId,
       chatId,
       messageId,
-      SolutionContent(text = text),
+      SolutionContent(text = text, type = SolutionType.TEXT),
       problemId,
     )
 
@@ -128,45 +129,28 @@ class SolutionDistributionTest {
     assertNull(emptySolution)
   }
 
-  private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
-    val assignment =
-      assignmentStorage.createAssignment(
-        courseId,
-        "",
-        listOf(ProblemDescription("1", "", 1)),
-        problemStorage,
-      )
-    val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id
-    return problemId
-  }
-
-  @Ignore // because documents are not yet supported in database
   @Test
-  fun `solution distribution with new student test`() {
-    val teacherId = TeacherId(654L)
-    teacherCore =
-      TeacherCore(
-        teacherStatistics,
-        coursesDistributor,
-        solutionDistributor,
-        gradeTable,
-        problemStorage,
-        MockBotEventBus(),
-        assignmentStorage,
-        studentStorage,
-      )
+  fun `solution distribution with files`() {
+    val teacherId = teacherStorage.createTeacher()
 
-    val userId = studentStorage.createStudent()
-    val chatId = RawChatId(userId.id)
+    val studentId = studentStorage.createStudent()
+
+    val courseId = coursesDistributor.createCourse("")
+
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+
+    val chatId = RawChatId(studentId.id)
     val messageId = newMessageId()
-    val text = SolutionType.PHOTOS.toString()
-    val fileIds = listOf("2", "3", "4")
-    val problemId = createProblem()
+    val type = SolutionType.GROUP
+    val fileURL = listOf("url1", "url2", "url3")
+    val problemId = createProblem(courseId)
+
     studentCore.inputSolution(
-      userId,
+      studentId,
       chatId,
       messageId,
-      SolutionContent(fileIds = fileIds, text = text),
+      SolutionContent(filesURL = fileURL, type = type),
       problemId,
     )
 
@@ -175,16 +159,17 @@ class SolutionDistributionTest {
         solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
       )
     assertTrue(extractedSolutionResult.isOk)
+
     val extractedSolution = extractedSolutionResult.value
-    assertEquals(text, "PHOTOS")
+
     assertEquals(problemId, extractedSolution.problemId)
-//    assertEquals(SolutionType.PHOTOS, extractedSolution.type)
+    assertEquals(SolutionType.GROUP, extractedSolution.content.type)
     assertEquals(messageId, extractedSolution.messageId)
 
     val solution = teacherCore.querySolution(teacherId)
     assertNotNull(solution)
 
-    assertEquals(fileIds, solution.content.fileIds)
+    assertEquals(fileURL, solution.content.filesURL)
 
     teacherCore.assessSolution(
       solution,
@@ -196,124 +181,123 @@ class SolutionDistributionTest {
     assertNull(emptySolution)
   }
 
-  @Ignore // because documents are not yet supported
   @Test
-  fun `solution distribution with multiple test`() {
-    val teacherId = TeacherId(1337L)
-    val teacherId2 = TeacherId(1338L)
+  fun `complex solution distribution`() {
+    val teacherId1 = teacherStorage.createTeacher()
+    val teacherId2 = teacherStorage.createTeacher()
 
-    teacherCore =
-      TeacherCore(
-        teacherStatistics,
-        coursesDistributor,
-        solutionDistributor,
-        gradeTable,
-        problemStorage,
-        MockBotEventBus(),
-        assignmentStorage,
-        studentStorage,
-      )
+    val studentId1 = studentStorage.createStudent()
+    val studentId2 = studentStorage.createStudent()
 
-    val userId1 = studentStorage.createStudent()
+    val courseId1 = coursesDistributor.createCourse("course 1")
+    val courseId2 = coursesDistributor.createCourse("course 2")
+
+    coursesDistributor.addTeacherToCourse(teacherId1, courseId1)
+    coursesDistributor.addTeacherToCourse(teacherId2, courseId2)
+    coursesDistributor.addStudentToCourse(studentId1, courseId1)
+    coursesDistributor.addStudentToCourse(studentId2, courseId2)
+
     var id = 10L
     val chatId1 = RawChatId(88)
-    val fileIds1 = listOf("8")
+    val chatId2 = RawChatId(96)
+
     // send (text="solution{id++}) x3, then document
     run {
       repeat(3) {
         val messageId = MessageId(id)
         val text = "solution ${id++}"
         studentCore.inputSolution(
-          userId1,
+          studentId1,
           chatId1,
           messageId,
-          SolutionContent(text = text),
-          createProblem(),
+          SolutionContent(text = text, type = SolutionType.TEXT),
+          createProblem(courseId1),
         )
       }
+
+      val fileURL2 = listOf("url1")
       studentCore.inputSolution(
-        userId1,
-        chatId1,
+        studentId2,
+        chatId2,
         MessageId(101),
         SolutionContent(
-          fileIds = fileIds1,
-          text = SolutionType.DOCUMENT.toString(),
+          filesURL = fileURL2,
+          text = "this is document",
+          type = SolutionType.DOCUMENT,
         ),
-        createProblem(),
+        createProblem(courseId2),
       )
     }
 
-    val solution1 = teacherCore.querySolution(teacherId2)
-    println(solution1?.content)
-    assertNotNull(solution1)
+    val solution1from1 = teacherCore.querySolution(teacherId1)
+    assertNotNull(solution1from1)
     teacherCore.assessSolution(
-      solution1,
-      teacherId,
+      solution1from1,
+      teacherId1,
       SolutionAssessment(2, "bad"),
     )
 
-    val solution2 = teacherCore.querySolution(teacherId2)
-    assertNotNull(solution2)
+    val solution1from2 = teacherCore.querySolution(teacherId2)
+    assertNotNull(solution1from2)
 
-    assertEquals("solution 11", solution2.content.text)
-    assertEquals(SolutionId(2L), solution2.id)
+    assertEquals(listOf("url1"), solution1from2.content.filesURL)
+    assertEquals(SolutionId(4L), solution1from2.id)
 
     teacherCore.assessSolution(
-      solution2,
+      solution1from2,
       teacherId2,
       SolutionAssessment(3, "ok"),
     )
 
-    val userId2 = studentStorage.createStudent()
-    val chatId2 = RawChatId(90)
-    val messageId2 = MessageId(203)
-    val text2 = "another solution"
-
     run {
       studentCore.inputSolution(
-        userId2,
+        studentId2,
         chatId2,
-        messageId2,
-        SolutionContent(text = text2),
-        createProblem(),
+        MessageId(107),
+        SolutionContent(text = "this is solution from student 2!", type = SolutionType.TEXT),
+        createProblem(courseId2),
       )
     }
 
-    val solution3 = teacherCore.querySolution(teacherId)
-    assertNotNull(solution3)
+    val solution2from1 = teacherCore.querySolution(teacherId1)
+    assertNotNull(solution2from1)
+    assertEquals("solution 11", solution2from1.content.text)
 
-//    assertNull(solution3.content.fileIds)
-    assertEquals(chatId1, solution3.chatId)
+    val solution2from2 = teacherCore.querySolution(teacherId2)
+    assertNotNull(solution2from2)
+    assertNotNull(solution2from2.content.text)
+    assertTrue(!solution2from2.content.text!!.startsWith("solution"))
 
     teacherCore.assessSolution(
-      solution3,
-      teacherId,
+      solution2from1,
+      teacherId1,
       SolutionAssessment(4, "good"),
     )
 
-    val solution4 = teacherCore.querySolution(teacherId)
-    assertNotNull(solution4)
-    assertEquals("DOCUMENT", solution4.type.toString())
-
-    assertEquals(fileIds1, solution4.content.fileIds)
-
     teacherCore.assessSolution(
-      solution4,
-      teacherId,
-      SolutionAssessment(4, "good"),
-    )
-
-    val solution5 = teacherCore.querySolution(teacherId2)
-    assertNotNull(solution5)
-
-    assertNotEquals(userId1, solution5.studentId)
-    assertEquals(text2, solution5.content.text)
-    assertEquals(messageId2, solution5.messageId)
-
-    teacherCore.assessSolution(
-      solution5,
+      solution2from2,
       teacherId2,
-      SolutionAssessment(5, "great!"),
+      SolutionAssessment(4, "good"),
     )
+
+    val empty = teacherCore.querySolution(teacherId2)
+    assertNull(empty)
+
+    val solution3from1 = teacherCore.querySolution(teacherId1)
+    assertNotNull(solution3from1)
+    assertEquals("solution 12", solution3from1.content.text)
+    assertEquals(SolutionType.TEXT, solution3from1.content.type)
+  }
+
+  private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
+    val assignment =
+      assignmentStorage.createAssignment(
+        courseId,
+        "",
+        listOf(ProblemDescription("1", "", 1)),
+        problemStorage,
+      )
+    val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id
+    return problemId
   }
 }

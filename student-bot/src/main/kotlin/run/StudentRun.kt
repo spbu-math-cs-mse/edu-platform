@@ -56,7 +56,7 @@ suspend fun studentRun(
     strictlyOnMenuState()
     strictlyOnViewState(core)
     strictlyOnSignUpState(core)
-    strictlyOnSendSolutionState(core)
+    strictlyOnSendSolutionState(core, botToken)
     strictlyOnCheckGradesState(core)
     strictlyOnPresetStudentState(core)
 

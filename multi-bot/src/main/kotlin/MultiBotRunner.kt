@@ -9,6 +9,10 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
+import com.github.heheteam.commonlib.facades.GradeTableFacade
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
@@ -46,18 +50,32 @@ class MultiBotRunner : CliktCommand() {
       config.databaseConfig.password,
     )
 
-    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val assignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database)
     val solutionDistributor: SolutionDistributor =
       DatabaseSolutionDistributor(database)
-    val gradeTable: GradeTable = DatabaseGradeTable(database)
+    val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val inMemoryTeacherStatistics: TeacherStatistics =
       InMemoryTeacherStatistics()
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
+
+    val googleSheetsService =
+      GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
+    val ratingRecorder = GoogleSheetsRatingRecorder(
+      googleSheetsService,
+      databaseCoursesDistributor,
+      assignmentStorage,
+      problemStorage,
+      databaseGradeTable,
+      solutionDistributor,
+    )
+
+    val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+    val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
 
     val studentStorage = DatabaseStudentStorage(database)
     fillWithSamples(
@@ -78,7 +96,7 @@ class MultiBotRunner : CliktCommand() {
         }
     }
     val notificationService = StudentNotificationService(bot)
-    val botEventBus = RedisBotEventBus()
+    val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
     val studentCore =
       StudentCore(
         solutionDistributor,

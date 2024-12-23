@@ -47,7 +47,7 @@ suspend fun main(vararg args: String) {
   val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
   val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
   val teacherStatistics = InMemoryTeacherStatistics()
-  val botEventBus = RedisBotEventBus()
+  val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
 
   fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
 

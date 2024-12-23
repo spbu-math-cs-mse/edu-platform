@@ -9,15 +9,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPubSub
 
 class RedisBotEventBus(
-  private val redisHost: String = "localhost",
-  private val redisPort: Int = 6379,
+  private val redisHost: String,
+  private val redisPort: Int,
 ) : BotEventBus {
   private val jedis = Jedis(redisHost, redisPort)
   private val channel = "grade_events"

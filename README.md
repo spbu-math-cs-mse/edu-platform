@@ -21,6 +21,10 @@
     "driver": "org.postgresql.Driver",
     "login": "<login>",
     "password": "<password>"
+  },
+  "redisConfig" : {
+    "host": "localhost",
+    "port": "6379"
   }
 }
 ```

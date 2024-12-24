@@ -2,7 +2,7 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
-import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
+import com.github.heheteam.commonlib.facades.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
@@ -43,7 +43,7 @@ suspend fun main(vararg args: String) {
     databaseGradeTable,
     solutionDistributor,
   )
-  val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
+  val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
   val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
 
   val bot = telegramBot(botToken) {

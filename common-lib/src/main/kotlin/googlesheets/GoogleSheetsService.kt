@@ -26,7 +26,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
 
   private fun createCourseSheet(course: Course) {
     val addSheetRequest = AddSheetRequest().setProperties(
-      com.google.api.services.sheets.v4.model.SheetProperties().setTitle(course.name),
+      SheetProperties().setTitle(course.name),
     )
 
     val batchUpdateRequest = BatchUpdateSpreadsheetRequest().setRequests(
@@ -173,7 +173,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
         },
 
       // Column widths
-      listOf(null, null, null) + List<Int?>(sortedProblems.size) { 40 },
+      listOf(30, null, null) + List<Int?>(sortedProblems.size) { 40 },
     )
   }
 }

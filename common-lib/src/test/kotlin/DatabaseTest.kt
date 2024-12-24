@@ -92,7 +92,6 @@ class DatabaseTest {
         solution.id,
         teacher1Id,
         SolutionAssessment(1, "comment"),
-        gradeTable,
         teacherStatistics,
       )
     }
@@ -103,7 +102,6 @@ class DatabaseTest {
         solution.id,
         teacher1Id,
         SolutionAssessment(0, "comment"),
-        gradeTable,
         teacherStatistics,
       )
     }

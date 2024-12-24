@@ -9,8 +9,8 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.*
 import com.github.heheteam.commonlib.database.*
-import com.github.heheteam.commonlib.facades.CoursesDistributorFacade
-import com.github.heheteam.commonlib.facades.GradeTableFacade
+import com.github.heheteam.commonlib.facades.CoursesDistributorDecorator
+import com.github.heheteam.commonlib.facades.GradeTableDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
@@ -74,8 +74,8 @@ class MultiBotRunner : CliktCommand() {
       solutionDistributor,
     )
 
-    val coursesDistributor = CoursesDistributorFacade(databaseCoursesDistributor, ratingRecorder)
-    val gradeTable = GradeTableFacade(databaseGradeTable, ratingRecorder)
+    val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
+    val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
 
     val studentStorage = DatabaseStudentStorage(database)
     fillWithSamples(

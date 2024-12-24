@@ -149,7 +149,6 @@ class StudentBotTest {
             solution.id,
             teacherId,
             SolutionAssessment(5, "comment"),
-            gradeTable,
             InMemoryTeacherStatistics(),
             LocalDateTime.now(),
           )

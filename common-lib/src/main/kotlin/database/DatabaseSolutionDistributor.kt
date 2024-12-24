@@ -95,7 +95,7 @@ class DatabaseSolutionDistributor(
           .selectAll()
           .where {
             AssessmentTable.id.isNull() and (CourseTable.id inList courses)
-          }
+          }.orderBy(SolutionTable.timestamp)
           .firstOrNull()
           ?: return@transaction Ok(null)
 

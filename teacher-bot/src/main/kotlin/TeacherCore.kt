@@ -38,7 +38,6 @@ class TeacherCore(
       solution.id,
       teacherId,
       assessment,
-      gradeTable,
       teacherStatistics,
       timestamp,
     )

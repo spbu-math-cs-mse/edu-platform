@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.api.*
 import com.github.michaelbull.result.Result
 
-class CoursesDistributorFacade(
+class CoursesDistributorDecorator(
   private val coursesDistributor: CoursesDistributor,
   private val ratingRecorder: RatingRecorder,
 ) : CoursesDistributor {

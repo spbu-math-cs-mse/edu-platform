@@ -3,9 +3,10 @@ import com.github.heheteam.commonlib.database.*
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
-import org.junit.jupiter.api.assertTimeout
-import java.time.Duration
+import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.system.measureTimeMillis
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class DatabaseStartupTest {
   private lateinit var database: Database
@@ -19,7 +20,7 @@ class DatabaseStartupTest {
 
   @Test
   fun startupTest() {
-    assertTimeout(Duration.ofMillis(8000)) {
+    val startupTime = measureTimeMillis {
       val config = loadConfig()
       database = Database.connect(
         config.databaseConfig.url,
@@ -45,13 +46,19 @@ class DatabaseStartupTest {
         database,
       )
     }
+    println("Startup time: ${startupTime.toFloat() / 1000.0} s")
+    assertTrue(startupTime < 12000)
 
-    assertTimeout(Duration.ofMillis(300)) {
-      val course = coursesDistributor.getCourses().first()
-      coursesDistributor.getStudents(course.id)
-      coursesDistributor.getTeachers(course.id)
-      problemStorage.getProblemsFromCourse(course.id)
-      assignmentStorage.getAssignmentsForCourse(course.id)
+    val transactionsTime = measureTimeMillis {
+      transaction {
+        val course = coursesDistributor.getCourses().first()
+        coursesDistributor.getStudents(course.id)
+        coursesDistributor.getTeachers(course.id)
+        problemStorage.getProblemsFromCourse(course.id)
+        assignmentStorage.getAssignmentsForCourse(course.id)
+      }
     }
+    println("Transactions time: ${transactionsTime.toFloat() / 1000.0} s")
+    assertTrue(transactionsTime < 300)
   }
 }

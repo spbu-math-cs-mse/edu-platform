@@ -28,7 +28,6 @@ interface GradeTable {
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    gradeTable: GradeTable,
     teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime = LocalDateTime.now(),
   )

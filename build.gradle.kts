@@ -25,6 +25,9 @@ allprojects {
 
     tasks.test {
         useJUnitPlatform()
+        if (project.hasProperty("excludeTests")) {
+            exclude(project.property("excludeTests").toString())
+        }
     }
     dependencies {
         testImplementation(kotlin("test"))

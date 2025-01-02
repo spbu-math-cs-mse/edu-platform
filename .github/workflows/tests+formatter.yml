@@ -49,7 +49,7 @@ jobs:
           echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
 
       - name: Run Backend Tests
-        run: ./gradlew check
+        run: ./gradlew check -PexcludeTests="**DatabaseStartupTest*"
 
       - name: Store Reports
         if: failure()

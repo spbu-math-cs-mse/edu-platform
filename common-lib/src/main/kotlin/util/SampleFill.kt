@@ -10,15 +10,15 @@ fun generateCourse(
   coursesDistributor: CoursesDistributor,
   assignmentStorage: AssignmentStorage,
   problemStorage: ProblemStorage,
-  assignmentsPerCourse: Int = 1,
-  problemsPerAssignment: Int = 4,
+  assignmentsPerCourse: Int = 2,
+  problemsPerAssignment: Int = 5,
 ): CourseId {
   val courseId = coursesDistributor.createCourse(name)
-  (0..assignmentsPerCourse).map { assgnNum ->
+  (1..assignmentsPerCourse).map { assgnNum ->
     assignmentStorage.createAssignment(
       courseId,
       "assignment $courseId.$assgnNum",
-      (0..problemsPerAssignment).map { ProblemDescription("p$courseId.$assgnNum.$it", "", 1) },
+      (1..problemsPerAssignment).map { ProblemDescription("$assgnNum.$it", "", 1) },
       problemStorage,
     )
   }
@@ -69,7 +69,7 @@ fun fillWithSamples(
     "Анна" to "Смирнова",
     "Иван" to "Кузнецов",
     "Елена" to "Попова",
-    "Виктор" to "Семенов",
+    "Андрей" to "Семенов",
     "Ольга" to "Соколова",
     "Андрей" to "Михайлов",
     "Николай" to "Васильев",
@@ -101,9 +101,11 @@ fun fillWithSamples(
   println("first student is ${studentStorage.resolveStudent(students.first())}")
 
   listOf(
-    "Григорий" to "Лебедев",
+    "Павел" to "Мозоляко",
     "Егор" to "Тихонов",
   ).map { teacherStorage.createTeacher(it.first, it.second) }
+
+  coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
 
   return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
 }

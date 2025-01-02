@@ -10,19 +10,16 @@ import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.states.SolutionProvider.getSolutionWithURL
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
-import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
-import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
@@ -157,14 +154,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
         val command = response.data
         when (command) {
           Keyboards.goodSolution -> {
-            try {
-              bot.reply(
-                ChatId(solution.chatId),
-                solution.messageId,
-                "good",
-              )
-            } catch (e: CommonRequestException) {
-            }
             deleteMessage(getSolution)
             // TODO extract from maxscore of a problem
             core.assessSolution(
@@ -175,14 +164,6 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
           }
 
           Keyboards.badSolution -> {
-            try {
-              bot.reply(
-                ChatId(solution.chatId),
-                solution.messageId,
-                "bad",
-              )
-            } catch (e: CommonRequestException) {
-            }
             deleteMessage(getSolution)
             core.assessSolution(
               solution,
@@ -214,7 +195,7 @@ object SolutionProvider {
 
   fun getSolutionWithURL(fileURL: String): Pair<MultipartFile, File> {
     val url: URL = URI(fileURL).toURL()
-    val outputFileName: String = "solution${fileIndex++}.${fileURL.substringAfterLast(".")}"
+    val outputFileName = "solution${fileIndex++}.${fileURL.substringAfterLast(".")}"
     val file = File(outputFileName)
 
     url.openStream().use {

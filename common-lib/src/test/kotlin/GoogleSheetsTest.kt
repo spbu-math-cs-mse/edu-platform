@@ -96,7 +96,6 @@ class GoogleSheetsTest {
         solution.get()!!.id,
         teacher1Id,
         SolutionAssessment(solutionId % 2, "comment"),
-        gradeTable,
         teacherStatistics,
       )
     }

@@ -25,7 +25,9 @@ class StudentNotificationService(
     }
 
     val message = buildString {
-      append("Ваше решение задачи ${problem.number}, серия ${problem.assignmentId} (id задачи: ${problem.id}) проверено!\n")
+      append(
+        "Ваше решение задачи ${problem.number}, серия ${problem.assignmentId} (id задачи: ${problem.id}) проверено!\n"
+      )
       append("Оценка: $emoji ${assessment.grade}/${problem.maxScore}\n")
       if (assessment.comment.isNotEmpty()) {
         append("Комментарий преподавателя: ${assessment.comment}")

@@ -46,4 +46,4 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCourseInfoState(core: Adm
     deleteMessage(statsMessage)
     MenuState(state.context)
   }
-} 
+}

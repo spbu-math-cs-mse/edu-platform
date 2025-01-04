@@ -645,7 +645,7 @@ style:
     active: false
   MultilineRawStringIndentation:
     active: false
-    indentSize: 4
+    indentSize: 2
     trimmingMethods:
       - 'trimIndent'
       - 'trimMargin'
@@ -793,14 +793,14 @@ formatting:
   AnnotationOnSeparateLine:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   AnnotationSpacing:
     active: true
     autoCorrect: true
   ArgumentListWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
     maxLineLength: 120
   BlockCommentInitialStarAlignment:
     active: true
@@ -808,7 +808,7 @@ formatting:
   ChainWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   ClassName:
     active: false
   CommentSpacing:
@@ -817,12 +817,12 @@ formatting:
   CommentWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   ContextReceiverMapping:
     active: false
     autoCorrect: true
     maxLineLength: 120
-    indentSize: 4
+    indentSize: 2
   DiscouragedCommentLocation:
     active: false
     autoCorrect: true
@@ -832,7 +832,7 @@ formatting:
   EnumWrapping:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   Filename:
     active: true
   FinalNewline:
@@ -854,7 +854,7 @@ formatting:
     forceMultilineWhenParameterCountGreaterOrEqualThan: 2147483647
     functionBodyExpressionWrapping: 'default'
     maxLineLength: 120
-    indentSize: 4
+    indentSize: 2
   FunctionStartOfBodySpacing:
     active: true
     autoCorrect: true
@@ -864,11 +864,11 @@ formatting:
   IfElseBracing:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   IfElseWrapping:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   ImportOrdering:
     active: true
     autoCorrect: true
@@ -876,11 +876,11 @@ formatting:
   Indentation:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   KdocWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   MaximumLineLength:
     active: true
     maxLineLength: 120
@@ -894,11 +894,11 @@ formatting:
   MultiLineIfElse:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   MultilineExpressionWrapping:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   NoBlankLineBeforeRbrace:
     active: true
     autoCorrect: true
@@ -919,7 +919,7 @@ formatting:
   NoEmptyFirstLineInClassBody:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   NoEmptyFirstLineInMethodBlock:
     active: true
     autoCorrect: true
@@ -938,7 +938,7 @@ formatting:
   NoSingleLineBlockComment:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   NoTrailingSpaces:
     active: true
     autoCorrect: true
@@ -964,18 +964,18 @@ formatting:
     active: true
     autoCorrect: true
     maxLineLength: 120
-    indentSize: 4
+    indentSize: 2
   ParameterWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
     maxLineLength: 120
   PropertyName:
     active: false
   PropertyWrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
     maxLineLength: 120
   SpacingAroundAngleBrackets:
     active: true
@@ -1025,7 +1025,7 @@ formatting:
   StringTemplateIndent:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   TrailingCommaOnCallSite:
     active: false
     autoCorrect: true
@@ -1037,20 +1037,20 @@ formatting:
   TryCatchFinallySpacing:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   TypeArgumentListSpacing:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   TypeParameterListSpacing:
     active: false
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
   UnnecessaryParenthesesBeforeTrailingLambda:
     active: true
     autoCorrect: true
   Wrapping:
     active: true
     autoCorrect: true
-    indentSize: 4
+    indentSize: 2
     maxLineLength: 120

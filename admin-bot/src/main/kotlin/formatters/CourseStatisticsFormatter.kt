@@ -53,4 +53,4 @@ object CourseStatisticsFormatter {
       }
     }
   }
-} 
+}

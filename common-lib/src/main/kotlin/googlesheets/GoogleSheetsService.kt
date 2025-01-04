@@ -117,9 +117,13 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     listOf(
       Request().setUpdateCells(
         UpdateCellsRequest()
-          .setRange(gridRange(sheetId, rowIndex, rowIndex + 1, 0, row.fold(0) { acc, cell -> acc + cell.width }))
+          .setRange(
+            gridRange(sheetId, rowIndex, rowIndex + 1, 0, row.fold(0) { acc, cell -> acc + cell.width })
+          )
           .setRows(listOf(RowData().setValues(rowExtended.map { it.toCellData() })))
-          .setFields("userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"),
+          .setFields(
+            "userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"
+          ),
       ),
     )
   }

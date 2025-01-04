@@ -58,11 +58,34 @@ class DatabaseTest {
     coursesDistributor.addTeacherToCourse(teacher1Id, course2Id)
 
     val assignment1Id =
-      assignmentStorage.createAssignment(course1Id, "assignment 1", listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1), ProblemDescription("p3", "", 1)), problemStorage)
+      assignmentStorage.createAssignment(
+        course1Id,
+        "assignment 1",
+        listOf(
+          ProblemDescription("p1", "", 1),
+          ProblemDescription("p2", "", 1),
+          ProblemDescription("p3", "", 1)
+        ),
+        problemStorage
+      )
     val assignment2Id =
-      assignmentStorage.createAssignment(course1Id, "assignment 2", listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1), ProblemDescription("p3", "", 1)), problemStorage)
+      assignmentStorage.createAssignment(
+        course1Id,
+        "assignment 2",
+        listOf(
+          ProblemDescription("p1", "", 1),
+          ProblemDescription("p2", "", 1),
+          ProblemDescription("p3", "", 1)
+        ),
+        problemStorage
+      )
     val assignment3Id =
-      assignmentStorage.createAssignment(course2Id, "assignment 3", listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)), problemStorage)
+      assignmentStorage.createAssignment(
+        course2Id,
+        "assignment 3",
+        listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)),
+        problemStorage
+      )
 
     for (problemId in 1..8) {
       solutionDistributor.inputSolution(
@@ -106,11 +129,20 @@ class DatabaseTest {
       )
     }
     val gradesS1A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 1)
-    assertEquals(gradesS1A1, gradeTable.getStudentPerformance(student1Id, listOf(assignment1Id), solutionDistributor))
+    assertEquals(
+      gradesS1A1,
+      gradeTable.getStudentPerformance(student1Id, listOf(assignment1Id), solutionDistributor)
+    )
     val gradesS1A2 = mapOf(ProblemId(4) to 1, ProblemId(5) to 1, ProblemId(6) to 1)
-    assertEquals(gradesS1A2, gradeTable.getStudentPerformance(student1Id, listOf(assignment2Id), solutionDistributor))
+    assertEquals(
+      gradesS1A2,
+      gradeTable.getStudentPerformance(student1Id, listOf(assignment2Id), solutionDistributor)
+    )
     val gradesS1A3 = mapOf(ProblemId(7) to 1, ProblemId(8) to 1)
-    assertEquals(gradesS1A3, gradeTable.getStudentPerformance(student1Id, listOf(assignment3Id), solutionDistributor))
+    assertEquals(
+      gradesS1A3,
+      gradeTable.getStudentPerformance(student1Id, listOf(assignment3Id), solutionDistributor)
+    )
 
     assertEquals(
       gradesS1A1 + gradesS1A2 + gradesS1A3,
@@ -118,11 +150,20 @@ class DatabaseTest {
     )
 
     val gradesS2A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 0)
-    assertEquals(gradesS2A1, gradeTable.getStudentPerformance(student2Id, listOf(assignment1Id), solutionDistributor))
+    assertEquals(
+      gradesS2A1,
+      gradeTable.getStudentPerformance(student2Id, listOf(assignment1Id), solutionDistributor)
+    )
     val gradesS2A2 = mapOf(ProblemId(4) to 0)
-    assertEquals(gradesS2A2, gradeTable.getStudentPerformance(student2Id, listOf(assignment2Id), solutionDistributor))
+    assertEquals(
+      gradesS2A2,
+      gradeTable.getStudentPerformance(student2Id, listOf(assignment2Id), solutionDistributor)
+    )
     val gradesS2A3 = mapOf<ProblemId, Grade>()
-    assertEquals(gradesS2A3, gradeTable.getStudentPerformance(student2Id, listOf(assignment3Id), solutionDistributor))
+    assertEquals(
+      gradesS2A3,
+      gradeTable.getStudentPerformance(student2Id, listOf(assignment3Id), solutionDistributor)
+    )
 
     assertEquals(
       gradesS2A1 + gradesS2A2 + gradesS2A3,

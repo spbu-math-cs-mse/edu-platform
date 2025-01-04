@@ -202,7 +202,9 @@ internal fun parseProblemsDescriptions(
       else -> {
         val maxScore = arguments.elementAtOrElse(2) { "1" }.toIntOrNull()
           ?: return Err(incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
-        problemsDescriptions.add(ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore))
+        problemsDescriptions.add(
+          ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore)
+        )
       }
     }
   }

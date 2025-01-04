@@ -13,7 +13,8 @@ class InMemoryTeacherStatistics : TeacherStatistics {
     val solutionReviewed: LocalDateTime,
   )
 
-  private val teacherStats: MutableMap<TeacherId, MutableList<SolutionReview>> = mutableMapOf()
+  private val teacherStats: MutableMap<TeacherId, MutableList<SolutionReview>> =
+    mutableMapOf()
   private var uncheckedSolutions = 0
 
   override fun recordNewSolution(solutionId: SolutionId) {
@@ -38,11 +39,30 @@ class InMemoryTeacherStatistics : TeacherStatistics {
   }
 
   override fun resolveTeacherStats(teacherId: TeacherId): Result<TeacherStatsData, ResolveError<TeacherId>> {
-    val assessments = teacherStats[teacherId] ?: return Err(ResolveError(teacherId, TeacherStatistics::class.simpleName))
+    val assessments = teacherStats[teacherId] ?: return Err(
+      ResolveError(
+        teacherId,
+        TeacherStatistics::class.simpleName
+      )
+    )
 
     val totalAssessments = assessments.size
-    val lastAssessment = assessments.maxByOrNull { it.solutionReviewed } ?: return Err(ResolveError(teacherId, TeacherStatistics::class.simpleName))
-    val firstAssessment = assessments.minByOrNull { it.solutionReviewed } ?: return Err(ResolveError(teacherId, TeacherStatistics::class.simpleName))
+    val lastAssessment = assessments.maxByOrNull {
+      it.solutionReviewed
+    } ?: return Err(
+      ResolveError(
+        teacherId,
+        TeacherStatistics::class.simpleName
+      )
+    )
+    val firstAssessment = assessments.minByOrNull {
+      it.solutionReviewed
+    } ?: return Err(
+      ResolveError(
+        teacherId,
+        TeacherStatistics::class.simpleName
+      )
+    )
 
     val averagePerDay =
       totalAssessments / (
@@ -54,7 +74,8 @@ class InMemoryTeacherStatistics : TeacherStatistics {
 
     val averageCheckTime =
       assessments.sumOf {
-        ChronoUnit.SECONDS.between(it.solutionSent, it.solutionReviewed).toDouble() / assessments.size
+        ChronoUnit.SECONDS.between(it.solutionSent, it.solutionReviewed)
+          .toDouble() / assessments.size
       }
 
     return Ok(
@@ -90,6 +111,11 @@ class InMemoryTeacherStatistics : TeacherStatistics {
 
   fun addMockFilling(teacherId: TeacherId) {
     teacherStats.getOrPut(teacherId) { mutableListOf() }
-      .add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
+      .add(
+        SolutionReview(
+          LocalDateTime.now().minusHours(2),
+          LocalDateTime.now()
+        )
+      )
   }
 }

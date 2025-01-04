@@ -147,7 +147,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
     when (
       val response =
-        flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge()
+        flowOf(
+          waitDataCallbackQueryWithUser(state.context.id),
+          waitTextMessageWithUser(state.context.id)
+        ).flattenMerge()
           .first()
     ) {
       is DataCallbackQuery -> {

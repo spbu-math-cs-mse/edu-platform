@@ -73,7 +73,12 @@ class DatabaseProblemStorage(
 
   override fun getProblemsFromCourse(courseId: CourseId): List<Problem> = transaction(database) {
     ProblemTable
-      .join(AssignmentTable, JoinType.INNER, onColumn = ProblemTable.assignmentId, otherColumn = AssignmentTable.id)
+      .join(
+        AssignmentTable,
+        JoinType.INNER,
+        onColumn = ProblemTable.assignmentId,
+        otherColumn = AssignmentTable.id
+      )
       .selectAll()
       .where(AssignmentTable.courseId eq courseId.id)
       .map {

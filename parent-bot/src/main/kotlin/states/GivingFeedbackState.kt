@@ -25,7 +25,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
         replyMarkup = Keyboards.returnBack(),
       )
 
-    when (val response = flowOf(waitDataCallbackQueryWithUser(state.context.id), waitTextMessageWithUser(state.context.id)).flattenMerge().first()) {
+    when (
+      val response = flowOf(
+        waitDataCallbackQueryWithUser(state.context.id),
+        waitTextMessageWithUser(state.context.id)
+      ).flattenMerge().first()
+    ) {
       is DataCallbackQuery -> {
         val command = response.data
         if (command == Keyboards.returnBack) {
@@ -35,7 +40,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
 
       is CommonMessage<*> -> {
         val feedback = response.content
-        println("Feedback by user @${state.context.username}: \n\"$feedback\"") // TODO: implement receiving feedback
+        println(
+          "Feedback by user @${state.context.username}: \n\"$feedback\""
+        ) // TODO: implement receiving feedback
 
         bot.sendSticker(
           state.context,

@@ -21,4 +21,4 @@ class MockBotEventBus : BotEventBus {
   override fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit) {
     // Do nothing
   }
-} 
+}

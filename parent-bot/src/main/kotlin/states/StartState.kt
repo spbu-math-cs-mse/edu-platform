@@ -47,7 +47,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
-        val parentIdFromText = waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let { ParentId(it) }
+        val parentIdFromText = waitTextMessageWithUser(
+          state.context.id
+        ).first().content.text.toLongOrNull()?.let {
+          ParentId(it)
+        }
         if (parentIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue

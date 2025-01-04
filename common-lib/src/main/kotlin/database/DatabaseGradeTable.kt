@@ -3,7 +3,10 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.tables.*
+import com.github.heheteam.commonlib.database.tables.AssessmentTable
+import com.github.heheteam.commonlib.database.tables.AssignmentTable
+import com.github.heheteam.commonlib.database.tables.ProblemTable
+import com.github.heheteam.commonlib.database.tables.SolutionTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -67,7 +70,12 @@ class DatabaseGradeTable(
         onColumn = AssessmentTable.solutionId,
         otherColumn = SolutionTable.id,
       ).join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
-      .join(AssignmentTable, JoinType.INNER, onColumn = ProblemTable.assignmentId, otherColumn = AssignmentTable.id)
+      .join(
+        AssignmentTable,
+        JoinType.INNER,
+        onColumn = ProblemTable.assignmentId,
+        otherColumn = AssignmentTable.id
+      )
       .selectAll()
       .where {
         (AssignmentTable.courseId eq courseId.id) and

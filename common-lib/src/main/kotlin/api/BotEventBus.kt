@@ -15,4 +15,4 @@ interface BotEventBus {
   )
 
   fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit)
-} 
+}

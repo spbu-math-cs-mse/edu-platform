@@ -11,5 +11,8 @@ class ParentCore(
 ) {
   fun getChildren(parentId: ParentId): List<Student> = studentStorage.getChildren(parentId)
 
-  fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
+  fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(
+    studentId,
+    solutionDistributor
+  )
 }

@@ -16,4 +16,4 @@ data class CourseStatistics(
   val students: List<Student>,
   val teachers: List<Teacher>,
   val assignments: List<Assignment>,
-) 
+)

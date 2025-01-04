@@ -1,7 +1,22 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.*
-import com.github.heheteam.commonlib.api.*
+import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.api.AssignmentId
+import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.BotEventBus
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.NotificationService
+import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.StudentId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 

@@ -1,7 +1,17 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.api.*
-import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.RedisBotEventBus
+import com.github.heheteam.commonlib.api.StudentNotificationService
+import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.facades.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService

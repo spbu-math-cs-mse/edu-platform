@@ -1,6 +1,10 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -9,7 +13,10 @@ import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.*
+import com.github.heheteam.studentbot.metaData.ButtonKey
+import com.github.heheteam.studentbot.metaData.back
+import com.github.heheteam.studentbot.metaData.buildCoursesSendingSelector
+import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker

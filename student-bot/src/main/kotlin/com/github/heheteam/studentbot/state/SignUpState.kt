@@ -5,7 +5,9 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.*
+import com.github.heheteam.studentbot.metaData.ButtonKey
+import com.github.heheteam.studentbot.metaData.back
+import com.github.heheteam.studentbot.metaData.buildCoursesSelector
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send

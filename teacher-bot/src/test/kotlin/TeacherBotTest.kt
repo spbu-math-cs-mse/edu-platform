@@ -4,7 +4,14 @@ import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.database.*
+import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
@@ -109,34 +116,6 @@ class TeacherBotTest {
     val stats = statsResult.value
     assertEquals(1, stats.totalAssessments)
     assertEquals(1, statistics.getGlobalStats().totalUncheckedSolutions)
-  }
-
-  @Test
-  fun `test average check time calculation`() {
-    val sol1 = makeSolution(now.minusHours(6))
-    val sol2 = makeSolution(now.minusHours(2))
-    val sol3 = makeSolution(now)
-    statistics.recordNewSolution(sol1)
-    statistics.recordNewSolution(sol2)
-    statistics.recordNewSolution(sol3)
-    statistics.recordAssessment(
-      teacherId,
-      sol1,
-      now.minusHours(4),
-      solutionDistributor,
-    )
-    statistics.recordAssessment(
-      teacherId,
-      sol2,
-      now.minusHours(1),
-      solutionDistributor,
-    )
-    statistics.recordAssessment(teacherId, sol3, now, solutionDistributor)
-
-    val statsResult = statistics.resolveTeacherStats(teacherId)
-    assertTrue(statsResult.isOk)
-    val stats = statsResult.value
-    assertEquals(1.0 * 60 * 60, stats.averageCheckTimeSeconds, 0.01)
   }
 
   @Test

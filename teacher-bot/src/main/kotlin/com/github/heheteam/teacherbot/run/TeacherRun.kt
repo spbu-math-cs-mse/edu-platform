@@ -5,7 +5,12 @@ import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.teacherbot.TeacherCore
 import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.state.strictlyOnPresetTeacherState
-import com.github.heheteam.teacherbot.states.*
+import com.github.heheteam.teacherbot.states.BotState
+import com.github.heheteam.teacherbot.states.PresetTeacherState
+import com.github.heheteam.teacherbot.states.StartState
+import com.github.heheteam.teacherbot.states.strictlyOnGettingSolutionState
+import com.github.heheteam.teacherbot.states.strictlyOnMenuState
+import com.github.heheteam.teacherbot.states.strictlyOnStartState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter

@@ -1,6 +1,8 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {

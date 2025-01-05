@@ -1,0 +1,530 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
+    <ID>CyclomaticComplexMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState( core: TeacherCore, )</ID>
+    <ID>CyclomaticComplexMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>ExplicitItLambdaParameter:GoogleSheetsService.kt$GoogleSheetsService${ index, it -&gt; if (index == sortedProblems.size - 1 || sortedProblems[index].assignmentId != sortedProblems[index + 1].assignmentId) { it.rightBorder() } it }</ID>
+    <ID>ForbiddenComment:EditDescriptionState.kt$// state.course.name = answer TODO: implement this feature</ID>
+    <ID>ForbiddenComment:GivingFeedbackState.kt$// TODO: implement receiving feedback</ID>
+    <ID>ForbiddenComment:TeacherCore.kt$TeacherCore$// TODO: this needs to be fixed properly</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$CheckGradesState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$DevStartState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$MenuState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$PresetStudentState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$SendSolutionState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$SignUpState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$StartState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$ViewState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$AddScheduledMessageState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$AddStudentState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$AddTeacherState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$CheckGradesState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$ChildPerformanceState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$CourseInfoState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$CreateAssignmentState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$CreateCourseState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$EditCourseState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$EditDescriptionState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$GetProblemsState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$GetTeachersState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$GettingSolutionState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$GivingFeedbackState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$MenuState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$PresetTeacherState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$RemoveStudentState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$RemoveTeacherState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$StartState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:Config.kt$Config</ID>
+    <ID>ForbiddenPublicDataClass:CourseStatistics.kt$CourseStatistics</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Assignment</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Course</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Parent</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Problem</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$ProblemDescription</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Solution</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$SolutionAssessment</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$SolutionContent</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Student</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Teacher</ID>
+    <ID>ForbiddenPublicDataClass:DatabaseConfig.kt$DatabaseConfig</ID>
+    <ID>ForbiddenPublicDataClass:DeveloperOptions.kt$DeveloperOptions</ID>
+    <ID>ForbiddenPublicDataClass:Errors.kt$BindError&lt;T, U&gt;</ID>
+    <ID>ForbiddenPublicDataClass:Errors.kt$DeleteError&lt;T&gt;</ID>
+    <ID>ForbiddenPublicDataClass:Errors.kt$ResolveError&lt;T : Any&gt;</ID>
+    <ID>ForbiddenPublicDataClass:GoogleSheetsConfig.kt$GoogleSheetsConfig</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$AdminId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$AssignmentId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$CourseId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$ParentId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$ProblemId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$SolutionId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$StudentId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$TeacherId</ID>
+    <ID>ForbiddenPublicDataClass:RedisConfig.kt$RedisConfig</ID>
+    <ID>ForbiddenPublicDataClass:ScheduledMessagesDistributor.kt$ScheduledMessage</ID>
+    <ID>ForbiddenPublicDataClass:TeacherStatistics.kt$GlobalTeacherStats</ID>
+    <ID>ForbiddenPublicDataClass:TeacherStatistics.kt$TeacherStatsData</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun acceptFeedback(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askAssignmentDescription(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourse(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourseForSolution(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askIdentifier(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askProblem(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentDescriptionIsNotText(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentWasCreatedSuccessfully(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun incorrectProblemDescriptionEmpty(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noCoursesWasFound(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noCoursesWasFoundForCreationOfAssignment(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noIdInInput(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noSolutionsToCheck(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun problemsDescriptionsAreNotTexts(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionNotSent(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionSent(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellSolutionIsSent(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellToApplyForCourses(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellValidSolutionTypes(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun testSendSolution(): String</ID>
+    <ID>FunctionOnlyReturningConstant:TeacherCore.kt$TeacherCore$fun getMaxGrade(): Grade</ID>
+    <ID>InvalidPackageDeclaration:AdminIdRegistry.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:AdminTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:AssessmentTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:AssignmentStorage.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:AssignmentTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:BotEventBus.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:CallbackWithUser.kt$package com.github.heheteam.commonlib.util</ID>
+    <ID>InvalidPackageDeclaration:CheckGradesState.kt$package com.github.heheteam.teacherbot.state</ID>
+    <ID>InvalidPackageDeclaration:ComposedTable.kt$package com.github.heheteam.commonlib.googlesheets</ID>
+    <ID>InvalidPackageDeclaration:Config.kt$package com.github.heheteam.commonlib</ID>
+    <ID>InvalidPackageDeclaration:CourseStudents.kt$package com.github.heheteam.commonlib.database.table</ID>
+    <ID>InvalidPackageDeclaration:CourseTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:CourseTeachers.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:CoursesDistributor.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:CoursesDistributorDecorator.kt$package com.github.heheteam.commonlib.facades</ID>
+    <ID>InvalidPackageDeclaration:Data.kt$package com.github.heheteam.commonlib</ID>
+    <ID>InvalidPackageDeclaration:DatabaseAssignmentStorage.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DatabaseConfig.kt$package com.github.heheteam.commonlib</ID>
+    <ID>InvalidPackageDeclaration:DatabaseCoursesDistributor.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DatabaseGradeTable.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DatabaseProblemStorage.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DatabaseSolutionDistributor.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DatabaseStudentStorage.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DatabaseTeacherStorage.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:DeveloperOptions.kt$package com.github.heheteam.commonlib.util</ID>
+    <ID>InvalidPackageDeclaration:Errors.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:FormattedCell.kt$package com.github.heheteam.commonlib.googlesheets</ID>
+    <ID>InvalidPackageDeclaration:GoogleSheetsConfig.kt$package com.github.heheteam.commonlib</ID>
+    <ID>InvalidPackageDeclaration:GoogleSheetsRatingRecorder.kt$package com.github.heheteam.commonlib.googlesheets</ID>
+    <ID>InvalidPackageDeclaration:GoogleSheetsService.kt$package com.github.heheteam.commonlib.googlesheets</ID>
+    <ID>InvalidPackageDeclaration:GradeTable.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:GradeTableDecorator.kt$package com.github.heheteam.commonlib.facades</ID>
+    <ID>InvalidPackageDeclaration:Id.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:InMemoryScheduledMessagesDistributor.kt$package com.github.heheteam.commonlib.mock</ID>
+    <ID>InvalidPackageDeclaration:InMemoryTeacherStatistics.kt$package com.github.heheteam.commonlib.mock</ID>
+    <ID>InvalidPackageDeclaration:Init.kt$package com.github.heheteam.commonlib.database</ID>
+    <ID>InvalidPackageDeclaration:MessageCleanup.kt$package com.github.heheteam.commonlib.util</ID>
+    <ID>InvalidPackageDeclaration:MockAdminIdRegistry.kt$package com.github.heheteam.commonlib.mock</ID>
+    <ID>InvalidPackageDeclaration:MockBotEventBus.kt$package com.github.heheteam.commonlib.mock</ID>
+    <ID>InvalidPackageDeclaration:MockNotificationService.kt$package com.github.heheteam.commonlib.mock</ID>
+    <ID>InvalidPackageDeclaration:MockParentStorage.kt$package com.github.heheteam.commonlib.mock</ID>
+    <ID>InvalidPackageDeclaration:NotificationService.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:ParentStorage.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:ParentStudents.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:ParentTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:PresetTeacherState.kt$package com.github.heheteam.teacherbot.state</ID>
+    <ID>InvalidPackageDeclaration:ProblemStorage.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:ProblemTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:RatingRecorder.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:RedisBotEventBus.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:RedisConfig.kt$package com.github.heheteam.commonlib</ID>
+    <ID>InvalidPackageDeclaration:SampleFill.kt$package com.github.heheteam.commonlib.util</ID>
+    <ID>InvalidPackageDeclaration:ScheduledMessagesDistributor.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:SolutionDistributionTest.kt$package com.github.heheteam.commonlib</ID>
+    <ID>InvalidPackageDeclaration:SolutionDistributor.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:SolutionTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:StudentNotificationService.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:StudentStorage.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:StudentTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>InvalidPackageDeclaration:TeacherStatistics.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:TeacherStorage.kt$package com.github.heheteam.commonlib.api</ID>
+    <ID>InvalidPackageDeclaration:TeacherTable.kt$package com.github.heheteam.commonlib.database.tables</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AddScheduledMessageState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddScheduledMessageState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AddStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddStudentState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AddTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddTeacherState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminBotTest.kt$AdminBotTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminCore.kt$AdminCore</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminIdRegistry.kt$AdminIdRegistry</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun( botToken: String, core: AdminCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AssignmentStorage.kt$AssignmentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotEventBus.kt$BotEventBus</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$BotState : State</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$CheckGradesState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$DevStartState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$MenuState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$PresetStudentState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$SendSolutionState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$SignUpState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$StartState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$ViewState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddScheduledMessageState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddStudentState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddTeacherState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$BotState : State</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CheckGradesState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$ChildPerformanceState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CourseInfoState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CreateAssignmentState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CreateCourseState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$EditCourseState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$EditDescriptionState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GetProblemsState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GetTeachersState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GettingSolutionState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GivingFeedbackState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$MenuState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$PresetTeacherState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$RemoveStudentState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$RemoveTeacherState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$StartState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitDataCallbackQueryWithUser(chatId: ChatId): Flow&lt;DataCallbackQuery&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitDocumentMessageWithUser(chatId: ChatId): Flow&lt;CommonMessage&lt;DocumentContent&gt;&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitMediaMessageWithUser(chatId: ChatId): Flow&lt;CommonMessage&lt;MediaContent&gt;&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitTextMessageWithUser(chatId: ChatId): Flow&lt;CommonMessage&lt;TextContent&gt;&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState( core: StudentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Grade&gt;.withTopGradesToText()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Pair&lt;Problem, Grade?&gt;&gt;.withGradesToText()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Pair&lt;StudentId, Grade?&gt;&gt;.withGradesToText(maxGrade: Grade)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ChildPerformanceState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnChildPerformanceState( core: ParentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Config.kt$Config</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Config.kt$fun loadConfig(): Config</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CourseInfoState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCourseInfoState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CourseStatistics.kt$CourseStatistics</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CoursesDistributor.kt$CoursesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CoursesDistributorDecorator.kt$CoursesDistributorDecorator : CoursesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CreateAssignmentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCreateAssignmentState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CreateCourseState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCreateCourseState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Assignment</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Course</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Parent</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Problem</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$ProblemDescription</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Solution</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$SolutionAssessment</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$SolutionContent</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$SolutionType</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Student</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Teacher</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$typealias Grade = Int</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseAssignmentStorage.kt$DatabaseAssignmentStorage : AssignmentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseConfig.kt$DatabaseConfig</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor : CoursesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseGradeTable.kt$DatabaseGradeTable : GradeTable</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseProblemStorage.kt$DatabaseProblemStorage : ProblemStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor : SolutionDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseStartupTest.kt$DatabaseStartupTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseStudentStorage.kt$DatabaseStudentStorage : StudentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseTeacherStorage.kt$DatabaseTeacherStorage : TeacherStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseTest.kt$DatabaseTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DateTime.kt$fun toRussian(d: DayOfWeek): String</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DevStartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnDeveloperStartState( studentStorage: StudentStorage, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DeveloperOptions.kt$DeveloperOptions</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:EditCourseState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnEditCourseState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:EditDescriptionState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnEditDescriptionState()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$BindError&lt;T, U&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$DeleteError&lt;T&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$ResolveError&lt;T : Any&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$SolutionResolveError</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$TeacherDoesNotExist : SolutionResolveError</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:FormattedCell.kt$DataType</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GetProblemsState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGetProblemsState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GetTeachersState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGetTeachersState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GivingFeedbackState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGivingFeedbackState()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsConfig.kt$GoogleSheetsConfig</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsRatingRecorder.kt$GoogleSheetsRatingRecorder : RatingRecorder</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsService.kt$GoogleSheetsService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsTest.kt$GoogleSheetsTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GradeTable.kt$GradeTable</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GradeTableDecorator.kt$GradeTableDecorator : GradeTable</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$AdminId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$AssignmentId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$CourseId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$ParentId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$ProblemId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$SolutionId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$StudentId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$TeacherId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toAssignmentId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toCourseId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toProblemId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toSolutionId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toStudentId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toTeacherId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:InMemoryScheduledMessagesDistributor.kt$InMemoryScheduledMessagesDistributor : ScheduledMessagesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:InMemoryTeacherStatistics.kt$InMemoryTeacherStatistics : TeacherStatistics</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Init.kt$fun Transaction.fillWithMockData()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Init.kt$fun main(args: Array&lt;String&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Init.kt$fun reset(database: Database)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun back()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildCoursesSelector(availableCourses: List&lt;Pair&lt;Course, Boolean&gt;&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildCoursesSendingSelector(availableCourses: List&lt;Course&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildProblemSendingSelector(availableProblems: Map&lt;Assignment, List&lt;Problem&gt;&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun menuKeyboard()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$fun main(vararg args: String)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$suspend fun main(vararg args: String)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState( core: ParentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MessageCleanup.kt$suspend fun &lt;R&gt; BehaviourContext.withMessageCleanup( message: ContentMessage&lt;*&gt;, f: suspend BehaviourContext.() -&gt; R, ): R</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockAdminIdRegistry.kt$MockAdminIdRegistry : AdminIdRegistry</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockBotEventBus.kt$MockBotEventBus : BotEventBus</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockNotificationService.kt$MockNotificationService : NotificationService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockParentStorage.kt$MockParentStorage : ParentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MultiBotRunner.kt$MultiBotRunner : CliktCommand</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:NotificationService.kt$NotificationService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ParentCore.kt$ParentCore</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ParentRun.kt$@OptIn(RiskFeature::class) suspend fun parentRun( botToken: String, parentStorage: ParentStorage, core: ParentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ParentStorage.kt$ParentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:PresetStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetStudentState(core: StudentCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:PresetTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetTeacherState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ProblemStorage.kt$ProblemStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ProcessingStringIds.kt$fun processStringIds(stringIds: List&lt;String&gt;): Result&lt;List&lt;Long&gt;, String&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RatingRecorder.kt$RatingRecorder</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RedisBotEventBus.kt$RedisBotEventBus : BotEventBus</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RedisConfig.kt$RedisConfig</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RemoveStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnRemoveStudentState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RemoveTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnRemoveTeacherState(core: AdminCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SampleFill.kt$fun fillWithSamples( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, ): List&lt;CourseId&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SampleFill.kt$fun generateCourse( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, ): CourseId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ScheduledMessagesDistributor.kt$ScheduledMessage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ScheduledMessagesDistributor.kt$ScheduledMessagesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$suspend fun BehaviourContext.makeURL( content: MediaContent, studentBotToken: String, ): String</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$SigningUpState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSignUpState( core: StudentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SolutionDistributionTest.kt$SolutionDistributionTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SolutionDistributor.kt$SolutionDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( studentStorage: StudentStorage, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentBotTest.kt$StudentBotTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentCore.kt$StudentCore</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentNotificationService.kt$StudentNotificationService : NotificationService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentRun.kt$@OptIn(RiskFeature::class) suspend fun studentRun( botToken: String, studentStorage: StudentStorage, core: StudentCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentStorage.kt$StudentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherBotTest.kt$TeacherBotTest</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherCore.kt$TeacherCore</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherRun.kt$@OptIn(RiskFeature::class) suspend fun teacherRun( botToken: String, teacherStorage: TeacherStorage, core: TeacherCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStatistics.kt$GlobalTeacherStats</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStatistics.kt$TeacherStatistics</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStatistics.kt$TeacherStatsData</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStorage.kt$TeacherStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ViewState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnViewState( core: StudentCore, )</ID>
+    <ID>LongMethod:AddScheduledMessageState.kt$private fun keyboardWithDates(): InlineKeyboardMarkup</ID>
+    <ID>LongMethod:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun( botToken: String, core: AdminCore, )</ID>
+    <ID>LongMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
+    <ID>LongMethod:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$override fun querySolution( teacherId: TeacherId, gradeTable: GradeTable, ): Result&lt;Solution?, SolutionResolveError&gt;</ID>
+    <ID>LongMethod:DatabaseTest.kt$DatabaseTest$@Test fun `student performance works`()</ID>
+    <ID>LongMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState( core: TeacherCore, )</ID>
+    <ID>LongMethod:GoogleSheetsTest.kt$GoogleSheetsTest$@Test fun `update rating works`()</ID>
+    <ID>LongMethod:InMemoryTeacherStatistics.kt$InMemoryTeacherStatistics$override fun resolveTeacherStats(teacherId: TeacherId): Result&lt;TeacherStatsData, ResolveError&lt;TeacherId&gt;&gt;</ID>
+    <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
+    <ID>LongMethod:MultiBotRunner.kt$MultiBotRunner$override fun run()</ID>
+    <ID>LongMethod:SampleFill.kt$fun fillWithSamples( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, ): List&lt;CourseId&gt;</ID>
+    <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
+    <ID>LongMethod:SolutionDistributionTest.kt$SolutionDistributionTest$@Test fun `complex solution distribution`()</ID>
+    <ID>LongMethod:SolutionDistributionTest.kt$SolutionDistributionTest$@Test fun `solution distribution with simple text`()</ID>
+    <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>LongMethod:StudentBotTest.kt$StudentBotTest$@Test fun `send solution test`()</ID>
+    <ID>LongParameterList:AdminCore.kt$AdminCore$( private val scheduledMessagesDistributor: ScheduledMessagesDistributor, private val coursesDistributor: CoursesDistributor, private val studentStorage: StudentStorage, private val teacherStorage: TeacherStorage, private val assignmentStorage: AssignmentStorage, private val problemStorage: ProblemStorage, private val solutionDistributor: SolutionDistributor, )</ID>
+    <ID>LongParameterList:SampleFill.kt$( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, )</ID>
+    <ID>LongParameterList:SampleFill.kt$( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, )</ID>
+    <ID>LongParameterList:SolutionDistributor.kt$SolutionDistributor$( studentId: StudentId, chatId: RawChatId, messageId: MessageId, solutionContent: SolutionContent, problemId: ProblemId, timestamp: LocalDateTime = LocalDateTime.now(), )</ID>
+    <ID>LongParameterList:StudentCore.kt$StudentCore$( private val solutionDistributor: SolutionDistributor, private val coursesDistributor: CoursesDistributor, private val problemStorage: ProblemStorage, private val assignmentStorage: AssignmentStorage, private val gradeTable: GradeTable, private val notificationService: NotificationService, private val botEventBus: BotEventBus, )</ID>
+    <ID>LongParameterList:TeacherCore.kt$TeacherCore$( private val teacherStatistics: TeacherStatistics, private val coursesDistributor: CoursesDistributor, private val solutionDistributor: SolutionDistributor, private val gradeTable: GradeTable, private val problemStorage: ProblemStorage, private val botEventBus: BotEventBus, private val assignmentStorage: AssignmentStorage, private val studentStorage: StudentStorage, )</ID>
+    <ID>LoopWithTooManyJumpStatements:AddStudentState.kt$while</ID>
+    <ID>LoopWithTooManyJumpStatements:AddTeacherState.kt$while</ID>
+    <ID>LoopWithTooManyJumpStatements:CreateAssignmentState.kt$while</ID>
+    <ID>LoopWithTooManyJumpStatements:RemoveStudentState.kt$while</ID>
+    <ID>LoopWithTooManyJumpStatements:RemoveTeacherState.kt$while</ID>
+    <ID>LoopWithTooManyJumpStatements:SendSolutionState.kt$while</ID>
+    <ID>LoopWithTooManyJumpStatements:StartState.kt$while</ID>
+    <ID>MagicNumber:AddScheduledMessageState.kt$3</ID>
+    <ID>MagicNumber:AddScheduledMessageState.kt$4</ID>
+    <ID>MagicNumber:AddScheduledMessageState.kt$5</ID>
+    <ID>MagicNumber:AddScheduledMessageState.kt$6</ID>
+    <ID>MagicNumber:AdminTable.kt$AdminTable$255</ID>
+    <ID>MagicNumber:AssignmentTable.kt$AssignmentTable$100</ID>
+    <ID>MagicNumber:CourseTable.kt$CourseTable$255</ID>
+    <ID>MagicNumber:CreateAssignmentState.kt$3</ID>
+    <ID>MagicNumber:DateTime.kt$3</ID>
+    <ID>MagicNumber:DateTime.kt$4</ID>
+    <ID>MagicNumber:DateTime.kt$5</ID>
+    <ID>MagicNumber:DateTime.kt$6</ID>
+    <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$3</ID>
+    <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$30</ID>
+    <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$40</ID>
+    <ID>MagicNumber:Init.kt$3</ID>
+    <ID>MagicNumber:MenuState.kt$60</ID>
+    <ID>MagicNumber:ParentTable.kt$ParentTable$255</ID>
+    <ID>MagicNumber:ProblemTable.kt$ProblemTable$64</ID>
+    <ID>MagicNumber:SampleFill.kt$10</ID>
+    <ID>MagicNumber:SampleFill.kt$5</ID>
+    <ID>MagicNumber:SolutionTable.kt$SolutionTable$10</ID>
+    <ID>MagicNumber:SolutionTable.kt$SolutionTable$200</ID>
+    <ID>MagicNumber:StudentCore.kt$StudentCore$5</ID>
+    <ID>MagicNumber:StudentTable.kt$StudentTable$255</ID>
+    <ID>MagicNumber:TeacherTable.kt$TeacherTable$255</ID>
+    <ID>MaxLineLength:AddStudentState.kt$"Введите ID учеников (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
+    <ID>MaxLineLength:AddTeacherState.kt$+"Введите ID преподавателей (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
+    <ID>MaxLineLength:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }</ID>
+    <ID>MaxLineLength:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }</ID>
+    <ID>MaxLineLength:Dialogues.kt$Dialogues$"Некорректный формат ввода (обнаружена строчка ($problemDescription) с более, чем 3-мя аргументами). Попробуйте ещё раз!"</ID>
+    <ID>MaxLineLength:Dialogues.kt$Dialogues$fun oneIdAlreadyDoesNotExistForStudentRemoving(id: Long, courseName: String): String</ID>
+    <ID>MaxLineLength:Dialogues.kt$Dialogues$fun oneIdAlreadyDoesNotExistForTeacherRemoving(id: Long, courseName: String): String</ID>
+    <ID>MaxLineLength:Dialogues.kt$Dialogues$fun oneIdAlreadyExistsForTeacherAddition(id: Long, courseName: String): String</ID>
+    <ID>MaxLineLength:GoogleSheetsService.kt$GoogleSheetsService$"userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"</ID>
+    <ID>MaxLineLength:GoogleSheetsService.kt$GoogleSheetsService$if</ID>
+    <ID>MaxLineLength:MockBotEventBus.kt$MockBotEventBus$override</ID>
+    <ID>MaxLineLength:RedisBotEventBus.kt$RedisBotEventBus$override</ID>
+    <ID>MaxLineLength:RemoveStudentState.kt$+"Введите ID учеников (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
+    <ID>MaxLineLength:RemoveTeacherState.kt$+"Введите ID преподавателей (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
+    <ID>MaximumLineLength:AddStudentState.kt$ </ID>
+    <ID>MaximumLineLength:AddTeacherState.kt$ </ID>
+    <ID>MaximumLineLength:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$ </ID>
+    <ID>MaximumLineLength:Dialogues.kt$Dialogues$ </ID>
+    <ID>MaximumLineLength:GoogleSheetsService.kt$GoogleSheetsService$ </ID>
+    <ID>MaximumLineLength:MockBotEventBus.kt$MockBotEventBus$ </ID>
+    <ID>MaximumLineLength:RedisBotEventBus.kt$RedisBotEventBus$ </ID>
+    <ID>MaximumLineLength:RemoveStudentState.kt$ </ID>
+    <ID>MaximumLineLength:RemoveTeacherState.kt$ </ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val addScheduledMessage = "add scheduled message"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val addStudent = "add a student"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val addTeacher = "add a teacher"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val badSolution = "Неправильное решение"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val checkGrades = "checkGrades"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val courseId = "courseId"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val courseInfo = "course info"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val createAssignment = "create assignment"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val createCourse = "create course"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val editDescription = "edit description"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val getProblems = "get problems"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val getSolution = "Получить решение"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val getTeachers = "get teachers"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val giveFeedback = "Дать обратную связь"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val goodSolution = "Правильное решение"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val petDog = "Почесать таксе пузо"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val removeStudent = "remove a student"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val removeTeacher = "remove a teacher"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
+    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState, ): String?</ID>
+    <ID>NestedBlockDepth:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
+    <ID>NoConsecutiveBlankLines:Dialogues.kt$ </ID>
+    <ID>NoWildcardImports:AdminBotTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>NoWildcardImports:AdminBotTest.kt$import kotlin.test.*</ID>
+    <ID>NoWildcardImports:AdminCore.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:AdminRun.kt$import com.github.heheteam.adminbot.states.*</ID>
+    <ID>NoWildcardImports:CoursesDistributorDecorator.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:Data.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseAssignmentStorage.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseCoursesDistributor.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseCoursesDistributor.kt$import com.github.michaelbull.result.*</ID>
+    <ID>NoWildcardImports:DatabaseCoursesDistributor.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>NoWildcardImports:DatabaseGradeTable.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseGradeTable.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>NoWildcardImports:DatabaseProblemStorage.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseProblemStorage.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>NoWildcardImports:DatabaseSolutionDistributor.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseSolutionDistributor.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>NoWildcardImports:DatabaseStartupTest.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseStartupTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>NoWildcardImports:DatabaseStudentStorage.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:DatabaseStudentStorage.kt$import com.github.michaelbull.result.*</ID>
+    <ID>NoWildcardImports:DatabaseTest.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>NoWildcardImports:DatabaseTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>NoWildcardImports:DatabaseTest.kt$import kotlin.test.*</ID>
+    <ID>NoWildcardImports:FormattedCell.kt$import com.google.api.services.sheets.v4.model.*</ID>
+    <ID>NoWildcardImports:GoogleSheetsRatingRecorder.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:GoogleSheetsService.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>NoWildcardImports:GoogleSheetsService.kt$import com.google.api.services.sheets.v4.model.*</ID>
+    <ID>NoWildcardImports:GoogleSheetsTest.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>NoWildcardImports:GoogleSheetsTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>NoWildcardImports:GradeTable.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>NoWildcardImports:GradeTableDecorator.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:InMemoryTeacherStatistics.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:Init.kt$import com.github.heheteam.commonlib.database.tables.*</ID>
+    <ID>NoWildcardImports:Main.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:Main.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>NoWildcardImports:ParentCore.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:ParentRun.kt$import com.github.heheteam.parentbot.states.*</ID>
+    <ID>NoWildcardImports:SampleFill.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:SolutionDistributionTest.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>NoWildcardImports:SolutionDistributionTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>NoWildcardImports:SolutionDistributionTest.kt$import kotlin.test.*</ID>
+    <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser(state: AddScheduledMessageState): LocalDate?</ID>
+    <ID>ReturnCount:CreateAssignmentState.kt$internal fun parseProblemsDescriptions( problemsDescriptionsFromText: String, ): Result&lt;List&lt;ProblemDescription&gt;, String&gt;</ID>
+    <ID>SpreadOperator:Init.kt$(*allTables)</ID>
+    <ID>SwallowedException:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:RedisBotEventBus.kt$RedisBotEventBus$e: Exception</ID>
+    <ID>TooManyFunctions:AdminCore.kt$AdminCore</ID>
+    <ID>TooManyFunctions:CoursesDistributor.kt$CoursesDistributor</ID>
+    <ID>TooManyFunctions:CoursesDistributorDecorator.kt$CoursesDistributorDecorator : CoursesDistributor</ID>
+    <ID>TooManyFunctions:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor : CoursesDistributor</ID>
+    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
+    <ID>TooManyFunctions:StudentCore.kt$StudentCore</ID>
+    <ID>WildcardImport:AdminBotTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>WildcardImport:AdminBotTest.kt$import kotlin.test.*</ID>
+    <ID>WildcardImport:AdminCore.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:AdminRun.kt$import com.github.heheteam.adminbot.states.*</ID>
+    <ID>WildcardImport:CoursesDistributorDecorator.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:Data.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseAssignmentStorage.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseCoursesDistributor.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseCoursesDistributor.kt$import com.github.michaelbull.result.*</ID>
+    <ID>WildcardImport:DatabaseCoursesDistributor.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>WildcardImport:DatabaseGradeTable.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseGradeTable.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>WildcardImport:DatabaseProblemStorage.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseProblemStorage.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>WildcardImport:DatabaseSolutionDistributor.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseSolutionDistributor.kt$import org.jetbrains.exposed.sql.*</ID>
+    <ID>WildcardImport:DatabaseStartupTest.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseStartupTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>WildcardImport:DatabaseStudentStorage.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:DatabaseStudentStorage.kt$import com.github.michaelbull.result.*</ID>
+    <ID>WildcardImport:DatabaseTest.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>WildcardImport:DatabaseTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>WildcardImport:DatabaseTest.kt$import kotlin.test.*</ID>
+    <ID>WildcardImport:FormattedCell.kt$import com.google.api.services.sheets.v4.model.*</ID>
+    <ID>WildcardImport:GoogleSheetsRatingRecorder.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:GoogleSheetsService.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>WildcardImport:GoogleSheetsService.kt$import com.google.api.services.sheets.v4.model.*</ID>
+    <ID>WildcardImport:GoogleSheetsTest.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>WildcardImport:GoogleSheetsTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>WildcardImport:GradeTable.kt$import com.github.heheteam.commonlib.*</ID>
+    <ID>WildcardImport:GradeTableDecorator.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:InMemoryTeacherStatistics.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:Init.kt$import com.github.heheteam.commonlib.database.tables.*</ID>
+    <ID>WildcardImport:Main.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:Main.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>WildcardImport:ParentCore.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:ParentRun.kt$import com.github.heheteam.parentbot.states.*</ID>
+    <ID>WildcardImport:SampleFill.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:SolutionDistributionTest.kt$import com.github.heheteam.commonlib.api.*</ID>
+    <ID>WildcardImport:SolutionDistributionTest.kt$import com.github.heheteam.commonlib.database.*</ID>
+    <ID>WildcardImport:SolutionDistributionTest.kt$import kotlin.test.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

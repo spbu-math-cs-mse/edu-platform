@@ -46,29 +46,16 @@
 }
 
 ```
-Схема базы данных:
-```
-Teacher(tgId)
-Student(tgId)
-Course(description: varchar)
-Assignment(description: varchar, courseId)
-Problem(description: varchar, maxScore: integer, assignmentId)
-Solution(
-    studentId, 
-    problemId, 
-    chatId: integer, 
-    messageId: integer, 
-    content: varchar, 
-    timestamp: datetime
-)
-Assessment(
-    solutionId,
-    teacherId,
-    grade: integer,
-    timestamp: datetime
-)
 
-CourseStudent(courseId, studentId)
-CourseTeacher(courseId, teacherId)
 
-```
+## Detekt
+
+В проекте используется [detekt](https://detekt.dev), утилита для статического анализа кода на Kotlin.
+В каждом подмодуле определены gradle функции `detektMain` и `detektTest`, которые и отвечают за статический анализ и форматирование; их можно запускать для локальной проверки и они же запускаются на CI. 
+Не используйте другие таски с именем `detekt` в них.
+
+Конфигурационный файл лежит в [config/detekt/detekt.yml](config/detekt/detekt.yml), этим файлом пользуются все подмодули.
+
+Чтобы отформатировать код, нужно запустить gradle таски `detektMain/Test` с флагом `--auto-correct`.
+
+Файлы `detekt-baseline-.*` в подмодулях содержат старые ошибки, которые будут со временем исправлять, но пока они игнорируются. **Их не надо изменять руками и без хорошей на то причины**. Подробнее прочитать про них можно в документации [detekt](https://detekt.dev).

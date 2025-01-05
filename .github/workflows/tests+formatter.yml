@@ -23,15 +23,6 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-  check-static-analyzer:
-    runs-on: ubuntu-latest
-    needs: setup-environment
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Spotless Check
-        run: ./gradlew detektAll
 
   run-backend-tests:
     runs-on: ubuntu-latest
@@ -49,7 +40,7 @@ jobs:
           echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
 
       - name: Run Backend Tests
-        run: ./gradlew check -PexcludeTests="**DatabaseStartupTest*"
+        run: ./gradlew test -PexcludeTests="**DatabaseStartupTest*"
 
       - name: Store Reports
         if: failure()
@@ -59,3 +50,15 @@ jobs:
           path: |
             **/build/reports/
             **/build/test-results/
+
+  check-static-analyzer:
+    runs-on: ubuntu-latest
+    needs: setup-environment
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Static Analysis
+        run: |
+          ./gradlew detektMain
+          ./gradlew detektTest

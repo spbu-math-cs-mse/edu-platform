@@ -1,0 +1,7 @@
+package com.github.heheteam.commonlib.database.table
+
+import org.jetbrains.exposed.dao.id.LongIdTable
+
+object CourseTable : LongIdTable("course") {
+  val name = varchar("name", 255)
+}

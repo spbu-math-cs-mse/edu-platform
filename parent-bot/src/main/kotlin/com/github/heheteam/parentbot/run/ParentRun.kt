@@ -2,7 +2,11 @@ package com.github.heheteam.parentbot.run
 
 import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.parentbot.ParentCore
-import com.github.heheteam.parentbot.states.*
+import com.github.heheteam.parentbot.states.StartState
+import com.github.heheteam.parentbot.states.strictlyOnChildPerformanceState
+import com.github.heheteam.parentbot.states.strictlyOnGivingFeedbackState
+import com.github.heheteam.parentbot.states.strictlyOnMenuState
+import com.github.heheteam.parentbot.states.strictlyOnStartState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter

@@ -1,7 +1,21 @@
 package com.github.heheteam.adminbot.run
 
 import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.adminbot.states.*
+import com.github.heheteam.adminbot.states.BotState
+import com.github.heheteam.adminbot.states.MenuState
+import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
+import com.github.heheteam.adminbot.states.strictlyOnAddStudentState
+import com.github.heheteam.adminbot.states.strictlyOnAddTeacherState
+import com.github.heheteam.adminbot.states.strictlyOnCourseInfoState
+import com.github.heheteam.adminbot.states.strictlyOnCreateAssignmentState
+import com.github.heheteam.adminbot.states.strictlyOnCreateCourseState
+import com.github.heheteam.adminbot.states.strictlyOnEditCourseState
+import com.github.heheteam.adminbot.states.strictlyOnEditDescriptionState
+import com.github.heheteam.adminbot.states.strictlyOnGetProblemsState
+import com.github.heheteam.adminbot.states.strictlyOnGetTeachersState
+import com.github.heheteam.adminbot.states.strictlyOnMenuState
+import com.github.heheteam.adminbot.states.strictlyOnRemoveStudentState
+import com.github.heheteam.adminbot.states.strictlyOnRemoveTeacherState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter

@@ -20,13 +20,13 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import java.time.LocalDateTime
 
 class AdminCore(
-    private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
-    private val coursesDistributor: CoursesDistributor,
-    private val studentStorage: StudentStorage,
-    private val teacherStorage: TeacherStorage,
-    private val assignmentStorage: AssignmentStorage,
-    private val problemStorage: ProblemStorage,
-    private val solutionDistributor: SolutionDistributor,
+  private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
+  private val coursesDistributor: CoursesDistributor,
+  private val studentStorage: StudentStorage,
+  private val teacherStorage: TeacherStorage,
+  private val assignmentStorage: AssignmentStorage,
+  private val problemStorage: ProblemStorage,
+  private val solutionDistributor: SolutionDistributor,
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
@@ -40,9 +40,9 @@ class AdminCore(
   fun addCourse(courseName: String) = coursesDistributor.createCourse(courseName)
 
   fun addAssignment(
-      courseId: CourseId,
-      description: String,
-      problemsDescriptions: List<ProblemDescription>,
+    courseId: CourseId,
+    description: String,
+    problemsDescriptions: List<ProblemDescription>,
   ) {
     assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
   }
@@ -63,35 +63,35 @@ class AdminCore(
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
   fun studiesIn(
-      id: StudentId,
-      course: Course,
+    id: StudentId,
+    course: Course,
   ): Boolean = coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
 
   fun teachesIn(
-      id: TeacherId,
-      course: Course,
+    id: TeacherId,
+    course: Course,
   ): Boolean = coursesDistributor.getTeacherCourses(id).find { it.id == course.id } != null
 
   fun registerStudentForCourse(
-      studentId: StudentId,
-      courseId: CourseId,
+    studentId: StudentId,
+    courseId: CourseId,
   ) = coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun registerTeacherForCourse(
-      teacherId: TeacherId,
-      courseId: CourseId,
+    teacherId: TeacherId,
+    courseId: CourseId,
   ) {
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
   }
 
   fun removeTeacher(
-      teacherId: TeacherId,
-      courseId: CourseId,
+    teacherId: TeacherId,
+    courseId: CourseId,
   ): Boolean = coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
 
   fun removeStudent(
-      studentId: StudentId,
-      courseId: CourseId,
+    studentId: StudentId,
+    courseId: CourseId,
   ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
 
   fun getTeachersBulletList(): String {

@@ -31,7 +31,6 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noCoursesWasFoundForCreationOfAssignment(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noIdInInput(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun problemsDescriptionsAreNotTexts(): String</ID>
-    <ID>Indentation:AdminCore.kt$AdminCore$ </ID>
     <ID>InjectDispatcher:AdminRun.kt$IO</ID>
     <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun addCourse(courseName: String)</ID>
     <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun addMessage(message: ScheduledMessage)</ID>

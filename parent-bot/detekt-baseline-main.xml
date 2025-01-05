@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>ForbiddenComment:GivingFeedbackState.kt$// TODO: implement receiving feedback</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$ChildPerformanceState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$GivingFeedbackState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$MenuState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotStates.kt$StartState : BotState</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun acceptFeedback(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
+    <ID>InjectDispatcher:ParentRun.kt$IO</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$fun childPerformance( child: Student, core: ParentCore, )</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val greetingSticker = InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val heartSticker = InputFile.fromId("CAACAgEAAxkBAAIBqGcePu_DPJQIwyU2hfH7SbMJ1g_DAAL6AQACOA6CEZdviQ02NivYNgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val nerdSticker = InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val okSticker = InputFile.fromId("CAACAgEAAxkBAAIBJWcUPyqe-UEVGqMmhNYi21U3gkBEAALrAQACOA6CEbOGBM7hnEk5NgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val typingSticker = InputFile.fromId("CAACAgEAAxkBAAIBb2cdPy6r60MpNFXFLAABaQWOqfgCHAAC6QADZszART3es5n3X_q7NgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun askGrade()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun menu(children: List&lt;Student&gt;)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun returnBack()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val giveFeedback = "Дать обратную связь"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val other = "Другое"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val petDog = "Почесать таксе пузо"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$BotState : State</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$ChildPerformanceState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GivingFeedbackState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$MenuState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$StartState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ChildPerformanceState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnChildPerformanceState( core: ParentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GivingFeedbackState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGivingFeedbackState()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$suspend fun main(vararg args: String)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState( core: ParentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ParentCore.kt$ParentCore</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ParentRun.kt$@OptIn(RiskFeature::class) suspend fun parentRun( botToken: String, parentStorage: ParentStorage, core: ParentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
+    <ID>LoopWithTooManyJumpStatements:StartState.kt$while</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val giveFeedback = "Дать обратную связь"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val petDog = "Почесать таксе пузо"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
+    <ID>NoConsecutiveBlankLines:Dialogues.kt$ </ID>
+    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
+    <ID>UnsafeCallOnNullableType:ParentRun.kt$it.from!!</ID>
+    <ID>UnsafeCallOnNullableType:StartState.kt$parentId!!</ID>
+  </CurrentIssues>
+</SmellBaseline>

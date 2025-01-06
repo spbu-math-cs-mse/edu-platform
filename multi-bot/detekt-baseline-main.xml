@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$fun main(vararg args: String)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MultiBotRunner.kt$MultiBotRunner : CliktCommand</ID>
+    <ID>LongMethod:MultiBotRunner.kt$MultiBotRunner$override fun run()</ID>
+  </CurrentIssues>
+</SmellBaseline>

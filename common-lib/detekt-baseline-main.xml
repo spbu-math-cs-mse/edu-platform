@@ -1,0 +1,214 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ExplicitItLambdaParameter:GoogleSheetsService.kt$GoogleSheetsService${ index, it -&gt; if (index == sortedProblems.size - 1 || sortedProblems[index].assignmentId != sortedProblems[index + 1].assignmentId) { it.rightBorder() } it }</ID>
+    <ID>ForbiddenPublicDataClass:Config.kt$Config</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Assignment</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Course</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Parent</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Problem</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$ProblemDescription</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Solution</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$SolutionAssessment</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$SolutionContent</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Student</ID>
+    <ID>ForbiddenPublicDataClass:Data.kt$Teacher</ID>
+    <ID>ForbiddenPublicDataClass:DatabaseConfig.kt$DatabaseConfig</ID>
+    <ID>ForbiddenPublicDataClass:DeveloperOptions.kt$DeveloperOptions</ID>
+    <ID>ForbiddenPublicDataClass:Errors.kt$BindError&lt;T, U&gt;</ID>
+    <ID>ForbiddenPublicDataClass:Errors.kt$DeleteError&lt;T&gt;</ID>
+    <ID>ForbiddenPublicDataClass:Errors.kt$ResolveError&lt;T : Any&gt;</ID>
+    <ID>ForbiddenPublicDataClass:GoogleSheetsConfig.kt$GoogleSheetsConfig</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$AdminId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$AssignmentId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$CourseId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$ParentId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$ProblemId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$SolutionId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$StudentId</ID>
+    <ID>ForbiddenPublicDataClass:Id.kt$TeacherId</ID>
+    <ID>ForbiddenPublicDataClass:RedisConfig.kt$RedisConfig</ID>
+    <ID>ForbiddenPublicDataClass:ScheduledMessagesDistributor.kt$ScheduledMessage</ID>
+    <ID>ForbiddenPublicDataClass:TeacherStatistics.kt$GlobalTeacherStats</ID>
+    <ID>ForbiddenPublicDataClass:TeacherStatistics.kt$TeacherStatsData</ID>
+    <ID>InjectDispatcher:GoogleSheetsRatingRecorder.kt$GoogleSheetsRatingRecorder$Default</ID>
+    <ID>InjectDispatcher:RedisBotEventBus.kt$RedisBotEventBus$IO</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AdminTable.kt$AdminTable$val name = varchar("name", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AdminTable.kt$AdminTable$val surname = varchar("surname", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AdminTable.kt$AdminTable$val tgId = long("tgId")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssessmentTable.kt$AssessmentTable$val comment = text("comment")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssessmentTable.kt$AssessmentTable$val grade = integer("grade")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssessmentTable.kt$AssessmentTable$val solutionId = reference("solutionId", SolutionTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssessmentTable.kt$AssessmentTable$val teacherId = reference("teacherId", TeacherTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssessmentTable.kt$AssessmentTable$val timestamp = datetime("timestamp").defaultExpression(CurrentDateTime)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssignmentTable.kt$AssignmentTable$val courseId = reference("courseId", CourseTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AssignmentTable.kt$AssignmentTable$val description = varchar("description", 100)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CourseStudents.kt$CourseStudents$val courseId = reference("courseId", CourseTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CourseStudents.kt$CourseStudents$val studentId = reference("studentId", StudentTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CourseTable.kt$CourseTable$val name = varchar("name", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CourseTeachers.kt$CourseTeachers$val courseId = reference("courseId", CourseTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CourseTeachers.kt$CourseTeachers$val teacherId = reference("teacherId", TeacherTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:GradeTableDecorator.kt$GradeTableDecorator$override fun assessSolution( solutionId: SolutionId, teacherId: TeacherId, assessment: SolutionAssessment, teacherStatistics: TeacherStatistics, timestamp: LocalDateTime, )</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Id.kt$fun Long.toAssignmentId()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Id.kt$fun Long.toCourseId()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Id.kt$fun Long.toProblemId()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Id.kt$fun Long.toSolutionId()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Id.kt$fun Long.toStudentId()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Id.kt$fun Long.toTeacherId()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ParentStudents.kt$ParentStudents$val parentId = reference("parentId", ParentTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ParentStudents.kt$ParentStudents$val studentId = reference("studentId", StudentTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ParentTable.kt$ParentTable$val name = varchar("name", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ParentTable.kt$ParentTable$val surname = varchar("surname", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ParentTable.kt$ParentTable$val tgId = long("tgId")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ProblemTable.kt$ProblemTable$val assignmentId = reference("assignmentId", AssignmentTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ProblemTable.kt$ProblemTable$val description = text("description")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ProblemTable.kt$ProblemTable$val maxScore = integer("maxScore")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ProblemTable.kt$ProblemTable$val number = varchar("number", 64)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val chatId = long("chatId")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val content = varchar("content", 200)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val fileUrl = array&lt;String&gt;("filesURL", 200) // uhh, well...</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val messageId = long("messageId")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val problemId = reference("problemId", ProblemTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val solutionType = varchar("contentType", 10)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val studentId = reference("studentId", StudentTable.id)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:SolutionTable.kt$SolutionTable$val timestamp = datetime("timestamp").defaultExpression(CurrentDateTime)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:StudentTable.kt$StudentTable$val name = varchar("name", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:StudentTable.kt$StudentTable$val surname = varchar("surname", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:StudentTable.kt$StudentTable$val tgId = long("tgId")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:TeacherTable.kt$TeacherTable$val name = varchar("name", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:TeacherTable.kt$TeacherTable$val surname = varchar("surname", 255)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:TeacherTable.kt$TeacherTable$val tgId = long("tgId")</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminIdRegistry.kt$AdminIdRegistry</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AssignmentStorage.kt$AssignmentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotEventBus.kt$BotEventBus</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitDataCallbackQueryWithUser(chatId: ChatId): Flow&lt;DataCallbackQuery&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitDocumentMessageWithUser(chatId: ChatId): Flow&lt;CommonMessage&lt;DocumentContent&gt;&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitMediaMessageWithUser(chatId: ChatId): Flow&lt;CommonMessage&lt;MediaContent&gt;&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CallbackWithUser.kt$suspend fun BehaviourContext.waitTextMessageWithUser(chatId: ChatId): Flow&lt;CommonMessage&lt;TextContent&gt;&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Config.kt$Config</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Config.kt$fun loadConfig(): Config</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CoursesDistributor.kt$CoursesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CoursesDistributorDecorator.kt$CoursesDistributorDecorator : CoursesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Assignment</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Course</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Parent</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Problem</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$ProblemDescription</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Solution</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$SolutionAssessment</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$SolutionContent</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$SolutionType</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Student</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$Teacher</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Data.kt$typealias Grade = Int</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseAssignmentStorage.kt$DatabaseAssignmentStorage : AssignmentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseConfig.kt$DatabaseConfig</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor : CoursesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseGradeTable.kt$DatabaseGradeTable : GradeTable</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseProblemStorage.kt$DatabaseProblemStorage : ProblemStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor : SolutionDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseStudentStorage.kt$DatabaseStudentStorage : StudentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DatabaseTeacherStorage.kt$DatabaseTeacherStorage : TeacherStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DeveloperOptions.kt$DeveloperOptions</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$BindError&lt;T, U&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$DeleteError&lt;T&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$ResolveError&lt;T : Any&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$SolutionResolveError</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Errors.kt$TeacherDoesNotExist : SolutionResolveError</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:FormattedCell.kt$DataType</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsConfig.kt$GoogleSheetsConfig</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsRatingRecorder.kt$GoogleSheetsRatingRecorder : RatingRecorder</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsService.kt$GoogleSheetsService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GradeTable.kt$GradeTable</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GradeTableDecorator.kt$GradeTableDecorator : GradeTable</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$AdminId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$AssignmentId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$CourseId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$ParentId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$ProblemId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$SolutionId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$StudentId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$TeacherId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toAssignmentId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toCourseId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toProblemId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toSolutionId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toStudentId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Id.kt$fun Long.toTeacherId()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:InMemoryScheduledMessagesDistributor.kt$InMemoryScheduledMessagesDistributor : ScheduledMessagesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:InMemoryTeacherStatistics.kt$InMemoryTeacherStatistics : TeacherStatistics</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Init.kt$fun Transaction.fillWithMockData()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Init.kt$fun main(args: Array&lt;String&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Init.kt$fun reset(database: Database)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MessageCleanup.kt$suspend fun &lt;R&gt; BehaviourContext.withMessageCleanup( message: ContentMessage&lt;*&gt;, f: suspend BehaviourContext.() -&gt; R, ): R</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockAdminIdRegistry.kt$MockAdminIdRegistry : AdminIdRegistry</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockBotEventBus.kt$MockBotEventBus : BotEventBus</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockNotificationService.kt$MockNotificationService : NotificationService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MockParentStorage.kt$MockParentStorage : ParentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:NotificationService.kt$NotificationService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ParentStorage.kt$ParentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ProblemStorage.kt$ProblemStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RatingRecorder.kt$RatingRecorder</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RedisBotEventBus.kt$RedisBotEventBus : BotEventBus</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:RedisConfig.kt$RedisConfig</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SampleFill.kt$fun fillWithSamples( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, ): List&lt;CourseId&gt;</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SampleFill.kt$fun generateCourse( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, ): CourseId</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ScheduledMessagesDistributor.kt$ScheduledMessage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ScheduledMessagesDistributor.kt$ScheduledMessagesDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SolutionDistributor.kt$SolutionDistributor</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentNotificationService.kt$StudentNotificationService : NotificationService</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentStorage.kt$StudentStorage</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStatistics.kt$GlobalTeacherStats</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStatistics.kt$TeacherStatistics</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStatistics.kt$TeacherStatsData</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:TeacherStorage.kt$TeacherStorage</ID>
+    <ID>LongMethod:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$override fun querySolution( teacherId: TeacherId, gradeTable: GradeTable, ): Result&lt;Solution?, SolutionResolveError&gt;</ID>
+    <ID>LongMethod:InMemoryTeacherStatistics.kt$InMemoryTeacherStatistics$override fun resolveTeacherStats(teacherId: TeacherId): Result&lt;TeacherStatsData, ResolveError&lt;TeacherId&gt;&gt;</ID>
+    <ID>LongMethod:SampleFill.kt$fun fillWithSamples( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, ): List&lt;CourseId&gt;</ID>
+    <ID>LongParameterList:SampleFill.kt$( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, )</ID>
+    <ID>LongParameterList:SampleFill.kt$( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, )</ID>
+    <ID>LongParameterList:SolutionDistributor.kt$SolutionDistributor$( studentId: StudentId, chatId: RawChatId, messageId: MessageId, solutionContent: SolutionContent, problemId: ProblemId, timestamp: LocalDateTime = LocalDateTime.now(), )</ID>
+    <ID>MagicNumber:AdminTable.kt$AdminTable$255</ID>
+    <ID>MagicNumber:AssignmentTable.kt$AssignmentTable$100</ID>
+    <ID>MagicNumber:CourseTable.kt$CourseTable$255</ID>
+    <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$3</ID>
+    <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$30</ID>
+    <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$40</ID>
+    <ID>MagicNumber:Init.kt$3</ID>
+    <ID>MagicNumber:ParentTable.kt$ParentTable$255</ID>
+    <ID>MagicNumber:ProblemTable.kt$ProblemTable$64</ID>
+    <ID>MagicNumber:SampleFill.kt$10</ID>
+    <ID>MagicNumber:SampleFill.kt$5</ID>
+    <ID>MagicNumber:SolutionTable.kt$SolutionTable$10</ID>
+    <ID>MagicNumber:SolutionTable.kt$SolutionTable$200</ID>
+    <ID>MagicNumber:StudentTable.kt$StudentTable$255</ID>
+    <ID>MagicNumber:TeacherTable.kt$TeacherTable$255</ID>
+    <ID>MaxLineLength:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }</ID>
+    <ID>MaxLineLength:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }</ID>
+    <ID>MaxLineLength:GoogleSheetsService.kt$GoogleSheetsService$"userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"</ID>
+    <ID>MaxLineLength:GoogleSheetsService.kt$GoogleSheetsService$if</ID>
+    <ID>MaxLineLength:MockBotEventBus.kt$MockBotEventBus$override</ID>
+    <ID>MaxLineLength:RedisBotEventBus.kt$RedisBotEventBus$override</ID>
+    <ID>MaximumLineLength:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$ </ID>
+    <ID>MaximumLineLength:GoogleSheetsService.kt$GoogleSheetsService$ </ID>
+    <ID>MaximumLineLength:MockBotEventBus.kt$MockBotEventBus$ </ID>
+    <ID>MaximumLineLength:RedisBotEventBus.kt$RedisBotEventBus$ </ID>
+    <ID>SpreadOperator:Init.kt$(*allTables)</ID>
+    <ID>SuspendFunWithFlowReturnType:CallbackWithUser.kt$suspend</ID>
+    <ID>SwallowedException:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:RedisBotEventBus.kt$RedisBotEventBus$e: Exception</ID>
+    <ID>TooManyFunctions:CoursesDistributor.kt$CoursesDistributor</ID>
+    <ID>TooManyFunctions:CoursesDistributorDecorator.kt$CoursesDistributorDecorator : CoursesDistributor</ID>
+    <ID>TooManyFunctions:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor : CoursesDistributor</ID>
+    <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }</ID>
+    <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }</ID>
+    <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>
+    <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setTop(Border().setWidth(width).setStyle("SOLID")) }</ID>
+    <ID>UnsafeCallOnNullableType:GoogleSheetsRatingRecorder.kt$GoogleSheetsRatingRecorder$courseMutexes[courseId]!!</ID>
+    <ID>UseAnyOrNoneInsteadOfFind:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$firstOrNull()</ID>
+    <ID>UseOrEmpty:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$solutionContent.filesURL ?: listOf()</ID>
+    <ID>UseOrEmpty:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$solutionContent.text ?: ""</ID>
+  </CurrentIssues>
+</SmellBaseline>

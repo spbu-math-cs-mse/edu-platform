@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminBotTest.kt$AdminBotTest</ID>
+  </CurrentIssues>
+</SmellBaseline>

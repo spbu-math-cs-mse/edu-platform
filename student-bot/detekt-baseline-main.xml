@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ForbiddenPublicDataClass:BotState.kt$CheckGradesState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$DevStartState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$MenuState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$PresetStudentState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$SendSolutionState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$SignUpState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$StartState : BotState</ID>
+    <ID>ForbiddenPublicDataClass:BotState.kt$ViewState : BotState</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourseForSolution(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askProblem(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellSolutionIsSent(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellToApplyForCourses(): String</ID>
+    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellValidSolutionTypes(): String</ID>
+    <ID>InjectDispatcher:StudentRun.kt$IO</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val APPLY = "apply"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val ASSIGNMENT_ID = "assignmentId"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val BACK = "back"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val CHECK_GRADES = "checkGrades"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val COURSE_ID = "courseId"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val FICTITIOUS = "fictitious"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val PROBLEM_ID = "problemId"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val SEND_SOLUTION = "sendSolution"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val SIGN_UP = "signUpForCourses"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val STUDENT_GRADES = "viewStudentGrades"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val TOP_GRADES = "viewTopGrades"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:ButtonKey.kt$ButtonKey$const val VIEW = "viewMyCourses"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CheckGradesState.kt$fun List&lt;Grade&gt;.withTopGradesToText()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:CheckGradesState.kt$fun List&lt;Pair&lt;Problem, Grade?&gt;&gt;.withGradesToText()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val greetingSticker = InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val heartSticker = InputFile.fromId("CAACAgEAAxkBAAIBqGcePu_DPJQIwyU2hfH7SbMJ1g_DAAL6AQACOA6CEZdviQ02NivYNgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val nerdSticker = InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val okSticker = InputFile.fromId("CAACAgEAAxkBAAIBJWcUPyqe-UEVGqMmhNYi21U3gkBEAALrAQACOA6CEbOGBM7hnEk5NgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val typingSticker = InputFile.fromId("CAACAgEAAxkBAAIBb2cdPy6r60MpNFXFLAABaQWOqfgCHAAC6QADZszART3es5n3X_q7NgQ")</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:KeyboardMarkup.kt$fun back()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:KeyboardMarkup.kt$fun buildCoursesSelector(availableCourses: List&lt;Pair&lt;Course, Boolean&gt;&gt;)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:KeyboardMarkup.kt$fun buildCoursesSendingSelector(availableCourses: List&lt;Course&gt;)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:KeyboardMarkup.kt$fun buildProblemSendingSelector(availableProblems: Map&lt;Assignment, List&lt;Problem&gt;&gt;)</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:KeyboardMarkup.kt$fun menuKeyboard()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun askGrade()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun returnBack()</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val other = "Другое"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:StudentCore.kt$StudentCore$fun addRecord( studentId: StudentId, courseId: CourseId, )</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:StudentCore.kt$StudentCore$fun getStudentsFromCourse(courseId: CourseId)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$BotState : State</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$CheckGradesState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$DevStartState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$MenuState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$PresetStudentState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$SendSolutionState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$SignUpState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$StartState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$ViewState : BotState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState( core: StudentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Grade&gt;.withTopGradesToText()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Pair&lt;Problem, Grade?&gt;&gt;.withGradesToText()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DevStartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnDeveloperStartState( studentStorage: StudentStorage, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun back()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildCoursesSelector(availableCourses: List&lt;Pair&lt;Course, Boolean&gt;&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildCoursesSendingSelector(availableCourses: List&lt;Course&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildProblemSendingSelector(availableProblems: Map&lt;Assignment, List&lt;Problem&gt;&gt;)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun menuKeyboard()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$suspend fun main(vararg args: String)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState()</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:PresetStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetStudentState(core: StudentCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$suspend fun BehaviourContext.makeURL( content: MediaContent, studentBotToken: String, ): String</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$SigningUpState</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSignUpState( core: StudentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( studentStorage: StudentStorage, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentCore.kt$StudentCore</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StudentRun.kt$@OptIn(RiskFeature::class) suspend fun studentRun( botToken: String, studentStorage: StudentStorage, core: StudentCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ViewState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnViewState( core: StudentCore, )</ID>
+    <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
+    <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
+    <ID>LongParameterList:StudentCore.kt$StudentCore$( private val solutionDistributor: SolutionDistributor, private val coursesDistributor: CoursesDistributor, private val problemStorage: ProblemStorage, private val assignmentStorage: AssignmentStorage, private val gradeTable: GradeTable, private val notificationService: NotificationService, private val botEventBus: BotEventBus, )</ID>
+    <ID>LoopWithTooManyJumpStatements:SendSolutionState.kt$while</ID>
+    <ID>MagicNumber:StudentCore.kt$StudentCore$5</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
+    <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
+    <ID>NoNameShadowing:SignUpState.kt${ it.id }</ID>
+    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
+    <ID>TooManyFunctions:StudentCore.kt$StudentCore</ID>
+    <ID>UnsafeCallOnNullableType:CheckGradesState.kt$assignmentsFromCourse.find { it.id == assignmentId }!!</ID>
+  </CurrentIssues>
+</SmellBaseline>

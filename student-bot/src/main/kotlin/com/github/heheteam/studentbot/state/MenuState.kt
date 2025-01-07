@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.metaData.ButtonKey
+import com.github.michaelbull.result.get
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.firstNotNull
@@ -31,7 +32,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
 
     val datacallbacks =
       waitDataCallbackQueryWithUser(state.context.id).map { callback ->
-        val nextState = menuKeyboard.handler(callback.data)
+        val nextState = menuKeyboard.handler(callback.data).get()
         if (nextState != null) {
           deleteMessage(initialMessage)
           deleteMessage(stickerMessage)

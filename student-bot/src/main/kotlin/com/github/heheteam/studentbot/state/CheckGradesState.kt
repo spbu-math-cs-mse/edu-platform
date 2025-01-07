@@ -12,6 +12,7 @@ import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.queryAssignmentFromUser
 import com.github.heheteam.studentbot.queryCourse
+import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -35,7 +36,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
     val callback = waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(sendQueryMessage)
     val nextState = queryGradeType.handler(callback.data)
-    nextState ?: MenuState(state.context, state.studentId)
+    nextState.get() ?: MenuState(state.context, state.studentId)
   }
 }
 

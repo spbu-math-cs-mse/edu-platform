@@ -8,9 +8,6 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.state.BotState
 import com.github.heheteam.studentbot.state.CheckGradesState
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -25,16 +22,14 @@ internal suspend fun BehaviourContext.queryCourse(
   val courseSelector =
     buildColumnMenu(
       courses.map { course ->
-        ButtonData(course.name, "${ButtonKey.COURSE_ID} ${course.id}") {
-          Ok(course) as Result<Course, Unit>
-        }
-      } + ButtonData("Назад", ButtonKey.BACK) { Err(Unit) }
+        ButtonData(course.name, "${ButtonKey.COURSE_ID} ${course.id}") { course as Course? }
+      } + ButtonData("Назад", ButtonKey.BACK) { null }
     )
   val message = bot.send(state.context, messageContent, replyMarkup = courseSelector.keyboard)
 
   val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
-  val result = courseSelector.handler(callbackData)?.mapBoth(success = { it }, failure = { null })
+  val result = courseSelector.handler(callbackData).mapBoth(success = { it }, failure = { null })
   return result
 }
 
@@ -46,15 +41,15 @@ internal suspend fun BehaviourContext.queryAssignmentFromUser(
     buildColumnMenu(
       assignments.map { assignment ->
         ButtonData(assignment.description, "${ButtonKey.COURSE_ID} ${assignment.id}") {
-          Ok(assignment) as Result<Assignment, Unit>
+          assignment as Assignment?
         }
-      } + ButtonData("Назад", ButtonKey.BACK) { Err(Unit) }
+      } + ButtonData("Назад", ButtonKey.BACK) { null }
     )
 
   val message = bot.send(state.context, "Выберите серию", replyMarkup = assignmentSelector.keyboard)
   val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
   val result =
-    assignmentSelector.handler(callbackData)?.mapBoth(success = { it }, failure = { null })
+    assignmentSelector.handler(callbackData).mapBoth(success = { it }, failure = { null })
   return result
 }

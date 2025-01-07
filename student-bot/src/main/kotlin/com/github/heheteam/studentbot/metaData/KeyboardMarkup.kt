@@ -49,14 +49,3 @@ fun buildProblemSendingSelector(availableProblems: Map<Assignment, List<Problem>
   )
 
 fun back() = InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Назад", ButtonKey.BACK) } })
-
-fun menuKeyboard() =
-  InlineKeyboardMarkup(
-    keyboard =
-      matrix {
-        row { dataButton("Записаться на курсы", ButtonKey.SIGN_UP) }
-        row { dataButton("Посмотреть мои курсы", ButtonKey.VIEW) }
-        row { dataButton("Отправить решение", ButtonKey.SEND_SOLUTION) }
-        row { dataButton("Проверить успеваемость", ButtonKey.CHECK_GRADES) }
-      }
-  )

@@ -5,8 +5,9 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.util.ButtonData
+import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
 import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
@@ -15,8 +16,11 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
-import com.github.heheteam.studentbot.metaData.buildCoursesSendingSelector
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -159,22 +163,21 @@ private suspend fun BehaviourContext.queryCourse(
   state: SendSolutionState,
   courses: List<Course>,
 ): Course? {
-  val message =
-    bot.send(
-      state.context,
-      Dialogues.askCourseForSolution(),
-      replyMarkup = buildCoursesSendingSelector(courses),
+  val courseSelector =
+    buildColumnMenu(
+      courses.map { course ->
+        ButtonData(course.name, "${ButtonKey.COURSE_ID} ${course.id}") {
+          Ok(course) as Result<Course, Unit>
+        }
+      } + ButtonData("Назад", ButtonKey.BACK) { Err(Unit) }
     )
+  val message =
+    bot.send(state.context, Dialogues.askCourseForSolution(), replyMarkup = courseSelector.keyboard)
 
   val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
-
-  if (callbackData == ButtonKey.BACK) {
-    return null
-  }
-
-  val courseId = callbackData.split(" ").last()
-  return courses.first { it.id == CourseId(courseId.toLong()) }
+  val result = courseSelector.handler(callbackData)?.mapBoth(success = { it }, failure = { null })
+  return result
 }
 
 private suspend fun BehaviourContext.queryProblem(

@@ -14,5 +14,7 @@ interface BotEventBus {
     problem: Problem,
   )
 
-  fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit)
+  fun subscribeToGradeEvents(
+    handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
+  )
 }

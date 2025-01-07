@@ -14,10 +14,7 @@ import kotlinx.serialization.json.Json
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPubSub
 
-class RedisBotEventBus(
-  private val redisHost: String,
-  private val redisPort: Int,
-) : BotEventBus {
+class RedisBotEventBus(private val redisHost: String, private val redisPort: Int) : BotEventBus {
   private val jedis = Jedis(redisHost, redisPort)
   private val channel = "grade_events"
 
@@ -32,19 +29,22 @@ class RedisBotEventBus(
     assessment: SolutionAssessment,
     problem: Problem,
   ) {
-    val simpleEvent = SimpleGradeEvent(
-      studentId = studentId.id,
-      chatId = chatId.long,
-      messageId = messageId.long,
-      grade = assessment.grade,
-      comment = assessment.comment,
-      problem = problem,
-    )
+    val simpleEvent =
+      SimpleGradeEvent(
+        studentId = studentId.id,
+        chatId = chatId.long,
+        messageId = messageId.long,
+        grade = assessment.grade,
+        comment = assessment.comment,
+        problem = problem,
+      )
     val event = Json.encodeToString(simpleEvent)
     jedis.publish(channel, event)
   }
 
-  override fun subscribeToGradeEvents(handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit) {
+  override fun subscribeToGradeEvents(
+    handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
+  ) {
     val subscriberJedis = Jedis(redisHost, redisPort)
 
     CoroutineScope(Dispatchers.IO).launch {

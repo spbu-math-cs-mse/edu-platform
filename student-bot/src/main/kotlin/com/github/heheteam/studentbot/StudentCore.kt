@@ -41,9 +41,7 @@ class StudentCore(
     assignmentId: AssignmentId,
     studentId: StudentId,
   ): List<Pair<Problem, Grade?>> {
-    val grades =
-      gradeTable
-        .getStudentPerformance(studentId, listOf(assignmentId))
+    val grades = gradeTable.getStudentPerformance(studentId, listOf(assignmentId))
     val gradedProblems =
       problemStorage
         .getProblemsFromAssignment(assignmentId)
@@ -52,17 +50,12 @@ class StudentCore(
     return gradedProblems
   }
 
-  fun getTopGrades(
-    courseId: CourseId,
-  ): List<Int> {
+  fun getTopGrades(courseId: CourseId): List<Int> {
     val students = getStudentsFromCourse(courseId).map { it.id }
     val assignments = getCourseAssignments(courseId).map { it.id }
     val grades =
       students
-        .map { studentId ->
-          gradeTable
-            .getStudentPerformance(studentId, assignments).values.sum()
-        }
+        .map { studentId -> gradeTable.getStudentPerformance(studentId, assignments).values.sum() }
         .sortedDescending()
         .take(5)
         .filter { it != 0 }
@@ -70,15 +63,13 @@ class StudentCore(
   }
 
   fun getStudentCourses(studentId: StudentId): List<Course> =
-    coursesDistributor
-      .getStudentCourses(studentId)
+    coursesDistributor.getStudentCourses(studentId)
 
-  fun getCourseAssignments(courseId: CourseId): List<Assignment> = assignmentStorage.getAssignmentsForCourse(courseId)
+  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
+    assignmentStorage.getAssignmentsForCourse(courseId)
 
-  fun addRecord(
-    studentId: StudentId,
-    courseId: CourseId,
-  ) = coursesDistributor.addStudentToCourse(studentId, courseId)
+  fun addRecord(studentId: StudentId, courseId: CourseId) =
+    coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun getCourses(): List<Course> = coursesDistributor.getCourses()
 
@@ -89,23 +80,14 @@ class StudentCore(
     solutionContent: SolutionContent,
     problemId: ProblemId,
   ) {
-    solutionDistributor.inputSolution(
-      studentId,
-      chatId,
-      messageId,
-      solutionContent,
-      problemId,
-    )
+    solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
   }
 
   fun getCoursesBulletList(studentId: StudentId): String {
     val studentCourses = coursesDistributor.getStudentCourses(studentId)
     val notRegisteredMessage = "Вы не записаны ни на один курс!"
     return if (studentCourses.isNotEmpty()) {
-      studentCourses
-        .joinToString("\n") { course ->
-          "- " + course.name
-        }
+      studentCourses.joinToString("\n") { course -> "- " + course.name }
     } else {
       notRegisteredMessage
     }
@@ -121,13 +103,7 @@ class StudentCore(
     assessment: SolutionAssessment,
     problem: Problem,
   ) {
-    notificationService.notifyStudentAboutGrade(
-      studentId,
-      chatId,
-      messageId,
-      assessment,
-      problem,
-    )
+    notificationService.notifyStudentAboutGrade(studentId, chatId, messageId, assessment, problem)
   }
 
   fun getStudentsFromCourse(courseId: CourseId) = coursesDistributor.getStudents(courseId)

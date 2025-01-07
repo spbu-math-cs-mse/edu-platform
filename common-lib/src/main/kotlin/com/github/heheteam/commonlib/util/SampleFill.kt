@@ -41,75 +41,43 @@ fun fillWithSamples(
 ): List<CourseId> {
   reset(database)
   val realAnalysis =
-    generateCourse(
-      "Начала мат. анализа",
-      coursesDistributor,
-      assignmentStorage,
-      problemStorage,
-    )
+    generateCourse("Начала мат. анализа", coursesDistributor, assignmentStorage, problemStorage)
   val probTheory =
-    generateCourse(
-      "Теория вероятностей",
-      coursesDistributor,
-      assignmentStorage,
-      problemStorage,
-    )
+    generateCourse("Теория вероятностей", coursesDistributor, assignmentStorage, problemStorage)
   val linAlgebra =
-    generateCourse(
-      "Линейная алгебра",
-      coursesDistributor,
-      assignmentStorage,
-      problemStorage,
-    )
-  val complAnalysis =
-    generateCourse(
-      "ТФКП",
-      coursesDistributor,
-      assignmentStorage,
-      problemStorage,
-    )
-  val students = listOf(
-    "Алексей" to "Иванов",
-    "Мария" to "Петрова",
-    "Дмитрий" to "Сидоров",
-    "Анна" to "Смирнова",
-    "Иван" to "Кузнецов",
-    "Елена" to "Попова",
-    "Андрей" to "Семенов",
-    "Ольга" to "Соколова",
-    "Андрей" to "Михайлов",
-    "Николай" to "Васильев",
-  ).map { studentStorage.createStudent(it.first, it.second) }
+    generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
+  val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
+  val students =
+    listOf(
+        "Алексей" to "Иванов",
+        "Мария" to "Петрова",
+        "Дмитрий" to "Сидоров",
+        "Анна" to "Смирнова",
+        "Иван" to "Кузнецов",
+        "Елена" to "Попова",
+        "Андрей" to "Семенов",
+        "Ольга" to "Соколова",
+        "Андрей" to "Михайлов",
+        "Николай" to "Васильев",
+      )
+      .map { studentStorage.createStudent(it.first, it.second) }
   students.slice(0..<5).map { studentId ->
-    coursesDistributor.addStudentToCourse(
-      studentId,
-      realAnalysis,
-    )
+    coursesDistributor.addStudentToCourse(studentId, realAnalysis)
   }
   students.slice(0..<5).map { studentId ->
-    coursesDistributor.addStudentToCourse(
-      studentId,
-      probTheory,
-    )
+    coursesDistributor.addStudentToCourse(studentId, probTheory)
   }
   students.slice(5..<10).map { studentId ->
-    coursesDistributor.addStudentToCourse(
-      studentId,
-      probTheory,
-    )
+    coursesDistributor.addStudentToCourse(studentId, probTheory)
   }
   students.slice(5..<10).map { studentId ->
-    coursesDistributor.addStudentToCourse(
-      studentId,
-      linAlgebra,
-    )
+    coursesDistributor.addStudentToCourse(studentId, linAlgebra)
   }
   println("first student is ${studentStorage.resolveStudent(students.first())}")
 
-  listOf(
-    "Павел" to "Мозоляко",
-    "Егор" to "Тихонов",
-  ).map { teacherStorage.createTeacher(it.first, it.second) }
+  listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
+    teacherStorage.createTeacher(it.first, it.second)
+  }
 
   coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
 

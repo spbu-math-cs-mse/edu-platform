@@ -19,9 +19,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseTeacherStorage(
-  val database: Database,
-) : TeacherStorage {
+class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
   init {
     transaction(database) {
       SchemaUtils.create(TeacherTable)
@@ -30,58 +28,47 @@ class DatabaseTeacherStorage(
     }
   }
 
-  override fun createTeacher(
-    name: String,
-    surname: String,
-    tgId: Long,
-  ): TeacherId =
+  override fun createTeacher(name: String, surname: String, tgId: Long): TeacherId =
     transaction(database) {
-      TeacherTable.insert {
-        it[TeacherTable.name] = name
-        it[TeacherTable.surname] = surname
-        it[TeacherTable.tgId] = tgId
-      } get TeacherTable.id
-    }.value.toTeacherId()
+        TeacherTable.insert {
+          it[TeacherTable.name] = name
+          it[TeacherTable.surname] = surname
+          it[TeacherTable.tgId] = tgId
+        } get TeacherTable.id
+      }
+      .value
+      .toTeacherId()
 
   override fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     transaction(database) {
-      val row = TeacherTable
-        .selectAll()
-        .where(TeacherTable.id eq teacherId.id)
-        .singleOrNull() ?: return@transaction Err(ResolveError(teacherId))
-      Ok(
-        Teacher(
-          teacherId,
-          row[TeacherTable.name],
-          row[TeacherTable.surname],
-        ),
-      )
+      val row =
+        TeacherTable.selectAll().where(TeacherTable.id eq teacherId.id).singleOrNull()
+          ?: return@transaction Err(ResolveError(teacherId))
+      Ok(Teacher(teacherId, row[TeacherTable.name], row[TeacherTable.surname]))
     }
 
   override fun getTeachers(): List<Teacher> =
     transaction(database) {
-      TeacherTable.selectAll()
-        .map {
-          Teacher(
-            TeacherId(it[TeacherTable.id].value),
-            it[TeacherTable.name],
-            it[TeacherTable.surname],
-          )
-        }
+      TeacherTable.selectAll().map {
+        Teacher(
+          TeacherId(it[TeacherTable.id].value),
+          it[TeacherTable.name],
+          it[TeacherTable.surname],
+        )
+      }
     }
 
   override fun resolveByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
     transaction(database) {
-      val row = TeacherTable
-        .selectAll()
-        .where(TeacherTable.tgId eq tgId.chatId.long)
-        .singleOrNull() ?: return@transaction Err(ResolveError(tgId))
+      val row =
+        TeacherTable.selectAll().where(TeacherTable.tgId eq tgId.chatId.long).singleOrNull()
+          ?: return@transaction Err(ResolveError(tgId))
       Ok(
         Teacher(
           row[TeacherTable.id].value.toTeacherId(),
           row[TeacherTable.name],
           row[TeacherTable.surname],
-        ),
+        )
       )
     }
 }

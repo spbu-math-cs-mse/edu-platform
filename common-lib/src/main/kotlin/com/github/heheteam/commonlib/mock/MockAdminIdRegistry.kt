@@ -7,8 +7,6 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-class MockAdminIdRegistry(
-  val usedId: Long,
-) : AdminIdRegistry {
+class MockAdminIdRegistry(val usedId: Long) : AdminIdRegistry {
   override fun getUserId(tgId: UserId): Result<AdminId, ResolveError<UserId>> = Ok(AdminId(usedId))
 }

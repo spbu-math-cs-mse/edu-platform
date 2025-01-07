@@ -19,17 +19,14 @@ import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
-  core: StudentCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: StudentCore) {
   strictlyOn<SignUpState> { state ->
     val studentId = state.studentId
     val courses = core.getCourses()
     val studentCourses = core.getStudentCourses(studentId).toMutableList()
     println(studentCourses)
     val coursesToAvailability =
-      courses.map { it to studentCourses.map { it.id }.contains(it.id) }
-        .toMutableList()
+      courses.map { it to studentCourses.map { it.id }.contains(it.id) }.toMutableList()
 
     val initialMessage =
       bot.send(
@@ -38,18 +35,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(
         replyMarkup = buildCoursesSelector(coursesToAvailability),
       )
 
-    val signingUpState = SigningUpState(
-      state,
-      courses,
-      studentCourses,
-      coursesToAvailability,
-      core,
-      studentId,
-    )
+    val signingUpState =
+      SigningUpState(state, courses, studentCourses, coursesToAvailability, core, studentId)
 
-    signingUpState.run {
-      signUp(initialMessage)
-    }
+    signingUpState.run { signUp(initialMessage) }
 
     MenuState(state.context, state.studentId)
   }
@@ -126,11 +115,7 @@ class SigningUpState(
 
     studentCourses.add(courses[index])
     coursesToAvailability[
-      coursesToAvailability.indexOfFirst {
-        it.first.id == CourseId(
-          courseId.toLong(),
-        )
-      },
+      coursesToAvailability.indexOfFirst { it.first.id == CourseId(courseId.toLong()) },
     ] = courses[index] to true
 
     bot.editMessageReplyMarkup(
@@ -149,11 +134,7 @@ class SigningUpState(
         deleteMessage(message)
 
         val botMessage =
-          bot.send(
-            state.context,
-            text = "Вы не выбрали ни одного курса!",
-            replyMarkup = back(),
-          )
+          bot.send(state.context, text = "Вы не выбрали ни одного курса!", replyMarkup = back())
 
         waitDataCallbackQueryWithUser(state.context.id).first()
         deleteMessage(botMessage)
@@ -174,11 +155,7 @@ class SigningUpState(
         deleteMessage(message)
 
         val botMessage =
-          bot.send(
-            state.context,
-            text = "Вы успешно записались на курсы!",
-            replyMarkup = back(),
-          )
+          bot.send(state.context, text = "Вы успешно записались на курсы!", replyMarkup = back())
 
         waitDataCallbackQueryWithUser(state.context.id).first()
         deleteMessage(botMessage)

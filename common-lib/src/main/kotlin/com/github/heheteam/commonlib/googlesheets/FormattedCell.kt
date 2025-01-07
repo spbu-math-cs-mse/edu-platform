@@ -22,13 +22,11 @@ internal class FormattedCell(
   dataType: DataType = DataType.STRING,
   val width: Int = 1,
 ) {
-  private val cellFormat = CellFormat()
-    .setTextFormat(TextFormat().setBold(false))
-    .setBorders(Borders())
+  private val cellFormat =
+    CellFormat().setTextFormat(TextFormat().setBold(false)).setBorders(Borders())
 
-  private val cellData: CellData = CellData()
-    .setUserEnteredValue(parse(data, dataType))
-    .setUserEnteredFormat(cellFormat)
+  private val cellData: CellData =
+    CellData().setUserEnteredValue(parse(data, dataType)).setUserEnteredFormat(cellFormat)
 
   fun bold(): FormattedCell {
     cellData.setUserEnteredFormat(cellFormat.setTextFormat(TextFormat().setBold(true)))
@@ -46,30 +44,22 @@ internal class FormattedCell(
   }
 
   fun rightBorder(width: Int = 1): FormattedCell {
-    cellFormat.apply {
-      borders.setRight(Border().setWidth(width).setStyle("SOLID"))
-    }
+    cellFormat.apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }
     return this
   }
 
   fun leftBorder(width: Int = 1): FormattedCell {
-    cellFormat.apply {
-      borders.setLeft(Border().setWidth(width).setStyle("SOLID"))
-    }
+    cellFormat.apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }
     return this
   }
 
   fun topBorder(width: Int = 1): FormattedCell {
-    cellFormat.apply {
-      borders.setTop(Border().setWidth(width).setStyle("SOLID"))
-    }
+    cellFormat.apply { borders.setTop(Border().setWidth(width).setStyle("SOLID")) }
     return this
   }
 
   fun bottomBorder(width: Int = 1): FormattedCell {
-    cellFormat.apply {
-      borders.setBottom(Border().setWidth(width).setStyle("SOLID"))
-    }
+    cellFormat.apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }
     return this
   }
 

@@ -17,18 +17,16 @@ class GradeTableDecorator(
   private val gradeTable: GradeTable,
   private val ratingRecorder: GoogleSheetsRatingRecorder,
 ) : GradeTable {
-  override fun getStudentPerformance(
-    studentId: StudentId,
-  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId)
+  override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> =
+    gradeTable.getStudentPerformance(studentId)
 
   override fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: List<AssignmentId>,
   ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId)
 
-  override fun getCourseRating(
-    courseId: CourseId,
-  ): Map<StudentId, Map<ProblemId, Grade>> = gradeTable.getCourseRating(courseId)
+  override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade>> =
+    gradeTable.getCourseRating(courseId)
 
   override fun assessSolution(
     solutionId: SolutionId,
@@ -36,8 +34,10 @@ class GradeTableDecorator(
     assessment: SolutionAssessment,
     teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime,
-  ) = gradeTable.assessSolution(solutionId, teacherId, assessment, teacherStatistics)
-    .apply { ratingRecorder.updateRating(solutionId) }
+  ) =
+    gradeTable.assessSolution(solutionId, teacherId, assessment, teacherStatistics).apply {
+      ratingRecorder.updateRating(solutionId)
+    }
 
   override fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
 }

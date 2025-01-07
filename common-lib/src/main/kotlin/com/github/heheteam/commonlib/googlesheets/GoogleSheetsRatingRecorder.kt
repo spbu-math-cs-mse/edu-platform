@@ -9,13 +9,13 @@ import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.ConcurrentHashMap
 
 class GoogleSheetsRatingRecorder(
   private val googleSheetsService: GoogleSheetsService,
@@ -29,17 +29,17 @@ class GoogleSheetsRatingRecorder(
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
 
   init {
-    coursesDistributor.getCourses().forEach { course ->
-      updateRating(course.id)
-    }
+    coursesDistributor.getCourses().forEach { course -> updateRating(course.id) }
   }
 
   override fun updateRating(courseId: CourseId) {
     scope.launch {
-      val mutex = courseMutexes[courseId] ?: run {
-        courseMutexes[courseId] = Mutex()
-        courseMutexes[courseId]!!
-      }
+      val mutex =
+        courseMutexes[courseId]
+          ?: run {
+            courseMutexes[courseId] = Mutex()
+            courseMutexes[courseId]!!
+          }
       mutex.withLock {
         googleSheetsService.updateRating(
           coursesDistributor.resolveCourse(courseId).value,

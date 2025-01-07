@@ -9,9 +9,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(
-  core: ParentCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnChildPerformanceState(core: ParentCore) {
   strictlyOn<ChildPerformanceState> { state ->
     bot.sendSticker(state.context, Dialogues.nerdSticker)
     bot.send(

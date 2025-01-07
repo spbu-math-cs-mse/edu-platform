@@ -8,13 +8,13 @@ import com.github.heheteam.teacherbot.states.PresetTeacherState
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPresetTeacherState(
-  core: TeacherCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnPresetTeacherState(core: TeacherCore) {
   strictlyOn<PresetTeacherState> { state ->
     val courses = core.getAvailableCourses(state.teacherId)
     val coursesRepr =
-      courses.joinToString("\n") { course: Course -> "\u2605 " + course.name + " (id=${course.id})" }
+      courses.joinToString("\n") { course: Course ->
+        "\u2605 " + course.name + " (id=${course.id})"
+      }
     bot.send(
       state.context,
       "Вы --- учитель id=${state.teacherId}.\nВы преподаете на курсах:\n$coursesRepr",

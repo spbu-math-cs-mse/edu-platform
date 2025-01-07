@@ -23,19 +23,18 @@ import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
-/**
- * @param args bot token and telegram @username for mocking data.
- */
+/** @param args bot token and telegram @username for mocking data. */
 suspend fun main(vararg args: String) {
   val botToken = args.first()
   val config = loadConfig()
 
-  val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
   val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
@@ -46,21 +45,32 @@ suspend fun main(vararg args: String) {
   val studentStorage = DatabaseStudentStorage(database)
 
   val googleSheetsService =
-    GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
-  val ratingRecorder = GoogleSheetsRatingRecorder(
-    googleSheetsService,
-    databaseCoursesDistributor,
-    assignmentStorage,
-    problemStorage,
-    databaseGradeTable,
-    solutionDistributor,
-  )
+    GoogleSheetsService(
+      config.googleSheetsConfig.serviceAccountKey,
+      config.googleSheetsConfig.spreadsheetId,
+    )
+  val ratingRecorder =
+    GoogleSheetsRatingRecorder(
+      googleSheetsService,
+      databaseCoursesDistributor,
+      assignmentStorage,
+      problemStorage,
+      databaseGradeTable,
+      solutionDistributor,
+    )
   val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
   val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
   val teacherStatistics = InMemoryTeacherStatistics()
   val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+  fillWithSamples(
+    coursesDistributor,
+    problemStorage,
+    assignmentStorage,
+    studentStorage,
+    teacherStorage,
+    database,
+  )
 
   val core =
     TeacherCore(

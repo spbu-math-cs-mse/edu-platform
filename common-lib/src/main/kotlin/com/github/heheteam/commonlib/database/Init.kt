@@ -38,13 +38,7 @@ private val allTables =
 
 /** @param args Url, driver, user, password */
 fun main(args: Array<String>) {
-  val database =
-    Database.connect(
-      args[0],
-      args[1],
-      args[2],
-      args[3],
-    )
+  val database = Database.connect(args[0], args[1], args[2], args[3])
 
   transaction {
     addLogger(StdOutSqlLogger)
@@ -61,11 +55,5 @@ fun reset(database: Database) {
 }
 
 fun Transaction.fillWithMockData() {
-  exec(
-    object {}
-      .javaClass
-      .getClassLoader()
-      .getResource("mock_data.sql")!!
-      .readText(Charsets.UTF_8),
-  )
+  exec(object {}.javaClass.getClassLoader().getResource("mock_data.sql")!!.readText(Charsets.UTF_8))
 }

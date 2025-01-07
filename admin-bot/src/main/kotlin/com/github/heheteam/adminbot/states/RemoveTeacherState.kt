@@ -18,9 +18,7 @@ import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: AdminCore) {
   strictlyOn<RemoveTeacherState> { state ->
-    send(
-      state.context,
-    ) {
+    send(state.context) {
       +"Введите ID преподавателей (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."
     }
     val ids: List<Long>
@@ -32,18 +30,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveTeacherState(core: 
       }
       val splitIds = input.split(",").map { it.trim() }
       if (splitIds.isEmpty()) {
-        send(
-          state.context,
-          noIdInInput(),
-        )
+        send(state.context, noIdInInput())
         continue
       }
       val processedIds = processStringIds(splitIds)
       if (processedIds.isErr) {
-        send(
-          state.context,
-          processedIds.error,
-        )
+        send(state.context, processedIds.error)
         continue
       }
       ids = processedIds.value
@@ -59,18 +51,13 @@ private suspend fun BehaviourContext.processIdsThatDoNotExist(
   core: AdminCore,
   ids: List<Long>,
 ): List<Long> {
-  val idsThatDoNotExist = ids.asSequence().filter { id -> !core.teacherExists(TeacherId(id)) }.toList()
+  val idsThatDoNotExist =
+    ids.asSequence().filter { id -> !core.teacherExists(TeacherId(id)) }.toList()
 
   if (idsThatDoNotExist.size == 1) {
-    send(
-      state.context,
-      oneTeacherIdDoesNotExist(idsThatDoNotExist.first()),
-    )
+    send(state.context, oneTeacherIdDoesNotExist(idsThatDoNotExist.first()))
   } else if (idsThatDoNotExist.size > 1) {
-    send(
-      state.context,
-      manyTeacherIdsDoNotExist(idsThatDoNotExist),
-    )
+    send(state.context, manyTeacherIdsDoNotExist(idsThatDoNotExist))
   }
 
   return idsThatDoNotExist
@@ -83,7 +70,10 @@ private suspend fun BehaviourContext.processBadIds(
 ): List<Long> {
   val idsThatDoNotExist = processIdsThatDoNotExist(state, core, ids).toSet()
   val idsThatAlreadyDoNotExist =
-    ids.asSequence().filter { id -> id !in idsThatDoNotExist && !core.teachesIn(TeacherId(id), state.course) }.toList()
+    ids
+      .asSequence()
+      .filter { id -> id !in idsThatDoNotExist && !core.teachesIn(TeacherId(id), state.course) }
+      .toList()
 
   if (idsThatAlreadyDoNotExist.size == 1) {
     send(
@@ -109,15 +99,9 @@ private suspend fun BehaviourContext.processIds(
   val goodIds = ids.asSequence().filter { id -> id !in badIds }.toList()
 
   if (goodIds.size == 1) {
-    send(
-      state.context,
-      oneIdIsGoodForTeacherRemoving(goodIds.first(), state.courseName),
-    )
+    send(state.context, oneIdIsGoodForTeacherRemoving(goodIds.first(), state.courseName))
   } else if (goodIds.size > 1) {
-    send(
-      state.context,
-      manyIdsAreGoodForTeacherRemoving(goodIds, state.courseName),
-    )
+    send(state.context, manyIdsAreGoodForTeacherRemoving(goodIds, state.courseName))
   }
   goodIds.forEach { id -> core.removeTeacher(TeacherId(id), state.course.id) }
 }

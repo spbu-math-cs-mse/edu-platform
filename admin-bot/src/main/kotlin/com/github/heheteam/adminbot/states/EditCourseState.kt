@@ -16,16 +16,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState(core: Adm
       state.context,
       "Выберите курс, который хотите изменить:",
       replyMarkup =
-      inlineKeyboard {
-        for ((name, _) in core.getCourses()) {
-          row {
-            dataButton(
-              text = name,
-              data = name,
-            )
+        inlineKeyboard {
+          for ((name, _) in core.getCourses()) {
+            row { dataButton(text = name, data = name) }
           }
-        }
-      },
+        },
     )
 
     val message = waitDataCallbackQueryWithUser(state.context.id).first()

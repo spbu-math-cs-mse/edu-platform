@@ -42,16 +42,15 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateAssignmentState(cor
   strictlyOn<CreateAssignmentState> { state ->
     val courses = core.getCourses().values.toList()
     if (courses.isEmpty()) {
-      bot.send(
-        state.context,
-        text = noCoursesWasFoundForCreationOfAssignment(),
-      )
+      bot.send(state.context, text = noCoursesWasFoundForCreationOfAssignment())
       return@strictlyOn MenuState(state.context)
     }
 
     val course = queryCourse(state, courses) ?: return@strictlyOn MenuState(state.context)
-    val description = queryAssignmentDescription(state) ?: return@strictlyOn MenuState(state.context)
-    val problemsDescriptions = queryProblemsDescriptions(state) ?: return@strictlyOn MenuState(state.context)
+    val description =
+      queryAssignmentDescription(state) ?: return@strictlyOn MenuState(state.context)
+    val problemsDescriptions =
+      queryProblemsDescriptions(state) ?: return@strictlyOn MenuState(state.context)
 
     core.addAssignment(course.id, description, problemsDescriptions)
     bot.send(state.context, assignmentWasCreatedSuccessfully())
@@ -63,8 +62,7 @@ private suspend fun BehaviourContext.queryCourse(
   state: CreateAssignmentState,
   courses: List<Course>,
 ): Course? {
-  val message =
-    bot.send(state.context, askCourse(), replyMarkup = buildCoursesSelector(courses))
+  val message = bot.send(state.context, askCourse(), replyMarkup = buildCoursesSelector(courses))
 
   val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
@@ -79,23 +77,22 @@ private suspend fun BehaviourContext.queryCourse(
 
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun BehaviourContext.queryAssignmentDescription(
-  state: CreateAssignmentState,
+  state: CreateAssignmentState
 ): String? {
   val messages: MutableList<ContentMessage<TextContent>> = mutableListOf()
   messages.add(
-    bot.send(
-      state.context,
-      text = askAssignmentDescription(),
-      replyMarkup = returnBack(),
-    ),
+    bot.send(state.context, text = askAssignmentDescription(), replyMarkup = returnBack())
   )
 
   while (true) {
     when (
-      val response = flowOf(
-        waitDataCallbackQueryWithUser(state.context.id),
-        waitTextMessageWithUser(state.context.id),
-      ).flattenMerge().first()
+      val response =
+        flowOf(
+            waitDataCallbackQueryWithUser(state.context.id),
+            waitTextMessageWithUser(state.context.id),
+          )
+          .flattenMerge()
+          .first()
     ) {
       is DataCallbackQuery -> {
         if (response.data == returnBack) {
@@ -108,7 +105,9 @@ private suspend fun BehaviourContext.queryAssignmentDescription(
         val descriptionFromText = response.content.textContentOrNull()?.text
         if (descriptionFromText == null) {
           editMessageReplyMarkup(messages.last(), replyMarkup = null)
-          messages.add(bot.send(state.context, assignmentDescriptionIsNotText(), replyMarkup = returnBack()))
+          messages.add(
+            bot.send(state.context, assignmentDescriptionIsNotText(), replyMarkup = returnBack())
+          )
           continue
         }
         messages.forEach { delete(it) }
@@ -119,24 +118,21 @@ private suspend fun BehaviourContext.queryAssignmentDescription(
 }
 
 private suspend fun BehaviourContext.queryProblemsDescriptions(
-  state: CreateAssignmentState,
+  state: CreateAssignmentState
 ): List<ProblemDescription>? {
-  val messages = mutableListOf<ContentMessage<TextContent>>().apply {
-    add(
-      bot.send(
-        state.context,
-        text = askProblemsDescriptions(),
-        replyMarkup = returnBack(),
-      ),
-    )
-  }
+  val messages =
+    mutableListOf<ContentMessage<TextContent>>().apply {
+      add(bot.send(state.context, text = askProblemsDescriptions(), replyMarkup = returnBack()))
+    }
   val problemsDescriptions: List<ProblemDescription>
   while (true) {
     when (
-      val response = merge(
-        waitDataCallbackQueryWithUser(state.context.id),
-        waitTextMessageWithUser(state.context.id),
-      ).first()
+      val response =
+        merge(
+            waitDataCallbackQueryWithUser(state.context.id),
+            waitTextMessageWithUser(state.context.id),
+          )
+          .first()
     ) {
       is DataCallbackQuery -> {
         if (response.data == returnBack) {
@@ -172,23 +168,20 @@ private suspend fun BehaviourContext.handleError(
   errorMessage: String,
 ) {
   editMessageReplyMarkup(messages.last(), replyMarkup = null)
-  messages.add(
-    bot.send(
-      state.context,
-      errorMessage,
-      replyMarkup = returnBack(),
-    ),
-  )
+  messages.add(bot.send(state.context, errorMessage, replyMarkup = returnBack()))
 }
 
 internal fun parseProblemsDescriptions(
-  problemsDescriptionsFromText: String,
+  problemsDescriptionsFromText: String
 ): Result<List<ProblemDescription>, String> {
   val problemsDescriptions = mutableListOf<ProblemDescription>()
   for (problemDescription in problemsDescriptionsFromText.lines()) {
-    val arguments = """[^\s"]+|"([^"]*)"""".toRegex().findAll(problemDescription)
-      .map { it.groups[1]?.value ?: it.value }
-      .toList()
+    val arguments =
+      """[^\s"]+|"([^"]*)""""
+        .toRegex()
+        .findAll(problemDescription)
+        .map { it.groups[1]?.value ?: it.value }
+        .toList()
 
     when {
       arguments.isEmpty() -> {
@@ -200,8 +193,9 @@ internal fun parseProblemsDescriptions(
       }
 
       else -> {
-        val maxScore = arguments.elementAtOrElse(2) { "1" }.toIntOrNull()
-          ?: return Err(incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
+        val maxScore =
+          arguments.elementAtOrElse(2) { "1" }.toIntOrNull()
+            ?: return Err(incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
         problemsDescriptions.add(
           ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore)
         )

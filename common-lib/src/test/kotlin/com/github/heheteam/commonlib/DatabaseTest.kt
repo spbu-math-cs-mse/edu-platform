@@ -12,22 +12,23 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import org.jetbrains.exposed.sql.Database
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import org.jetbrains.exposed.sql.Database
 
 class DatabaseTest {
   private val config = loadConfig()
 
-  private val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  private val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val gradeTable = DatabaseGradeTable(database)
@@ -76,9 +77,9 @@ class DatabaseTest {
         listOf(
           ProblemDescription("p1", "", 1),
           ProblemDescription("p2", "", 1),
-          ProblemDescription("p3", "", 1)
+          ProblemDescription("p3", "", 1),
         ),
-        problemStorage
+        problemStorage,
       )
     val assignment2Id =
       assignmentStorage.createAssignment(
@@ -87,16 +88,16 @@ class DatabaseTest {
         listOf(
           ProblemDescription("p1", "", 1),
           ProblemDescription("p2", "", 1),
-          ProblemDescription("p3", "", 1)
+          ProblemDescription("p3", "", 1),
         ),
-        problemStorage
+        problemStorage,
       )
     val assignment3Id =
       assignmentStorage.createAssignment(
         course2Id,
         "assignment 3",
         listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)),
-        problemStorage
+        problemStorage,
       )
 
     for (problemId in 1..8) {
@@ -141,45 +142,21 @@ class DatabaseTest {
       )
     }
     val gradesS1A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 1)
-    assertEquals(
-      gradesS1A1,
-      gradeTable.getStudentPerformance(student1Id, listOf(assignment1Id))
-    )
+    assertEquals(gradesS1A1, gradeTable.getStudentPerformance(student1Id, listOf(assignment1Id)))
     val gradesS1A2 = mapOf(ProblemId(4) to 1, ProblemId(5) to 1, ProblemId(6) to 1)
-    assertEquals(
-      gradesS1A2,
-      gradeTable.getStudentPerformance(student1Id, listOf(assignment2Id))
-    )
+    assertEquals(gradesS1A2, gradeTable.getStudentPerformance(student1Id, listOf(assignment2Id)))
     val gradesS1A3 = mapOf(ProblemId(7) to 1, ProblemId(8) to 1)
-    assertEquals(
-      gradesS1A3,
-      gradeTable.getStudentPerformance(student1Id, listOf(assignment3Id))
-    )
+    assertEquals(gradesS1A3, gradeTable.getStudentPerformance(student1Id, listOf(assignment3Id)))
 
-    assertEquals(
-      gradesS1A1 + gradesS1A2 + gradesS1A3,
-      gradeTable.getStudentPerformance(student1Id),
-    )
+    assertEquals(gradesS1A1 + gradesS1A2 + gradesS1A3, gradeTable.getStudentPerformance(student1Id))
 
     val gradesS2A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 0)
-    assertEquals(
-      gradesS2A1,
-      gradeTable.getStudentPerformance(student2Id, listOf(assignment1Id))
-    )
+    assertEquals(gradesS2A1, gradeTable.getStudentPerformance(student2Id, listOf(assignment1Id)))
     val gradesS2A2 = mapOf(ProblemId(4) to 0)
-    assertEquals(
-      gradesS2A2,
-      gradeTable.getStudentPerformance(student2Id, listOf(assignment2Id))
-    )
+    assertEquals(gradesS2A2, gradeTable.getStudentPerformance(student2Id, listOf(assignment2Id)))
     val gradesS2A3 = mapOf<ProblemId, Grade>()
-    assertEquals(
-      gradesS2A3,
-      gradeTable.getStudentPerformance(student2Id, listOf(assignment3Id))
-    )
+    assertEquals(gradesS2A3, gradeTable.getStudentPerformance(student2Id, listOf(assignment3Id)))
 
-    assertEquals(
-      gradesS2A1 + gradesS2A2 + gradesS2A3,
-      gradeTable.getStudentPerformance(student2Id),
-    )
+    assertEquals(gradesS2A1 + gradesS2A2 + gradesS2A3, gradeTable.getStudentPerformance(student2Id))
   }
 }

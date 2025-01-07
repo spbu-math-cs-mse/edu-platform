@@ -9,8 +9,8 @@ data class Config(
   val redisConfig: RedisConfig,
 )
 
-fun loadConfig(): Config = ConfigLoaderBuilder
-  .default()
-  .addResourceSource("/config.json")
-  .build()
-  .loadConfigOrThrow<Config>()
+fun loadConfig(): Config =
+  ConfigLoaderBuilder.default()
+    .addResourceSource("/config.json")
+    .build()
+    .loadConfigOrThrow<Config>()

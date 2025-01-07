@@ -11,14 +11,7 @@ object Keyboards {
   val returnBack = "Назад"
 
   fun returnBack() =
-    InlineKeyboardMarkup(
-      keyboard =
-      matrix {
-        row {
-          dataButton("Назад \uD83D\uDD19", returnBack)
-        }
-      },
-    )
+    InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Назад \uD83D\uDD19", returnBack) } })
 
   val createCourse = "create course"
   val getTeachers = "get teachers"
@@ -26,27 +19,14 @@ object Keyboards {
   val createAssignment = "create assignment"
   val courseInfo = "course info"
 
-  fun menu() =
-    inlineKeyboard {
-      row {
-        dataButton("➕ Создать курс", createCourse)
-      }
-      row {
-        dataButton("Изменить курс", "edit course")
-      }
-      row {
-        dataButton("Информация о курсе", courseInfo)
-      }
-      row {
-        dataButton("Список всех преподавателей", getTeachers)
-      }
-      row {
-        dataButton("Список всех серий с задачами", getProblems)
-      }
-      row {
-        dataButton("Создать серию", createAssignment)
-      }
-    }
+  fun menu() = inlineKeyboard {
+    row { dataButton("➕ Создать курс", createCourse) }
+    row { dataButton("Изменить курс", "edit course") }
+    row { dataButton("Информация о курсе", courseInfo) }
+    row { dataButton("Список всех преподавателей", getTeachers) }
+    row { dataButton("Список всех серий с задачами", getProblems) }
+    row { dataButton("Создать серию", createAssignment) }
+  }
 
   val addStudent = "add a student"
   val removeStudent = "remove a student"
@@ -55,40 +35,26 @@ object Keyboards {
   val editDescription = "edit description"
   val addScheduledMessage = "add scheduled message"
 
-  fun editCourse() =
-    inlineKeyboard {
-      row {
-        dataButton("Добавить учеников", addStudent)
-      }
-      row {
-        dataButton("Убрать учеников", removeStudent)
-      }
-      row {
-        dataButton("Добавить преподавателей", addTeacher)
-      }
-      row {
-        dataButton("Убрать преподавателей", removeTeacher)
-      }
-      row {
-        dataButton("Изменить описание", editDescription)
-      }
-      row {
-        dataButton("Добавить отложенное сообщение", addScheduledMessage)
-      }
-      row {
-        dataButton("Назад", returnBack)
-      }
-    }
+  fun editCourse() = inlineKeyboard {
+    row { dataButton("Добавить учеников", addStudent) }
+    row { dataButton("Убрать учеников", removeStudent) }
+    row { dataButton("Добавить преподавателей", addTeacher) }
+    row { dataButton("Убрать преподавателей", removeTeacher) }
+    row { dataButton("Изменить описание", editDescription) }
+    row { dataButton("Добавить отложенное сообщение", addScheduledMessage) }
+    row { dataButton("Назад", returnBack) }
+  }
 
   val courseId = "courseId"
+
   fun buildCoursesSelector(availableCourses: List<Course>) =
     InlineKeyboardMarkup(
       keyboard =
-      matrix {
-        availableCourses.forEach { course ->
-          row { dataButton(course.name, "$courseId ${course.id}") }
+        matrix {
+          availableCourses.forEach { course ->
+            row { dataButton(course.name, "$courseId ${course.id}") }
+          }
+          row { dataButton("Назад \uD83D\uDD19", returnBack) }
         }
-        row { dataButton("Назад \uD83D\uDD19", returnBack) }
-      },
     )
 }

@@ -22,9 +22,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseStudentStorage(
-  val database: Database,
-) : StudentStorage {
+class DatabaseStudentStorage(val database: Database) : StudentStorage {
   init {
     transaction(database) {
       SchemaUtils.create(StudentTable)
@@ -51,63 +49,46 @@ class DatabaseStudentStorage(
   override fun getChildren(parentId: ParentId): List<Student> {
     val ids =
       transaction(database) {
-        ParentStudents
-          .selectAll()
-          .where(ParentStudents.parentId eq parentId.id)
-      }.map { it[ParentStudents.studentId].value }
+          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.id)
+        }
+        .map { it[ParentStudents.studentId].value }
     return transaction(database) {
       return@transaction ids.map { studentId ->
-        StudentTable
-          .selectAll()
+        StudentTable.selectAll()
           .where(StudentTable.id eq studentId)
-          .map {
-            Student(
-              studentId.toStudentId(),
-              it[StudentTable.name],
-              it[StudentTable.name],
-            )
-          }.single()
+          .map { Student(studentId.toStudentId(), it[StudentTable.name], it[StudentTable.name]) }
+          .single()
       }
     }
   }
 
-  override fun createStudent(
-    name: String,
-    surname: String,
-    tgId: Long,
-  ): StudentId =
+  override fun createStudent(name: String, surname: String, tgId: Long): StudentId =
     transaction(database) {
-      StudentTable.insert {
-        it[StudentTable.name] = name
-        it[StudentTable.surname] = surname
-        it[StudentTable.tgId] = tgId
-      } get StudentTable.id
-    }.value.toStudentId()
+        StudentTable.insert {
+          it[StudentTable.name] = name
+          it[StudentTable.surname] = surname
+          it[StudentTable.tgId] = tgId
+        } get StudentTable.id
+      }
+      .value
+      .toStudentId()
 
   override fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
     transaction(database) {
-      val row = StudentTable
-        .selectAll()
-        .where(StudentTable.id eq studentId.id)
-        .singleOrNull() ?: return@transaction Err(ResolveError(studentId))
-      Ok(
-        Student(
-          studentId,
-          row[StudentTable.name],
-          row[StudentTable.surname],
-        ),
-      )
+      val row =
+        StudentTable.selectAll().where(StudentTable.id eq studentId.id).singleOrNull()
+          ?: return@transaction Err(ResolveError(studentId))
+      Ok(Student(studentId, row[StudentTable.name], row[StudentTable.surname]))
     }
 
   override fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> {
     return transaction(database) {
-      val maybeRow = StudentTable
-        .selectAll()
-        .where { StudentTable.tgId eq (tgId.chatId.long) }
-        .limit(1)
-        .firstOrNull().toResultOr {
-          ResolveError(tgId, Student::class.simpleName)
-        }
+      val maybeRow =
+        StudentTable.selectAll()
+          .where { StudentTable.tgId eq (tgId.chatId.long) }
+          .limit(1)
+          .firstOrNull()
+          .toResultOr { ResolveError(tgId, Student::class.simpleName) }
       maybeRow.map { row ->
         Student(
           row[StudentTable.id].value.toStudentId(),

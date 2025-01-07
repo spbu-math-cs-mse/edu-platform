@@ -18,13 +18,13 @@ import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import org.jetbrains.exposed.sql.Database
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDateTime
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class TeacherBotTest {
   private val now = LocalDateTime.now()
@@ -33,12 +33,13 @@ class TeacherBotTest {
   private lateinit var problemId: ProblemId
   private val config = loadConfig()
 
-  private val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  private val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database)
@@ -78,12 +79,13 @@ class TeacherBotTest {
   companion object {
     private val config = loadConfig()
 
-    private val database = Database.connect(
-      config.databaseConfig.url,
-      config.databaseConfig.driver,
-      config.databaseConfig.login,
-      config.databaseConfig.password,
-    )
+    private val database =
+      Database.connect(
+        config.databaseConfig.url,
+        config.databaseConfig.driver,
+        config.databaseConfig.login,
+        config.databaseConfig.password,
+      )
 
     @JvmStatic
     @AfterAll
@@ -129,18 +131,8 @@ class TeacherBotTest {
     statistics.recordNewSolution(sol1)
     statistics.recordNewSolution(sol2)
 
-    statistics.recordAssessment(
-      TeacherId(1L),
-      sol1,
-      now.minusHours(2),
-      solutionDistributor,
-    )
-    statistics.recordAssessment(
-      TeacherId(2L),
-      sol2,
-      now.minusHours(1),
-      solutionDistributor,
-    )
+    statistics.recordAssessment(TeacherId(1L), sol1, now.minusHours(2), solutionDistributor)
+    statistics.recordAssessment(TeacherId(2L), sol2, now.minusHours(1), solutionDistributor)
 
     val globalStats = statistics.getGlobalStats()
     assertEquals(0, globalStats.totalUncheckedSolutions)
@@ -156,10 +148,14 @@ class TeacherBotTest {
       SolutionContent(text = "test", type = SolutionType.TEXT),
       problemId,
     )
-    val solution = solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database)).value!!
+    val solution =
+      solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database)).value!!
 
     assertEquals(studentId, solution.studentId)
-    assertEquals(SolutionContent(listOf(), text = "test", type = SolutionType.TEXT), solution.content)
+    assertEquals(
+      SolutionContent(listOf(), text = "test", type = SolutionType.TEXT),
+      solution.content,
+    )
     assertEquals(MessageId(0), solution.messageId)
     assertEquals(RawChatId(0), solution.chatId)
   }

@@ -30,50 +30,42 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun adminRun(
-  botToken: String,
-  core: AdminCore,
-) {
+suspend fun adminRun(botToken: String, core: AdminCore) {
   telegramBot(botToken) {
-    logger =
-      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-        println(defaultMessageFormatter(level, tag, message, throwable))
-      }
+    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+      println(defaultMessageFormatter(level, tag, message, throwable))
+    }
   }
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
-    botToken,
-    CoroutineScope(Dispatchers.IO),
-    onStateHandlingErrorHandler = { state, e ->
-      println("Thrown error on $state")
-      e.printStackTrace()
-      state
-    },
-  ) {
-    println(getMe())
-
-    command(
-      "start",
+      botToken,
+      CoroutineScope(Dispatchers.IO),
+      onStateHandlingErrorHandler = { state, e ->
+        println("Thrown error on $state")
+        e.printStackTrace()
+        state
+      },
     ) {
-      startChain(MenuState(it.from!!))
-    }
+      println(getMe())
 
-    strictlyOnMenuState()
-    strictlyOnCreateCourseState(core)
-    strictlyOnCourseInfoState(core)
-    strictlyOnEditCourseState(core)
-    strictlyOnAddStudentState(core)
-    strictlyOnRemoveStudentState(core)
-    strictlyOnAddTeacherState(core)
-    strictlyOnRemoveTeacherState(core)
-    strictlyOnEditDescriptionState()
-    strictlyOnAddScheduledMessageState(core)
-    strictlyOnGetTeachersState(core)
-    strictlyOnGetProblemsState(core)
-    strictlyOnCreateAssignmentState(core)
+      command("start") { startChain(MenuState(it.from!!)) }
 
-    allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-      println(it)
+      strictlyOnMenuState()
+      strictlyOnCreateCourseState(core)
+      strictlyOnCourseInfoState(core)
+      strictlyOnEditCourseState(core)
+      strictlyOnAddStudentState(core)
+      strictlyOnRemoveStudentState(core)
+      strictlyOnAddTeacherState(core)
+      strictlyOnRemoveTeacherState(core)
+      strictlyOnEditDescriptionState()
+      strictlyOnAddScheduledMessageState(core)
+      strictlyOnGetTeachersState(core)
+      strictlyOnGetProblemsState(core)
+      strictlyOnCreateAssignmentState(core)
+
+      allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
-  }.second.join()
+    .second
+    .join()
 }

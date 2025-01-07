@@ -33,7 +33,8 @@ class AdminCore(
   fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
     scheduledMessagesDistributor.getMessagesUpToDate(date)
 
-  fun markMessagesUpToDateAsSent(date: LocalDateTime) = scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
+  fun markMessagesUpToDateAsSent(date: LocalDateTime) =
+    scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
 
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
@@ -48,60 +49,41 @@ class AdminCore(
   }
 
   fun getCourse(courseName: String): Course? =
-    coursesDistributor
-      .getCourses()
-      .find { it.name == courseName }
+    coursesDistributor.getCourses().find { it.name == courseName }
 
   fun getCourses(): Map<String, Course> =
-    coursesDistributor
-      .getCourses()
-      .groupBy { it.name }
-      .mapValues { it.value.first() }
+    coursesDistributor.getCourses().groupBy { it.name }.mapValues { it.value.first() }
 
   fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
 
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
-  fun studiesIn(
-    id: StudentId,
-    course: Course,
-  ): Boolean = coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
+  fun studiesIn(id: StudentId, course: Course): Boolean =
+    coursesDistributor.getStudentCourses(id).find { it.id == course.id } != null
 
-  fun teachesIn(
-    id: TeacherId,
-    course: Course,
-  ): Boolean = coursesDistributor.getTeacherCourses(id).find { it.id == course.id } != null
+  fun teachesIn(id: TeacherId, course: Course): Boolean =
+    coursesDistributor.getTeacherCourses(id).find { it.id == course.id } != null
 
-  fun registerStudentForCourse(
-    studentId: StudentId,
-    courseId: CourseId,
-  ) = coursesDistributor.addStudentToCourse(studentId, courseId)
+  fun registerStudentForCourse(studentId: StudentId, courseId: CourseId) =
+    coursesDistributor.addStudentToCourse(studentId, courseId)
 
-  fun registerTeacherForCourse(
-    teacherId: TeacherId,
-    courseId: CourseId,
-  ) {
+  fun registerTeacherForCourse(teacherId: TeacherId, courseId: CourseId) {
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
   }
 
-  fun removeTeacher(
-    teacherId: TeacherId,
-    courseId: CourseId,
-  ): Boolean = coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
+  fun removeTeacher(teacherId: TeacherId, courseId: CourseId): Boolean =
+    coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
 
-  fun removeStudent(
-    studentId: StudentId,
-    courseId: CourseId,
-  ): Boolean = coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
+  fun removeStudent(studentId: StudentId, courseId: CourseId): Boolean =
+    coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
 
   fun getTeachersBulletList(): String {
     val teachersList = teacherStorage.getTeachers()
     val noTeachers = "Список преподавателей пуст!"
     return if (teachersList.isNotEmpty()) {
-      teachersList.sortedBy { it.surname }
-        .joinToString("\n") { teacher ->
-          "- ${teacher.surname} ${teacher.name}"
-        }
+      teachersList
+        .sortedBy { it.surname }
+        .joinToString("\n") { teacher -> "- ${teacher.surname} ${teacher.name}" }
     } else {
       noTeachers
     }
@@ -116,17 +98,22 @@ class AdminCore(
       assignmentsList.forEachIndexed { index, assignment ->
         val problemsList = problemStorage.getProblemsFromAssignment(assignment.id)
         val noProblems = "Задачи в этой серии отсутствуют."
-        val problems = if (problemsList.isNotEmpty()) {
-          problemsList.joinToString("\n") { problem -> "    \uD83C\uDFAF задача ${problem.number}" }
-        } else {
-          noProblems
-        }
+        val problems =
+          if (problemsList.isNotEmpty()) {
+            problemsList.joinToString("\n") { problem ->
+              "    \uD83C\uDFAF задача ${problem.number}"
+            }
+          } else {
+            noProblems
+          }
         entitiesList.addAll(
           listOf(
             RegularTextSource("\uD83D\uDCDA "),
             bold(assignment.description),
-            RegularTextSource(":\n$problems${if (index == (assignmentsList.size - 1)) "" else "\n\n"}"),
-          ),
+            RegularTextSource(
+              ":\n$problems${if (index == (assignmentsList.size - 1)) "" else "\n\n"}"
+            ),
+          )
         )
       }
       entitiesList
@@ -151,9 +138,8 @@ class AdminCore(
       problems.forEach { problem ->
         val solutions = solutionDistributor.getSolutionsForProblem(problem.id)
         totalSolutions += solutions.size
-        checkedSolutions += solutions.count { solutionId ->
-          solutionDistributor.isSolutionAssessed(solutionId)
-        }
+        checkedSolutions +=
+          solutions.count { solutionId -> solutionDistributor.isSolutionAssessed(solutionId) }
       }
     }
 

@@ -29,13 +29,13 @@ import com.github.heheteam.commonlib.mock.MockNotificationService
 import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import org.jetbrains.exposed.sql.Database
-import org.junit.jupiter.api.BeforeEach
 import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.BeforeEach
 
 class StudentBotTest {
   private lateinit var coursesDistributor: CoursesDistributor
@@ -62,12 +62,13 @@ class StudentBotTest {
 
   private val config = loadConfig()
 
-  private val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  private val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
   @BeforeEach
   fun setup() {
@@ -113,10 +114,7 @@ class StudentBotTest {
     val studentCourses = studentCore.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.id })
 
-    assertEquals(
-      "Вы не записаны ни на один курс!",
-      studentCore.getCoursesBulletList(studentId),
-    )
+    assertEquals("Вы не записаны ни на один курс!", studentCore.getCoursesBulletList(studentId))
   }
 
   @Test
@@ -134,10 +132,7 @@ class StudentBotTest {
     )
     assertEquals("Начала мат. анализа", studentCourses.first().name)
 
-    assertEquals(
-      "- Начала мат. анализа\n- ТФКП",
-      studentCore.getCoursesBulletList(studentId),
-    )
+    assertEquals("- Начала мат. анализа\n- ТФКП", studentCore.getCoursesBulletList(studentId))
   }
 
   @Test
@@ -188,9 +183,7 @@ class StudentBotTest {
     val lastSolution = lastSolutionResult.value
     assertEquals(SolutionId(5L), lastSolution.id)
     assertEquals(
-      solutions
-        .map { solutionDistributor.resolveSolution(it).value.chatId }
-        .toSet(),
+      solutions.map { solutionDistributor.resolveSolution(it).value.chatId }.toSet(),
       setOf(chatId),
     )
   }

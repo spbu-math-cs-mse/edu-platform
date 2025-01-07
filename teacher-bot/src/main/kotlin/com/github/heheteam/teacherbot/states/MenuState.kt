@@ -24,9 +24,7 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
-  core: TeacherCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCore) {
   strictlyOn<MenuState> { state ->
     if (state.context.username == null) {
       return@strictlyOn null
@@ -34,26 +32,16 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
 
     val teacherId = state.teacherId
 
-    val stickerMessage =
-      bot.sendSticker(
-        state.context,
-        Dialogues.typingSticker,
-      )
+    val stickerMessage = bot.sendSticker(state.context, Dialogues.typingSticker)
 
-    val menuMessage =
-      bot.send(
-        state.context,
-        Dialogues.menu(),
-        replyMarkup = Keyboards.menu(),
-      )
+    val menuMessage = bot.send(state.context, Dialogues.menu(), replyMarkup = Keyboards.menu())
 
     val dataCallbackResponseFlow =
       waitDataCallbackQueryWithUser(state.context.id).map { callback ->
         handleDataCallback(callback, state, core, teacherId)
       }
-    val texts = waitTextMessageWithUser(state.context.id).map { t ->
-      handleTextMessage(t, state.context)
-    }
+    val texts =
+      waitTextMessageWithUser(state.context.id).map { t -> handleTextMessage(t, state.context) }
     val nextState = merge(dataCallbackResponseFlow, texts).firstNotNull()
     deleteMessage(stickerMessage)
     deleteMessage(menuMessage)
@@ -69,10 +57,12 @@ private suspend fun BehaviourContext.handleTextMessage(
   val match = re.matchEntire(t.content.text)
   return if (match != null) {
     val newIdStr = match.groups[1]?.value ?: return null
-    val newId = newIdStr.toLongOrNull() ?: run {
-      logger.error("input id $newIdStr is not long!")
-      return null
-    }
+    val newId =
+      newIdStr.toLongOrNull()
+        ?: run {
+          logger.error("input id $newIdStr is not long!")
+          return null
+        }
     PresetTeacherState(user, newId.toTeacherId())
   } else {
     bot.sendMessage(user.id, "Unrecognized command")
@@ -87,25 +77,26 @@ private suspend fun BehaviourContext.handleDataCallback(
   teacherId: TeacherId,
 ): BotState {
   val callbackData = callback.data
-  val nextState = when (callbackData) {
-    Keyboards.checkGrades -> {
-      CheckGradesState(state.context, state.teacherId)
-    }
-
-    Keyboards.getSolution -> {
-      GettingSolutionState(state.context, state.teacherId)
-    }
-
-    Keyboards.viewStats -> {
-      val stats = core.getTeacherStats(teacherId)
-      if (stats != null) {
-        sendStatisticsInfo(core, state, stats)
+  val nextState =
+    when (callbackData) {
+      Keyboards.checkGrades -> {
+        CheckGradesState(state.context, state.teacherId)
       }
-      MenuState(state.context, state.teacherId)
-    }
 
-    else -> null
-  }
+      Keyboards.getSolution -> {
+        GettingSolutionState(state.context, state.teacherId)
+      }
+
+      Keyboards.viewStats -> {
+        val stats = core.getTeacherStats(teacherId)
+        if (stats != null) {
+          sendStatisticsInfo(core, state, stats)
+        }
+        MenuState(state.context, state.teacherId)
+      }
+
+      else -> null
+    }
   return nextState ?: GettingSolutionState(state.context, state.teacherId)
 }
 
@@ -127,7 +118,7 @@ private suspend fun BehaviourContext.sendStatisticsInfo(
               ${
       stats.averageCheckTimeSeconds.let {
         "Среднее время на проверку: %.1f часов".format(
-          it / 60 / 60,
+          it / 60 / 60
         )
       } ?: ""
     }
@@ -135,11 +126,13 @@ private suspend fun BehaviourContext.sendStatisticsInfo(
               📈 Общая статистика:
               Среднее время проверки: %.1f часов
               Всего непроверенных работ: %d
-    """.trimIndent().format(
-      stats.averageAssessmentsPerDay,
-      globalStats.averageCheckTimeHours,
-      globalStats.totalUncheckedSolutions,
-    ),
+    """
+      .trimIndent()
+      .format(
+        stats.averageAssessmentsPerDay,
+        globalStats.averageCheckTimeHours,
+        globalStats.totalUncheckedSolutions,
+      ),
     replyMarkup = Keyboards.returnBack(),
   )
 }

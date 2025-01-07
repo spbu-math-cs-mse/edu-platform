@@ -1,7 +1,6 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.AssignmentId
@@ -12,6 +11,7 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
+import com.github.heheteam.studentbot.queryCourse
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -26,7 +26,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: St
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getStudentCourses(state.studentId)
     val courseId: CourseId =
-      queryCourseFromUser(state, courses)
+      queryCourse(state, courses, "Выберите курс")?.id
         ?: return@strictlyOn MenuState(state.context, state.studentId)
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
     val queryGradeType = queryGradeTypeKeyboard(state, assignmentsFromCourse, core, courseId)
@@ -110,37 +110,6 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
       else -> return null
     }
   return AssignmentId(assignmentId)
-}
-
-private suspend fun BehaviourContext.queryCourseFromUser(
-  state: CheckGradesState,
-  courses: List<Course>,
-): CourseId? {
-  val chooseCourseMessage =
-    bot.send(
-      state.context,
-      text = "Выберите курс",
-      replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-            matrix {
-              courses.forEach { row { dataButton(it.name, "${ButtonKey.COURSE_ID} ${it.id}") } }
-              row { dataButton("Назад", ButtonKey.BACK) }
-            }
-        ),
-    )
-
-  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(chooseCourseMessage)
-  val courseId =
-    when {
-      callback.data.contains(ButtonKey.COURSE_ID) -> {
-        callback.data.split(" ").last().toLong()
-      }
-
-      else -> return null
-    }
-  return CourseId(courseId)
 }
 
 private suspend fun BehaviourContext.respondWithTopGrades(

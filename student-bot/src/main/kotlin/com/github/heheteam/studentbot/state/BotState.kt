@@ -5,7 +5,9 @@ import com.github.heheteam.commonlib.api.StudentId
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 
-sealed interface BotState : State
+sealed interface BotState : State {
+  override val context: User
+}
 
 data class StartState(override val context: User) : BotState
 

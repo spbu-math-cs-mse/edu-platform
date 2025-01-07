@@ -1,13 +1,10 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.util.ButtonData
-import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
 import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
@@ -17,10 +14,7 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.mapBoth
+import com.github.heheteam.studentbot.queryCourse
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -55,7 +49,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       return@strictlyOn MenuState(state.context, state.studentId)
     }
 
-    val course = queryCourse(state, courses)
+    val course = queryCourse(state, courses, Dialogues.askCourseForSolution())
     if (course == null) {
       deleteMessage(stickerMessage)
       return@strictlyOn MenuState(state.context, state.studentId)
@@ -157,27 +151,6 @@ private suspend fun BehaviourContext.extractSolutionContent(
   } else {
     null
   }
-}
-
-private suspend fun BehaviourContext.queryCourse(
-  state: SendSolutionState,
-  courses: List<Course>,
-): Course? {
-  val courseSelector =
-    buildColumnMenu(
-      courses.map { course ->
-        ButtonData(course.name, "${ButtonKey.COURSE_ID} ${course.id}") {
-          Ok(course) as Result<Course, Unit>
-        }
-      } + ButtonData("Назад", ButtonKey.BACK) { Err(Unit) }
-    )
-  val message =
-    bot.send(state.context, Dialogues.askCourseForSolution(), replyMarkup = courseSelector.keyboard)
-
-  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  deleteMessage(message)
-  val result = courseSelector.handler(callbackData)?.mapBoth(success = { it }, failure = { null })
-  return result
 }
 
 private suspend fun BehaviourContext.queryProblem(

@@ -21,12 +21,12 @@ import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.utils.documentContentOrNull
-import dev.inmo.tgbotapi.extensions.utils.mediaGroupContentOrNull
-import dev.inmo.tgbotapi.extensions.utils.photoContentOrNull
-import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.content.DocumentContent
 import dev.inmo.tgbotapi.types.message.content.MediaContent
+import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
+import dev.inmo.tgbotapi.types.message.content.PhotoContent
+import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -123,35 +123,28 @@ suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: Str
 }
 
 private suspend fun BehaviourContext.extractSolutionContent(
-  content: CommonMessage<*>,
+  message: CommonMessage<*>,
   studentBotToken: String,
-): SolutionContent? {
-  val textSolution = content.content.textContentOrNull()
-  val photoSolution = content.content.photoContentOrNull()
-  val groupSolution = content.content.mediaGroupContentOrNull()
-  val documentSolution = content.content.documentContentOrNull()
-
-  return if (textSolution != null) {
-    return SolutionContent(text = textSolution.text, type = SolutionType.TEXT)
-  } else if (photoSolution != null) {
-    SolutionContent(
-      filesURL = listOf(makeURL(photoSolution, studentBotToken)),
-      type = SolutionType.PHOTO,
-    )
-  } else if (documentSolution != null) {
-    SolutionContent(
-      filesURL = listOf(makeURL(documentSolution, studentBotToken)),
-      type = SolutionType.DOCUMENT,
-    )
-  } else if (groupSolution != null) {
-    SolutionContent(
-      filesURL = groupSolution.group.map { makeURL(it.content, studentBotToken) },
-      type = SolutionType.GROUP,
-    )
-  } else {
-    null
+): SolutionContent? =
+  when (val messageContent = message.content) {
+    is TextContent -> SolutionContent(text = messageContent.text, type = SolutionType.TEXT)
+    is PhotoContent ->
+      SolutionContent(
+        filesURL = listOf(makeURL(messageContent, studentBotToken)),
+        type = SolutionType.PHOTO,
+      )
+    is MediaGroupContent<*> ->
+      SolutionContent(
+        filesURL = messageContent.group.map { makeURL(it.content, studentBotToken) },
+        type = SolutionType.GROUP,
+      )
+    is DocumentContent ->
+      SolutionContent(
+        filesURL = listOf(makeURL(messageContent, studentBotToken)),
+        type = SolutionType.DOCUMENT,
+      )
+    else -> null
   }
-}
 
 private suspend fun BehaviourContext.queryProblem(
   state: SendSolutionState,

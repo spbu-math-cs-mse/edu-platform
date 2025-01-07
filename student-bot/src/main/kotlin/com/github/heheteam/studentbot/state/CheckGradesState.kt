@@ -3,7 +3,6 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
@@ -11,15 +10,12 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
+import com.github.heheteam.studentbot.queryAssignmentFromUser
 import com.github.heheteam.studentbot.queryCourse
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
-import dev.inmo.tgbotapi.utils.matrix
-import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
@@ -51,10 +47,9 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
 ) =
   buildColumnMenu(
     ButtonData("Моя успеваемость", ButtonKey.STUDENT_GRADES) {
-      val assignmentId =
+      val assignment =
         queryAssignmentFromUser(state, assignmentsFromCourse)
           ?: return@ButtonData CheckGradesState(state.context, state.studentId)
-      val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
       val gradedProblems = core.getGradingForAssignment(assignment.id, state.studentId)
       respondWithGrades(state, assignment, gradedProblems)
       MenuState(state.context, state.studentId)
@@ -73,43 +68,9 @@ private suspend fun BehaviourContext.respondWithGrades(
   gradedProblems: List<Pair<Problem, Grade?>>,
 ) {
   val strGrades = "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
-
   val gradesMessage = bot.send(state.context, text = strGrades, replyMarkup = back())
   waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(gradesMessage)
-}
-
-private suspend fun BehaviourContext.queryAssignmentFromUser(
-  state: CheckGradesState,
-  assignments: List<Assignment>,
-): AssignmentId? {
-  val chooseAssignmentMessage =
-    bot.send(
-      state.context,
-      text = "Выберите серию",
-      replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-            matrix {
-              assignments.forEach {
-                row { dataButton(it.description, "${ButtonKey.ASSIGNMENT_ID} ${it.id}") }
-              }
-              row { dataButton("Назад", ButtonKey.BACK) }
-            }
-        ),
-    )
-
-  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(chooseAssignmentMessage)
-  val assignmentId =
-    when {
-      callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
-        callback.data.split(" ").last().toLong()
-      }
-
-      else -> return null
-    }
-  return AssignmentId(assignmentId)
 }
 
 private suspend fun BehaviourContext.respondWithTopGrades(

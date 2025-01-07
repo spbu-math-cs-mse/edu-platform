@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
@@ -38,7 +37,6 @@ class DatabaseGradeTable(
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade> =
     transaction(database) {
       AssessmentTable
@@ -56,7 +54,6 @@ class DatabaseGradeTable(
   override fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: List<AssignmentId>,
-    solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade> =
     transaction(database) {
       AssessmentTable
@@ -76,7 +73,6 @@ class DatabaseGradeTable(
 
   override fun getCourseRating(
     courseId: CourseId,
-    solutionDistributor: SolutionDistributor,
   ): Map<StudentId, Map<ProblemId, Grade>> = transaction(database) {
     AssessmentTable
       .join(

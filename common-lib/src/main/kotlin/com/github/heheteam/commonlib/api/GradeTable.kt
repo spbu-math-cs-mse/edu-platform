@@ -9,20 +9,17 @@ interface GradeTable {
   // maps student problem ids to grades
   fun getStudentPerformance(
     studentId: StudentId,
-    solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade>
 
   // maps student problem ids to grades
   fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: List<AssignmentId>,
-    solutionDistributor: SolutionDistributor,
   ): Map<ProblemId, Grade>
 
   // maps student problem ids to grades
   fun getCourseRating(
     courseId: CourseId,
-    solutionDistributor: SolutionDistributor,
   ): Map<StudentId, Map<ProblemId, Grade>>
 
   fun assessSolution(

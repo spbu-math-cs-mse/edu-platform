@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
@@ -20,19 +19,16 @@ class GradeTableDecorator(
 ) : GradeTable {
   override fun getStudentPerformance(
     studentId: StudentId,
-    solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
+  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId)
 
   override fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: List<AssignmentId>,
-    solutionDistributor: SolutionDistributor,
-  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId, solutionDistributor)
+  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId)
 
   override fun getCourseRating(
     courseId: CourseId,
-    solutionDistributor: SolutionDistributor,
-  ): Map<StudentId, Map<ProblemId, Grade>> = gradeTable.getCourseRating(courseId, solutionDistributor)
+  ): Map<StudentId, Map<ProblemId, Grade>> = gradeTable.getCourseRating(courseId)
 
   override fun assessSolution(
     solutionId: SolutionId,

@@ -151,7 +151,6 @@ class MultiBotRunner : CliktCommand() {
       ParentCore(
         DatabaseStudentStorage(database),
         DatabaseGradeTable(database),
-        DatabaseSolutionDistributor(database),
       )
     val presetStudent = presetStudentId?.toStudentId()
     val presetTeacher = presetTeacherId?.toTeacherId()

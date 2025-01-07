@@ -83,7 +83,7 @@
     <ID>LibraryEntitiesShouldNotBePublic:ViewState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnViewState( core: StudentCore, )</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
-    <ID>LongParameterList:StudentCore.kt$StudentCore$( private val solutionDistributor: SolutionDistributor, private val coursesDistributor: CoursesDistributor, private val problemStorage: ProblemStorage, private val assignmentStorage: AssignmentStorage, private val gradeTable: GradeTable, private val notificationService: NotificationService, private val botEventBus: BotEventBus, )</ID>
+    <ID>LongParameterList:StudentCore.kt$StudentCore$( private val solutionDistributor: SolutionDistributor, private val coursesDistributor: CoursesDistributor, private val problemStorage: ProblemStorage, private val assignmentStorage: AssignmentStorage, private val gradeTable: GradeTable, private val notificationService: NotificationService, botEventBus: BotEventBus, )</ID>
     <ID>LoopWithTooManyJumpStatements:SendSolutionState.kt$while</ID>
     <ID>MagicNumber:StudentCore.kt$StudentCore$5</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>

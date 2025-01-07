@@ -1,7 +1,6 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.MockParentStorage
@@ -27,7 +26,6 @@ suspend fun main(vararg args: String) {
     ParentCore(
       DatabaseStudentStorage(database),
       DatabaseGradeTable(database),
-      DatabaseSolutionDistributor(database),
     )
 
   parentRun(botToken, parentStorage, core)

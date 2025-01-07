@@ -134,14 +134,14 @@ class GoogleSheetsTest {
       assignmentStorage.getAssignmentsForCourse(course1Id),
       problemStorage.getProblemsFromCourse(course1Id),
       coursesDistributor.getStudents(course1Id),
-      gradeTable.getCourseRating(course1Id, solutionDistributor),
+      gradeTable.getCourseRating(course1Id),
     )
     googleSheetsService.updateRating(
       coursesDistributor.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id),
       problemStorage.getProblemsFromCourse(course2Id),
       coursesDistributor.getStudents(course2Id),
-      gradeTable.getCourseRating(course2Id, solutionDistributor),
+      gradeTable.getCourseRating(course2Id),
     )
   }
 }

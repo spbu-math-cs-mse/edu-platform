@@ -29,7 +29,7 @@ class StudentCore(
   private val assignmentStorage: AssignmentStorage,
   private val gradeTable: GradeTable,
   private val notificationService: NotificationService,
-  private val botEventBus: BotEventBus,
+  botEventBus: BotEventBus,
 ) {
   init {
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
@@ -43,7 +43,7 @@ class StudentCore(
   ): List<Pair<Problem, Grade?>> {
     val grades =
       gradeTable
-        .getStudentPerformance(studentId, listOf(assignmentId), solutionDistributor)
+        .getStudentPerformance(studentId, listOf(assignmentId))
     val gradedProblems =
       problemStorage
         .getProblemsFromAssignment(assignmentId)
@@ -61,7 +61,7 @@ class StudentCore(
       students
         .map { studentId ->
           gradeTable
-            .getStudentPerformance(studentId, assignments, solutionDistributor).values.sum()
+            .getStudentPerformance(studentId, assignments).values.sum()
         }
         .sortedDescending()
         .take(5)

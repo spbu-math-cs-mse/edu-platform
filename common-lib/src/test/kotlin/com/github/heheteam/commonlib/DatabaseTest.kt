@@ -143,43 +143,43 @@ class DatabaseTest {
     val gradesS1A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 1)
     assertEquals(
       gradesS1A1,
-      gradeTable.getStudentPerformance(student1Id, listOf(assignment1Id), solutionDistributor)
+      gradeTable.getStudentPerformance(student1Id, listOf(assignment1Id))
     )
     val gradesS1A2 = mapOf(ProblemId(4) to 1, ProblemId(5) to 1, ProblemId(6) to 1)
     assertEquals(
       gradesS1A2,
-      gradeTable.getStudentPerformance(student1Id, listOf(assignment2Id), solutionDistributor)
+      gradeTable.getStudentPerformance(student1Id, listOf(assignment2Id))
     )
     val gradesS1A3 = mapOf(ProblemId(7) to 1, ProblemId(8) to 1)
     assertEquals(
       gradesS1A3,
-      gradeTable.getStudentPerformance(student1Id, listOf(assignment3Id), solutionDistributor)
+      gradeTable.getStudentPerformance(student1Id, listOf(assignment3Id))
     )
 
     assertEquals(
       gradesS1A1 + gradesS1A2 + gradesS1A3,
-      gradeTable.getStudentPerformance(student1Id, solutionDistributor),
+      gradeTable.getStudentPerformance(student1Id),
     )
 
     val gradesS2A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 0)
     assertEquals(
       gradesS2A1,
-      gradeTable.getStudentPerformance(student2Id, listOf(assignment1Id), solutionDistributor)
+      gradeTable.getStudentPerformance(student2Id, listOf(assignment1Id))
     )
     val gradesS2A2 = mapOf(ProblemId(4) to 0)
     assertEquals(
       gradesS2A2,
-      gradeTable.getStudentPerformance(student2Id, listOf(assignment2Id), solutionDistributor)
+      gradeTable.getStudentPerformance(student2Id, listOf(assignment2Id))
     )
     val gradesS2A3 = mapOf<ProblemId, Grade>()
     assertEquals(
       gradesS2A3,
-      gradeTable.getStudentPerformance(student2Id, listOf(assignment3Id), solutionDistributor)
+      gradeTable.getStudentPerformance(student2Id, listOf(assignment3Id))
     )
 
     assertEquals(
       gradesS2A1 + gradesS2A2 + gradesS2A3,
-      gradeTable.getStudentPerformance(student2Id, solutionDistributor),
+      gradeTable.getStudentPerformance(student2Id),
     )
   }
 }

@@ -46,7 +46,7 @@ class GoogleSheetsRatingRecorder(
           assignmentStorage.getAssignmentsForCourse(courseId),
           problemStorage.getProblemsFromCourse(courseId),
           coursesDistributor.getStudents(courseId),
-          gradeTable.getCourseRating(courseId, solutionDistributor),
+          gradeTable.getCourseRating(courseId),
         )
       }
     }

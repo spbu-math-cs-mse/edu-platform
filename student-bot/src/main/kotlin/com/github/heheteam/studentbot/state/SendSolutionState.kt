@@ -68,20 +68,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
     state.selectedCourse = course
 
-    var botMessage = bot.send(
-      state.context,
-      Dialogues.tellValidSolutionTypes(),
-      replyMarkup = back(),
-    )
+    var botMessage =
+      bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
 
     while (true) {
       val content =
         flowOf(
-          waitDataCallbackQueryWithUser(state.context.id),
-          waitTextMessageWithUser(state.context.id),
-          waitMediaMessageWithUser(state.context.id),
-          waitDocumentMessageWithUser(state.context.id),
-        ).flattenMerge().first()
+            waitDataCallbackQueryWithUser(state.context.id),
+            waitTextMessageWithUser(state.context.id),
+            waitMediaMessageWithUser(state.context.id),
+            waitDocumentMessageWithUser(state.context.id),
+          )
+          .flattenMerge()
+          .first()
 
       if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
         deleteMessage(botMessage)
@@ -96,11 +95,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
 
         if (solutionContent == null) {
           deleteMessage(botMessage)
-          botMessage = bot.send(
-            state.context,
-            Dialogues.tellSolutionTypeIsInvalid(),
-            replyMarkup = back(),
-          )
+          botMessage =
+            bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
           continue
         }
 
@@ -123,10 +119,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
   }
 }
 
-suspend fun BehaviourContext.makeURL(
-  content: MediaContent,
-  studentBotToken: String,
-): String {
+suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: String): String {
   val contentInfo = bot.getFileAdditionalInfo(content)
   return "https://api.telegram.org/file/bot$studentBotToken/${contentInfo.filePath}"
 }
@@ -154,12 +147,7 @@ private suspend fun BehaviourContext.extractSolutionContent(
     )
   } else if (groupSolution != null) {
     SolutionContent(
-      filesURL = groupSolution.group.map {
-        makeURL(
-          it.content,
-          studentBotToken,
-        )
-      },
+      filesURL = groupSolution.group.map { makeURL(it.content, studentBotToken) },
       type = SolutionType.GROUP,
     )
   } else {
@@ -178,8 +166,7 @@ private suspend fun BehaviourContext.queryCourse(
       replyMarkup = buildCoursesSendingSelector(courses),
     )
 
-  val callbackData =
-    waitDataCallbackQueryWithUser(state.context.id).first().data
+  val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)
 
   if (callbackData == ButtonKey.BACK) {
@@ -195,7 +182,11 @@ private suspend fun BehaviourContext.queryProblem(
   problems: Map<Assignment, List<Problem>>,
 ): Problem? {
   val message =
-    bot.send(state.context, Dialogues.askProblem(), replyMarkup = buildProblemSendingSelector(problems))
+    bot.send(
+      state.context,
+      Dialogues.askProblem(),
+      replyMarkup = buildProblemSendingSelector(problems),
+    )
 
   var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   while (callbackData == ButtonKey.FICTITIOUS) {
@@ -212,11 +203,7 @@ private suspend fun BehaviourContext.queryProblem(
 }
 
 private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {
-  val message = bot.send(
-    state.context,
-    Dialogues.tellToApplyForCourses(),
-    replyMarkup = back(),
-  )
+  val message = bot.send(state.context, Dialogues.tellToApplyForCourses(), replyMarkup = back())
   waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(message)
 }

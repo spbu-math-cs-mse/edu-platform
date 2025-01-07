@@ -7,14 +7,9 @@ import dev.inmo.tgbotapi.types.chat.User
 
 sealed interface BotState : State
 
-data class StartState(
-  override val context: User,
-) : BotState
+data class StartState(override val context: User) : BotState
 
-data class MenuState(
-  override val context: User,
-  val parentId: ParentId,
-) : BotState
+data class MenuState(override val context: User, val parentId: ParentId) : BotState
 
 data class ChildPerformanceState(
   override val context: User,
@@ -22,7 +17,4 @@ data class ChildPerformanceState(
   val parentId: ParentId,
 ) : BotState
 
-data class GivingFeedbackState(
-  override val context: User,
-  val parentId: ParentId,
-) : BotState
+data class GivingFeedbackState(override val context: User, val parentId: ParentId) : BotState

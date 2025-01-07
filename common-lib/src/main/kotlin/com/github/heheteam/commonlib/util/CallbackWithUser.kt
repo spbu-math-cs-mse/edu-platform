@@ -14,14 +14,18 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 
-suspend fun BehaviourContext.waitDataCallbackQueryWithUser(chatId: ChatId): Flow<DataCallbackQuery> =
-  waitDataCallbackQuery().filter { it.user.id == chatId }
+suspend fun BehaviourContext.waitDataCallbackQueryWithUser(
+  chatId: ChatId
+): Flow<DataCallbackQuery> = waitDataCallbackQuery().filter { it.user.id == chatId }
 
-suspend fun BehaviourContext.waitTextMessageWithUser(chatId: ChatId): Flow<CommonMessage<TextContent>> =
-  waitTextMessage().filter { it.chat.id == chatId }
+suspend fun BehaviourContext.waitTextMessageWithUser(
+  chatId: ChatId
+): Flow<CommonMessage<TextContent>> = waitTextMessage().filter { it.chat.id == chatId }
 
-suspend fun BehaviourContext.waitMediaMessageWithUser(chatId: ChatId): Flow<CommonMessage<MediaContent>> =
-  waitMediaMessage().filter { it.chat.id == chatId }
+suspend fun BehaviourContext.waitMediaMessageWithUser(
+  chatId: ChatId
+): Flow<CommonMessage<MediaContent>> = waitMediaMessage().filter { it.chat.id == chatId }
 
-suspend fun BehaviourContext.waitDocumentMessageWithUser(chatId: ChatId): Flow<CommonMessage<DocumentContent>> =
-  waitDocumentMessage().filter { it.chat.id == chatId }
+suspend fun BehaviourContext.waitDocumentMessageWithUser(
+  chatId: ChatId
+): Flow<CommonMessage<DocumentContent>> = waitDocumentMessage().filter { it.chat.id == chatId }

@@ -59,36 +59,38 @@ class MultiBotRunner : CliktCommand() {
 
   override fun run() {
     val config = loadConfig()
-    val database = Database.connect(
-      config.databaseConfig.url,
-      config.databaseConfig.driver,
-      config.databaseConfig.login,
-      config.databaseConfig.password,
-    )
+    val database =
+      Database.connect(
+        config.databaseConfig.url,
+        config.databaseConfig.driver,
+        config.databaseConfig.login,
+        config.databaseConfig.password,
+      )
 
     val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-    val assignmentStorage: AssignmentStorage =
-      DatabaseAssignmentStorage(database)
-    val solutionDistributor: SolutionDistributor =
-      DatabaseSolutionDistributor(database)
+    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
+    val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-    val inMemoryTeacherStatistics: TeacherStatistics =
-      InMemoryTeacherStatistics()
+    val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 
     val googleSheetsService =
-      GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
-    val ratingRecorder = GoogleSheetsRatingRecorder(
-      googleSheetsService,
-      databaseCoursesDistributor,
-      assignmentStorage,
-      problemStorage,
-      databaseGradeTable,
-      solutionDistributor,
-    )
+      GoogleSheetsService(
+        config.googleSheetsConfig.serviceAccountKey,
+        config.googleSheetsConfig.spreadsheetId,
+      )
+    val ratingRecorder =
+      GoogleSheetsRatingRecorder(
+        googleSheetsService,
+        databaseCoursesDistributor,
+        assignmentStorage,
+        problemStorage,
+        databaseGradeTable,
+        solutionDistributor,
+      )
 
     val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
@@ -105,12 +107,12 @@ class MultiBotRunner : CliktCommand() {
 
     val parentStorage = MockParentStorage()
 
-    val bot = telegramBot(studentBotToken) {
-      logger =
-        KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+    val bot =
+      telegramBot(studentBotToken) {
+        logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
           println(defaultMessageFormatter(level, tag, message, throwable))
         }
-    }
+      }
     val notificationService = StudentNotificationService(bot)
     val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
     val studentCore =
@@ -147,31 +149,13 @@ class MultiBotRunner : CliktCommand() {
         solutionDistributor,
       )
 
-    val parentCore =
-      ParentCore(
-        DatabaseStudentStorage(database),
-        DatabaseGradeTable(database),
-      )
+    val parentCore = ParentCore(DatabaseStudentStorage(database), DatabaseGradeTable(database))
     val presetStudent = presetStudentId?.toStudentId()
     val presetTeacher = presetTeacherId?.toTeacherId()
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
     runBlocking {
-      launch {
-        studentRun(
-          studentBotToken,
-          studentStorage,
-          studentCore,
-          developerOptions,
-        )
-      }
-      launch {
-        teacherRun(
-          teacherBotToken,
-          teacherStorage,
-          teacherCore,
-          developerOptions,
-        )
-      }
+      launch { studentRun(studentBotToken, studentStorage, studentCore, developerOptions) }
+      launch { teacherRun(teacherBotToken, teacherStorage, teacherCore, developerOptions) }
       launch { adminRun(adminBotToken, adminCore) }
       launch { parentRun(parentBotToken, parentStorage, parentCore) }
     }

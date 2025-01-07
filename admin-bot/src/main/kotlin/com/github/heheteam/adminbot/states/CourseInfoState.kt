@@ -19,11 +19,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCourseInfoState(core: Adm
       return@strictlyOn MenuState(state.context)
     }
 
-    val message = bot.send(
-      state.context,
-      "Выберите курс:",
-      replyMarkup = Keyboards.buildCoursesSelector(courses),
-    )
+    val message =
+      bot.send(
+        state.context,
+        "Выберите курс:",
+        replyMarkup = Keyboards.buildCoursesSelector(courses),
+      )
 
     val callback = waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(message)
@@ -36,11 +37,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCourseInfoState(core: Adm
     val course = courses.first { it.id == CourseId(courseId.toLong()) }
     val stats = core.getCourseStatistics(course.id)
 
-    val statsMessage = bot.send(
-      state.context,
-      entities = CourseStatisticsFormatter.format(course.name, stats),
-      replyMarkup = returnBack(),
-    )
+    val statsMessage =
+      bot.send(
+        state.context,
+        entities = CourseStatisticsFormatter.format(course.name, stats),
+        replyMarkup = returnBack(),
+      )
 
     waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(statsMessage)

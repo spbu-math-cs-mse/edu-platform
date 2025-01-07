@@ -8,9 +8,7 @@ import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
-class StudentNotificationService(
-  private val bot: TelegramBot,
-) : NotificationService {
+class StudentNotificationService(private val bot: TelegramBot) : NotificationService {
   override suspend fun notifyStudentAboutGrade(
     studentId: StudentId,
     chatId: RawChatId,
@@ -18,11 +16,12 @@ class StudentNotificationService(
     assessment: SolutionAssessment,
     problem: Problem,
   ) {
-    val emoji = when {
-      assessment.grade <= 0 -> "❌"
-      assessment.grade < problem.maxScore -> "\uD83D\uDD36"
-      else -> "✅"
-    }
+    val emoji =
+      when {
+        assessment.grade <= 0 -> "❌"
+        assessment.grade < problem.maxScore -> "\uD83D\uDD36"
+        else -> "✅"
+      }
 
     val message = buildString {
       append(
@@ -34,10 +33,6 @@ class StudentNotificationService(
       }
     }
 
-    bot.reply(
-      ChatId(chatId),
-      messageId,
-      message,
-    )
+    bot.reply(ChatId(chatId), messageId, message)
   }
 }

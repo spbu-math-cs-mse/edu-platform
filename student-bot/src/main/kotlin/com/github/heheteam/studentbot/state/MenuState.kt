@@ -26,22 +26,16 @@ import kotlinx.coroutines.flow.merge
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
   strictlyOn<MenuState> { state ->
-    val stickerMessage =
-      bot.sendSticker(state.context.id, Dialogues.typingSticker)
+    val stickerMessage = bot.sendSticker(state.context.id, Dialogues.typingSticker)
     val initialMessage =
-      bot.send(
-        state.context,
-        text = Dialogues.menu(),
-        replyMarkup = menuKeyboard(),
-      )
+      bot.send(state.context, text = Dialogues.menu(), replyMarkup = menuKeyboard())
 
     val datacallbacks =
       waitDataCallbackQueryWithUser(state.context.id).map { callback ->
         handleCallback(initialMessage, stickerMessage, callback, state)
       }
-    val texts = waitTextMessageWithUser(state.context.id).map { t ->
-      handleTextMessage(t, state.context)
-    }
+    val texts =
+      waitTextMessageWithUser(state.context.id).map { t -> handleTextMessage(t, state.context) }
     merge(datacallbacks, texts).firstNotNull()
   }
 }
@@ -54,10 +48,12 @@ private suspend fun BehaviourContext.handleTextMessage(
   val match = re.matchEntire(t.content.text)
   return if (match != null) {
     val newIdStr = match.groups[1]?.value ?: return null
-    val newId = newIdStr.toLongOrNull() ?: run {
-      logger.error("input id $newIdStr is not long!")
-      return null
-    }
+    val newId =
+      newIdStr.toLongOrNull()
+        ?: run {
+          logger.error("input id $newIdStr is not long!")
+          return null
+        }
     PresetStudentState(user, newId.toStudentId())
   } else {
     bot.sendMessage(user.id, "Unrecognized command")
@@ -76,15 +72,9 @@ private suspend fun BehaviourContext.handleCallback(
   return when (callback.data) {
     ButtonKey.VIEW -> ViewState(state.context, state.studentId)
     ButtonKey.SIGN_UP -> SignUpState(state.context, state.studentId)
-    ButtonKey.SEND_SOLUTION -> SendSolutionState(
-      state.context,
-      state.studentId,
-    )
+    ButtonKey.SEND_SOLUTION -> SendSolutionState(state.context, state.studentId)
 
-    ButtonKey.CHECK_GRADES -> CheckGradesState(
-      state.context,
-      state.studentId,
-    )
+    ButtonKey.CHECK_GRADES -> CheckGradesState(state.context, state.studentId)
 
     else -> MenuState(state.context, state.studentId)
   }

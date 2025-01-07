@@ -6,6 +6,8 @@ import dev.inmo.tgbotapi.types.UserId
 
 interface ParentStorage {
   fun createParent(): ParentId
+
   fun resolveParent(parentId: ParentId): Result<Parent, ResolveError<ParentId>>
+
   fun resolveByTgId(tgId: UserId): Result<Parent, ResolveError<UserId>>
 }

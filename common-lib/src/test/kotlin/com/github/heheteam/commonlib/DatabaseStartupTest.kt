@@ -15,11 +15,11 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.util.fillWithSamples
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseStartupTest {
   private lateinit var database: Database
@@ -35,12 +35,13 @@ class DatabaseStartupTest {
   fun startupTest() {
     val startupTime = measureTimeMillis {
       val config = loadConfig()
-      database = Database.connect(
-        config.databaseConfig.url,
-        config.databaseConfig.driver,
-        config.databaseConfig.login,
-        config.databaseConfig.password,
-      )
+      database =
+        Database.connect(
+          config.databaseConfig.url,
+          config.databaseConfig.driver,
+          config.databaseConfig.login,
+          config.databaseConfig.password,
+        )
 
       assignmentStorage = DatabaseAssignmentStorage(database)
       coursesDistributor = DatabaseCoursesDistributor(database)

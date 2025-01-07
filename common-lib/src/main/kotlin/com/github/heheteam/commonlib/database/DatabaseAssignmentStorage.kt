@@ -20,28 +20,24 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseAssignmentStorage(
-  val database: Database,
-) : AssignmentStorage {
+class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
   init {
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
 
-  override fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>> {
+  override fun resolveAssignment(
+    assignmentId: AssignmentId
+  ): Result<Assignment, ResolveError<AssignmentId>> {
     val row =
       transaction {
-        AssignmentTable
-          .selectAll()
-          .where(
-            AssignmentTable.id eq assignmentId.id,
-          ).singleOrNull()
+        AssignmentTable.selectAll().where(AssignmentTable.id eq assignmentId.id).singleOrNull()
       } ?: return Err(ResolveError(assignmentId))
     return Ok(
       Assignment(
         assignmentId,
         row[AssignmentTable.description],
         row[AssignmentTable.courseId].value.toCourseId(),
-      ),
+      )
     )
   }
 
@@ -53,28 +49,26 @@ class DatabaseAssignmentStorage(
   ): AssignmentId {
     val assignId =
       transaction(database) {
-        AssignmentTable.insertAndGetId {
-          it[AssignmentTable.description] = description
-          it[AssignmentTable.courseId] = courseId.id
+          AssignmentTable.insertAndGetId {
+            it[AssignmentTable.description] = description
+            it[AssignmentTable.courseId] = courseId.id
+          }
         }
-      }.value.toAssignmentId()
-    problemsDescriptions
-      .map { problemStorage.createProblem(assignId, it.number, it.maxScore, it.description) }
+        .value
+        .toAssignmentId()
+    problemsDescriptions.map {
+      problemStorage.createProblem(assignId, it.number, it.maxScore, it.description)
+    }
     return assignId
   }
 
-  override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> =
-    transaction {
-      AssignmentTable
-        .selectAll()
-        .where(
-          AssignmentTable.courseId eq courseId.id,
-        ).map {
-          Assignment(
-            it[AssignmentTable.id].value.toAssignmentId(),
-            it[AssignmentTable.description],
-            it[AssignmentTable.courseId].value.toCourseId(),
-          )
-        }
+  override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> = transaction {
+    AssignmentTable.selectAll().where(AssignmentTable.courseId eq courseId.id).map {
+      Assignment(
+        it[AssignmentTable.id].value.toAssignmentId(),
+        it[AssignmentTable.description],
+        it[AssignmentTable.courseId].value.toCourseId(),
+      )
     }
+  }
 }

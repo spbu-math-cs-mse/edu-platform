@@ -13,11 +13,7 @@ import kotlinx.serialization.Serializable
 
 typealias Grade = Int
 
-data class Student(
-  val id: StudentId,
-  val name: String = "",
-  val surname: String = "",
-)
+data class Student(val id: StudentId, val name: String = "", val surname: String = "")
 
 data class Parent(
   val id: ParentId,
@@ -26,11 +22,7 @@ data class Parent(
   val children: List<StudentId> = listOf(),
 )
 
-data class Teacher(
-  val id: TeacherId,
-  val name: String = "",
-  val surname: String = "",
-)
+data class Teacher(val id: TeacherId, val name: String = "", val surname: String = "")
 
 @Serializable
 data class Problem(
@@ -64,16 +56,9 @@ data class Solution(
   val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
 )
 
-data class Course(
-  val id: CourseId,
-  val name: String,
-)
+data class Course(val id: CourseId, val name: String)
 
-data class Assignment(
-  val id: AssignmentId,
-  val description: String,
-  val courseId: CourseId,
-)
+data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
 
 data class SolutionContent(
   val filesURL: List<String>? = null,
@@ -81,7 +66,4 @@ data class SolutionContent(
   val type: SolutionType? = null,
 )
 
-data class SolutionAssessment(
-  val grade: Grade,
-  val comment: String,
-)
+data class SolutionAssessment(val grade: Grade, val comment: String)

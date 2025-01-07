@@ -26,12 +26,13 @@ suspend fun main(vararg args: String) {
   val botToken = args.first()
   val config = loadConfig()
 
-  val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
   val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
   val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
@@ -39,22 +40,34 @@ suspend fun main(vararg args: String) {
   val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
   val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-  val scheduledMessagesDistributor: ScheduledMessagesDistributor = InMemoryScheduledMessagesDistributor()
+  val scheduledMessagesDistributor: ScheduledMessagesDistributor =
+    InMemoryScheduledMessagesDistributor()
   val studentStorage = DatabaseStudentStorage(database)
 
   val googleSheetsService =
-    GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
-  val ratingRecorder = GoogleSheetsRatingRecorder(
-    googleSheetsService,
-    databaseCoursesDistributor,
-    assignmentStorage,
-    problemStorage,
-    databaseGradeTable,
-    solutionDistributor,
-  )
+    GoogleSheetsService(
+      config.googleSheetsConfig.serviceAccountKey,
+      config.googleSheetsConfig.spreadsheetId,
+    )
+  val ratingRecorder =
+    GoogleSheetsRatingRecorder(
+      googleSheetsService,
+      databaseCoursesDistributor,
+      assignmentStorage,
+      problemStorage,
+      databaseGradeTable,
+      solutionDistributor,
+    )
   val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+  fillWithSamples(
+    coursesDistributor,
+    problemStorage,
+    assignmentStorage,
+    studentStorage,
+    teacherStorage,
+    database,
+  )
 
   val core =
     AdminCore(

@@ -20,9 +20,7 @@ import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
-  core: StudentCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getStudentCourses(state.studentId)
 
@@ -41,11 +39,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(
             ?: return@strictlyOn CheckGradesState(state.context, state.studentId)
         val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
 
-        val gradedProblems =
-          core.getGradingForAssignment(
-            assignment.id,
-            state.studentId,
-          )
+        val gradedProblems = core.getGradingForAssignment(assignment.id, state.studentId)
 
         respondWithGrades(state, assignment, gradedProblems)
         MenuState(state.context, state.studentId)
@@ -76,17 +70,9 @@ private suspend fun BehaviourContext.respondWithGrades(
   assignment: Assignment,
   gradedProblems: List<Pair<Problem, Grade?>>,
 ) {
-  val strGrades =
-    "Оценки за серию ${assignment.description}:\n" +
-      gradedProblems
-        .withGradesToText()
+  val strGrades = "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
 
-  val gradesMessage =
-    bot.send(
-      state.context,
-      text = strGrades,
-      replyMarkup = back(),
-    )
+  val gradesMessage = bot.send(state.context, text = strGrades, replyMarkup = back())
   waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(gradesMessage)
 }
@@ -100,20 +86,15 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
       state.context,
       text = "Выберите серию",
       replyMarkup =
-      InlineKeyboardMarkup(
-        keyboard =
-        matrix {
-          assignments.forEach {
-            row {
-              dataButton(
-                it.description,
-                "${ButtonKey.ASSIGNMENT_ID} ${it.id}",
-              )
+        InlineKeyboardMarkup(
+          keyboard =
+            matrix {
+              assignments.forEach {
+                row { dataButton(it.description, "${ButtonKey.ASSIGNMENT_ID} ${it.id}") }
+              }
+              row { dataButton("Назад", ButtonKey.BACK) }
             }
-          }
-          row { dataButton("Назад", ButtonKey.BACK) }
-        },
-      ),
+        ),
     )
 
   val callback = waitDataCallbackQueryWithUser(state.context.id).first()
@@ -121,10 +102,7 @@ private suspend fun BehaviourContext.queryAssignmentFromUser(
   val assignmentId =
     when {
       callback.data.contains(ButtonKey.ASSIGNMENT_ID) -> {
-        callback.data
-          .split(" ")
-          .last()
-          .toLong()
+        callback.data.split(" ").last().toLong()
       }
 
       else -> return null
@@ -141,20 +119,13 @@ private suspend fun BehaviourContext.queryCourseFromUser(
       state.context,
       text = "Выберите курс",
       replyMarkup =
-      InlineKeyboardMarkup(
-        keyboard =
-        matrix {
-          courses.forEach {
-            row {
-              dataButton(
-                it.name,
-                "${ButtonKey.COURSE_ID} ${it.id}",
-              )
+        InlineKeyboardMarkup(
+          keyboard =
+            matrix {
+              courses.forEach { row { dataButton(it.name, "${ButtonKey.COURSE_ID} ${it.id}") } }
+              row { dataButton("Назад", ButtonKey.BACK) }
             }
-          }
-          row { dataButton("Назад", ButtonKey.BACK) }
-        },
-      ),
+        ),
     )
 
   val callback = waitDataCallbackQueryWithUser(state.context.id).first()
@@ -162,10 +133,7 @@ private suspend fun BehaviourContext.queryCourseFromUser(
   val courseId =
     when {
       callback.data.contains(ButtonKey.COURSE_ID) -> {
-        callback.data
-          .split(" ")
-          .last()
-          .toLong()
+        callback.data.split(" ").last().toLong()
       }
 
       else -> return null
@@ -173,22 +141,21 @@ private suspend fun BehaviourContext.queryCourseFromUser(
   return CourseId(courseId)
 }
 
-private suspend fun BehaviourContext.askGradesType(
-  state: CheckGradesState,
-): String {
-  val viewMode = bot.send(
-    state.context,
-    text = "Какие оценки посмотреть?",
-    replyMarkup =
-    InlineKeyboardMarkup(
-      keyboard =
-      matrix {
-        row { dataButton("Моя успеваемость", ButtonKey.STUDENT_GRADES) }
-        row { dataButton("Лучшие на курсе", ButtonKey.TOP_GRADES) }
-        row { dataButton("Назад", ButtonKey.BACK) }
-      },
-    ),
-  )
+private suspend fun BehaviourContext.askGradesType(state: CheckGradesState): String {
+  val viewMode =
+    bot.send(
+      state.context,
+      text = "Какие оценки посмотреть?",
+      replyMarkup =
+        InlineKeyboardMarkup(
+          keyboard =
+            matrix {
+              row { dataButton("Моя успеваемость", ButtonKey.STUDENT_GRADES) }
+              row { dataButton("Лучшие на курсе", ButtonKey.TOP_GRADES) }
+              row { dataButton("Назад", ButtonKey.BACK) }
+            }
+        ),
+    )
 
   val callback = waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(viewMode)
@@ -202,11 +169,7 @@ private suspend fun BehaviourContext.respondWithTopGrades(
 ) {
   if (topGrades.isEmpty()) {
     val gradesMessage =
-      bot.send(
-        state.context,
-        text = "Еще никто не получал оценок на курсе!",
-        replyMarkup = back(),
-      )
+      bot.send(state.context, text = "Еще никто не получал оценок на курсе!", replyMarkup = back())
 
     waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(gradesMessage)
@@ -214,17 +177,9 @@ private suspend fun BehaviourContext.respondWithTopGrades(
     return
   }
 
-  val strTopGrades =
-    "Лучшие результаты на курсе:\n" +
-      topGrades
-        .withTopGradesToText()
+  val strTopGrades = "Лучшие результаты на курсе:\n" + topGrades.withTopGradesToText()
 
-  val gradesMessage =
-    bot.send(
-      state.context,
-      text = strTopGrades,
-      replyMarkup = back(),
-    )
+  val gradesMessage = bot.send(state.context, text = strTopGrades, replyMarkup = back())
   waitDataCallbackQueryWithUser(state.context.id).first()
   deleteMessage(gradesMessage)
 }
@@ -241,12 +196,11 @@ fun List<Pair<Problem, Grade?>>.withGradesToText() =
   }
 
 fun List<Grade>.withTopGradesToText() =
-  this.withIndex()
-    .joinToString(separator = "\n") { (index, grade) ->
-      when (index) {
-        0 -> "\uD83E\uDD47 $grade"
-        1 -> "\uD83E\uDD48 $grade"
-        2 -> "\uD83E\uDD49 $grade"
-        else -> "${index + 1}. $grade"
-      }
+  this.withIndex().joinToString(separator = "\n") { (index, grade) ->
+    when (index) {
+      0 -> "\uD83E\uDD47 $grade"
+      1 -> "\uD83E\uDD48 $grade"
+      2 -> "\uD83E\uDD49 $grade"
+      else -> "${index + 1}. $grade"
     }
+  }

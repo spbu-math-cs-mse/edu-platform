@@ -24,30 +24,23 @@ import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flowOf
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 import java.nio.channels.Channels
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flowOf
 
 @OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
-  core: TeacherCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core: TeacherCore) {
   strictlyOn<GettingSolutionState> { state ->
-
     val teacherId = state.teacherId
     val solution = core.querySolution(teacherId)
     if (solution == null) {
-      val reply = bot.send(
-        state.context,
-        noSolutionsToCheck(),
-        replyMarkup = returnBack(),
-      )
+      val reply = bot.send(state.context, noSolutionsToCheck(), replyMarkup = returnBack())
       waitDataCallbackQuery().first()
       deleteMessage(reply)
       return@strictlyOn MenuState(state.context, state.teacherId)
@@ -55,28 +48,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
 
     val student = core.resolveStudent(solution.studentId)
     if (student.isErr) {
-      bot.send(
-        state.context,
-        student.error.toString(),
-      )
+      bot.send(state.context, student.error.toString())
       return@strictlyOn MenuState(state.context, state.teacherId)
     }
 
     val problem = core.resolveProblem(solution.problemId)
     if (problem.isErr) {
-      bot.send(
-        state.context,
-        problem.error.toString(),
-      )
+      bot.send(state.context, problem.error.toString())
       return@strictlyOn MenuState(state.context, state.teacherId)
     }
 
     val assignment = core.resolveAssignment(problem.value.assignmentId)
     if (assignment.isErr) {
-      bot.send(
-        state.context,
-        assignment.error.toString(),
-      )
+      bot.send(state.context, assignment.error.toString())
       return@strictlyOn MenuState(state.context, state.teacherId)
     }
 
@@ -88,7 +72,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
         getSolution =
           bot.send(
             state.context,
-            solution.content.text!! + "\n\n\n" + solutionInfo(student.value, assignment.value, problem.value),
+            solution.content.text!! +
+              "\n\n\n" +
+              solutionInfo(student.value, assignment.value, problem.value),
             replyMarkup = Keyboards.solutionMenu(),
           )
 
@@ -99,12 +85,13 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             state.context,
             files.first().first,
             text =
-            if (solution.content.text == null) {
-              solutionInfo(student.value, assignment.value, problem.value)
-            } else {
-              solution.content.text + "\n\n\n" +
+              if (solution.content.text == null) {
                 solutionInfo(student.value, assignment.value, problem.value)
-            },
+              } else {
+                solution.content.text +
+                  "\n\n\n" +
+                  solutionInfo(student.value, assignment.value, problem.value)
+              },
             replyMarkup = Keyboards.solutionMenu(),
           )
       }
@@ -116,41 +103,37 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
             state.context,
             files.first().first,
             text =
-            if (solution.content.text == null) {
-              solutionInfo(student.value, assignment.value, problem.value)
-            } else {
-              solution.content.text + "\n\n\n" +
+              if (solution.content.text == null) {
                 solutionInfo(student.value, assignment.value, problem.value)
-            },
+              } else {
+                solution.content.text +
+                  "\n\n\n" +
+                  solutionInfo(student.value, assignment.value, problem.value)
+              },
             replyMarkup = Keyboards.solutionMenu(),
           )
       }
 
       SolutionType.GROUP -> {
-        files.addAll(
-          solution.content.filesURL!!.map {
-            getSolutionWithURL(it)
-          },
-        )
+        files.addAll(solution.content.filesURL!!.map { getSolutionWithURL(it) })
         getSolution =
-          bot.sendMediaGroup(
+          bot.sendMediaGroup(state.context, files.map { TelegramMediaDocument(it.first) })
+        getMarkup =
+          bot.send(
             state.context,
-            files.map { TelegramMediaDocument(it.first) },
+            solutionInfo(student.value, assignment.value, problem.value),
+            replyMarkup = Keyboards.solutionMenu(),
           )
-        getMarkup = bot.send(
-          state.context,
-          solutionInfo(student.value, assignment.value, problem.value),
-          replyMarkup = Keyboards.solutionMenu(),
-        )
       }
     }
 
     when (
       val response =
         flowOf(
-          waitDataCallbackQueryWithUser(state.context.id),
-          waitTextMessageWithUser(state.context.id)
-        ).flattenMerge()
+            waitDataCallbackQueryWithUser(state.context.id),
+            waitTextMessageWithUser(state.context.id),
+          )
+          .flattenMerge()
           .first()
     ) {
       is DataCallbackQuery -> {
@@ -159,20 +142,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(
           Keyboards.goodSolution -> {
             deleteMessage(getSolution)
             // TODO extract from maxscore of a problem
-            core.assessSolution(
-              solution,
-              teacherId,
-              SolutionAssessment(1, ""),
-            )
+            core.assessSolution(solution, teacherId, SolutionAssessment(1, ""))
           }
 
           Keyboards.badSolution -> {
             deleteMessage(getSolution)
-            core.assessSolution(
-              solution,
-              teacherId,
-              SolutionAssessment(0, ""),
-            )
+            core.assessSolution(solution, teacherId, SolutionAssessment(0, ""))
           }
 
           returnBack -> {

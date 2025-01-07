@@ -33,9 +33,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseCoursesDistributor(
-  val database: Database,
-) : CoursesDistributor {
+class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   init {
     transaction(database) {
       SchemaUtils.create(CourseTable)
@@ -50,21 +48,23 @@ class DatabaseCoursesDistributor(
   ): Result<Unit, BindError<StudentId, CourseId>> =
     transaction(database) {
       val exists =
-        CourseStudents
-          .selectAll()
-          .where((CourseStudents.courseId eq courseId.id) and (CourseStudents.studentId eq studentId.id))
+        CourseStudents.selectAll()
+          .where(
+            (CourseStudents.courseId eq courseId.id) and (CourseStudents.studentId eq studentId.id)
+          )
           .map { 0L }
           .isNotEmpty()
       if (!exists) {
         Ok(Unit)
 
         runCatching {
-          CourseStudents.insert {
-            it[CourseStudents.studentId] = studentId.id
-            it[CourseStudents.courseId] = courseId.id
+            CourseStudents.insert {
+              it[CourseStudents.studentId] = studentId.id
+              it[CourseStudents.courseId] = courseId.id
+            }
+            Unit
           }
-          Unit
-        }.mapError { BindError(studentId, courseId) }
+          .mapError { BindError(studentId, courseId) }
       } else {
         Err(BindError(studentId, courseId))
       }
@@ -76,9 +76,10 @@ class DatabaseCoursesDistributor(
   ): Result<Unit, BindError<TeacherId, CourseId>> =
     transaction(database) {
       val exists =
-        CourseTeachers
-          .selectAll()
-          .where((CourseTeachers.courseId eq courseId.id) and (CourseTeachers.teacherId eq teacherId.id))
+        CourseTeachers.selectAll()
+          .where(
+            (CourseTeachers.courseId eq courseId.id) and (CourseTeachers.teacherId eq teacherId.id)
+          )
           .map { 0L }
           .isNotEmpty()
       if (!exists) {
@@ -102,7 +103,9 @@ class DatabaseCoursesDistributor(
   ): Result<Unit, DeleteError<StudentId>> =
     transaction(database) {
       val deletedRows =
-        CourseStudents.deleteWhere { (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id) }
+        CourseStudents.deleteWhere {
+          (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id)
+        }
       if (deletedRows == 1) {
         Ok(Unit)
       } else {
@@ -116,7 +119,9 @@ class DatabaseCoursesDistributor(
   ): Result<Unit, DeleteError<TeacherId>> =
     transaction(database) {
       val deletedRows =
-        CourseTeachers.deleteWhere { (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id) }
+        CourseTeachers.deleteWhere {
+          (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id)
+        }
       if (deletedRows == 1) {
         Ok(Unit)
       } else {
@@ -127,40 +132,37 @@ class DatabaseCoursesDistributor(
   override fun getCourses(): List<Course> =
     transaction(database) {
       CourseTable.selectAll().map {
-        Course(
-          it[CourseTable.id].value.toCourseId(),
-          it[CourseTable.name],
-        )
+        Course(it[CourseTable.id].value.toCourseId(), it[CourseTable.name])
       }
     }
 
-  override fun getStudentCourses(studentId: StudentId): List<Course> =
-    transaction {
-      CourseStudents
-        .join(CourseTable, JoinType.INNER, onColumn = CourseTable.id, otherColumn = CourseStudents.courseId)
-        .selectAll()
-        .where { CourseStudents.studentId eq studentId.id }
-        .map {
-          Course(
-            it[CourseStudents.courseId].value.toCourseId(),
-            it[CourseTable.name].toString(),
-          )
-        }
-    }
+  override fun getStudentCourses(studentId: StudentId): List<Course> = transaction {
+    CourseStudents.join(
+        CourseTable,
+        JoinType.INNER,
+        onColumn = CourseTable.id,
+        otherColumn = CourseStudents.courseId,
+      )
+      .selectAll()
+      .where { CourseStudents.studentId eq studentId.id }
+      .map {
+        Course(it[CourseStudents.courseId].value.toCourseId(), it[CourseTable.name].toString())
+      }
+  }
 
-  override fun getTeacherCourses(teacherId: TeacherId): List<Course> =
-    transaction {
-      CourseTeachers
-        .join(CourseTable, JoinType.INNER, onColumn = CourseTable.id, otherColumn = CourseTeachers.courseId)
-        .selectAll()
-        .where { CourseTeachers.teacherId eq teacherId.id }
-        .map {
-          Course(
-            it[CourseTeachers.courseId].value.toCourseId(),
-            it[CourseTable.name].toString(),
-          )
-        }
-    }
+  override fun getTeacherCourses(teacherId: TeacherId): List<Course> = transaction {
+    CourseTeachers.join(
+        CourseTable,
+        JoinType.INNER,
+        onColumn = CourseTable.id,
+        otherColumn = CourseTeachers.courseId,
+      )
+      .selectAll()
+      .where { CourseTeachers.teacherId eq teacherId.id }
+      .map {
+        Course(it[CourseTeachers.courseId].value.toCourseId(), it[CourseTable.name].toString())
+      }
+  }
 
   override fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>> =
     transaction(database) {
@@ -172,15 +174,19 @@ class DatabaseCoursesDistributor(
 
   override fun createCourse(description: String): CourseId =
     transaction(database) {
-      CourseTable.insert {
-        it[CourseTable.name] = description
-      } get CourseTable.id
-    }.value.toCourseId()
+        CourseTable.insert { it[CourseTable.name] = description } get CourseTable.id
+      }
+      .value
+      .toCourseId()
 
   override fun getStudents(courseId: CourseId): List<Student> =
     transaction(database) {
-      CourseStudents
-        .join(StudentTable, JoinType.INNER, onColumn = CourseStudents.studentId, otherColumn = StudentTable.id)
+      CourseStudents.join(
+          StudentTable,
+          JoinType.INNER,
+          onColumn = CourseStudents.studentId,
+          otherColumn = StudentTable.id,
+        )
         .selectAll()
         .where(CourseStudents.courseId eq courseId.id)
         .map {
@@ -194,8 +200,12 @@ class DatabaseCoursesDistributor(
 
   override fun getTeachers(courseId: CourseId): List<Teacher> =
     transaction(database) {
-      CourseTeachers
-        .join(TeacherTable, JoinType.INNER, onColumn = CourseTeachers.teacherId, otherColumn = TeacherTable.id)
+      CourseTeachers.join(
+          TeacherTable,
+          JoinType.INNER,
+          onColumn = CourseTeachers.teacherId,
+          otherColumn = TeacherTable.id,
+        )
         .selectAll()
         .where(CourseTeachers.courseId eq courseId.id)
         .map {

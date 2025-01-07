@@ -28,12 +28,13 @@ suspend fun main(vararg args: String) {
   val botToken = args.first()
   val config = loadConfig()
 
-  val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
   val studentStorage = DatabaseStudentStorage(database)
   val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
@@ -44,27 +45,39 @@ suspend fun main(vararg args: String) {
   val databaseGradeTable = DatabaseGradeTable(database)
 
   val googleSheetsService =
-    GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey, config.googleSheetsConfig.spreadsheetId)
-  val ratingRecorder = GoogleSheetsRatingRecorder(
-    googleSheetsService,
-    databaseCoursesDistributor,
-    assignmentStorage,
-    problemStorage,
-    databaseGradeTable,
-    solutionDistributor,
-  )
+    GoogleSheetsService(
+      config.googleSheetsConfig.serviceAccountKey,
+      config.googleSheetsConfig.spreadsheetId,
+    )
+  val ratingRecorder =
+    GoogleSheetsRatingRecorder(
+      googleSheetsService,
+      databaseCoursesDistributor,
+      assignmentStorage,
+      problemStorage,
+      databaseGradeTable,
+      solutionDistributor,
+    )
   val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
   val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
 
-  val bot = telegramBot(botToken) {
-    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-      println(defaultMessageFormatter(level, tag, message, throwable))
+  val bot =
+    telegramBot(botToken) {
+      logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+        println(defaultMessageFormatter(level, tag, message, throwable))
+      }
     }
-  }
 
   val notificationService = StudentNotificationService(bot)
 
-  fillWithSamples(coursesDistributor, problemStorage, assignmentStorage, studentStorage, teacherStorage, database)
+  fillWithSamples(
+    coursesDistributor,
+    problemStorage,
+    assignmentStorage,
+    studentStorage,
+    teacherStorage,
+    database,
+  )
 
   val core =
     StudentCore(

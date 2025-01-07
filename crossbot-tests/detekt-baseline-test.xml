@@ -3,6 +3,7 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>LibraryEntitiesShouldNotBePublic:SolutionDistributionTest.kt$SolutionDistributionTest</ID>
+    <ID>LongMethod:SolutionDistributionTest.kt$SolutionDistributionTest$@BeforeEach fun setup()</ID>
     <ID>LongMethod:SolutionDistributionTest.kt$SolutionDistributionTest$@Test fun `complex solution distribution`()</ID>
     <ID>LongMethod:SolutionDistributionTest.kt$SolutionDistributionTest$@Test fun `solution distribution with simple text`()</ID>
   </CurrentIssues>

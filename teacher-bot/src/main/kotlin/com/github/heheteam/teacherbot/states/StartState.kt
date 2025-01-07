@@ -23,8 +23,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       bot.send(state.context, Dialogues.devAskForId())
       while (true) {
         val teacherIdFromText =
-          waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()
-            ?.let { TeacherId(it) }
+          waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let {
+            TeacherId(it)
+          }
         if (teacherIdFromText == null) {
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
@@ -38,18 +39,10 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
         break
       }
     } else if (teacherStorage.resolveByTgId(state.context.id).isErr) {
-      bot.send(
-        state.context,
-        Dialogues.greetings() + Dialogues.askFirstName(),
-      )
-      val firstName =
-        waitTextMessageWithUser(state.context.id).first().content.text
-      bot.send(
-        state.context,
-        Dialogues.askLastName(firstName),
-      )
-      val lastName =
-        waitTextMessageWithUser(state.context.id).first().content.text
+      bot.send(state.context, Dialogues.greetings() + Dialogues.askFirstName())
+      val firstName = waitTextMessageWithUser(state.context.id).first().content.text
+      bot.send(state.context, Dialogues.askLastName(firstName))
+      val lastName = waitTextMessageWithUser(state.context.id).first().content.text
       bot.send(
         state.context,
         Dialogues.askGrade(firstName, lastName),
@@ -59,10 +52,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       teacherId = teacherStorage.createTeacher()
       return@strictlyOn MenuState(state.context, teacherId)
     }
-    bot.send(
-      state.context,
-      Dialogues.greetings(),
-    )
+    bot.send(state.context, Dialogues.greetings())
     MenuState(state.context, teacherId!!)
   }
 }

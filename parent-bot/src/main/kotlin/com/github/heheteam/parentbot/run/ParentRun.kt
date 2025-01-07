@@ -21,42 +21,37 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun parentRun(
-  botToken: String,
-  parentStorage: ParentStorage,
-  core: ParentCore,
-) {
+suspend fun parentRun(botToken: String, parentStorage: ParentStorage, core: ParentCore) {
   telegramBot(botToken) {
-    logger =
-      KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-        println(defaultMessageFormatter(level, tag, message, throwable))
-      }
+    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+      println(defaultMessageFormatter(level, tag, message, throwable))
+    }
   }
 
   telegramBotWithBehaviourAndFSMAndStartLongPolling(
-    botToken,
-    CoroutineScope(Dispatchers.IO),
-    onStateHandlingErrorHandler = { state, e ->
-      println("Thrown error on $state")
-      e.printStackTrace()
-      state
-    },
-  ) {
-    println(getMe())
+      botToken,
+      CoroutineScope(Dispatchers.IO),
+      onStateHandlingErrorHandler = { state, e ->
+        println("Thrown error on $state")
+        e.printStackTrace()
+        state
+      },
+    ) {
+      println(getMe())
 
-    command("start") {
-      if (it.from != null) {
-        startChain(StartState(it.from!!))
+      command("start") {
+        if (it.from != null) {
+          startChain(StartState(it.from!!))
+        }
       }
-    }
 
-    strictlyOnStartState(parentStorage, isDeveloperRun = true)
-    strictlyOnMenuState(core)
-    strictlyOnGivingFeedbackState()
-    strictlyOnChildPerformanceState(core)
+      strictlyOnStartState(parentStorage, isDeveloperRun = true)
+      strictlyOnMenuState(core)
+      strictlyOnGivingFeedbackState()
+      strictlyOnChildPerformanceState(core)
 
-    allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-      println(it)
+      allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
-  }.second.join()
+    .second
+    .join()
 }

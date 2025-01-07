@@ -43,9 +43,11 @@ class TeacherCore(
 
   fun getGlobalStats() = teacherStatistics.getGlobalStats()
 
-  fun getAvailableCourses(teacherId: TeacherId): List<Course> = coursesDistributor.getTeacherCourses(teacherId)
+  fun getAvailableCourses(teacherId: TeacherId): List<Course> =
+    coursesDistributor.getTeacherCourses(teacherId)
 
-  fun querySolution(teacherId: TeacherId): Solution? = solutionDistributor.querySolution(teacherId, gradeTable).value
+  fun querySolution(teacherId: TeacherId): Solution? =
+    solutionDistributor.querySolution(teacherId, gradeTable).value
 
   fun assessSolution(
     solution: Solution,
@@ -53,13 +55,7 @@ class TeacherCore(
     assessment: SolutionAssessment,
     timestamp: LocalDateTime = LocalDateTime.now(),
   ) {
-    gradeTable.assessSolution(
-      solution.id,
-      teacherId,
-      assessment,
-      teacherStatistics,
-      timestamp,
-    )
+    gradeTable.assessSolution(solution.id, teacherId, assessment, teacherStatistics, timestamp)
 
     problemStorage.resolveProblem(solution.problemId).map { problem ->
       botEventBus.publishGradeEvent(
@@ -74,15 +70,18 @@ class TeacherCore(
 
   fun getGrading(course: Course): List<Pair<StudentId, Grade>> {
     val students = coursesDistributor.getStudents(course.id)
-    val grades = students.map { student ->
-      student.id to gradeTable.getStudentPerformance(student.id).values.sum()
-    }
+    val grades =
+      students.map { student ->
+        student.id to gradeTable.getStudentPerformance(student.id).values.sum()
+      }
     return grades
   }
 
   fun getMaxGrade(): Grade = 5 // TODO: this needs to be fixed properly
 
-  fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>> =
+  fun resolveAssignment(
+    assignmentId: AssignmentId
+  ): Result<Assignment, ResolveError<AssignmentId>> =
     assignmentStorage.resolveAssignment(assignmentId)
 
   fun resolveProblem(problemId: ProblemId): Result<Problem, ResolveError<ProblemId>> =

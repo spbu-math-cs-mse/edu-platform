@@ -14,22 +14,23 @@ import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import org.jetbrains.exposed.sql.Database
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import org.jetbrains.exposed.sql.Database
 
 // @Ignore
 class GoogleSheetsTest {
   private val config = loadConfig()
 
-  private val database = Database.connect(
-    config.databaseConfig.url,
-    config.databaseConfig.driver,
-    config.databaseConfig.login,
-    config.databaseConfig.password,
-  )
+  private val database =
+    Database.connect(
+      config.databaseConfig.url,
+      config.databaseConfig.driver,
+      config.databaseConfig.login,
+      config.databaseConfig.password,
+    )
 
   private val coursesDistributor = DatabaseCoursesDistributor(database)
   private val gradeTable = DatabaseGradeTable(database)
@@ -40,10 +41,11 @@ class GoogleSheetsTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStatistics = InMemoryTeacherStatistics()
 
-  private val googleSheetsService = GoogleSheetsService(
-    config.googleSheetsConfig.serviceAccountKey,
-    config.googleSheetsConfig.spreadsheetId,
-  )
+  private val googleSheetsService =
+    GoogleSheetsService(
+      config.googleSheetsConfig.serviceAccountKey,
+      config.googleSheetsConfig.spreadsheetId,
+    )
 
   @BeforeTest
   @AfterTest
@@ -73,19 +75,19 @@ class GoogleSheetsTest {
       course1Id,
       "assignment 1",
       listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
-      problemStorage
+      problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 2",
       listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
-      problemStorage
+      problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 3",
       listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
-      problemStorage
+      problemStorage,
     )
     assignmentStorage.createAssignment(
       course2Id,
@@ -94,9 +96,9 @@ class GoogleSheetsTest {
         ProblemDescription("p1"),
         ProblemDescription("p2"),
         ProblemDescription("p3"),
-        ProblemDescription("p4")
+        ProblemDescription("p4"),
       ),
-      problemStorage
+      problemStorage,
     )
 
     for (problemId in 1..11) {

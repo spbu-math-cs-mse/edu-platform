@@ -12,17 +12,11 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
-  core: ParentCore,
-) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: ParentCore) {
   strictlyOn<MenuState> { state ->
     val parentId = state.parentId
 
-    val stickerMessage =
-      bot.sendSticker(
-        state.context,
-        Dialogues.typingSticker,
-      )
+    val stickerMessage = bot.sendSticker(state.context, Dialogues.typingSticker)
 
     val menuMessage =
       bot.send(
@@ -51,7 +45,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(
         return@strictlyOn ChildPerformanceState(
           state.context,
           Student(StudentId(command.toLong())),
-          state.parentId
+          state.parentId,
         )
       }
     }

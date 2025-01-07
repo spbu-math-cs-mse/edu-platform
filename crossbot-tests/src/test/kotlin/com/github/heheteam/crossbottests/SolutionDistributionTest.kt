@@ -31,13 +31,13 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import org.jetbrains.exposed.sql.Database
-import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.BeforeEach
 
 class SolutionDistributionTest {
   private lateinit var coursesDistributor: CoursesDistributor
@@ -58,12 +58,13 @@ class SolutionDistributionTest {
   @BeforeEach
   fun setup() {
     val config = loadConfig()
-    val database = Database.connect(
-      config.databaseConfig.url,
-      config.databaseConfig.driver,
-      config.databaseConfig.login,
-      config.databaseConfig.password,
-    )
+    val database =
+      Database.connect(
+        config.databaseConfig.url,
+        config.databaseConfig.driver,
+        config.databaseConfig.login,
+        config.databaseConfig.password,
+      )
     reset(database)
 
     coursesDistributor = DatabaseCoursesDistributor(database)
@@ -124,7 +125,7 @@ class SolutionDistributionTest {
 
     val extractedSolutionResult =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
+        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id
       )
     assertTrue(extractedSolutionResult.isOk)
     val extractedSolution = extractedSolutionResult.value
@@ -132,7 +133,8 @@ class SolutionDistributionTest {
       """sample solution
       |with lines
       |...
-      """.trimMargin()
+      """
+        .trimMargin()
     assertEquals(expectedText, extractedSolution.content.text)
     assertEquals(problemId, extractedSolution.problemId)
     assertEquals(messageId, extractedSolution.messageId)
@@ -145,11 +147,7 @@ class SolutionDistributionTest {
     assertEquals(extractedSolution.content.text, solution.content.text)
     assertEquals(extractedSolution.chatId, solution.chatId)
 
-    teacherCore.assessSolution(
-      solution,
-      teacherId,
-      SolutionAssessment(5, "way to go"),
-    )
+    teacherCore.assessSolution(solution, teacherId, SolutionAssessment(5, "way to go"))
 
     val emptySolution = teacherCore.querySolution(teacherId)
     assertNull(emptySolution)
@@ -182,7 +180,7 @@ class SolutionDistributionTest {
 
     val extractedSolutionResult =
       solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id,
+        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id
       )
     assertTrue(extractedSolutionResult.isOk)
 
@@ -197,11 +195,7 @@ class SolutionDistributionTest {
 
     assertEquals(fileURL, solution.content.filesURL)
 
-    teacherCore.assessSolution(
-      solution,
-      teacherId,
-      SolutionAssessment(3, "not too bad"),
-    )
+    teacherCore.assessSolution(solution, teacherId, SolutionAssessment(3, "not too bad"))
 
     val emptySolution = teacherCore.querySolution(teacherId)
     assertNull(emptySolution)
@@ -257,11 +251,7 @@ class SolutionDistributionTest {
 
     val solution1from1 = teacherCore.querySolution(teacherId1)
     assertNotNull(solution1from1)
-    teacherCore.assessSolution(
-      solution1from1,
-      teacherId1,
-      SolutionAssessment(2, "bad"),
-    )
+    teacherCore.assessSolution(solution1from1, teacherId1, SolutionAssessment(2, "bad"))
 
     val solution1from2 = teacherCore.querySolution(teacherId2)
     assertNotNull(solution1from2)
@@ -269,11 +259,7 @@ class SolutionDistributionTest {
     assertEquals(listOf("url1"), solution1from2.content.filesURL)
     assertEquals(SolutionId(4L), solution1from2.id)
 
-    teacherCore.assessSolution(
-      solution1from2,
-      teacherId2,
-      SolutionAssessment(3, "ok"),
-    )
+    teacherCore.assessSolution(solution1from2, teacherId2, SolutionAssessment(3, "ok"))
 
     run {
       studentCore.inputSolution(
@@ -294,17 +280,9 @@ class SolutionDistributionTest {
     assertNotNull(solution2from2.content.text)
     assertTrue(!solution2from2.content.text!!.startsWith("solution"))
 
-    teacherCore.assessSolution(
-      solution2from1,
-      teacherId1,
-      SolutionAssessment(4, "good"),
-    )
+    teacherCore.assessSolution(solution2from1, teacherId1, SolutionAssessment(4, "good"))
 
-    teacherCore.assessSolution(
-      solution2from2,
-      teacherId2,
-      SolutionAssessment(4, "good"),
-    )
+    teacherCore.assessSolution(solution2from2, teacherId2, SolutionAssessment(4, "good"))
 
     val empty = teacherCore.querySolution(teacherId2)
     assertNull(empty)

@@ -27,7 +27,4 @@ data class TeacherStatsData(
   val averageCheckTimeSeconds: Double,
 )
 
-data class GlobalTeacherStats(
-  val averageCheckTimeHours: Double,
-  val totalUncheckedSolutions: Int,
-)
+data class GlobalTeacherStats(val averageCheckTimeHours: Double, val totalUncheckedSolutions: Int)

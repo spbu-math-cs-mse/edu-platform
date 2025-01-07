@@ -18,21 +18,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGetProblemsState(core: Ad
   strictlyOn<GetProblemsState> { state ->
     val courses = core.getCourses().values.toList()
     if (courses.isEmpty()) {
-      bot.send(
-        state.context,
-        text = noCoursesWasFound(),
-      )
+      bot.send(state.context, text = noCoursesWasFound())
       return@strictlyOn MenuState(state.context)
     }
 
     val course = queryCourse(state, courses) ?: return@strictlyOn MenuState(state.context)
 
     val problems = core.getProblemsEntitiesList(course)
-    val problemsMessage = bot.send(
-      state.context,
-      entities = problems,
-      replyMarkup = returnBack(),
-    )
+    val problemsMessage = bot.send(state.context, entities = problems, replyMarkup = returnBack())
 
     waitDataCallbackQueryWithUser(state.context.id).first()
     deleteMessage(problemsMessage)
@@ -44,8 +37,7 @@ private suspend fun BehaviourContext.queryCourse(
   state: GetProblemsState,
   courses: List<Course>,
 ): Course? {
-  val message =
-    bot.send(state.context, askCourse(), replyMarkup = buildCoursesSelector(courses))
+  val message = bot.send(state.context, askCourse(), replyMarkup = buildCoursesSelector(courses))
 
   val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   deleteMessage(message)

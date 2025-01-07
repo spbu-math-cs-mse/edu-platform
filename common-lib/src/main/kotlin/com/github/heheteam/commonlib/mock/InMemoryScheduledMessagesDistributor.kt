@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import java.time.LocalDateTime
 
 class InMemoryScheduledMessagesDistributor(
-  private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf(),
+  private val messages: MutableMap<ScheduledMessage, Boolean> = mutableMapOf()
 ) : ScheduledMessagesDistributor {
   override fun addMessage(message: ScheduledMessage) {
     messages[message] = false

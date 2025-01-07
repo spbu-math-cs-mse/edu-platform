@@ -46,20 +46,18 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
 
 private fun createMainMenu(state: MenuState) =
   buildColumnMenu(
-    listOf(
-      ButtonData("Записаться на курсы", ButtonKey.SIGN_UP) {
-        SignUpState(state.context, state.studentId)
-      },
-      ButtonData("Посмотреть мои курсы", ButtonKey.VIEW) {
-        ViewState(state.context, state.studentId)
-      },
-      ButtonData("Отправить решение", ButtonKey.SEND_SOLUTION) {
-        SendSolutionState(state.context, state.studentId)
-      },
-      ButtonData("Проверить успеваемость", ButtonKey.CHECK_GRADES) {
-        CheckGradesState(state.context, state.studentId)
-      },
-    )
+    ButtonData("Записаться на курсы", ButtonKey.SIGN_UP) {
+      SignUpState(state.context, state.studentId)
+    },
+    ButtonData("Посмотреть мои курсы", ButtonKey.VIEW) {
+      ViewState(state.context, state.studentId)
+    },
+    ButtonData("Отправить решение", ButtonKey.SEND_SOLUTION) {
+      SendSolutionState(state.context, state.studentId)
+    },
+    ButtonData("Проверить успеваемость", ButtonKey.CHECK_GRADES) {
+      CheckGradesState(state.context, state.studentId)
+    },
   )
 
 private suspend fun BehaviourContext.handleTextMessage(

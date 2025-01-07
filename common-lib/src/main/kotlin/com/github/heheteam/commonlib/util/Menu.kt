@@ -4,13 +4,13 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardButtons.CallbackDataInlineK
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.buttons.Matrix
 
-data class ButtonData<T>(val text: String, val uniqueData: String, val getData: (() -> T))
+data class ButtonData<T>(val text: String, val uniqueData: String, val getData: suspend (() -> T))
 
 // handler returns null when wrong button (with unhandled unique data) is pressed
 // handler does not delete the menu message, be warned!
 data class MenuKeyboardData<T : Any>(
   val keyboard: InlineKeyboardMarkup,
-  val handler: (String) -> T?,
+  val handler: suspend (String) -> T?,
 )
 
 fun <T : Any> buildMenu(content: Matrix<ButtonData<T>>): MenuKeyboardData<T> {
@@ -20,11 +20,14 @@ fun <T : Any> buildMenu(content: Matrix<ButtonData<T>>): MenuKeyboardData<T> {
         CallbackDataInlineKeyboardButton(buttonData.text, buttonData.uniqueData)
       }
     }
-  val callback = asdf@{ callbackData: String ->
+  val callback: suspend (String) -> T? = { callbackData: String ->
     content.flatten().firstOrNull { it.uniqueData == callbackData }?.getData?.invoke()
   }
   return MenuKeyboardData(InlineKeyboardMarkup(inlineKeyboard), callback)
 }
 
 fun <T : Any> buildColumnMenu(content: List<ButtonData<T>>): MenuKeyboardData<T> =
+  buildMenu(content.map { listOf(it) })
+
+fun <T : Any> buildColumnMenu(vararg content: ButtonData<T>): MenuKeyboardData<T> =
   buildMenu(content.map { listOf(it) })

@@ -6,6 +6,8 @@ import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.util.ButtonData
+import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
@@ -23,47 +25,47 @@ import kotlinx.coroutines.flow.first
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getStudentCourses(state.studentId)
-
     val courseId: CourseId =
       queryCourseFromUser(state, courses)
         ?: return@strictlyOn MenuState(state.context, state.studentId)
-
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
-
-    val viewMode = askGradesType(state)
-
-    when (viewMode) {
-      ButtonKey.STUDENT_GRADES -> {
-        val assignmentId =
-          queryAssignmentFromUser(state, assignmentsFromCourse)
-            ?: return@strictlyOn CheckGradesState(state.context, state.studentId)
-        val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
-
-        val gradedProblems = core.getGradingForAssignment(assignment.id, state.studentId)
-
-        respondWithGrades(state, assignment, gradedProblems)
-        MenuState(state.context, state.studentId)
-      }
-
-      ButtonKey.TOP_GRADES -> {
-        println(courseId)
-        val topGrades = core.getTopGrades(courseId)
-
-        respondWithTopGrades(state, topGrades)
-
-        MenuState(state.context, state.studentId)
-      }
-
-      ButtonKey.BACK -> {
-        CheckGradesState(state.context, state.studentId)
-      }
-
-      else -> {
-        MenuState(state.context, state.studentId)
-      }
-    }
+    val queryGradeType = queryGradeTypeKeyboard(state, assignmentsFromCourse, core, courseId)
+    val sendQueryMessage =
+      bot.send(
+        state.context,
+        text = "Какие оценки посмотреть?",
+        replyMarkup = queryGradeType.keyboard,
+      )
+    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
+    deleteMessage(sendQueryMessage)
+    val nextState = queryGradeType.handler(callback.data)
+    nextState ?: MenuState(state.context, state.studentId)
   }
 }
+
+private fun BehaviourContext.queryGradeTypeKeyboard(
+  state: CheckGradesState,
+  assignmentsFromCourse: List<Assignment>,
+  core: StudentCore,
+  courseId: CourseId,
+) =
+  buildColumnMenu(
+    ButtonData("Моя успеваемость", ButtonKey.STUDENT_GRADES) {
+      val assignmentId =
+        queryAssignmentFromUser(state, assignmentsFromCourse)
+          ?: return@ButtonData CheckGradesState(state.context, state.studentId)
+      val assignment = assignmentsFromCourse.find { it.id == assignmentId }!!
+      val gradedProblems = core.getGradingForAssignment(assignment.id, state.studentId)
+      respondWithGrades(state, assignment, gradedProblems)
+      MenuState(state.context, state.studentId)
+    },
+    ButtonData("Лучшие на курсе", ButtonKey.TOP_GRADES) {
+      val topGrades = core.getTopGrades(courseId)
+      respondWithTopGrades(state, topGrades)
+      MenuState(state.context, state.studentId)
+    },
+    ButtonData("Назад", ButtonKey.BACK) { CheckGradesState(state.context, state.studentId) },
+  )
 
 private suspend fun BehaviourContext.respondWithGrades(
   state: CheckGradesState,
@@ -139,28 +141,6 @@ private suspend fun BehaviourContext.queryCourseFromUser(
       else -> return null
     }
   return CourseId(courseId)
-}
-
-private suspend fun BehaviourContext.askGradesType(state: CheckGradesState): String {
-  val viewMode =
-    bot.send(
-      state.context,
-      text = "Какие оценки посмотреть?",
-      replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-            matrix {
-              row { dataButton("Моя успеваемость", ButtonKey.STUDENT_GRADES) }
-              row { dataButton("Лучшие на курсе", ButtonKey.TOP_GRADES) }
-              row { dataButton("Назад", ButtonKey.BACK) }
-            }
-        ),
-    )
-
-  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(viewMode)
-
-  return callback.data
 }
 
 private suspend fun BehaviourContext.respondWithTopGrades(

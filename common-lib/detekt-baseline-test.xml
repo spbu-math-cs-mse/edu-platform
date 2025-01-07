@@ -5,6 +5,7 @@
     <ID>LibraryEntitiesShouldNotBePublic:DatabaseStartupTest.kt$DatabaseStartupTest</ID>
     <ID>LibraryEntitiesShouldNotBePublic:DatabaseTest.kt$DatabaseTest</ID>
     <ID>LibraryEntitiesShouldNotBePublic:GoogleSheetsTest.kt$GoogleSheetsTest</ID>
+    <ID>LongMethod:DatabaseStartupTest.kt$DatabaseStartupTest$@Test fun startupTest()</ID>
     <ID>LongMethod:DatabaseTest.kt$DatabaseTest$@Test fun `student performance works`()</ID>
     <ID>LongMethod:GoogleSheetsTest.kt$GoogleSheetsTest$@Test fun `update rating works`()</ID>
   </CurrentIssues>

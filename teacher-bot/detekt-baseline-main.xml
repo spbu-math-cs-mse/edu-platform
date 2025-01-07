@@ -2,7 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState( core: TeacherCore, )</ID>
+    <ID>CyclomaticComplexMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
     <ID>ForbiddenComment:TeacherCore.kt$TeacherCore$// TODO: this needs to be fixed properly</ID>
     <ID>ForbiddenPublicDataClass:BotStates.kt$CheckGradesState : BotState</ID>
     <ID>ForbiddenPublicDataClass:BotStates.kt$GettingSolutionState : BotState</ID>
@@ -47,16 +47,16 @@
     <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$MenuState : BotState</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$PresetTeacherState : BotState</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$StartState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState(core: TeacherCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Pair&lt;StudentId, Grade?&gt;&gt;.withGradesToText(maxGrade: Grade)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState( core: TeacherCore, )</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:PresetTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetTeacherState( core: TeacherCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState(core: TeacherCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:PresetTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetTeacherState(core: TeacherCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
     <ID>LibraryEntitiesShouldNotBePublic:TeacherCore.kt$TeacherCore</ID>
     <ID>LibraryEntitiesShouldNotBePublic:TeacherRun.kt$@OptIn(RiskFeature::class) suspend fun teacherRun( botToken: String, teacherStorage: TeacherStorage, core: TeacherCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
-    <ID>LongMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState( core: TeacherCore, )</ID>
+    <ID>LongMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
     <ID>LongParameterList:TeacherCore.kt$TeacherCore$( private val teacherStatistics: TeacherStatistics, private val coursesDistributor: CoursesDistributor, private val solutionDistributor: SolutionDistributor, private val gradeTable: GradeTable, private val problemStorage: ProblemStorage, private val botEventBus: BotEventBus, private val assignmentStorage: AssignmentStorage, private val studentStorage: StudentStorage, )</ID>
@@ -72,7 +72,7 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-    <ID>UnreachableCode:MenuState.kt$stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format( it / 60 / 60, ) } ?: ""</ID>
+    <ID>UnreachableCode:MenuState.kt$stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format( it / 60 / 60 ) } ?: ""</ID>
     <ID>UnreachableCode:MenuState.kt$stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"</ID>
     <ID>UnsafeCallOnNullableType:CheckGradesState.kt$courses.find { it.id == courseId }!!</ID>
     <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.filesURL!!</ID>

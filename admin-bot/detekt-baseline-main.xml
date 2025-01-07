@@ -2,7 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
+    <ID>CyclomaticComplexMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>ForbiddenComment:EditDescriptionState.kt$// state.course.name = answer TODO: implement this feature</ID>
     <ID>ForbiddenPublicDataClass:BotStates.kt$AddScheduledMessageState : BotState</ID>
     <ID>ForbiddenPublicDataClass:BotStates.kt$AddStudentState : BotState</ID>
@@ -35,7 +35,7 @@
     <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun addCourse(courseName: String)</ID>
     <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun addMessage(message: ScheduledMessage)</ID>
     <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun markMessagesUpToDateAsSent(date: LocalDateTime)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun registerStudentForCourse( studentId: StudentId, courseId: CourseId, )</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun registerStudentForCourse(studentId: StudentId, courseId: CourseId)</ID>
     <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val greetingSticker = InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")</ID>
     <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val heartSticker = InputFile.fromId("CAACAgEAAxkBAAIBqGcePu_DPJQIwyU2hfH7SbMJ1g_DAAL6AQACOA6CEZdviQ02NivYNgQ")</ID>
     <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val nerdSticker = InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")</ID>
@@ -62,7 +62,7 @@
     <ID>LibraryEntitiesShouldNotBePublic:AddStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddStudentState(core: AdminCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:AddTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddTeacherState(core: AdminCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:AdminCore.kt$AdminCore</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun( botToken: String, core: AdminCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun(botToken: String, core: AdminCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddScheduledMessageState : BotState</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddStudentState : BotState</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddTeacherState : BotState</ID>
@@ -93,8 +93,7 @@
     <ID>LibraryEntitiesShouldNotBePublic:RemoveStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnRemoveStudentState(core: AdminCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:RemoveTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnRemoveTeacherState(core: AdminCore)</ID>
     <ID>LongMethod:AddScheduledMessageState.kt$private fun keyboardWithDates(): InlineKeyboardMarkup</ID>
-    <ID>LongMethod:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun( botToken: String, core: AdminCore, )</ID>
-    <ID>LongMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
+    <ID>LongMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongParameterList:AdminCore.kt$AdminCore$( private val scheduledMessagesDistributor: ScheduledMessagesDistributor, private val coursesDistributor: CoursesDistributor, private val studentStorage: StudentStorage, private val teacherStorage: TeacherStorage, private val assignmentStorage: AssignmentStorage, private val problemStorage: ProblemStorage, private val solutionDistributor: SolutionDistributor, )</ID>
     <ID>LoopWithTooManyJumpStatements:AddStudentState.kt$while</ID>
@@ -114,16 +113,8 @@
     <ID>MaxLineLength:AddStudentState.kt$"Введите ID учеников (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
     <ID>MaxLineLength:AddTeacherState.kt$+"Введите ID преподавателей (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
     <ID>MaxLineLength:Dialogues.kt$Dialogues$"Некорректный формат ввода (обнаружена строчка ($problemDescription) с более, чем 3-мя аргументами). Попробуйте ещё раз!"</ID>
-    <ID>MaxLineLength:Dialogues.kt$Dialogues$fun oneIdAlreadyDoesNotExistForStudentRemoving(id: Long, courseName: String): String</ID>
-    <ID>MaxLineLength:Dialogues.kt$Dialogues$fun oneIdAlreadyDoesNotExistForTeacherRemoving(id: Long, courseName: String): String</ID>
-    <ID>MaxLineLength:Dialogues.kt$Dialogues$fun oneIdAlreadyExistsForTeacherAddition(id: Long, courseName: String): String</ID>
     <ID>MaxLineLength:RemoveStudentState.kt$+"Введите ID учеников (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
     <ID>MaxLineLength:RemoveTeacherState.kt$+"Введите ID преподавателей (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."</ID>
-    <ID>MaximumLineLength:AddStudentState.kt$ </ID>
-    <ID>MaximumLineLength:AddTeacherState.kt$ </ID>
-    <ID>MaximumLineLength:Dialogues.kt$Dialogues$ </ID>
-    <ID>MaximumLineLength:RemoveStudentState.kt$ </ID>
-    <ID>MaximumLineLength:RemoveTeacherState.kt$ </ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val addScheduledMessage = "add scheduled message"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val addStudent = "add a student"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val addTeacher = "add a teacher"</ID>
@@ -137,10 +128,10 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val removeStudent = "remove a student"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val removeTeacher = "remove a teacher"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState, ): String?</ID>
-    <ID>NestedBlockDepth:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
-    <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser(state: AddScheduledMessageState): LocalDate?</ID>
-    <ID>ReturnCount:CreateAssignmentState.kt$internal fun parseProblemsDescriptions( problemsDescriptionsFromText: String, ): Result&lt;List&lt;ProblemDescription&gt;, String&gt;</ID>
+    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): String?</ID>
+    <ID>NestedBlockDepth:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
+    <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser( state: AddScheduledMessageState ): LocalDate?</ID>
+    <ID>ReturnCount:CreateAssignmentState.kt$internal fun parseProblemsDescriptions( problemsDescriptionsFromText: String ): Result&lt;List&lt;ProblemDescription&gt;, String&gt;</ID>
     <ID>TooManyFunctions:AdminCore.kt$AdminCore</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
     <ID>UnsafeCallOnNullableType:AdminRun.kt$it.from!!</ID>

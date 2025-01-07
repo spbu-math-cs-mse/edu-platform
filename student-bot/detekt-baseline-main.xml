@@ -50,7 +50,7 @@
     <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val other = "Другое"</ID>
     <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
     <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:StudentCore.kt$StudentCore$fun addRecord( studentId: StudentId, courseId: CourseId, )</ID>
+    <ID>LibraryCodeMustSpecifyReturnType:StudentCore.kt$StudentCore$fun addRecord(studentId: StudentId, courseId: CourseId)</ID>
     <ID>LibraryCodeMustSpecifyReturnType:StudentCore.kt$StudentCore$fun getStudentsFromCourse(courseId: CourseId)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$BotState : State</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$CheckGradesState : BotState</ID>
@@ -61,10 +61,10 @@
     <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$SignUpState : BotState</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$StartState : BotState</ID>
     <ID>LibraryEntitiesShouldNotBePublic:BotState.kt$ViewState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState( core: StudentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState(core: StudentCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Grade&gt;.withTopGradesToText()</ID>
     <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Pair&lt;Problem, Grade?&gt;&gt;.withGradesToText()</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:DevStartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnDeveloperStartState( studentStorage: StudentStorage, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:DevStartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnDeveloperStartState( studentStorage: StudentStorage )</ID>
     <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun back()</ID>
     <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildCoursesSelector(availableCourses: List&lt;Pair&lt;Course, Boolean&gt;&gt;)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:KeyboardMarkup.kt$fun buildCoursesSendingSelector(availableCourses: List&lt;Course&gt;)</ID>
@@ -74,13 +74,13 @@
     <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState()</ID>
     <ID>LibraryEntitiesShouldNotBePublic:PresetStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetStudentState(core: StudentCore)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$suspend fun BehaviourContext.makeURL( content: MediaContent, studentBotToken: String, ): String</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SendSolutionState.kt$suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: String): String</ID>
     <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$SigningUpState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSignUpState( core: StudentCore, )</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( studentStorage: StudentStorage, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:SignUpState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSignUpState(core: StudentCore)</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState(studentStorage: StudentStorage)</ID>
     <ID>LibraryEntitiesShouldNotBePublic:StudentCore.kt$StudentCore</ID>
     <ID>LibraryEntitiesShouldNotBePublic:StudentRun.kt$@OptIn(RiskFeature::class) suspend fun studentRun( botToken: String, studentStorage: StudentStorage, core: StudentCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:ViewState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnViewState( core: StudentCore, )</ID>
+    <ID>LibraryEntitiesShouldNotBePublic:ViewState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnViewState(core: StudentCore)</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
     <ID>LongParameterList:StudentCore.kt$StudentCore$( private val solutionDistributor: SolutionDistributor, private val coursesDistributor: CoursesDistributor, private val problemStorage: ProblemStorage, private val assignmentStorage: AssignmentStorage, private val gradeTable: GradeTable, private val notificationService: NotificationService, botEventBus: BotEventBus, )</ID>

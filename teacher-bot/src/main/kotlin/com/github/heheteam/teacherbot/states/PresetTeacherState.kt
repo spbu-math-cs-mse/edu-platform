@@ -1,10 +1,7 @@
-package com.github.heheteam.teacherbot.state
+package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.teacherbot.TeacherCore
-import com.github.heheteam.teacherbot.states.BotState
-import com.github.heheteam.teacherbot.states.MenuState
-import com.github.heheteam.teacherbot.states.PresetTeacherState
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 

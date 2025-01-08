@@ -40,8 +40,9 @@ suspend fun parentRun(botToken: String, parentStorage: ParentStorage, core: Pare
       println(getMe())
 
       command("start") {
-        if (it.from != null) {
-          startChain(StartState(it.from!!))
+        val user = it.from
+        if (user != null) {
+          startChain(StartState(user))
         }
       }
 

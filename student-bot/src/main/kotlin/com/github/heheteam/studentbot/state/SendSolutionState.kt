@@ -14,7 +14,6 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
-import com.github.heheteam.studentbot.queryCourse
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -49,7 +48,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       return@strictlyOn MenuState(state.context, state.studentId)
     }
 
-    val course = queryCourse(state, courses, Dialogues.askCourseForSolution())
+    val course = queryCourse(state.context, courses, Dialogues.askCourseForSolution())
     if (course == null) {
       deleteMessage(stickerMessage)
       return@strictlyOn MenuState(state.context, state.studentId)

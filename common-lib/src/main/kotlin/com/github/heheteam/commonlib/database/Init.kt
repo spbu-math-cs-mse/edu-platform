@@ -55,5 +55,8 @@ fun reset(database: Database) {
 }
 
 fun Transaction.fillWithMockData() {
-  exec(object {}.javaClass.getClassLoader().getResource("mock_data.sql")!!.readText(Charsets.UTF_8))
+  exec(
+    object {}.javaClass.getClassLoader().getResource("mock_data.sql")?.readText(Charsets.UTF_8)
+      ?: throw RuntimeException("mock_data.sql is missing in resources")
+  )
 }

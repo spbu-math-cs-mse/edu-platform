@@ -1,34 +1,26 @@
-package com.github.heheteam.teacherbot.state
+package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
-import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.util.queryPickerWithBackFromList
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.TeacherCore
-import com.github.heheteam.teacherbot.states.BotState
-import com.github.heheteam.teacherbot.states.CheckGradesState
-import com.github.heheteam.teacherbot.states.MenuState
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
-import dev.inmo.tgbotapi.utils.matrix
-import dev.inmo.tgbotapi.utils.row
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: TeacherCore) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getAvailableCourses(state.teacherId)
 
-    val courseId: CourseId =
-      queryCourseFromUser(state, courses)
+    val course =
+      queryCourse(state.context, courses, "Выберите курс")
         ?: return@strictlyOn MenuState(state.context, state.teacherId)
-    val course = courses.find { it.id == courseId }!!
-
     val gradedProblems = core.getGrading(course)
     val maxGrade = core.getMaxGrade()
     val strGrades =
@@ -44,36 +36,11 @@ private suspend fun BehaviourContext.respondWithGrades(state: CheckGradesState, 
   deleteMessage(state.context.id, gradesMessage.messageId)
 }
 
-private suspend fun BehaviourContext.queryCourseFromUser(
-  state: CheckGradesState,
+suspend fun BehaviourContext.queryCourse(
+  user: User,
   courses: List<Course>,
-): CourseId? {
-  val chooseCourseMessage =
-    bot.send(
-      state.context,
-      text = "Выберите курс",
-      replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-            matrix {
-              courses.forEach { row { dataButton(it.name, "courseId ${it.id}") } }
-              row { dataButton("Назад", returnBack) }
-            }
-        ),
-    )
-
-  val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(state.context.id, chooseCourseMessage.messageId)
-  val courseId: String?
-  when {
-    callback.data.contains("courseId") -> {
-      courseId = callback.data.split(" ").last()
-    }
-
-    else -> return null
-  }
-  return CourseId(courseId.toLong())
-}
+  queryText: String,
+): Course? = queryPickerWithBackFromList(user, courses, { it.name }, queryText)
 
 fun List<Pair<StudentId, Grade?>>.withGradesToText(maxGrade: Grade) =
   joinToString(separator = "\n") { (studentId, grade) -> "Ученик $studentId : $grade/$maxGrade" }

@@ -24,9 +24,12 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: Student
     val studentId = state.studentId
     val courses = core.getCourses()
     val studentCourses = core.getStudentCourses(studentId).toMutableList()
-    println(studentCourses)
     val coursesToAvailability =
-      courses.map { it to studentCourses.map { it.id }.contains(it.id) }.toMutableList()
+      courses
+        .map { course ->
+          course to studentCourses.any { studentCourse -> studentCourse.id == course.id }
+        }
+        .toMutableList()
 
     val initialMessage =
       bot.send(

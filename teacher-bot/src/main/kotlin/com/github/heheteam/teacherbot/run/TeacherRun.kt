@@ -3,13 +3,13 @@ package com.github.heheteam.teacherbot.run
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.teacherbot.TeacherCore
-import com.github.heheteam.teacherbot.state.strictlyOnCheckGradesState
-import com.github.heheteam.teacherbot.state.strictlyOnPresetTeacherState
 import com.github.heheteam.teacherbot.states.BotState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
 import com.github.heheteam.teacherbot.states.StartState
+import com.github.heheteam.teacherbot.states.strictlyOnCheckGradesState
 import com.github.heheteam.teacherbot.states.strictlyOnGettingSolutionState
 import com.github.heheteam.teacherbot.states.strictlyOnMenuState
+import com.github.heheteam.teacherbot.states.strictlyOnPresetTeacherState
 import com.github.heheteam.teacherbot.states.strictlyOnStartState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel

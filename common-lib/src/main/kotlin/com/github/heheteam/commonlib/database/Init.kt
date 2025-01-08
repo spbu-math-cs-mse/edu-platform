@@ -54,6 +54,12 @@ fun reset(database: Database) {
   }
 }
 
+class MissingDataException(name: String, location: String) :
+  RuntimeException("$name is missing in $location")
+
 fun Transaction.fillWithMockData() {
-  exec(object {}.javaClass.getClassLoader().getResource("mock_data.sql")!!.readText(Charsets.UTF_8))
+  exec(
+    object {}.javaClass.getClassLoader().getResource("mock_data.sql")?.readText(Charsets.UTF_8)
+      ?: throw MissingDataException("mock_data.sql", "resources")
+  )
 }

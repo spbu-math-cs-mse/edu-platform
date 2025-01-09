@@ -34,12 +34,7 @@ class GoogleSheetsRatingRecorder(
 
   override fun updateRating(courseId: CourseId) {
     scope.launch {
-      val mutex =
-        courseMutexes[courseId]
-          ?: run {
-            courseMutexes[courseId] = Mutex()
-            courseMutexes[courseId]!!
-          }
+      val mutex = courseMutexes.computeIfAbsent(courseId) { Mutex() }
       mutex.withLock {
         googleSheetsService.updateRating(
           coursesDistributor.resolveCourse(courseId).value,

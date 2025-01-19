@@ -27,7 +27,6 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 import java.time.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -118,7 +117,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             solution[SolutionTable.content],
             SolutionType.valueOf(solution[SolutionTable.solutionType]),
           ),
-          solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+          solution[SolutionTable.timestamp],
         )
       )
     }
@@ -141,7 +140,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             solution[SolutionTable.content],
             SolutionType.valueOf(solution[SolutionTable.solutionType]),
           ),
-          solution[SolutionTable.timestamp].toJavaLocalDateTime(),
+          solution[SolutionTable.timestamp],
         )
       )
     }

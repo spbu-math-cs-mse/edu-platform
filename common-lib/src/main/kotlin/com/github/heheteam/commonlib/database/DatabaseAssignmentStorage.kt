@@ -57,7 +57,7 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
         .value
         .toAssignmentId()
     problemsDescriptions.map {
-      problemStorage.createProblem(assignId, it.number, it.maxScore, it.description)
+      problemStorage.createProblem(assignId, it.number, it.maxScore, it.description, it.deadline)
     }
     return assignId
   }

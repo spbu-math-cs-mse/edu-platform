@@ -117,7 +117,7 @@ fun List<Grade>.withTopGradesToText() =
     }
   }
 
-suspend fun BehaviourContext.queryCourse(
+internal suspend fun BehaviourContext.queryCourse(
   user: User,
   courses: List<Course>,
   queryText: String,

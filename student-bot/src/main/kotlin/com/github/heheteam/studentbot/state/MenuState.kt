@@ -59,6 +59,9 @@ private fun createMainMenu(state: MenuState) =
     ButtonData("Проверить успеваемость", ButtonKey.CHECK_GRADES) {
       CheckGradesState(state.context, state.studentId)
     },
+    ButtonData("Посмотреть дедлайны", ButtonKey.CHECK_DEADLINES) {
+      CheckDeadlinesState(state.context, state.studentId)
+    },
   )
 
 private suspend fun BehaviourContext.handleTextMessage(

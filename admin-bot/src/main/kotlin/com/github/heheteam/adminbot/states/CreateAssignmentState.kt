@@ -21,6 +21,8 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import dev.inmo.kslog.common.info
+import dev.inmo.kslog.common.logger
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
@@ -37,6 +39,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.merge
+import kotlinx.datetime.LocalDateTime
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateAssignmentState(core: AdminCore) {
   strictlyOn<CreateAssignmentState> { state ->
@@ -52,7 +55,11 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateAssignmentState(cor
     val problemsDescriptions =
       queryProblemsDescriptions(state) ?: return@strictlyOn MenuState(state.context)
 
-    core.addAssignment(course.id, description, problemsDescriptions)
+    core.addAssignment(
+      course.id,
+      description.first,
+      problemsDescriptions.map { it.copy(deadline = description.second) },
+    )
     bot.send(state.context, assignmentWasCreatedSuccessfully())
     MenuState(state.context)
   }
@@ -78,7 +85,7 @@ private suspend fun BehaviourContext.queryCourse(
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun BehaviourContext.queryAssignmentDescription(
   state: CreateAssignmentState
-): String? {
+): Pair<String, LocalDateTime?>? {
   val messages: MutableList<ContentMessage<TextContent>> = mutableListOf()
   messages.add(
     bot.send(state.context, text = askAssignmentDescription(), replyMarkup = returnBack())
@@ -111,7 +118,19 @@ private suspend fun BehaviourContext.queryAssignmentDescription(
           continue
         }
         messages.forEach { delete(it) }
-        return descriptionFromText
+        if (descriptionFromText.contains("\$")) {
+          val tokens = descriptionFromText.split("\$")
+          if (tokens.size != 2) {
+            logger.info("too many dollar signs in query")
+            return null
+          } else {
+            val before = tokens[0]
+            val after = tokens[1]
+            return before to LocalDateTime.Formats.ISO.parseOrNull(after)
+          }
+        } else {
+          return descriptionFromText to null
+        }
       }
     }
   }

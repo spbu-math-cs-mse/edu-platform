@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SolutionDistributor
@@ -63,10 +62,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     return SolutionId(solutionId)
   }
 
-  override fun querySolution(
-    teacherId: TeacherId,
-    gradeTable: GradeTable,
-  ): Result<Solution?, SolutionResolveError> =
+  override fun querySolution(teacherId: TeacherId): Result<Solution?, SolutionResolveError> =
     transaction(database) {
       val teacherRow =
         TeacherTable.select(TeacherTable.id).where(TeacherTable.id eq teacherId.id).firstOrNull()

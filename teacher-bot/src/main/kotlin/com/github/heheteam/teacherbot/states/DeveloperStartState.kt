@@ -12,38 +12,38 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-class StartState(override val context: User) : BotState<TeacherId?, String, TeacherStorage> {
+class DeveloperStartState(override val context: User) :
+  BotState<TeacherId?, String, TeacherStorage> {
   override suspend fun readUserInput(
     bot: BehaviourContext,
     teacherStorage: TeacherStorage,
   ): TeacherId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
-    val teacherId: TeacherId? = teacherStorage.resolveByTgId(context.id).get()?.id
-    if (teacherId != null) {
-      return teacherId
-    }
-    bot.send(context, Dialogues.greetings() + Dialogues.askFirstName())
-    val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
-    bot.send(context, Dialogues.askLastName(firstName))
-    val lastName = bot.waitTextMessageWithUser(context.id).first().content.text
-    return teacherStorage.createTeacher(firstName, lastName, context.id.chatId.long)
+    bot.send(context, Dialogues.devAskForId())
+    val teacherIdFromText =
+      bot.waitTextMessageWithUser(context.id).first().content.text.toLongOrNull()?.let {
+        TeacherId(it)
+      }
+    return teacherIdFromText
   }
 
   override suspend fun computeNewState(
-    service: TeacherStorage,
+    teacherStorage: TeacherStorage,
     teacherId: TeacherId?,
   ): Pair<BotState<*, *, *>, String> {
     if (teacherId == null) {
       return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
     }
+    teacherStorage.resolveTeacher(teacherId).get()
+      ?: return Pair(DeveloperStartState(context), Dialogues.devIdNotFound())
     return Pair(MenuState(context, teacherId), Dialogues.greetings())
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: TeacherStorage,
-    message: String,
+    response: String,
   ) {
-    bot.send(context, message)
+    bot.send(context, response)
   }
 }

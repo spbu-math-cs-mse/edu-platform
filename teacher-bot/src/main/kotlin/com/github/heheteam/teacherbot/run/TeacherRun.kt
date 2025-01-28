@@ -1,16 +1,12 @@
 package com.github.heheteam.teacherbot.run
 
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
+import com.github.heheteam.commonlib.util.registerState
 import com.github.heheteam.teacherbot.TeacherCore
-import com.github.heheteam.teacherbot.states.BotState
-import com.github.heheteam.teacherbot.states.PresetTeacherState
-import com.github.heheteam.teacherbot.states.StartState
-import com.github.heheteam.teacherbot.states.strictlyOnCheckGradesState
-import com.github.heheteam.teacherbot.states.strictlyOnGettingSolutionState
-import com.github.heheteam.teacherbot.states.strictlyOnMenuState
-import com.github.heheteam.teacherbot.states.strictlyOnPresetTeacherState
-import com.github.heheteam.teacherbot.states.strictlyOnStartState
+import com.github.heheteam.teacherbot.states.*
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -29,7 +25,9 @@ import kotlinx.coroutines.Dispatchers
 suspend fun teacherRun(
   botToken: String,
   teacherStorage: TeacherStorage,
-  core: TeacherCore,
+  teacherStatistics: TeacherStatistics,
+  coursesDistributor: CoursesDistributor,
+  teacherCore: TeacherCore,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
   telegramBot(botToken) {
@@ -38,7 +36,7 @@ suspend fun teacherRun(
     }
   }
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling<BotState>(
+  telegramBotWithBehaviourAndFSMAndStartLongPolling(
       botToken,
       CoroutineScope(Dispatchers.IO),
       onStateHandlingErrorHandler = { state, e ->
@@ -57,11 +55,14 @@ suspend fun teacherRun(
         }
       }
 
-      strictlyOnStartState(teacherStorage, isDeveloperRun = true)
-      strictlyOnMenuState(core)
-      strictlyOnGettingSolutionState(core)
-      strictlyOnCheckGradesState(core)
-      strictlyOnPresetTeacherState(core)
+      registerState<StartState, TeacherStorage>(teacherStorage)
+      registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
+      registerState<MenuState, TeacherStatistics>(teacherStatistics)
+      registerState<SendStatisticInfoState, TeacherStatistics>(teacherStatistics)
+      registerState<CheckGradesState, TeacherCore>(teacherCore)
+      registerState<GettingSolutionState, TeacherCore>(teacherCore)
+      registerState<CheckingSolutionState, TeacherCore>(teacherCore)
+      registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
@@ -75,7 +76,7 @@ private fun findStartState(developerOptions: DeveloperOptions?, user: User) =
     if (presetTeacher != null) {
       PresetTeacherState(user, presetTeacher)
     } else {
-      StartState(user)
+      DeveloperStartState(user)
     }
   } else {
     StartState(user)

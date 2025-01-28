@@ -121,7 +121,7 @@ class GoogleSheetsTest {
     }
 
     for (solutionId in 1..17) {
-      val solution = solutionDistributor.querySolution(teacher1Id, gradeTable).get()
+      val solution = solutionDistributor.querySolution(teacher1Id).get()
       assertNotNull(solution)
       gradeTable.assessSolution(
         solution.id,

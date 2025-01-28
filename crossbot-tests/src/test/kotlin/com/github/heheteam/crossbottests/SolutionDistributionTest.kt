@@ -35,8 +35,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 
 class SolutionDistributionTest {
@@ -119,14 +119,12 @@ class SolutionDistributionTest {
       problemId,
     )
 
-    assertNull(solutionDistributor.querySolution(teacherId, gradeTable).value)
+    assertNull(solutionDistributor.querySolution(teacherId).value)
 
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
     val extractedSolutionResult =
-      solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id
-      )
+      solutionDistributor.resolveSolution(solutionDistributor.querySolution(teacherId).value!!.id)
     assertTrue(extractedSolutionResult.isOk)
     val extractedSolution = extractedSolutionResult.value
     val expectedText =
@@ -179,9 +177,7 @@ class SolutionDistributionTest {
     )
 
     val extractedSolutionResult =
-      solutionDistributor.resolveSolution(
-        solutionDistributor.querySolution(teacherId, gradeTable).value!!.id
-      )
+      solutionDistributor.resolveSolution(solutionDistributor.querySolution(teacherId).value!!.id)
     assertTrue(extractedSolutionResult.isOk)
 
     val extractedSolution = extractedSolutionResult.value

@@ -28,7 +28,9 @@ import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockBotEventBus
 import com.github.heheteam.commonlib.mock.MockNotificationService
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.CoursesStatisticsResolver
+import com.github.heheteam.teacherbot.SolutionAssessor
+import com.github.heheteam.teacherbot.SolutionResolver
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import kotlin.test.Test
@@ -48,7 +50,9 @@ class SolutionDistributionTest {
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var studentStorage: StudentStorage
   private lateinit var teacherStorage: TeacherStorage
-  private lateinit var teacherCore: TeacherCore
+  private lateinit var coursesStatisticsResolver: CoursesStatisticsResolver
+  private lateinit var solutionResolver: SolutionResolver
+  private lateinit var solutionAssessor: SolutionAssessor
   private lateinit var studentCore: StudentCore
 
   private var messageId = 1L
@@ -85,16 +89,16 @@ class SolutionDistributionTest {
         MockNotificationService(),
         MockBotEventBus(),
       )
-    teacherCore =
-      TeacherCore(
+    coursesStatisticsResolver = CoursesStatisticsResolver(coursesDistributor, gradeTable)
+    solutionResolver =
+      SolutionResolver(solutionDistributor, problemStorage, assignmentStorage, studentStorage)
+    solutionAssessor =
+      SolutionAssessor(
         teacherStatistics,
-        coursesDistributor,
         solutionDistributor,
         gradeTable,
         problemStorage,
         MockBotEventBus(),
-        assignmentStorage,
-        studentStorage,
       )
   }
 
@@ -137,17 +141,17 @@ class SolutionDistributionTest {
     assertEquals(problemId, extractedSolution.problemId)
     assertEquals(messageId, extractedSolution.messageId)
 
-    val solution = teacherCore.querySolution(teacherId)
+    val solution = solutionResolver.querySolution(teacherId)
     assertNotNull(solution)
 
-    assertEquals(messageId, teacherCore.querySolution(teacherId)?.messageId)
+    assertEquals(messageId, solutionResolver.querySolution(teacherId)?.messageId)
 
     assertEquals(extractedSolution.content.text, solution.content.text)
     assertEquals(extractedSolution.chatId, solution.chatId)
 
-    teacherCore.assessSolution(solution, teacherId, SolutionAssessment(5, "way to go"))
+    solutionAssessor.assessSolution(solution, teacherId, SolutionAssessment(5, "way to go"))
 
-    val emptySolution = teacherCore.querySolution(teacherId)
+    val emptySolution = solutionResolver.querySolution(teacherId)
     assertNull(emptySolution)
   }
 
@@ -186,14 +190,14 @@ class SolutionDistributionTest {
     assertEquals(SolutionType.GROUP, extractedSolution.content.type)
     assertEquals(messageId, extractedSolution.messageId)
 
-    val solution = teacherCore.querySolution(teacherId)
+    val solution = solutionResolver.querySolution(teacherId)
     assertNotNull(solution)
 
     assertEquals(fileURL, solution.content.filesURL)
 
-    teacherCore.assessSolution(solution, teacherId, SolutionAssessment(3, "not too bad"))
+    solutionAssessor.assessSolution(solution, teacherId, SolutionAssessment(3, "not too bad"))
 
-    val emptySolution = teacherCore.querySolution(teacherId)
+    val emptySolution = solutionResolver.querySolution(teacherId)
     assertNull(emptySolution)
   }
 
@@ -245,17 +249,17 @@ class SolutionDistributionTest {
       )
     }
 
-    val solution1from1 = teacherCore.querySolution(teacherId1)
+    val solution1from1 = solutionResolver.querySolution(teacherId1)
     assertNotNull(solution1from1)
-    teacherCore.assessSolution(solution1from1, teacherId1, SolutionAssessment(2, "bad"))
+    solutionAssessor.assessSolution(solution1from1, teacherId1, SolutionAssessment(2, "bad"))
 
-    val solution1from2 = teacherCore.querySolution(teacherId2)
+    val solution1from2 = solutionResolver.querySolution(teacherId2)
     assertNotNull(solution1from2)
 
     assertEquals(listOf("url1"), solution1from2.content.filesURL)
     assertEquals(SolutionId(4L), solution1from2.id)
 
-    teacherCore.assessSolution(solution1from2, teacherId2, SolutionAssessment(3, "ok"))
+    solutionAssessor.assessSolution(solution1from2, teacherId2, SolutionAssessment(3, "ok"))
 
     run {
       studentCore.inputSolution(
@@ -267,23 +271,23 @@ class SolutionDistributionTest {
       )
     }
 
-    val solution2from1 = teacherCore.querySolution(teacherId1)
+    val solution2from1 = solutionResolver.querySolution(teacherId1)
     assertNotNull(solution2from1)
     assertEquals("solution 11", solution2from1.content.text)
 
-    val solution2from2 = teacherCore.querySolution(teacherId2)
+    val solution2from2 = solutionResolver.querySolution(teacherId2)
     assertNotNull(solution2from2)
     assertNotNull(solution2from2.content.text)
     assertTrue(!solution2from2.content.text!!.startsWith("solution"))
 
-    teacherCore.assessSolution(solution2from1, teacherId1, SolutionAssessment(4, "good"))
+    solutionAssessor.assessSolution(solution2from1, teacherId1, SolutionAssessment(4, "good"))
 
-    teacherCore.assessSolution(solution2from2, teacherId2, SolutionAssessment(4, "good"))
+    solutionAssessor.assessSolution(solution2from2, teacherId2, SolutionAssessment(4, "good"))
 
-    val empty = teacherCore.querySolution(teacherId2)
+    val empty = solutionResolver.querySolution(teacherId2)
     assertNull(empty)
 
-    val solution3from1 = teacherCore.querySolution(teacherId1)
+    val solution3from1 = solutionResolver.querySolution(teacherId1)
     assertNotNull(solution3from1)
     assertEquals("solution 12", solution3from1.content.text)
     assertEquals(SolutionType.TEXT, solution3from1.content.type)

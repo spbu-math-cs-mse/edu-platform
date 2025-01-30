@@ -7,8 +7,8 @@ import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.queryPickerWithBackFromList
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.teacherbot.CoursesStatisticsResolver
 import com.github.heheteam.teacherbot.Keyboards.returnBack
-import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -23,14 +23,17 @@ data class CourseGrades(
 )
 
 class CheckGradesState(override val context: User, private val teacherId: TeacherId) :
-  State, BotState<Course?, CourseGrades?, TeacherCore> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherCore): Course? {
+  State, BotState<Course?, CourseGrades?, CoursesStatisticsResolver> {
+  override suspend fun readUserInput(
+    bot: BehaviourContext,
+    service: CoursesStatisticsResolver,
+  ): Course? {
     val courses = service.getAvailableCourses(teacherId)
     return queryCourse(bot, context, courses, "Выберите курс")
   }
 
   override suspend fun computeNewState(
-    service: TeacherCore,
+    service: CoursesStatisticsResolver,
     input: Course?,
   ): Pair<BotState<*, *, *>, CourseGrades?> {
     val course = input ?: return Pair(MenuState(context, teacherId), null)
@@ -41,7 +44,7 @@ class CheckGradesState(override val context: User, private val teacherId: Teache
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
-    service: TeacherCore,
+    service: CoursesStatisticsResolver,
     response: CourseGrades?,
   ) {
     val grades = response ?: return

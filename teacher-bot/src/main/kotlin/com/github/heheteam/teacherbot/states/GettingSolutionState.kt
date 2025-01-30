@@ -3,7 +3,7 @@ package com.github.heheteam.teacherbot.states
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
-import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getOrElse
@@ -22,14 +22,13 @@ import java.nio.channels.Channels
 
 private fun <V, E> Result<V, E>.toStrErr(): Result<V, String> = this.mapError { it.toString() }
 
-// TODO: Replace TeacherCore with a new, more convenient service
 class GettingSolutionState(override val context: User, private val teacherId: TeacherId) :
-  BotState<Unit, String?, TeacherCore> {
+  BotState<Unit, String?, SolutionResolver> {
 
-  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherCore) = Unit
+  override suspend fun readUserInput(bot: BehaviourContext, service: SolutionResolver) = Unit
 
   override suspend fun computeNewState(
-    service: TeacherCore,
+    service: SolutionResolver,
     input: Unit,
   ): Pair<BotState<*, *, *>, String?> =
     binding {
@@ -46,7 +45,7 @@ class GettingSolutionState(override val context: User, private val teacherId: Te
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
-    service: TeacherCore,
+    service: SolutionResolver,
     response: String?,
   ) {
     if (response != null) {

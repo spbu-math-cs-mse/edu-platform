@@ -70,34 +70,24 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
   private fun handleTextMessage(message: String): Pair<BotState<*, *, *>, String?> {
     val re = Regex("/setid ([0-9]+)")
     val match = re.matchEntire(message)
-    if (match != null) {
-      val newIdStr = match.groups[1]?.value ?: return Pair(MenuState(context, teacherId), null)
+    return if (match != null) {
       val newId =
-        newIdStr.toLongOrNull()
+        match.groups[1]?.value?.toLongOrNull()
           ?: run {
-            logger.error("input id $newIdStr is not long!")
+            logger.error("input id ${match.groups[1]} is not long!")
             return Pair(MenuState(context, teacherId), null)
           }
-      return Pair(PresetTeacherState(context, newId.toTeacherId()), null)
+      Pair(PresetTeacherState(context, newId.toTeacherId()), null)
     } else {
-      return Pair(MenuState(context, teacherId), "Unrecognized command")
+      Pair(MenuState(context, teacherId), "Unrecognized command")
     }
   }
 
   private fun handleDataCallback(callback: String): BotState<*, *, *> =
     when (callback) {
-      Keyboards.checkGrades -> {
-        CheckGradesState(context, teacherId)
-      }
-
-      Keyboards.getSolution -> {
-        GettingSolutionState(context, teacherId)
-      }
-
-      Keyboards.viewStats -> {
-        SendStatisticInfoState(context, teacherId)
-      }
-
+      Keyboards.checkGrades -> CheckGradesState(context, teacherId)
+      Keyboards.getSolution -> GettingSolutionState(context, teacherId)
+      Keyboards.viewStats -> SendStatisticInfoState(context, teacherId)
       else -> GettingSolutionState(context, teacherId)
     }
 }

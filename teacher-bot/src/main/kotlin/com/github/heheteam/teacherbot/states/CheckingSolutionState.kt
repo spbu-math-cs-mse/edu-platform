@@ -1,6 +1,11 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.*
+import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -8,7 +13,7 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.heheteam.teacherbot.Keyboards.returnBack
-import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.SolutionAssessor
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
@@ -28,7 +33,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
-// TODO: Replace TeacherCore with a new, more convenient service
 class CheckingSolutionState(
   override val context: User,
   private val teacherId: TeacherId,
@@ -36,7 +40,7 @@ class CheckingSolutionState(
   private val problem: Problem,
   private val assignment: Assignment,
   private val student: Student,
-) : BotState<SolutionAssessment?, Unit, TeacherCore> {
+) : BotState<SolutionAssessment?, Unit, SolutionAssessor> {
 
   private lateinit var solutionMessage: ContentMessage<*>
   private var markupMessage: ContentMessage<*>? = null
@@ -45,7 +49,7 @@ class CheckingSolutionState(
   @OptIn(ExperimentalCoroutinesApi::class)
   override suspend fun readUserInput(
     bot: BehaviourContext,
-    service: TeacherCore,
+    service: SolutionAssessor,
   ): SolutionAssessment? {
     sendSolution(bot)
 
@@ -60,21 +64,23 @@ class CheckingSolutionState(
     ) {
       is DataCallbackQuery -> {
         val command = response.data
-        when (command) {
+        return when (command) {
           Keyboards.goodSolution -> {
             bot.deleteMessage(solutionMessage)
-            return SolutionAssessment(problem.maxScore, "")
+            SolutionAssessment(problem.maxScore, "")
           }
 
           Keyboards.badSolution -> {
             bot.deleteMessage(solutionMessage)
-            return SolutionAssessment(0, "")
+            SolutionAssessment(0, "")
           }
 
           returnBack -> {
             bot.delete(solutionMessage)
-            return null
+            null
           }
+
+          else -> null
         }
       }
     }
@@ -82,7 +88,7 @@ class CheckingSolutionState(
   }
 
   override suspend fun computeNewState(
-    service: TeacherCore,
+    service: SolutionAssessor,
     input: SolutionAssessment?,
   ): Pair<BotState<*, *, *>, Unit> {
     val solutionAssessment = input
@@ -92,7 +98,11 @@ class CheckingSolutionState(
     return Pair(MenuState(context, teacherId), Unit)
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: TeacherCore, response: Unit) {
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: SolutionAssessor,
+    response: Unit,
+  ) {
     markupMessage?.let { markupMessage -> bot.delete(markupMessage) }
     files.forEach {
       if (it.second.exists()) {
@@ -101,59 +111,65 @@ class CheckingSolutionState(
     }
   }
 
-  @OptIn(RiskFeature::class)
   private suspend fun sendSolution(bot: BehaviourContext) {
     when (solution.content.type!!) {
-      SolutionType.TEXT ->
-        solutionMessage =
-          bot.send(
-            context,
-            solution.content.text!! + "\n\n\n" + solutionInfo(student, assignment, problem),
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-
-      SolutionType.PHOTO -> {
-        files.add(SolutionProvider.getSolutionWithURL(solution.content.filesURL!!.first()))
-        solutionMessage =
-          bot.sendPhoto(
-            context,
-            files.first().first,
-            text =
-              if (solution.content.text == null) {
-                solutionInfo(student, assignment, problem)
-              } else {
-                solution.content.text + "\n\n\n" + solutionInfo(student, assignment, problem)
-              },
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-      }
-
-      SolutionType.DOCUMENT -> {
-        files.add(SolutionProvider.getSolutionWithURL(solution.content.filesURL!!.first()))
-        solutionMessage =
-          bot.sendDocument(
-            context,
-            files.first().first,
-            text =
-              if (solution.content.text == null) {
-                solutionInfo(student, assignment, problem)
-              } else {
-                solution.content.text + "\n\n\n" + solutionInfo(student, assignment, problem)
-              },
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-      }
-
-      SolutionType.GROUP -> {
-        files.addAll(solution.content.filesURL!!.map { SolutionProvider.getSolutionWithURL(it) })
-        solutionMessage = bot.sendMediaGroup(context, files.map { TelegramMediaDocument(it.first) })
-        markupMessage =
-          bot.send(
-            context,
-            solutionInfo(student, assignment, problem),
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-      }
+      SolutionType.TEXT -> handleText(bot)
+      SolutionType.PHOTO -> handlePhoto(bot)
+      SolutionType.DOCUMENT -> handleDocument(bot)
+      SolutionType.GROUP -> handleGroup(bot)
     }
+  }
+
+  private suspend fun handleText(bot: BehaviourContext) {
+    solutionMessage =
+      bot.send(
+        context,
+        solution.content.text!! + "\n\n\n" + solutionInfo(student, assignment, problem),
+        replyMarkup = Keyboards.solutionMenu(),
+      )
+  }
+
+  private suspend fun handlePhoto(bot: BehaviourContext) {
+    files.add(SolutionProvider.getSolutionWithURL(solution.content.filesURL!!.first()))
+    solutionMessage =
+      bot.sendPhoto(
+        context,
+        files.first().first,
+        text =
+          if (solution.content.text == null) {
+            solutionInfo(student, assignment, problem)
+          } else {
+            solution.content.text + "\n\n\n" + solutionInfo(student, assignment, problem)
+          },
+        replyMarkup = Keyboards.solutionMenu(),
+      )
+  }
+
+  private suspend fun handleDocument(bot: BehaviourContext) {
+    files.add(SolutionProvider.getSolutionWithURL(solution.content.filesURL!!.first()))
+    solutionMessage =
+      bot.sendDocument(
+        context,
+        files.first().first,
+        text =
+          if (solution.content.text == null) {
+            solutionInfo(student, assignment, problem)
+          } else {
+            solution.content.text + "\n\n\n" + solutionInfo(student, assignment, problem)
+          },
+        replyMarkup = Keyboards.solutionMenu(),
+      )
+  }
+
+  @OptIn(RiskFeature::class)
+  private suspend fun handleGroup(bot: BehaviourContext) {
+    files.addAll(solution.content.filesURL!!.map { SolutionProvider.getSolutionWithURL(it) })
+    solutionMessage = bot.sendMediaGroup(context, files.map { TelegramMediaDocument(it.first) })
+    markupMessage =
+      bot.send(
+        context,
+        solutionInfo(student, assignment, problem),
+        replyMarkup = Keyboards.solutionMenu(),
+      )
   }
 }

@@ -5,8 +5,17 @@ import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
-import com.github.heheteam.teacherbot.TeacherCore
-import com.github.heheteam.teacherbot.states.*
+import com.github.heheteam.teacherbot.CoursesStatisticsResolver
+import com.github.heheteam.teacherbot.SolutionAssessor
+import com.github.heheteam.teacherbot.SolutionResolver
+import com.github.heheteam.teacherbot.states.CheckGradesState
+import com.github.heheteam.teacherbot.states.CheckingSolutionState
+import com.github.heheteam.teacherbot.states.DeveloperStartState
+import com.github.heheteam.teacherbot.states.GettingSolutionState
+import com.github.heheteam.teacherbot.states.MenuState
+import com.github.heheteam.teacherbot.states.PresetTeacherState
+import com.github.heheteam.teacherbot.states.SendStatisticInfoState
+import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -27,7 +36,9 @@ suspend fun teacherRun(
   teacherStorage: TeacherStorage,
   teacherStatistics: TeacherStatistics,
   coursesDistributor: CoursesDistributor,
-  teacherCore: TeacherCore,
+  coursesStatisticsResolver: CoursesStatisticsResolver,
+  solutionResolver: SolutionResolver,
+  solutionAssessor: SolutionAssessor,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
   telegramBot(botToken) {
@@ -59,9 +70,9 @@ suspend fun teacherRun(
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
       registerState<MenuState, TeacherStatistics>(teacherStatistics)
       registerState<SendStatisticInfoState, TeacherStatistics>(teacherStatistics)
-      registerState<CheckGradesState, TeacherCore>(teacherCore)
-      registerState<GettingSolutionState, TeacherCore>(teacherCore)
-      registerState<CheckingSolutionState, TeacherCore>(teacherCore)
+      registerState<CheckGradesState, CoursesStatisticsResolver>(coursesStatisticsResolver)
+      registerState<GettingSolutionState, SolutionResolver>(solutionResolver)
+      registerState<CheckingSolutionState, SolutionAssessor>(solutionAssessor)
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }

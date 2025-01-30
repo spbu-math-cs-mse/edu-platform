@@ -31,11 +31,9 @@ class CheckGradesState(override val context: User, private val teacherId: Teache
 
   override suspend fun computeNewState(
     service: TeacherCore,
-    course: Course?,
+    input: Course?,
   ): Pair<BotState<*, *, *>, CourseGrades?> {
-    if (course == null) {
-      return Pair(MenuState(context, teacherId), null)
-    }
+    val course = input ?: return Pair(MenuState(context, teacherId), null)
     val gradedProblems = service.getGrading(course)
     val maxGrade = service.getMaxGrade()
     return Pair(MenuState(context, teacherId), CourseGrades(course.name, gradedProblems, maxGrade))
@@ -44,9 +42,9 @@ class CheckGradesState(override val context: User, private val teacherId: Teache
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: TeacherCore,
-    grades: CourseGrades?,
+    response: CourseGrades?,
   ) {
-    if (grades == null) return
+    val grades = response ?: return
     val strGrades =
       "Оценки учеников на курсе ${grades.courseName}:\n" +
         grades.gradedProblems.withGradesToText(grades.maxGrade)

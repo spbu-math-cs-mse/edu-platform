@@ -83,8 +83,9 @@ class CheckingSolutionState(
 
   override suspend fun computeNewState(
     service: TeacherCore,
-    solutionAssessment: SolutionAssessment?,
+    input: SolutionAssessment?,
   ): Pair<BotState<*, *, *>, Unit> {
+    val solutionAssessment = input
     if (solutionAssessment != null) {
       service.assessSolution(solution, teacherId, solutionAssessment)
     }
@@ -92,9 +93,7 @@ class CheckingSolutionState(
   }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: TeacherCore, response: Unit) {
-    if (markupMessage != null) {
-      bot.delete(markupMessage!!)
-    }
+    markupMessage?.let { markupMessage -> bot.delete(markupMessage) }
     files.forEach {
       if (it.second.exists()) {
         it.second.delete()

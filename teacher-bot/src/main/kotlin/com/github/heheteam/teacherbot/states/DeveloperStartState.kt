@@ -5,7 +5,11 @@ import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -14,10 +18,7 @@ import kotlinx.coroutines.flow.first
 
 class DeveloperStartState(override val context: User) :
   BotState<TeacherId?, String, TeacherStorage> {
-  override suspend fun readUserInput(
-    bot: BehaviourContext,
-    teacherStorage: TeacherStorage,
-  ): TeacherId? {
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStorage): TeacherId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
     bot.send(context, Dialogues.devAskForId())
     val teacherIdFromText =
@@ -28,16 +29,15 @@ class DeveloperStartState(override val context: User) :
   }
 
   override suspend fun computeNewState(
-    teacherStorage: TeacherStorage,
-    teacherId: TeacherId?,
-  ): Pair<BotState<*, *, *>, String> {
-    if (teacherId == null) {
-      return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
-    }
-    teacherStorage.resolveTeacher(teacherId).get()
-      ?: return Pair(DeveloperStartState(context), Dialogues.devIdNotFound())
-    return Pair(MenuState(context, teacherId), Dialogues.greetings())
-  }
+    service: TeacherStorage,
+    input: TeacherId?,
+  ): Pair<BotState<*, *, *>, String> =
+    binding {
+        val teacherId = input.toResultOr { Dialogues.devIdIsNotLong() }.bind()
+        service.resolveTeacher(teacherId).mapError { Dialogues.devIdNotFound() }.bind()
+        Pair(MenuState(context, teacherId), Dialogues.greetings())
+      }
+      .getOrElse { Pair(DeveloperStartState(context), it) }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

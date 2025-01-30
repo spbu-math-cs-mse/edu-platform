@@ -30,7 +30,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
 
   override suspend fun readUserInput(
     bot: BehaviourContext,
-    teacherStatistics: TeacherStatistics,
+    service: TeacherStatistics,
   ): CallbacksAndMessages? {
     if (context.username == null) {
       return null
@@ -46,7 +46,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
   }
 
   override suspend fun computeNewState(
-    teacherStatistics: TeacherStatistics,
+    service: TeacherStatistics,
     input: CallbacksAndMessages?,
   ): Pair<BotState<*, *, *>, String?> {
     if (input == null) {
@@ -60,8 +60,8 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
-    helperData: TeacherStatistics,
-    message: String?,
+    service: TeacherStatistics,
+    response: String?,
   ) {
     messages.forEach { bot.deleteMessage(context, it.messageId) }
     if (epilogueMessage != null) bot.send(context, epilogueMessage)

@@ -11,22 +11,23 @@ import dev.inmo.tgbotapi.types.chat.User
 
 class PresetTeacherState(override val context: User, private val teacherId: TeacherId) :
   State, BotState<Unit, List<Course>, CoursesDistributor> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: CoursesDistributor) {}
+  override suspend fun readUserInput(bot: BehaviourContext, service: CoursesDistributor) = Unit
 
   override suspend fun computeNewState(
-    coursesDistributor: CoursesDistributor,
+    service: CoursesDistributor,
     input: Unit,
   ): Pair<BotState<*, *, *>, List<Course>> {
+    val coursesDistributor = service
     return Pair(MenuState(context, teacherId), coursesDistributor.getTeacherCourses(teacherId))
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: CoursesDistributor,
-    courses: List<Course>,
+    response: List<Course>,
   ) {
     val coursesRepr =
-      courses.joinToString("\n") { course: Course ->
+      response.joinToString("\n") { course: Course ->
         "\u2605 " + course.name + " (id=${course.id})"
       }
     bot.send(context, "Вы --- учитель id=${teacherId}.\nВы преподаете на курсах:\n$coursesRepr")

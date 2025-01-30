@@ -15,14 +15,14 @@ data class Statistics(val teacherStats: TeacherStatsData, val globalStats: Globa
 
 class SendStatisticInfoState(override val context: User, val teacherId: TeacherId) :
   BotState<Unit, Statistics?, TeacherStatistics> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStatistics) {}
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStatistics) = Unit
 
   override suspend fun computeNewState(
-    teacherStatistics: TeacherStatistics,
+    service: TeacherStatistics,
     input: Unit,
   ): Pair<BotState<*, *, *>, Statistics?> {
-    val teacherStats: TeacherStatsData? = teacherStatistics.resolveTeacherStats(teacherId).get()
-    val globalStats = teacherStatistics.getGlobalStats()
+    val teacherStats: TeacherStatsData? = service.resolveTeacherStats(teacherId).get()
+    val globalStats = service.getGlobalStats()
     val stats =
       if (teacherStats != null) {
         Statistics(teacherStats, globalStats)
@@ -35,9 +35,9 @@ class SendStatisticInfoState(override val context: User, val teacherId: TeacherI
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: TeacherStatistics,
-    stats: Statistics?,
+    response: Statistics?,
   ) {
-    if (stats == null) return
+    val stats = response ?: return
     bot.send(
       context,
       """

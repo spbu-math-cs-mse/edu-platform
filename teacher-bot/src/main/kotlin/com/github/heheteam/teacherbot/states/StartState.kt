@@ -13,10 +13,8 @@ import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
 class StartState(override val context: User) : BotState<TeacherId?, String, TeacherStorage> {
-  override suspend fun readUserInput(
-    bot: BehaviourContext,
-    teacherStorage: TeacherStorage,
-  ): TeacherId? {
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStorage): TeacherId {
+    val teacherStorage = service
     bot.sendSticker(context, Dialogues.greetingSticker)
     val teacherId: TeacherId? = teacherStorage.resolveByTgId(context.id).get()?.id
     if (teacherId != null) {
@@ -31,19 +29,17 @@ class StartState(override val context: User) : BotState<TeacherId?, String, Teac
 
   override suspend fun computeNewState(
     service: TeacherStorage,
-    teacherId: TeacherId?,
+    input: TeacherId?,
   ): Pair<BotState<*, *, *>, String> {
-    if (teacherId == null) {
-      return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
-    }
+    val teacherId = input ?: return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
     return Pair(MenuState(context, teacherId), Dialogues.greetings())
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: TeacherStorage,
-    message: String,
+    response: String,
   ) {
-    bot.send(context, message)
+    bot.send(context, response)
   }
 }

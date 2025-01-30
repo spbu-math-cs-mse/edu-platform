@@ -1,14 +1,14 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
 import com.github.heheteam.teacherbot.TeacherCore
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
@@ -20,44 +20,29 @@ import java.net.URI
 import java.net.URL
 import java.nio.channels.Channels
 
+private fun <V, E> Result<V, E>.toStrErr(): Result<V, String> = this.mapError { it.toString() }
+
 // TODO: Replace TeacherCore with a new, more convenient service
 class GettingSolutionState(override val context: User, private val teacherId: TeacherId) :
   BotState<Unit, String?, TeacherCore> {
-  private lateinit var solution: Solution
-  private lateinit var problem: Problem
-  private lateinit var assignment: Assignment
-  private lateinit var student: Student
 
-  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherCore) {}
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherCore) = Unit
 
   override suspend fun computeNewState(
     service: TeacherCore,
     input: Unit,
-  ): Pair<BotState<*, *, *>, String?> {
-    solution =
-      service.querySolution(teacherId)
-        ?: return Pair(MenuState(context, teacherId), noSolutionsToCheck())
-
-    student =
-      service.resolveStudent(solution.studentId).getOrElse { err ->
-        return Pair(MenuState(context, teacherId), err.toString())
+  ): Pair<BotState<*, *, *>, String?> =
+    binding {
+        val solution = service.querySolution(teacherId).toResultOr { noSolutionsToCheck() }.bind()
+        val student = service.resolveStudent(solution.studentId).toStrErr().bind()
+        val problem = service.resolveProblem(solution.problemId).toStrErr().bind()
+        val assignment = service.resolveAssignment(problem.assignmentId).toStrErr().bind()
+        Pair(
+          CheckingSolutionState(context, teacherId, solution, problem, assignment, student),
+          null as String?,
+        )
       }
-
-    problem =
-      service.resolveProblem(solution.problemId).getOrElse { err ->
-        return Pair(MenuState(context, teacherId), err.toString())
-      }
-
-    assignment =
-      service.resolveAssignment(problem.assignmentId).getOrElse { err ->
-        return Pair(MenuState(context, teacherId), err.toString())
-      }
-
-    return Pair(
-      CheckingSolutionState(context, teacherId, solution, problem, assignment, student),
-      null,
-    )
-  }
+      .getOrElse { Pair(MenuState(context, teacherId), it) }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

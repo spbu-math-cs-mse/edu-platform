@@ -32,7 +32,7 @@ class CheckGradesState(override val context: User, private val teacherId: Teache
     return queryCourse(bot, context, courses, "Выберите курс")
   }
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: CoursesStatisticsResolver,
     input: Course?,
   ): Pair<BotState<*, *, *>, CourseGrades?> {

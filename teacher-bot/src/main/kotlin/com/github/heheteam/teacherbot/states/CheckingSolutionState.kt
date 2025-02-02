@@ -69,17 +69,14 @@ class CheckingSolutionState(
             bot.deleteMessage(solutionMessage)
             SolutionAssessment(problem.maxScore, "")
           }
-
           Keyboards.badSolution -> {
             bot.deleteMessage(solutionMessage)
             SolutionAssessment(0, "")
           }
-
           returnBack -> {
             bot.delete(solutionMessage)
             null
           }
-
           else -> null
         }
       }
@@ -87,7 +84,7 @@ class CheckingSolutionState(
     return null
   }
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: SolutionAssessor,
     input: SolutionAssessment?,
   ): Pair<BotState<*, *, *>, Unit> {

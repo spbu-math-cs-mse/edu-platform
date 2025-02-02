@@ -10,52 +10,49 @@ import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
-import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
-data class CallbacksAndMessages(val callbacks: Flow<String>, val messages: Flow<String>)
-
 class MenuState(override val context: User, val teacherId: TeacherId) :
-  BotState<CallbacksAndMessages?, String?, TeacherStatistics> {
+  BotState<Pair<BotState<*, *, *>, String?>, String?, TeacherStatistics> {
   private val messages = mutableListOf<ContentMessage<*>>()
   private val epilogueMessage: String? = null
 
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherStatistics,
-  ): CallbacksAndMessages? {
+  ): Pair<BotState<*, *, *>, String?> {
     if (context.username == null) {
-      return null
+      return Pair(StartState(context), null)
     }
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
     val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
     messages.add(stickerMessage)
     messages.add(menuMessage)
 
-    val callbacksFlow = bot.waitDataCallbackQueryWithUser(context.id).map { it.data }
-    val messagesFlow = bot.waitTextMessageWithUser(context.id).map { it.content.text }
-    return CallbacksAndMessages(callbacksFlow, messagesFlow)
+    val callbacksFlow =
+      bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
+        Pair(handleDataCallback(callback.data), null)
+      }
+    val messagesFlow =
+      bot.waitTextMessageWithUser(context.id).map { message ->
+        handleTextMessage(message.content.text)
+      }
+    return merge(callbacksFlow, messagesFlow).first()
   }
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: TeacherStatistics,
-    input: CallbacksAndMessages?,
+    input: Pair<BotState<*, *, *>, String?>,
   ): Pair<BotState<*, *, *>, String?> {
-    if (input == null) {
-      return Pair(StartState(context), null)
-    }
-    val callbacksResponse =
-      input.callbacks.map { callback -> Pair(handleDataCallback(callback), null) }
-    val textsResponse = input.messages.map { message -> handleTextMessage(message) }
-    return merge(callbacksResponse, textsResponse).firstNotNull()
+    return input
   }
 
   override suspend fun sendResponse(

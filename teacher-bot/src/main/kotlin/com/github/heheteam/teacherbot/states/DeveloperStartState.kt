@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.binding
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
@@ -28,7 +27,7 @@ class DeveloperStartState(override val context: User) :
     return teacherIdFromText
   }
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: TeacherStorage,
     input: TeacherId?,
   ): Pair<BotState<*, *, *>, String> =

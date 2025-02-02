@@ -10,6 +10,9 @@ import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
+import korlibs.time.TimeSpan
+import korlibs.time.fromSeconds
+import korlibs.time.hours
 
 data class Statistics(val teacherStats: TeacherStatsData, val globalStats: GlobalTeacherStats)
 
@@ -17,7 +20,7 @@ class SendStatisticInfoState(override val context: User, val teacherId: TeacherI
   BotState<Unit, Statistics?, TeacherStatistics> {
   override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStatistics) = Unit
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: TeacherStatistics,
     input: Unit,
   ): Pair<BotState<*, *, *>, Statistics?> {
@@ -45,11 +48,11 @@ class SendStatisticInfoState(override val context: User, val teacherId: TeacherI
               
               Всего проверено: ${stats.teacherStats.totalAssessments}
               Среднее число проверок в день: %.2f
-              ${stats.teacherStats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"}
+              ${stats.teacherStats.lastAssessmentTime.let { "Последняя проверка: $it" }}
               ${
         stats.teacherStats.averageCheckTimeSeconds.let {
           "Среднее время на проверку: %.1f часов".format(
-            it / 60 / 60
+            TimeSpan.fromSeconds(it).hours
           )
         }
       }

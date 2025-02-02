@@ -2,13 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
-    <ID>ForbiddenComment:TeacherCore.kt$TeacherCore$// TODO: this needs to be fixed properly</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$CheckGradesState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$GettingSolutionState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$MenuState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$PresetTeacherState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$StartState : BotState</ID>
+    <ID>ForbiddenComment:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$// TODO: this needs to be fixed properly</ID>
+    <ID>FunctionOnlyReturningConstant:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$fun getMaxGrade(): Grade</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askIdentifier(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
@@ -19,49 +14,10 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionNotSent(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionSent(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun testSendSolution(): String</ID>
-    <ID>FunctionOnlyReturningConstant:TeacherCore.kt$TeacherCore$fun getMaxGrade(): Grade</ID>
     <ID>InjectDispatcher:TeacherRun.kt$IO</ID>
-    <ID>InvalidPackageDeclaration:CheckGradesState.kt$package com.github.heheteam.teacherbot.state</ID>
-    <ID>InvalidPackageDeclaration:PresetTeacherState.kt$package com.github.heheteam.teacherbot.state</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:CheckGradesState.kt$fun List&lt;Pair&lt;StudentId, Grade?&gt;&gt;.withGradesToText(maxGrade: Grade)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val greetingSticker = InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val okSticker = InputFile.fromId("CAACAgEAAxkBAAIBJWcUPyqe-UEVGqMmhNYi21U3gkBEAALrAQACOA6CEbOGBM7hnEk5NgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val typingSticker = InputFile.fromId("CAACAgEAAxkBAAIBb2cdPy6r60MpNFXFLAABaQWOqfgCHAAC6QADZszART3es5n3X_q7NgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun askGrade()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun menu()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun returnBack()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun solutionMenu()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val badSolution = "Неправильное решение"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val checkGrades = "checkGrades"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val getSolution = "Получить решение"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val goodSolution = "Правильное решение"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val other = "Другое"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:TeacherCore.kt$TeacherCore$fun getGlobalStats()</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$BotState : State</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CheckGradesState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GettingSolutionState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$MenuState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$PresetTeacherState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$StartState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCheckGradesState(core: TeacherCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CheckGradesState.kt$fun List&lt;Pair&lt;StudentId, Grade?&gt;&gt;.withGradesToText(maxGrade: Grade)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState(core: TeacherCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:PresetTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnPresetTeacherState(core: TeacherCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:TeacherCore.kt$TeacherCore</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:TeacherRun.kt$@OptIn(RiskFeature::class) suspend fun teacherRun( botToken: String, teacherStorage: TeacherStorage, core: TeacherCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
-    <ID>LongMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
-    <ID>LongParameterList:TeacherCore.kt$TeacherCore$( private val teacherStatistics: TeacherStatistics, private val coursesDistributor: CoursesDistributor, private val solutionDistributor: SolutionDistributor, private val gradeTable: GradeTable, private val problemStorage: ProblemStorage, private val botEventBus: BotEventBus, private val assignmentStorage: AssignmentStorage, private val studentStorage: StudentStorage, )</ID>
-    <ID>LoopWithTooManyJumpStatements:StartState.kt$while</ID>
-    <ID>MagicNumber:MenuState.kt$60</ID>
+    <ID>LongParameterList:TeacherRun.kt$( botToken: String, teacherStorage: TeacherStorage, teacherStatistics: TeacherStatistics, coursesDistributor: CoursesDistributor, coursesStatisticsResolver: CoursesStatisticsResolver, solutionResolver: SolutionResolver, solutionAssessor: SolutionAssessor, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
+    <ID>MagicNumber:SendStatisticInfoState.kt$SendStatisticInfoState$60</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val badSolution = "Неправильное решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val checkGrades = "checkGrades"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val getSolution = "Получить решение"</ID>
@@ -72,12 +28,9 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-    <ID>UnreachableCode:MenuState.kt$stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format( it / 60 / 60 ) } ?: ""</ID>
-    <ID>UnreachableCode:MenuState.kt$stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"</ID>
-    <ID>UnsafeCallOnNullableType:CheckGradesState.kt$courses.find { it.id == courseId }!!</ID>
-    <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.filesURL!!</ID>
-    <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.text!!</ID>
-    <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.type!!</ID>
-    <ID>UnsafeCallOnNullableType:StartState.kt$teacherId!!</ID>
+    <ID>UnreachableCode:SendStatisticInfoState.kt$SendStatisticInfoState$stats.teacherStats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.filesURL!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.text!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.type!!</ID>
   </CurrentIssues>
 </SmellBaseline>

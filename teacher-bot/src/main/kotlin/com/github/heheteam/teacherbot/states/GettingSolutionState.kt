@@ -27,7 +27,7 @@ class GettingSolutionState(override val context: User, private val teacherId: Te
 
   override suspend fun readUserInput(bot: BehaviourContext, service: SolutionResolver) = Unit
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: SolutionResolver,
     input: Unit,
   ): Pair<BotState<*, *, *>, String?> =

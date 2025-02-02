@@ -27,7 +27,7 @@ class StartState(override val context: User) : BotState<TeacherId?, String, Teac
     return teacherStorage.createTeacher(firstName, lastName, context.id.chatId.long)
   }
 
-  override suspend fun computeNewState(
+  override fun computeNewState(
     service: TeacherStorage,
     input: TeacherId?,
   ): Pair<BotState<*, *, *>, String> {

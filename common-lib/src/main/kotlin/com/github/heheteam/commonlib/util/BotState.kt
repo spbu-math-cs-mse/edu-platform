@@ -7,11 +7,11 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 interface BotState<In, Out, HelperService> : State {
   suspend fun readUserInput(bot: BehaviourContext, service: HelperService): In
 
-  suspend fun computeNewState(service: HelperService, input: In): Pair<BotState<*, *, *>, Out>
+  fun computeNewState(service: HelperService, input: In): Pair<State, Out>
 
   suspend fun sendResponse(bot: BehaviourContext, service: HelperService, response: Out)
 
-  suspend fun handle(bot: BehaviourContext, service: HelperService): BotState<*, *, *> {
+  suspend fun handle(bot: BehaviourContext, service: HelperService): State {
     val input = readUserInput(bot, service)
     val (newState, response) = computeNewState(service, input)
     sendResponse(bot, service, response)
@@ -22,6 +22,6 @@ interface BotState<In, Out, HelperService> : State {
 inline fun <
   reified S : BotState<*, *, HelperService>,
   HelperService,
-> DefaultBehaviourContextWithFSM<BotState<*, *, *>>.registerState(service: HelperService) {
+> DefaultBehaviourContextWithFSM<State>.registerState(service: HelperService) {
   strictlyOn<S> { state -> state.handle(this, service) }
 }

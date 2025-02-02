@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -48,6 +49,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
     number: String,
     maxScore: Grade,
     description: String,
+    deadline: LocalDateTime?,
   ): ProblemId =
     transaction(database) {
         ProblemTable.insertAndGetId {
@@ -55,6 +57,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
           it[ProblemTable.assignmentId] = assignmentId.id
           it[ProblemTable.maxScore] = maxScore
           it[ProblemTable.description] = description
+          it[ProblemTable.deadline] = deadline
         }
       }
       .value
@@ -69,6 +72,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
           it[ProblemTable.description],
           it[ProblemTable.maxScore],
           it[ProblemTable.assignmentId].value.toAssignmentId(),
+          it[ProblemTable.deadline],
         )
       }
     }
@@ -90,6 +94,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
             it[ProblemTable.description],
             it[ProblemTable.maxScore],
             it[ProblemTable.assignmentId].value.toAssignmentId(),
+            it[ProblemTable.deadline],
           )
         }
     }

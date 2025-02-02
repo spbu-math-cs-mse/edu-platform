@@ -4,22 +4,6 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>ForbiddenComment:EditDescriptionState.kt$// state.course.name = answer TODO: implement this feature</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$AddScheduledMessageState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$AddStudentState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$AddTeacherState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$CourseInfoState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$CreateAssignmentState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$CreateCourseState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$EditCourseState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$EditDescriptionState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$GetProblemsState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$GetTeachersState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$MenuState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$RemoveStudentState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$RemoveTeacherState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:BotStates.kt$StartState : BotState</ID>
-    <ID>ForbiddenPublicDataClass:CourseStatistics.kt$CourseStatistics</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askAssignmentDescription(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourse(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentDescriptionIsNotText(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentWasCreatedSuccessfully(): String</ID>
@@ -32,67 +16,8 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noIdInInput(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun problemsDescriptionsAreNotTexts(): String</ID>
     <ID>InjectDispatcher:AdminRun.kt$IO</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun addCourse(courseName: String)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun addMessage(message: ScheduledMessage)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun markMessagesUpToDateAsSent(date: LocalDateTime)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:AdminCore.kt$AdminCore$fun registerStudentForCourse(studentId: StudentId, courseId: CourseId)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val greetingSticker = InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val heartSticker = InputFile.fromId("CAACAgEAAxkBAAIBqGcePu_DPJQIwyU2hfH7SbMJ1g_DAAL6AQACOA6CEZdviQ02NivYNgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val nerdSticker = InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val okSticker = InputFile.fromId("CAACAgEAAxkBAAIBJWcUPyqe-UEVGqMmhNYi21U3gkBEAALrAQACOA6CEbOGBM7hnEk5NgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Dialogues.kt$Dialogues$val typingSticker = InputFile.fromId("CAACAgEAAxkBAAIBb2cdPy6r60MpNFXFLAABaQWOqfgCHAAC6QADZszART3es5n3X_q7NgQ")</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun buildCoursesSelector(availableCourses: List&lt;Course&gt;)</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun editCourse()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun menu()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$fun returnBack()</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val addScheduledMessage = "add scheduled message"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val addStudent = "add a student"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val addTeacher = "add a teacher"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val courseId = "courseId"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val courseInfo = "course info"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val createAssignment = "create assignment"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val createCourse = "create course"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val editDescription = "edit description"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val getProblems = "get problems"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val getTeachers = "get teachers"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val removeStudent = "remove a student"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val removeTeacher = "remove a teacher"</ID>
-    <ID>LibraryCodeMustSpecifyReturnType:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:AddScheduledMessageState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddScheduledMessageState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:AddStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddStudentState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:AddTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnAddTeacherState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:AdminCore.kt$AdminCore</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun(botToken: String, core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddScheduledMessageState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddStudentState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$AddTeacherState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$BotState : State</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CourseInfoState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CreateAssignmentState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$CreateCourseState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$EditCourseState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$EditDescriptionState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GetProblemsState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$GetTeachersState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$MenuState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$RemoveStudentState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$RemoveTeacherState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:BotStates.kt$StartState : BotState</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CourseInfoState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCourseInfoState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CourseStatistics.kt$CourseStatistics</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CreateAssignmentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCreateAssignmentState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:CreateCourseState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnCreateCourseState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:DateTime.kt$fun toRussian(d: DayOfWeek): String</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:EditCourseState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnEditCourseState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:EditDescriptionState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnEditDescriptionState()</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:GetProblemsState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGetProblemsState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:GetTeachersState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGetTeachersState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:MenuState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnMenuState()</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:ProcessingStringIds.kt$fun processStringIds(stringIds: List&lt;String&gt;): Result&lt;List&lt;Long&gt;, String&gt;</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:RemoveStudentState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnRemoveStudentState(core: AdminCore)</ID>
-    <ID>LibraryEntitiesShouldNotBePublic:RemoveTeacherState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnRemoveTeacherState(core: AdminCore)</ID>
     <ID>LongMethod:AddScheduledMessageState.kt$private fun keyboardWithDates(): InlineKeyboardMarkup</ID>
+    <ID>LongMethod:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>LongMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongParameterList:AdminCore.kt$AdminCore$( private val scheduledMessagesDistributor: ScheduledMessagesDistributor, private val coursesDistributor: CoursesDistributor, private val studentStorage: StudentStorage, private val teacherStorage: TeacherStorage, private val assignmentStorage: AssignmentStorage, private val problemStorage: ProblemStorage, private val solutionDistributor: SolutionDistributor, )</ID>
@@ -128,9 +53,10 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val removeStudent = "remove a student"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val removeTeacher = "remove a teacher"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): String?</ID>
+    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>NestedBlockDepth:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser( state: AddScheduledMessageState ): LocalDate?</ID>
+    <ID>ReturnCount:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>ReturnCount:CreateAssignmentState.kt$internal fun parseProblemsDescriptions( problemsDescriptionsFromText: String ): Result&lt;List&lt;ProblemDescription&gt;, String&gt;</ID>
     <ID>TooManyFunctions:AdminCore.kt$AdminCore</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>

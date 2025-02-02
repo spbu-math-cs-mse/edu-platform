@@ -6,6 +6,7 @@ import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.state.DevStartState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.strictlyOnCheckDeadlinesState
 import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.studentbot.state.strictlyOnDeveloperStartState
 import com.github.heheteam.studentbot.state.strictlyOnMenuState
@@ -68,6 +69,7 @@ suspend fun studentRun(
       strictlyOnSendSolutionState(core, botToken)
       strictlyOnCheckGradesState(core)
       strictlyOnPresetStudentState(core)
+      strictlyOnCheckDeadlinesState(core)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

@@ -107,7 +107,9 @@ object Dialogues {
 
   fun askCourse(): String = "Выберите курс:"
 
-  fun askAssignmentDescription(): String = "Введите название серии, которую хотите создать."
+  fun askAssignmentDescription(): String =
+    "Введите название серии, которую хотите создать, и дедлайн по ней. " +
+      "Например, \"Диффуры и не только\"\$2025-01-19T23:55:00"
 
   fun askProblemsDescriptions(): String =
     "Введите описания задач, которые хотите добавить в серию, " +

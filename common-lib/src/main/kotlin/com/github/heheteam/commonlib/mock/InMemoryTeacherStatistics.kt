@@ -12,6 +12,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import kotlinx.datetime.toJavaLocalDateTime
 
 class InMemoryTeacherStatistics : TeacherStatistics {
   private data class SolutionReview(
@@ -37,7 +38,7 @@ class InMemoryTeacherStatistics : TeacherStatistics {
 
     teacherStats
       .getOrPut(teacherId) { mutableListOf() }
-      .add(SolutionReview(solution.value.timestamp, timestamp))
+      .add(SolutionReview(solution.value.timestamp.toJavaLocalDateTime(), timestamp))
     if (uncheckedSolutions > 0) {
       uncheckedSolutions--
     }

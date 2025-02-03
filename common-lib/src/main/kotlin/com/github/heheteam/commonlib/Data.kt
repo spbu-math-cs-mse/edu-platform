@@ -9,6 +9,8 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 
 typealias Grade = Int
@@ -31,12 +33,14 @@ data class Problem(
   val description: String,
   val maxScore: Grade,
   val assignmentId: AssignmentId,
+  val deadline: LocalDateTime? = null,
 )
 
 data class ProblemDescription(
   val number: String,
   val description: String = "",
   val maxScore: Grade = 1,
+  val deadline: LocalDateTime? = null,
 )
 
 enum class SolutionType {
@@ -53,7 +57,7 @@ data class Solution(
   val messageId: MessageId,
   val problemId: ProblemId,
   val content: SolutionContent,
-  val timestamp: java.time.LocalDateTime = java.time.LocalDateTime.now(),
+  val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 
 data class Course(val id: CourseId, val name: String)

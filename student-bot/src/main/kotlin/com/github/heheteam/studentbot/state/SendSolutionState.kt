@@ -18,6 +18,7 @@ import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
@@ -27,10 +28,12 @@ import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.toKotlinLocalDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
@@ -53,9 +56,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       deleteMessage(stickerMessage)
       return@strictlyOn MenuState(state.context, state.studentId)
     }
-
     val assignments = core.getCourseAssignments(course.id)
-
     val problems = assignments.associateWith { core.getProblemsFromAssignment(it) }
     val problem = queryProblem(state, problems)
     if (problem == null) {
@@ -96,19 +97,24 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
             bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
           continue
         }
-
-        core.inputSolution(
-          studentId,
-          state.context.id.chatId,
-          messageId,
-          solutionContent,
-          problem.id,
-        )
-
         deleteMessage(botMessage)
         deleteMessage(stickerMessage)
-        bot.sendSticker(state.context, Dialogues.okSticker)
-        bot.send(state.context, Dialogues.tellSolutionIsSent())
+        val problemDeadline = problem.deadline
+        val missedDeadline =
+          problemDeadline != null && LocalDateTime.now().toKotlinLocalDateTime() > problemDeadline
+        if (missedDeadline) {
+          bot.sendMessage(state.context, "К сожалению, дедлайн по задаче уже истек :(")
+        } else {
+          core.inputSolution(
+            studentId,
+            state.context.id.chatId,
+            messageId,
+            solutionContent,
+            problem.id,
+          )
+          bot.sendSticker(state.context, Dialogues.okSticker)
+          bot.send(state.context, Dialogues.tellSolutionIsSent())
+        }
         break
       }
     }

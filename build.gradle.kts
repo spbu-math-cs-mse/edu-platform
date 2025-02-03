@@ -39,6 +39,7 @@ allprojects {
         testImplementation(kotlin("test"))
         implementation("redis.clients:jedis:5.1.0")
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+        implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:1.23.7")
     }
 }

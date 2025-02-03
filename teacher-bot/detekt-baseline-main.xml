@@ -17,7 +17,6 @@
     <ID>InjectDispatcher:TeacherRun.kt$IO</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongParameterList:TeacherRun.kt$( botToken: String, teacherStorage: TeacherStorage, teacherStatistics: TeacherStatistics, coursesDistributor: CoursesDistributor, coursesStatisticsResolver: CoursesStatisticsResolver, solutionResolver: SolutionResolver, solutionAssessor: SolutionAssessor, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
-    <ID>MagicNumber:SendStatisticInfoState.kt$SendStatisticInfoState$60</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val badSolution = "Неправильное решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val checkGrades = "checkGrades"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val getSolution = "Получить решение"</ID>
@@ -28,7 +27,6 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-    <ID>UnreachableCode:SendStatisticInfoState.kt$SendStatisticInfoState$stats.teacherStats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"</ID>
     <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.filesURL!!</ID>
     <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.text!!</ID>
     <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.type!!</ID>

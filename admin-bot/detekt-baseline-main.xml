@@ -4,7 +4,6 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>ForbiddenComment:EditDescriptionState.kt$// state.course.name = answer TODO: implement this feature</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askAssignmentDescription(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourse(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentDescriptionIsNotText(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentWasCreatedSuccessfully(): String</ID>
@@ -18,6 +17,7 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun problemsDescriptionsAreNotTexts(): String</ID>
     <ID>InjectDispatcher:AdminRun.kt$IO</ID>
     <ID>LongMethod:AddScheduledMessageState.kt$private fun keyboardWithDates(): InlineKeyboardMarkup</ID>
+    <ID>LongMethod:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>LongMethod:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongParameterList:AdminCore.kt$AdminCore$( private val scheduledMessagesDistributor: ScheduledMessagesDistributor, private val coursesDistributor: CoursesDistributor, private val studentStorage: StudentStorage, private val teacherStorage: TeacherStorage, private val assignmentStorage: AssignmentStorage, private val problemStorage: ProblemStorage, private val solutionDistributor: SolutionDistributor, )</ID>
@@ -53,9 +53,10 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val removeStudent = "remove a student"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val removeTeacher = "remove a teacher"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): String?</ID>
+    <ID>NestedBlockDepth:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>NestedBlockDepth:CreateAssignmentState.kt$private suspend fun BehaviourContext.queryProblemsDescriptions( state: CreateAssignmentState ): List&lt;ProblemDescription&gt;?</ID>
     <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser( state: AddScheduledMessageState ): LocalDate?</ID>
+    <ID>ReturnCount:CreateAssignmentState.kt$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun BehaviourContext.queryAssignmentDescription( state: CreateAssignmentState ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>ReturnCount:CreateAssignmentState.kt$internal fun parseProblemsDescriptions( problemsDescriptionsFromText: String ): Result&lt;List&lt;ProblemDescription&gt;, String&gt;</ID>
     <ID>TooManyFunctions:AdminCore.kt$AdminCore</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>

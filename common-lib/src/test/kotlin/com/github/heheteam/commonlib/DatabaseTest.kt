@@ -122,7 +122,7 @@ class DatabaseTest {
     }
 
     repeat(10) {
-      val solution = solutionDistributor.querySolution(teacher1Id, gradeTable).value
+      val solution = solutionDistributor.querySolution(teacher1Id).value
       assertNotNull(solution)
       gradeTable.assessSolution(
         solution.id,
@@ -132,7 +132,7 @@ class DatabaseTest {
       )
     }
     repeat(2) {
-      val solution = solutionDistributor.querySolution(teacher1Id, gradeTable).value
+      val solution = solutionDistributor.querySolution(teacher1Id).value
       assertNotNull(solution)
       gradeTable.assessSolution(
         solution.id,

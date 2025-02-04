@@ -1,138 +1,90 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatsData
+import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.toTeacherId
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
-import com.github.heheteam.teacherbot.TeacherCore
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
-import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
-import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.content.TextContent
-import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: TeacherCore) {
-  strictlyOn<MenuState> { state ->
-    if (state.context.username == null) {
-      return@strictlyOn null
+class MenuState(override val context: User, val teacherId: TeacherId) :
+  BotState<Pair<BotState<*, *, *>, String?>, String?, TeacherStatistics> {
+  private val messages = mutableListOf<ContentMessage<*>>()
+  private val epilogueMessage: String? = null
+
+  override suspend fun readUserInput(
+    bot: BehaviourContext,
+    service: TeacherStatistics,
+  ): Pair<BotState<*, *, *>, String?> {
+    if (context.username == null) {
+      return Pair(StartState(context), null)
     }
+    val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
+    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    messages.add(stickerMessage)
+    messages.add(menuMessage)
 
-    val teacherId = state.teacherId
-
-    val stickerMessage = bot.sendSticker(state.context, Dialogues.typingSticker)
-
-    val menuMessage = bot.send(state.context, Dialogues.menu(), replyMarkup = Keyboards.menu())
-
-    val dataCallbackResponseFlow =
-      waitDataCallbackQueryWithUser(state.context.id).map { callback ->
-        handleDataCallback(callback, state, core, teacherId)
+    val callbacksFlow =
+      bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
+        Pair(handleDataCallback(callback.data), null)
       }
-    val texts =
-      waitTextMessageWithUser(state.context.id).map { t -> handleTextMessage(t, state.context) }
-    val nextState = merge(dataCallbackResponseFlow, texts).firstNotNull()
-    deleteMessage(stickerMessage)
-    deleteMessage(menuMessage)
-    nextState
+    val messagesFlow =
+      bot.waitTextMessageWithUser(context.id).map { message ->
+        handleTextMessage(message.content.text)
+      }
+    return merge(callbacksFlow, messagesFlow).first()
   }
-}
 
-private suspend fun BehaviourContext.handleTextMessage(
-  t: CommonMessage<TextContent>,
-  user: User,
-): PresetTeacherState? {
-  val re = Regex("/setid ([0-9]+)")
-  val match = re.matchEntire(t.content.text)
-  return if (match != null) {
-    val newIdStr = match.groups[1]?.value ?: return null
-    val newId =
-      newIdStr.toLongOrNull()
-        ?: run {
-          logger.error("input id $newIdStr is not long!")
-          return null
-        }
-    PresetTeacherState(user, newId.toTeacherId())
-  } else {
-    bot.sendMessage(user.id, "Unrecognized command")
-    null
+  override fun computeNewState(
+    service: TeacherStatistics,
+    input: Pair<BotState<*, *, *>, String?>,
+  ): Pair<BotState<*, *, *>, String?> {
+    return input
   }
-}
 
-private suspend fun BehaviourContext.handleDataCallback(
-  callback: DataCallbackQuery,
-  state: MenuState,
-  core: TeacherCore,
-  teacherId: TeacherId,
-): BotState {
-  val callbackData = callback.data
-  val nextState =
-    when (callbackData) {
-      Keyboards.checkGrades -> {
-        CheckGradesState(state.context, state.teacherId)
-      }
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: TeacherStatistics,
+    response: String?,
+  ) {
+    messages.forEach { bot.deleteMessage(context, it.messageId) }
+    if (epilogueMessage != null) bot.send(context, epilogueMessage)
+  }
 
-      Keyboards.getSolution -> {
-        GettingSolutionState(state.context, state.teacherId)
-      }
-
-      Keyboards.viewStats -> {
-        val stats = core.getTeacherStats(teacherId)
-        if (stats != null) {
-          sendStatisticsInfo(core, state, stats)
-        }
-        MenuState(state.context, state.teacherId)
-      }
-
-      else -> null
+  private fun handleTextMessage(message: String): Pair<BotState<*, *, *>, String?> {
+    val re = Regex("/setid ([0-9]+)")
+    val match = re.matchEntire(message)
+    return if (match != null) {
+      val newId =
+        match.groups[1]?.value?.toLongOrNull()
+          ?: run {
+            logger.error("input id ${match.groups[1]} is not long!")
+            return Pair(MenuState(context, teacherId), null)
+          }
+      Pair(PresetTeacherState(context, newId.toTeacherId()), null)
+    } else {
+      Pair(MenuState(context, teacherId), "Unrecognized command")
     }
-  return nextState ?: GettingSolutionState(state.context, state.teacherId)
-}
+  }
 
-private suspend fun BehaviourContext.sendStatisticsInfo(
-  core: TeacherCore,
-  state: MenuState,
-  stats: TeacherStatsData,
-) {
-  val globalStats = core.getGlobalStats()
-
-  bot.send(
-    state.context,
-    """
-              📊 Ваша статистика проверок:
-              
-              Всего проверено: ${stats.totalAssessments}
-              Среднее число проверок в день: %.2f
-              ${stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"}
-              ${
-      stats.averageCheckTimeSeconds.let {
-        "Среднее время на проверку: %.1f часов".format(
-          it / 60 / 60
-        )
-      } ?: ""
+  private fun handleDataCallback(callback: String): BotState<*, *, *> =
+    when (callback) {
+      Keyboards.checkGrades -> CheckGradesState(context, teacherId)
+      Keyboards.getSolution -> GettingSolutionState(context, teacherId)
+      Keyboards.viewStats -> SendStatisticInfoState(context, teacherId)
+      else -> GettingSolutionState(context, teacherId)
     }
-              
-              📈 Общая статистика:
-              Среднее время проверки: %.1f часов
-              Всего непроверенных работ: %d
-    """
-      .trimIndent()
-      .format(
-        stats.averageAssessmentsPerDay,
-        globalStats.averageCheckTimeHours,
-        globalStats.totalUncheckedSolutions,
-      ),
-    replyMarkup = Keyboards.returnBack(),
-  )
 }

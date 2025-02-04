@@ -2,8 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
-    <ID>ForbiddenComment:TeacherCore.kt$TeacherCore$// TODO: this needs to be fixed properly</ID>
+    <ID>ForbiddenComment:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$// TODO: this needs to be fixed properly</ID>
+    <ID>FunctionOnlyReturningConstant:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$fun getMaxGrade(): Grade</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askIdentifier(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
@@ -14,14 +14,9 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionNotSent(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionSent(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun testSendSolution(): String</ID>
-    <ID>FunctionOnlyReturningConstant:TeacherCore.kt$TeacherCore$fun getMaxGrade(): Grade</ID>
     <ID>InjectDispatcher:TeacherRun.kt$IO</ID>
-    <ID>LongMethod:GettingSolutionState.kt$@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnGettingSolutionState(core: TeacherCore)</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( teacherStorage: TeacherStorage, isDeveloperRun: Boolean = false, )</ID>
-    <ID>LongParameterList:TeacherCore.kt$TeacherCore$( private val teacherStatistics: TeacherStatistics, private val coursesDistributor: CoursesDistributor, private val solutionDistributor: SolutionDistributor, private val gradeTable: GradeTable, private val problemStorage: ProblemStorage, private val botEventBus: BotEventBus, private val assignmentStorage: AssignmentStorage, private val studentStorage: StudentStorage, )</ID>
-    <ID>LoopWithTooManyJumpStatements:StartState.kt$while</ID>
-    <ID>MagicNumber:MenuState.kt$60</ID>
+    <ID>LongParameterList:TeacherRun.kt$( botToken: String, teacherStorage: TeacherStorage, teacherStatistics: TeacherStatistics, coursesDistributor: CoursesDistributor, coursesStatisticsResolver: CoursesStatisticsResolver, solutionResolver: SolutionResolver, solutionAssessor: SolutionAssessor, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val badSolution = "Неправильное решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val checkGrades = "checkGrades"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val getSolution = "Получить решение"</ID>
@@ -32,11 +27,8 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-    <ID>UnreachableCode:MenuState.kt$stats.averageCheckTimeSeconds.let { "Среднее время на проверку: %.1f часов".format( it / 60 / 60 ) } ?: ""</ID>
-    <ID>UnreachableCode:MenuState.kt$stats.lastAssessmentTime.let { "Последняя проверка: $it" } ?: "Нет проверок"</ID>
-    <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.filesURL!!</ID>
-    <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.text!!</ID>
-    <ID>UnsafeCallOnNullableType:GettingSolutionState.kt$solution.content.type!!</ID>
-    <ID>UnsafeCallOnNullableType:StartState.kt$teacherId!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.filesURL!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.text!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.type!!</ID>
   </CurrentIssues>
 </SmellBaseline>

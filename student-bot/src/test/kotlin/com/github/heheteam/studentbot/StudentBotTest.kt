@@ -158,7 +158,7 @@ class StudentBotTest {
       }
 
       repeat(5) {
-        val solution = solutionDistributor.querySolution(teacherId, gradeTable).value
+        val solution = solutionDistributor.querySolution(teacherId).value
         if (solution != null) {
           solutions.add(solution.id)
           gradeTable.assessSolution(

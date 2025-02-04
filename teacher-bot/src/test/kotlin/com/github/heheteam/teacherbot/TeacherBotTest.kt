@@ -8,7 +8,6 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
@@ -148,8 +147,7 @@ class TeacherBotTest {
       SolutionContent(text = "test", type = SolutionType.TEXT),
       problemId,
     )
-    val solution =
-      solutionDistributor.querySolution(teacherId, DatabaseGradeTable(database)).value!!
+    val solution = solutionDistributor.querySolution(teacherId).value!!
 
     assertEquals(studentId, solution.studentId)
     assertEquals(

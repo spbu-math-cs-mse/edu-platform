@@ -39,7 +39,9 @@ import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.run.parentRun
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.run.studentRun
-import com.github.heheteam.teacherbot.TeacherCore
+import com.github.heheteam.teacherbot.CoursesStatisticsResolver
+import com.github.heheteam.teacherbot.SolutionAssessor
+import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.run.teacherRun
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -73,7 +75,7 @@ class MultiBotRunner : CliktCommand() {
     val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-    val inMemoryTeacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
+    val teacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 
@@ -126,17 +128,17 @@ class MultiBotRunner : CliktCommand() {
         botEventBus,
       )
 
-    val teacherCore =
-      TeacherCore(
-        inMemoryTeacherStatistics,
-        coursesDistributor,
+    val solutionResolver =
+      SolutionResolver(solutionDistributor, problemStorage, assignmentStorage, studentStorage)
+    val solutionAssessor =
+      SolutionAssessor(
+        teacherStatistics,
         solutionDistributor,
         gradeTable,
         problemStorage,
         botEventBus,
-        assignmentStorage,
-        studentStorage,
       )
+    val coursesStatisticsResolver = CoursesStatisticsResolver(coursesDistributor, gradeTable)
 
     val adminCore =
       AdminCore(
@@ -155,7 +157,17 @@ class MultiBotRunner : CliktCommand() {
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
     runBlocking {
       launch { studentRun(studentBotToken, studentStorage, studentCore, developerOptions) }
-      launch { teacherRun(teacherBotToken, teacherStorage, teacherCore, developerOptions) }
+      launch {
+        teacherRun(
+          teacherBotToken,
+          teacherStorage,
+          teacherStatistics,
+          coursesDistributor,
+          coursesStatisticsResolver,
+          solutionResolver,
+          solutionAssessor,
+        )
+      }
       launch { adminRun(adminBotToken, adminCore) }
       launch { parentRun(parentBotToken, parentStorage, parentCore) }
     }

@@ -2,57 +2,44 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.Keyboards
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
-  teacherStorage: TeacherStorage,
-  isDeveloperRun: Boolean = false,
-) {
-  strictlyOn<StartState> { state ->
-    bot.sendSticker(state.context, Dialogues.greetingSticker)
-    var teacherId: TeacherId? = null
-    if (isDeveloperRun) {
-      bot.send(state.context, Dialogues.devAskForId())
-      while (true) {
-        val teacherIdFromText =
-          waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let {
-            TeacherId(it)
-          }
-        if (teacherIdFromText == null) {
-          bot.send(state.context, Dialogues.devIdIsNotLong())
-          continue
-        }
-        val teacher = teacherStorage.resolveTeacher(teacherIdFromText).get()
-        if (teacher == null) {
-          bot.send(state.context, Dialogues.devIdNotFound())
-          continue
-        }
-        teacherId = teacherIdFromText
-        break
-      }
-    } else if (teacherStorage.resolveByTgId(state.context.id).isErr) {
-      bot.send(state.context, Dialogues.greetings() + Dialogues.askFirstName())
-      val firstName = waitTextMessageWithUser(state.context.id).first().content.text
-      bot.send(state.context, Dialogues.askLastName(firstName))
-      val lastName = waitTextMessageWithUser(state.context.id).first().content.text
-      bot.send(
-        state.context,
-        Dialogues.askGrade(firstName, lastName),
-        replyMarkup = Keyboards.askGrade(),
-      )
-      waitDataCallbackQueryWithUser(state.context.id).first().data // discard class
-      teacherId = teacherStorage.createTeacher()
-      return@strictlyOn MenuState(state.context, teacherId)
+class StartState(override val context: User) : BotState<TeacherId?, String, TeacherStorage> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStorage): TeacherId {
+    val teacherStorage = service
+    bot.sendSticker(context, Dialogues.greetingSticker)
+    val teacherId: TeacherId? = teacherStorage.resolveByTgId(context.id).get()?.id
+    if (teacherId != null) {
+      return teacherId
     }
-    bot.send(state.context, Dialogues.greetings())
-    MenuState(state.context, teacherId!!)
+    bot.send(context, Dialogues.greetings() + Dialogues.askFirstName())
+    val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
+    bot.send(context, Dialogues.askLastName(firstName))
+    val lastName = bot.waitTextMessageWithUser(context.id).first().content.text
+    return teacherStorage.createTeacher(firstName, lastName, context.id.chatId.long)
+  }
+
+  override fun computeNewState(
+    service: TeacherStorage,
+    input: TeacherId?,
+  ): Pair<BotState<*, *, *>, String> {
+    val teacherId = input ?: return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
+    return Pair(MenuState(context, teacherId), Dialogues.greetings())
+  }
+
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: TeacherStorage,
+    response: String,
+  ) {
+    bot.send(context, response)
   }
 }

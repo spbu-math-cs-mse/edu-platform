@@ -1,174 +1,61 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionType
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.teacherbot.Dialogues.noSolutionsToCheck
-import com.github.heheteam.teacherbot.Dialogues.solutionInfo
-import com.github.heheteam.teacherbot.Keyboards
-import com.github.heheteam.teacherbot.Keyboards.returnBack
-import com.github.heheteam.teacherbot.TeacherCore
-import com.github.heheteam.teacherbot.states.SolutionProvider.getSolutionWithURL
-import dev.inmo.tgbotapi.extensions.api.delete
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
-import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
-import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
-import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
+import com.github.heheteam.teacherbot.SolutionResolver
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
-import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
-import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
-import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import dev.inmo.tgbotapi.utils.RiskFeature
+import dev.inmo.tgbotapi.types.chat.User
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 import java.nio.channels.Channels
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flowOf
 
-@OptIn(RiskFeature::class, ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGettingSolutionState(core: TeacherCore) {
-  strictlyOn<GettingSolutionState> { state ->
-    val teacherId = state.teacherId
-    val solution = core.querySolution(teacherId)
-    if (solution == null) {
-      val reply = bot.send(state.context, noSolutionsToCheck(), replyMarkup = returnBack())
-      waitDataCallbackQuery().first()
-      deleteMessage(reply)
-      return@strictlyOn MenuState(state.context, state.teacherId)
-    }
+private fun <V, E> Result<V, E>.toStrErr(): Result<V, String> = this.mapError { it.toString() }
 
-    val student = core.resolveStudent(solution.studentId)
-    if (student.isErr) {
-      bot.send(state.context, student.error.toString())
-      return@strictlyOn MenuState(state.context, state.teacherId)
-    }
+class GettingSolutionState(override val context: User, private val teacherId: TeacherId) :
+  BotState<Unit, String?, SolutionResolver> {
 
-    val problem = core.resolveProblem(solution.problemId)
-    if (problem.isErr) {
-      bot.send(state.context, problem.error.toString())
-      return@strictlyOn MenuState(state.context, state.teacherId)
-    }
+  override suspend fun readUserInput(bot: BehaviourContext, service: SolutionResolver) = Unit
 
-    val assignment = core.resolveAssignment(problem.value.assignmentId)
-    if (assignment.isErr) {
-      bot.send(state.context, assignment.error.toString())
-      return@strictlyOn MenuState(state.context, state.teacherId)
-    }
-
-    val getSolution: ContentMessage<*>
-    var getMarkup: ContentMessage<*>? = null
-    val files: MutableList<Pair<MultipartFile, File>> = mutableListOf()
-    when (solution.content.type!!) {
-      SolutionType.TEXT ->
-        getSolution =
-          bot.send(
-            state.context,
-            solution.content.text!! +
-              "\n\n\n" +
-              solutionInfo(student.value, assignment.value, problem.value),
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-
-      SolutionType.PHOTO -> {
-        files.add(getSolutionWithURL(solution.content.filesURL!!.first()))
-        getSolution =
-          bot.sendPhoto(
-            state.context,
-            files.first().first,
-            text =
-              if (solution.content.text == null) {
-                solutionInfo(student.value, assignment.value, problem.value)
-              } else {
-                solution.content.text +
-                  "\n\n\n" +
-                  solutionInfo(student.value, assignment.value, problem.value)
-              },
-            replyMarkup = Keyboards.solutionMenu(),
-          )
+  override fun computeNewState(
+    service: SolutionResolver,
+    input: Unit,
+  ): Pair<BotState<*, *, *>, String?> =
+    binding {
+        val solution = service.querySolution(teacherId).toResultOr { noSolutionsToCheck() }.bind()
+        val student = service.resolveStudent(solution.studentId).toStrErr().bind()
+        val problem = service.resolveProblem(solution.problemId).toStrErr().bind()
+        val assignment = service.resolveAssignment(problem.assignmentId).toStrErr().bind()
+        Pair(
+          CheckingSolutionState(context, teacherId, solution, problem, assignment, student),
+          null as String?,
+        )
       }
+      .getOrElse { Pair(MenuState(context, teacherId), it) }
 
-      SolutionType.DOCUMENT -> {
-        files.add(getSolutionWithURL(solution.content.filesURL!!.first()))
-        getSolution =
-          bot.sendDocument(
-            state.context,
-            files.first().first,
-            text =
-              if (solution.content.text == null) {
-                solutionInfo(student.value, assignment.value, problem.value)
-              } else {
-                solution.content.text +
-                  "\n\n\n" +
-                  solutionInfo(student.value, assignment.value, problem.value)
-              },
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-      }
-
-      SolutionType.GROUP -> {
-        files.addAll(solution.content.filesURL!!.map { getSolutionWithURL(it) })
-        getSolution =
-          bot.sendMediaGroup(state.context, files.map { TelegramMediaDocument(it.first) })
-        getMarkup =
-          bot.send(
-            state.context,
-            solutionInfo(student.value, assignment.value, problem.value),
-            replyMarkup = Keyboards.solutionMenu(),
-          )
-      }
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: SolutionResolver,
+    response: String?,
+  ) {
+    if (response != null) {
+      bot.send(context, response)
+      return
     }
-
-    when (
-      val response =
-        flowOf(
-            waitDataCallbackQueryWithUser(state.context.id),
-            waitTextMessageWithUser(state.context.id),
-          )
-          .flattenMerge()
-          .first()
-    ) {
-      is DataCallbackQuery -> {
-        val command = response.data
-        when (command) {
-          Keyboards.goodSolution -> {
-            deleteMessage(getSolution)
-            // TODO extract from maxscore of a problem
-            core.assessSolution(solution, teacherId, SolutionAssessment(1, ""))
-          }
-
-          Keyboards.badSolution -> {
-            deleteMessage(getSolution)
-            core.assessSolution(solution, teacherId, SolutionAssessment(0, ""))
-          }
-
-          returnBack -> {
-            delete(getSolution)
-          }
-        }
-      }
-    }
-    if (getMarkup != null) {
-      delete(getMarkup)
-    }
-    files.forEach {
-      if (it.second.exists()) {
-        it.second.delete()
-      }
-    }
-    MenuState(state.context, state.teacherId)
   }
 }
 
-object SolutionProvider {
+internal object SolutionProvider {
   private var fileIndex = 0
 
   fun getSolutionWithURL(fileURL: String): Pair<MultipartFile, File> {

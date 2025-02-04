@@ -58,10 +58,24 @@ suspend fun main(vararg args: String) {
       databaseGradeTable,
       solutionDistributor,
     )
+
   val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
   val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
   val teacherStatistics = InMemoryTeacherStatistics()
+
   val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
+
+  val solutionResolver =
+    SolutionResolver(solutionDistributor, problemStorage, assignmentStorage, studentStorage)
+  val solutionAssessor =
+    SolutionAssessor(
+      teacherStatistics,
+      solutionDistributor,
+      gradeTable,
+      problemStorage,
+      botEventBus,
+    )
+  val coursesStatisticsResolver = CoursesStatisticsResolver(coursesDistributor, gradeTable)
 
   fillWithSamples(
     coursesDistributor,
@@ -72,17 +86,13 @@ suspend fun main(vararg args: String) {
     database,
   )
 
-  val core =
-    TeacherCore(
-      teacherStatistics,
-      coursesDistributor,
-      solutionDistributor,
-      gradeTable,
-      problemStorage,
-      botEventBus,
-      assignmentStorage,
-      studentStorage,
-    )
-
-  teacherRun(botToken, teacherStorage, core)
+  teacherRun(
+    botToken,
+    teacherStorage,
+    teacherStatistics,
+    coursesDistributor,
+    coursesStatisticsResolver,
+    solutionResolver,
+    solutionAssessor,
+  )
 }

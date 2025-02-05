@@ -10,6 +10,7 @@ import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.states.CheckGradesState
 import com.github.heheteam.teacherbot.states.CheckingSolutionState
+import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
 import com.github.heheteam.teacherbot.states.GettingSolutionState
 import com.github.heheteam.teacherbot.states.MenuState
@@ -22,9 +23,11 @@ import dev.inmo.kslog.common.defaultMessageFormatter
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
+import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
+import dev.inmo.tgbotapi.extensions.utils.groupContentMessageOrNull
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +63,12 @@ suspend fun teacherRun(
 
       command("start") {
         val user = it.from
-        if (user != null) {
+        val groupContent = it.groupContentMessageOrNull()
+        if (groupContent != null) {
+          println(groupContent)
+          sendMessage(groupContent.chat, "greetings!")
+          startChain(ChooseGroupCourseState(groupContent.chat))
+        } else if (user != null) {
           val startingState = findStartState(developerOptions, user)
           startChain(startingState)
         }
@@ -74,6 +82,7 @@ suspend fun teacherRun(
       registerState<GettingSolutionState, SolutionResolver>(solutionResolver)
       registerState<CheckingSolutionState, SolutionAssessor>(solutionAssessor)
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
+      registerState<ChooseGroupCourseState, Unit>(Unit)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

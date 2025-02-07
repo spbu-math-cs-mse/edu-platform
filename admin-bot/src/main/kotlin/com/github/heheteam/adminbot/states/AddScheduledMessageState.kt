@@ -4,15 +4,18 @@ import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.adminbot.toRussian
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
+import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.newLine
 import dev.inmo.tgbotapi.utils.row
@@ -22,7 +25,13 @@ import java.time.LocalTime
 import java.time.format.DateTimeParseException
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddScheduledMessageState(core: AdminCore) {
+class AddScheduledMessageState(
+  override val context: User,
+  val course: Course,
+  val courseName: String,
+) : State
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(core: AdminCore) {
   strictlyOn<AddScheduledMessageState> { state ->
     send(state.context) { +"Введите сообщение" }
     val message = waitTextMessageWithUser(state.context.id).first()
@@ -84,6 +93,7 @@ private suspend fun BehaviourContext.queryDateFromUser(
         }
       }
     }
+
     "cancel" -> return null
     else -> return LocalDate.parse(data, dateFormatter)
   }

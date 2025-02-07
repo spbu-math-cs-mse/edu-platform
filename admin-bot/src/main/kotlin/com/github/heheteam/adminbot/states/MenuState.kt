@@ -2,51 +2,61 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.Keyboards
-import com.github.heheteam.adminbot.Keyboards.courseInfo
-import com.github.heheteam.adminbot.Keyboards.createAssignment
-import com.github.heheteam.adminbot.Keyboards.getProblems
-import com.github.heheteam.adminbot.Keyboards.getTeachers
+import com.github.heheteam.adminbot.Keyboards.COURSE_INFO
+import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
+import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
+import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
+import com.github.heheteam.adminbot.Keyboards.GET_PROBLEMS
+import com.github.heheteam.adminbot.Keyboards.GET_TEACHERS
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import dev.inmo.tgbotapi.extensions.api.answers.answerCallbackQuery
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState() {
-  strictlyOn<MenuState> { state ->
-    val initialMessage = bot.send(state.context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+class MenuState(override val context: User) : BotState<State, Unit, Unit> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: Unit): State {
+    val initialMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
 
-    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
+    val callback = bot.waitDataCallbackQueryWithUser(context.id).first()
     val data = callback.data
-    answerCallbackQuery(callback)
-    deleteMessage(initialMessage)
-    when (data) {
-      "create course" -> {
-        CreateCourseState(state.context)
-      }
+    //    bot.answerCallbackQuery(callback)
+    bot.deleteMessage(initialMessage)
+    return when (data) {
+      CREATE_COURSE -> CreateCourseState(context)
 
-      "edit course" -> {
-        EditCourseState(state.context)
-      }
+      EDIT_COURSE ->
+        CourseSelectorState(context) { context, course ->
+          if (course == null) MenuState(context) else EditCourseState(context, course)
+        }
 
-      getTeachers -> {
-        GetTeachersState(state.context)
-      }
+      GET_TEACHERS -> GetTeachersState(context)
 
-      getProblems -> {
-        GetProblemsState(state.context)
-      }
+      GET_PROBLEMS ->
+        CourseSelectorState(context) { context, course ->
+          if (course == null) MenuState(context) else GetProblemsState(context, course)
+        }
 
-      createAssignment -> {
-        CreateAssignmentState(state.context)
-      }
+      CREATE_ASSIGNMENT ->
+        CourseSelectorState(context) { context, course ->
+          if (course == null) MenuState(context) else CreateAssignmentState(context, course)
+        }
 
-      courseInfo -> {
-        CourseInfoState(state.context)
-      }
+      COURSE_INFO ->
+        CourseSelectorState(context) { context, course ->
+          if (course == null) MenuState(context) else CourseInfoState(context, course)
+        }
 
-      else -> MenuState(state.context)
+      else -> MenuState(context)
     }
   }
+
+  override fun computeNewState(service: Unit, input: State): Pair<State, Unit> {
+    return Pair(input, Unit)
+  }
+
+  override suspend fun sendResponse(bot: BehaviourContext, service: Unit, response: Unit) = Unit
 }

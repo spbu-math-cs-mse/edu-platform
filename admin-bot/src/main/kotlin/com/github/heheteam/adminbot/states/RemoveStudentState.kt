@@ -9,14 +9,20 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyDoesNotExistForStudent
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentRemoving
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.adminbot.processStringIds
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnRemoveStudentState(core: AdminCore) {
+class RemoveStudentState(override val context: User, val course: Course, val courseName: String) :
+  State
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnRemoveStudentState(core: AdminCore) {
   strictlyOn<RemoveStudentState> { state ->
     send(state.context) {
       +"Введите ID учеников (через запятую), которых хотите убрать с курса ${state.courseName}, или отправьте /stop, чтобы отменить операцию."

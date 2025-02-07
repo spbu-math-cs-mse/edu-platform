@@ -146,9 +146,6 @@ class MultiBotRunner : CliktCommand() {
         coursesDistributor,
         studentStorage,
         teacherStorage,
-        assignmentStorage,
-        problemStorage,
-        solutionDistributor,
       )
 
     val parentCore = ParentCore(DatabaseStudentStorage(database), DatabaseGradeTable(database))
@@ -168,7 +165,17 @@ class MultiBotRunner : CliktCommand() {
           solutionAssessor,
         )
       }
-      launch { adminRun(adminBotToken, adminCore) }
+      launch {
+        adminRun(
+          adminBotToken,
+          coursesDistributor,
+          assignmentStorage,
+          problemStorage,
+          solutionDistributor,
+          teacherStorage,
+          adminCore,
+        )
+      }
       launch { parentRun(parentBotToken, parentStorage, parentCore) }
     }
   }

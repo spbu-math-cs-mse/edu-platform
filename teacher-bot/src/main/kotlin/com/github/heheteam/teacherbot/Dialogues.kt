@@ -6,8 +6,6 @@ import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {
-  val okSticker =
-    InputFile.fromId("CAACAgEAAxkBAAIBJWcUPyqe-UEVGqMmhNYi21U3gkBEAALrAQACOA6CEbOGBM7hnEk5NgQ")
   val typingSticker =
     InputFile.fromId("CAACAgEAAxkBAAIBb2cdPy6r60MpNFXFLAABaQWOqfgCHAAC6QADZszART3es5n3X_q7NgQ")
   val greetingSticker =
@@ -31,23 +29,12 @@ object Dialogues {
   fun askLastName(firstName: String): String =
     "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"
 
-  fun askIdentifier(): String = "Теперь введите Ваш идентификатор \uD83D\uDC47"
-
-  fun askGrade(firstName: String, lastName: String): String =
-    "Рад знакомству, $firstName $lastName!\nУкажите ваши предметы преподавания"
-
-  fun solutionSent(): String = "Готово!"
-
-  fun solutionNotSent(): String = "Ошибка, попробуйте ещё раз..."
-
   fun solutionInfo(student: Student, assignment: Assignment, problem: Problem): String =
     "Ученик: ${student.surname} ${student.name}\n" +
       "Серия: ${assignment.description}\n" +
       "Задача: ${problem.number}"
 
   fun menu(): String = "\u2705 Главное меню"
-
-  fun testSendSolution(): String = "ТЕСТ_Отправьте решение:"
 
   fun noSolutionsToCheck(): String = "Задач для проверки нет!"
 }

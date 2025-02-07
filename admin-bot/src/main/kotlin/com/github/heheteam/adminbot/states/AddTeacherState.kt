@@ -9,14 +9,20 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForTeacherAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.adminbot.processStringIds
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddTeacherState(core: AdminCore) {
+class AddTeacherState(override val context: User, val course: Course, val courseName: String) :
+  State
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddTeacherState(core: AdminCore) {
   strictlyOn<AddTeacherState> { state ->
     send(state.context) {
       +"Введите ID преподавателей (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию."

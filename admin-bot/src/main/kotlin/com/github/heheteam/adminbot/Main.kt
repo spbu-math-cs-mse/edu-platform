@@ -70,15 +70,15 @@ suspend fun main(vararg args: String) {
   )
 
   val core =
-    AdminCore(
-      scheduledMessagesDistributor,
-      coursesDistributor,
-      studentStorage,
-      teacherStorage,
-      assignmentStorage,
-      problemStorage,
-      solutionDistributor,
-    )
+    AdminCore(scheduledMessagesDistributor, coursesDistributor, studentStorage, teacherStorage)
 
-  adminRun(botToken, core)
+  adminRun(
+    botToken,
+    coursesDistributor,
+    assignmentStorage,
+    problemStorage,
+    solutionDistributor,
+    teacherStorage,
+    core,
+  )
 }

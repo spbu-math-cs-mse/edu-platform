@@ -25,6 +25,7 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
@@ -96,12 +97,13 @@ class MultiBotRunner : CliktCommand() {
 
     val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
+    val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
 
     val studentStorage = DatabaseStudentStorage(database)
     fillWithSamples(
       coursesDistributor,
       problemStorage,
-      assignmentStorage,
+      assignmentStorageDecorator,
       studentStorage,
       teacherStorage,
       database,
@@ -122,14 +124,19 @@ class MultiBotRunner : CliktCommand() {
         solutionDistributor,
         coursesDistributor,
         problemStorage,
-        assignmentStorage,
+        assignmentStorageDecorator,
         gradeTable,
         notificationService,
         botEventBus,
       )
 
     val solutionResolver =
-      SolutionResolver(solutionDistributor, problemStorage, assignmentStorage, studentStorage)
+      SolutionResolver(
+        solutionDistributor,
+        problemStorage,
+        assignmentStorageDecorator,
+        studentStorage,
+      )
     val solutionAssessor =
       SolutionAssessor(
         teacherStatistics,
@@ -169,7 +176,7 @@ class MultiBotRunner : CliktCommand() {
         adminRun(
           adminBotToken,
           coursesDistributor,
-          assignmentStorage,
+          assignmentStorageDecorator,
           problemStorage,
           solutionDistributor,
           teacherStorage,

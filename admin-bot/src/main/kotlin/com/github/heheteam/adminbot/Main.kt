@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
@@ -58,12 +59,13 @@ suspend fun main(vararg args: String) {
       databaseGradeTable,
       solutionDistributor,
     )
+  val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
   val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
 
   fillWithSamples(
     coursesDistributor,
     problemStorage,
-    assignmentStorage,
+    assignmentStorageDecorator,
     studentStorage,
     teacherStorage,
     database,
@@ -75,7 +77,7 @@ suspend fun main(vararg args: String) {
   adminRun(
     botToken,
     coursesDistributor,
-    assignmentStorage,
+    assignmentStorageDecorator,
     problemStorage,
     solutionDistributor,
     teacherStorage,

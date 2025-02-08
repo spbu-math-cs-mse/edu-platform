@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.AssignmentId
@@ -17,6 +18,7 @@ import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -29,7 +31,7 @@ class StudentCore(
   private val assignmentStorage: AssignmentStorage,
   private val gradeTable: GradeTable,
   private val notificationService: NotificationService,
-  botEventBus: BotEventBus,
+  private val botEventBus: BotEventBus,
 ) {
   init {
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
@@ -80,7 +82,11 @@ class StudentCore(
     solutionContent: SolutionContent,
     problemId: ProblemId,
   ) {
-    solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
+    val solutionId =
+      solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
+    solutionDistributor.resolveSolution(solutionId).map { solution: Solution ->
+      botEventBus.publishNewSolutionEvent(solution)
+    }
   }
 
   fun getCoursesBulletList(studentId: StudentId): String {

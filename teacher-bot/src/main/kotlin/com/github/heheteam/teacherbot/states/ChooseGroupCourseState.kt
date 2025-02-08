@@ -22,10 +22,10 @@ class ChooseGroupCourseState(override val context: Chat) : BotState<CourseId?, C
 
   override fun computeNewState(service: Unit, input: CourseId?): Pair<State, CourseId?> =
     if (input != null) {
-      throw RuntimeException("Too bad!")
+      ListeningForSolutionsGroupState(context, input)
     } else {
-      ChooseGroupCourseState(context) to null
-    }
+      ChooseGroupCourseState(context)
+    } to input
 
   override suspend fun sendResponse(bot: BehaviourContext, service: Unit, response: CourseId?) {
     with(bot) {

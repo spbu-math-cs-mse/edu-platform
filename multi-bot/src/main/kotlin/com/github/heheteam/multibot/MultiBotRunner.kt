@@ -165,7 +165,9 @@ class MultiBotRunner : CliktCommand() {
           coursesDistributor,
           coursesStatisticsResolver,
           solutionResolver,
+          botEventBus,
           solutionAssessor,
+          developerOptions,
         )
       }
       launch { adminRun(adminBotToken, adminCore) }

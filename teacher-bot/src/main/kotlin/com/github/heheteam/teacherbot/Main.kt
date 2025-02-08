@@ -93,6 +93,7 @@ suspend fun main(vararg args: String) {
     coursesDistributor,
     coursesStatisticsResolver,
     solutionResolver,
+    botEventBus,
     solutionAssessor,
   )
 }

@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -42,6 +43,35 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     jedis.publish(channel, event)
   }
 
+  override fun publishNewSolutionEvent(solution: Solution) {
+    val simpleEvent = NewSolutionEvent(solution)
+    val event = Json.encodeToString(simpleEvent)
+    jedis.publish(channel, event)
+  }
+
+  override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
+    val subscriberJedis = Jedis(redisHost, redisPort)
+
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+        subscriberJedis.subscribe(
+          object : JedisPubSub() {
+            override fun onMessage(channel: String, message: String) {
+              val simpleEvent =
+                kotlin.runCatching { Json.decodeFromString<NewSolutionEvent>(message) }.getOrNull()
+                  ?: return
+              runBlocking { handler(simpleEvent.solution) }
+            }
+          },
+          channel,
+        )
+      } catch (e: Exception) {
+        println("Error in Redis subscription: ${e.message}")
+        e.printStackTrace()
+      }
+    }
+  }
+
   override fun subscribeToGradeEvents(
     handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
   ) {
@@ -52,7 +82,9 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
         subscriberJedis.subscribe(
           object : JedisPubSub() {
             override fun onMessage(channel: String, message: String) {
-              val simpleEvent = Json.decodeFromString<SimpleGradeEvent>(message)
+              val simpleEvent =
+                kotlin.runCatching { Json.decodeFromString<SimpleGradeEvent>(message) }.getOrNull()
+                  ?: return@onMessage
               runBlocking {
                 handler(
                   StudentId(simpleEvent.studentId),
@@ -82,4 +114,6 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     val comment: String,
     val problem: Problem,
   )
+
+  @Serializable private data class NewSolutionEvent(val solution: Solution)
 }

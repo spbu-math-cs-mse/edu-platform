@@ -50,6 +50,7 @@ enum class SolutionType {
   GROUP,
 }
 
+@Serializable
 data class Solution(
   val id: SolutionId,
   val studentId: StudentId,
@@ -64,6 +65,7 @@ data class Course(val id: CourseId, val name: String)
 
 data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
 
+@Serializable
 data class SolutionContent(
   val filesURL: List<String>? = null,
   val text: String? = null,

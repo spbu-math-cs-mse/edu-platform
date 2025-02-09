@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SolutionDistributor
@@ -41,6 +42,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     chatId: RawChatId,
     messageId: MessageId,
     solutionContent: SolutionContent,
+    attachment: TelegramAttachment,
     problemId: ProblemId,
     timestamp: LocalDateTime,
   ): SolutionId {
@@ -55,6 +57,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             it[SolutionTable.fileUrl] = solutionContent.filesURL ?: listOf()
             it[SolutionTable.solutionType] = solutionContent.type.toString()
             it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
+            it[SolutionTable.attachments] = attachment
           } get SolutionTable.id
         }
         .value
@@ -113,6 +116,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             solution[SolutionTable.content],
             SolutionType.valueOf(solution[SolutionTable.solutionType]),
           ),
+          solution[SolutionTable.attachments],
           solution[SolutionTable.timestamp],
         )
       )
@@ -136,6 +140,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             solution[SolutionTable.content],
             SolutionType.valueOf(solution[SolutionTable.solutionType]),
           ),
+          solution[SolutionTable.attachments],
           solution[SolutionTable.timestamp],
         )
       )

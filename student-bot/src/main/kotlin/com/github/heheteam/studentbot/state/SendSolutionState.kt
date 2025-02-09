@@ -4,6 +4,9 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.TelegramAttachment
+import com.github.heheteam.commonlib.TelegramMedia
+import com.github.heheteam.commonlib.TelegramMediaKind
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
@@ -22,11 +25,13 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.content.AudioContent
 import dev.inmo.tgbotapi.types.message.content.DocumentContent
 import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
+import dev.inmo.tgbotapi.types.message.content.VideoContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -90,8 +95,14 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
         val messageId = content.messageId
 
         val solutionContent = extractSolutionContent(content, studentBotToken)
-
+        val attachment = extractAttachments(content, studentBotToken)
         if (solutionContent == null) {
+          deleteMessage(botMessage)
+          botMessage =
+            bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
+          continue
+        }
+        if (attachment == null) {
           deleteMessage(botMessage)
           botMessage =
             bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
@@ -110,6 +121,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
             state.context.id.chatId,
             messageId,
             solutionContent,
+            attachment,
             problem.id,
           )
           bot.sendSticker(state.context, Dialogues.okSticker)
@@ -126,6 +138,51 @@ suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: Str
   val contentInfo = bot.getFileAdditionalInfo(content)
   return "https://api.telegram.org/file/bot$studentBotToken/${contentInfo.filePath}"
 }
+
+private suspend fun BehaviourContext.extractAttachments(
+  message: CommonMessage<*>,
+  studentBotToken: String,
+): TelegramAttachment? =
+  when (val content = message.content) {
+    is TextContent -> TelegramAttachment(content.text)
+    is PhotoContent ->
+      TelegramAttachment(
+        content.text.orEmpty(),
+        listOf(
+          TelegramMedia(
+            TelegramMediaKind.PHOTO,
+            makeURL(content, studentBotToken),
+            content.media.fileId.fileId,
+          )
+        ),
+      )
+    is MediaGroupContent<*> ->
+      TelegramAttachment(
+        content.text.orEmpty(),
+        content.group.map {
+          val kind =
+            when (it.content) {
+              is DocumentContent -> TelegramMediaKind.DOCUMENT
+              is PhotoContent -> TelegramMediaKind.PHOTO
+              is AudioContent -> return null
+              is VideoContent -> return null
+            }
+          TelegramMedia(kind, makeURL(it.content, studentBotToken), it.content.media.fileId.fileId)
+        },
+      )
+    is DocumentContent ->
+      TelegramAttachment(
+        content.text.orEmpty(),
+        listOf(
+          TelegramMedia(
+            TelegramMediaKind.DOCUMENT,
+            makeURL(content, studentBotToken),
+            content.media.fileId.fileId,
+          )
+        ),
+      )
+    else -> null
+  }
 
 private suspend fun BehaviourContext.extractSolutionContent(
   message: CommonMessage<*>,

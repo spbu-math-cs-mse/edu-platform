@@ -4,10 +4,10 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.util.sendAttachments
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 
-class CheckingSolutionState(
+class GradingSolutionState(
   override val context: User,
   private val teacherId: TeacherId,
   private val solution: Solution,
@@ -109,11 +109,14 @@ class CheckingSolutionState(
   }
 
   private suspend fun sendSolution(bot: BehaviourContext) {
-    when (solution.content.type!!) {
-      SolutionType.TEXT -> handleText(bot)
-      SolutionType.PHOTO -> handlePhoto(bot)
-      SolutionType.DOCUMENT -> handleDocument(bot)
-      SolutionType.GROUP -> handleGroup(bot)
+    with(bot) {
+      solutionMessage = sendAttachments(context.id, solution.attachments)
+      markupMessage =
+        bot.send(
+          context,
+          solutionInfo(student, assignment, problem),
+          replyMarkup = Keyboards.solutionMenu(),
+        )
     }
   }
 

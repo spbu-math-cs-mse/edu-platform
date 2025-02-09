@@ -50,6 +50,22 @@ enum class SolutionType {
   GROUP,
 }
 
+@Serializable
+enum class TelegramMediaKind {
+  PHOTO,
+  DOCUMENT,
+}
+
+@Serializable
+data class TelegramMedia(
+  val kind: TelegramMediaKind,
+  val downloadUrl: String,
+  val uniqueString: String,
+)
+
+@Serializable
+data class TelegramAttachment(val text: String, val media: List<TelegramMedia> = listOf())
+
 data class Solution(
   val id: SolutionId,
   val studentId: StudentId,
@@ -57,6 +73,7 @@ data class Solution(
   val messageId: MessageId,
   val problemId: ProblemId,
   val content: SolutionContent,
+  val attachments: TelegramAttachment,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 

@@ -2,8 +2,7 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
@@ -152,7 +151,7 @@ class StudentBotTest {
           userId,
           chatId,
           MessageId(it.toLong()),
-          SolutionContent(text = "sample$it", type = SolutionType.TEXT),
+          TelegramAttachment(text = "sample$it"),
           createProblem(courseId),
         )
       }
@@ -175,8 +174,7 @@ class StudentBotTest {
     val firstSolutionResult = solutionDistributor.resolveSolution(solutions.first())
     assertTrue(firstSolutionResult.isOk)
     val firstSolution = firstSolutionResult.value
-    assertEquals(SolutionType.TEXT, firstSolution.content.type)
-    assertEquals("sample0", firstSolution.content.text)
+    assertEquals("sample0", firstSolution.attachments.text)
 
     val lastSolutionResult = solutionDistributor.resolveSolution(solutions.last())
     assertTrue(lastSolutionResult.isOk)

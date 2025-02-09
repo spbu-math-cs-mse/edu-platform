@@ -2,8 +2,6 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.heheteam.commonlib.TelegramMedia
 import com.github.heheteam.commonlib.TelegramMediaKind
@@ -94,14 +92,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is CommonMessage<*>) {
         val messageId = content.messageId
 
-        val solutionContent = extractSolutionContent(content, studentBotToken)
         val attachment = extractAttachments(content, studentBotToken)
-        if (solutionContent == null) {
-          deleteMessage(botMessage)
-          botMessage =
-            bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
-          continue
-        }
         if (attachment == null) {
           deleteMessage(botMessage)
           botMessage =
@@ -116,14 +107,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
         if (missedDeadline) {
           bot.sendMessage(state.context, "К сожалению, дедлайн по задаче уже истек :(")
         } else {
-          core.inputSolution(
-            studentId,
-            state.context.id.chatId,
-            messageId,
-            solutionContent,
-            attachment,
-            problem.id,
-          )
+          core.inputSolution(studentId, state.context.id.chatId, messageId, attachment, problem.id)
           bot.sendSticker(state.context, Dialogues.okSticker)
           bot.send(state.context, Dialogues.tellSolutionIsSent())
         }
@@ -180,30 +164,6 @@ private suspend fun BehaviourContext.extractAttachments(
             content.media.fileId.fileId,
           )
         ),
-      )
-    else -> null
-  }
-
-private suspend fun BehaviourContext.extractSolutionContent(
-  message: CommonMessage<*>,
-  studentBotToken: String,
-): SolutionContent? =
-  when (val messageContent = message.content) {
-    is TextContent -> SolutionContent(text = messageContent.text, type = SolutionType.TEXT)
-    is PhotoContent ->
-      SolutionContent(
-        filesURL = listOf(makeURL(messageContent, studentBotToken)),
-        type = SolutionType.PHOTO,
-      )
-    is MediaGroupContent<*> ->
-      SolutionContent(
-        filesURL = messageContent.group.map { makeURL(it.content, studentBotToken) },
-        type = SolutionType.GROUP,
-      )
-    is DocumentContent ->
-      SolutionContent(
-        filesURL = listOf(makeURL(messageContent, studentBotToken)),
-        type = SolutionType.DOCUMENT,
       )
     else -> null
   }

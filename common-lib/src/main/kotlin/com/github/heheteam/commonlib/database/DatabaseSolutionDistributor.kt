@@ -1,8 +1,6 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ResolveError
@@ -41,7 +39,6 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    solutionContent: SolutionContent,
     attachment: TelegramAttachment,
     problemId: ProblemId,
     timestamp: LocalDateTime,
@@ -53,9 +50,6 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             it[SolutionTable.chatId] = chatId.toChatId().chatId.long
             it[SolutionTable.messageId] = messageId.long
             it[SolutionTable.problemId] = problemId.id
-            it[SolutionTable.content] = solutionContent.text ?: ""
-            it[SolutionTable.fileUrl] = solutionContent.filesURL ?: listOf()
-            it[SolutionTable.solutionType] = solutionContent.type.toString()
             it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
             it[SolutionTable.attachments] = attachment
           } get SolutionTable.id
@@ -111,11 +105,6 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(
-            solution[SolutionTable.fileUrl],
-            solution[SolutionTable.content],
-            SolutionType.valueOf(solution[SolutionTable.solutionType]),
-          ),
           solution[SolutionTable.attachments],
           solution[SolutionTable.timestamp],
         )
@@ -135,11 +124,6 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(
-            solution[SolutionTable.fileUrl],
-            solution[SolutionTable.content],
-            SolutionType.valueOf(solution[SolutionTable.solutionType]),
-          ),
           solution[SolutionTable.attachments],
           solution[SolutionTable.timestamp],
         )

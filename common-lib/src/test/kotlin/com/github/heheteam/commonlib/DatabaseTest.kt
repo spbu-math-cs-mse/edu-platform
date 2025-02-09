@@ -105,7 +105,7 @@ class DatabaseTest {
         student1Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(listOf(), "", SolutionType.TEXT),
+        TelegramAttachment(),
         ProblemId(problemId.toLong()),
       )
     }
@@ -115,7 +115,7 @@ class DatabaseTest {
           student2Id,
           RawChatId(0),
           MessageId(0),
-          SolutionContent(listOf(), "", SolutionType.TEXT),
+          TelegramAttachment(),
           ProblemId(problemId.toLong()),
         )
       assertEquals(id.id, problemId + 8L)

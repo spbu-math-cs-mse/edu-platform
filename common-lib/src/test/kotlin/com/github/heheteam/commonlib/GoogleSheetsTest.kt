@@ -106,7 +106,7 @@ class GoogleSheetsTest {
         student1Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(listOf(), "", SolutionType.TEXT),
+        TelegramAttachment(),
         ProblemId(problemId.toLong()),
       )
     }
@@ -115,7 +115,7 @@ class GoogleSheetsTest {
         student2Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(listOf(), "", SolutionType.TEXT),
+        TelegramAttachment(),
         ProblemId(problemId.toLong() * 2),
       )
     }

@@ -5,7 +5,6 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.AssignmentStorage
@@ -78,18 +77,10 @@ class StudentCore(
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    solutionContent: SolutionContent,
     attachment: TelegramAttachment,
     problemId: ProblemId,
   ) {
-    solutionDistributor.inputSolution(
-      studentId,
-      chatId,
-      messageId,
-      solutionContent,
-      attachment,
-      problemId,
-    )
+    solutionDistributor.inputSolution(studentId, chatId, messageId, attachment, problemId)
   }
 
   fun getCoursesBulletList(studentId: StudentId): String {

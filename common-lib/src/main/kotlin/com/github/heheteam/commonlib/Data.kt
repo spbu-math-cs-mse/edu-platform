@@ -64,7 +64,7 @@ data class TelegramMedia(
 )
 
 @Serializable
-data class TelegramAttachment(val text: String, val media: List<TelegramMedia> = listOf())
+data class TelegramAttachment(val text: String = "", val media: List<TelegramMedia> = listOf())
 
 data class Solution(
   val id: SolutionId,
@@ -72,7 +72,6 @@ data class Solution(
   val chatId: RawChatId,
   val messageId: MessageId,
   val problemId: ProblemId,
-  val content: SolutionContent,
   val attachments: TelegramAttachment,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
@@ -80,11 +79,5 @@ data class Solution(
 data class Course(val id: CourseId, val name: String)
 
 data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
-
-data class SolutionContent(
-  val filesURL: List<String>? = null,
-  val text: String? = null,
-  val type: SolutionType? = null,
-)
 
 data class SolutionAssessment(val grade: Grade, val comment: String)

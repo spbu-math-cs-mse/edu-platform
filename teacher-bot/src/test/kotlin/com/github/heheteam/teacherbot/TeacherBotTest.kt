@@ -1,8 +1,7 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
+import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
@@ -52,7 +51,7 @@ class TeacherBotTest {
       studentId,
       RawChatId(0L),
       MessageId(0L),
-      SolutionContent(text = "", type = SolutionType.TEXT),
+      TelegramAttachment(),
       problemId,
       timestamp,
     )
@@ -144,16 +143,13 @@ class TeacherBotTest {
       studentId,
       RawChatId(0),
       MessageId(0),
-      SolutionContent(text = "test", type = SolutionType.TEXT),
+      TelegramAttachment(text = "text"),
       problemId,
     )
     val solution = solutionDistributor.querySolution(teacherId).value!!
 
     assertEquals(studentId, solution.studentId)
-    assertEquals(
-      SolutionContent(listOf(), text = "test", type = SolutionType.TEXT),
-      solution.content,
-    )
+    assertEquals(TelegramAttachment(text = "text"), solution.attachments)
     assertEquals(MessageId(0), solution.messageId)
     assertEquals(RawChatId(0), solution.chatId)
   }

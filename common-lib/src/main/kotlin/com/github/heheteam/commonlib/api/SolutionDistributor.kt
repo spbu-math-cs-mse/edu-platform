@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.TelegramAttachment
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
@@ -13,7 +12,6 @@ interface SolutionDistributor {
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    solutionContent: SolutionContent,
     attachment: TelegramAttachment,
     problemId: ProblemId,
     timestamp: LocalDateTime = LocalDateTime.now(),

@@ -2,13 +2,13 @@ package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
-import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.map
 
 suspend fun <T> BehaviourContext.queryPickerWithBackFromList(
   user: User,
@@ -28,8 +28,10 @@ suspend fun <T> BehaviourContext.queryPickerWithBackFromList(
   val message = bot.send(user, queryText, replyMarkup = objectSelector.keyboard)
   val result =
     waitDataCallbackQueryWithUser(user.id)
-      .mapNotNull { objectSelector.handler(it.data).get() }
+      .map { objectSelector.handler(it.data) }
+      .filter { it.isOk }
       .first()
+      .value
   deleteMessage(message)
   return result
 }

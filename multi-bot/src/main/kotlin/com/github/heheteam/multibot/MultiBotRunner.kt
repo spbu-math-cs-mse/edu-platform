@@ -179,7 +179,6 @@ class MultiBotRunner : CliktCommand() {
           assignmentStorageDecorator,
           problemStorage,
           solutionDistributor,
-          teacherStorage,
           adminCore,
         )
       }

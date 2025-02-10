@@ -6,8 +6,6 @@ import com.github.heheteam.adminbot.Keyboards.COURSE_INFO
 import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
-import com.github.heheteam.adminbot.Keyboards.GET_PROBLEMS
-import com.github.heheteam.adminbot.Keyboards.GET_TEACHERS
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.queryCourse
@@ -35,13 +33,6 @@ class MenuState(override val context: User) : BotState<State, Unit, CoursesDistr
               bot.queryCourse(context, courses)?.let { course -> EditCourseState(context, course) }
             }
 
-            GET_TEACHERS -> GetTeachersState(context)
-
-            GET_PROBLEMS -> {
-              val courses = service.getCourses()
-              bot.queryCourse(context, courses)?.let { course -> GetProblemsState(context, course) }
-            }
-
             CREATE_ASSIGNMENT -> {
               val courses = service.getCourses()
               bot.queryCourse(context, courses)?.let { course ->
@@ -54,7 +45,7 @@ class MenuState(override val context: User) : BotState<State, Unit, CoursesDistr
               bot.queryCourse(context, courses)?.let { course -> CourseInfoState(context, course) }
             }
 
-            else -> MenuState(context)
+            else -> null
           }
         }
         .first()

@@ -25,11 +25,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeParseException
 import kotlinx.coroutines.flow.first
 
-class AddScheduledMessageState(
-  override val context: User,
-  val course: Course,
-  val courseName: String,
-) : State
+class AddScheduledMessageState(override val context: User, val course: Course) : State
 
 fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(core: AdminCore) {
   strictlyOn<AddScheduledMessageState> { state ->
@@ -55,7 +51,7 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(cor
         date.format(dateFormatter) +
         newLine +
         "Курс: " +
-        state.courseName
+        state.course.name
     }
     core.addMessage(ScheduledMessage(state.course, LocalDateTime.of(date, time), text))
     MenuState(state.context)
@@ -84,7 +80,7 @@ private suspend fun BehaviourContext.queryDateFromUser(
         try {
           val date = LocalDate.parse(message, dateFormatter)
           return date
-        } catch (e: DateTimeParseException) {
+        } catch (_: DateTimeParseException) {
           send(
             state.context,
             "Неправильный формат, введите дату в формате дд.мм.гггг" +
@@ -111,7 +107,7 @@ private suspend fun BehaviourContext.queryTimeFromUser(
     try {
       val time = LocalTime.parse(message, timeFormatter)
       return time
-    } catch (e: DateTimeParseException) {
+    } catch (_: DateTimeParseException) {
       send(
         state.context,
         "Неправильный формат, введите время в формате чч::мм" +

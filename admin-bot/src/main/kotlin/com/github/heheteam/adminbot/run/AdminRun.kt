@@ -2,15 +2,12 @@ package com.github.heheteam.adminbot.run
 
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.AssignmentCreator
-import com.github.heheteam.adminbot.AssignmentProblemsResolver
 import com.github.heheteam.adminbot.CourseStatisticsComposer
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
 import com.github.heheteam.adminbot.states.EditDescriptionState
-import com.github.heheteam.adminbot.states.GetProblemsState
-import com.github.heheteam.adminbot.states.GetTeachersState
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
 import com.github.heheteam.adminbot.states.strictlyOnAddStudentState
@@ -21,7 +18,6 @@ import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.registerState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -43,7 +39,6 @@ suspend fun adminRun(
   assignmentStorage: AssignmentStorage,
   problemStorage: ProblemStorage,
   solutionDistributor: SolutionDistributor,
-  teacherStorage: TeacherStorage,
   core: AdminCore,
 ) {
   telegramBot(botToken) {
@@ -77,10 +72,6 @@ suspend fun adminRun(
       )
       registerState<EditCourseState, Unit>(Unit)
       registerState<EditDescriptionState, Unit>(Unit)
-      registerState<GetTeachersState, TeacherStorage>(teacherStorage)
-      registerState<GetProblemsState, AssignmentProblemsResolver>(
-        AssignmentProblemsResolver(assignmentStorage, problemStorage)
-      )
       registerState<CreateAssignmentState, AssignmentCreator>(
         AssignmentCreator(assignmentStorage, problemStorage)
       )

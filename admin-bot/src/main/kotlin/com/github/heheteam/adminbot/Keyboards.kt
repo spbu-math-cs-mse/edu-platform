@@ -16,18 +16,13 @@ object Keyboards {
 
   const val CREATE_COURSE = "create course"
   const val EDIT_COURSE = "edit course"
-  const val GET_TEACHERS = "get teachers"
-  const val GET_PROBLEMS = "get problems"
   const val CREATE_ASSIGNMENT = "create assignment"
   const val COURSE_INFO = "course info"
 
   fun menu() = inlineKeyboard {
     row { dataButton("➕ Создать курс", CREATE_COURSE) }
-    row { dataButton("Изменить курс", EDIT_COURSE) }
-    row { dataButton("Информация о курсе", COURSE_INFO) }
-    row { dataButton("Список всех преподавателей", GET_TEACHERS) }
-    row { dataButton("Список всех серий с задачами", GET_PROBLEMS) }
-    row { dataButton("Создать серию", CREATE_ASSIGNMENT) }
+    row { dataButton("➖ Изменить курс", EDIT_COURSE) }
+    row { dataButton("❔ Информация о курсе", COURSE_INFO) }
   }
 
   const val ADD_STUDENT = "add a student"
@@ -38,12 +33,13 @@ object Keyboards {
   const val ADD_SCHEDULED_MESSAGE = "add scheduled message"
 
   fun editCourse() = inlineKeyboard {
-    row { dataButton("Добавить учеников", ADD_STUDENT) }
-    row { dataButton("Убрать учеников", REMOVE_STUDENT) }
-    row { dataButton("Добавить преподавателей", ADD_TEACHER) }
-    row { dataButton("Убрать преподавателей", REMOVE_TEACHER) }
-    row { dataButton("Изменить описание", EDIT_DESCRIPTION) }
-    row { dataButton("Добавить отложенное сообщение", ADD_SCHEDULED_MESSAGE) }
-    row { dataButton("Назад", RETURN_BACK) }
+    row { dataButton("➕ Создать серию", CREATE_ASSIGNMENT) }
+    row { dataButton("➕ Добавить учеников", ADD_STUDENT) }
+    row { dataButton("➖ Убрать учеников", REMOVE_STUDENT) }
+    row { dataButton("➕ Добавить преподавателей", ADD_TEACHER) }
+    row { dataButton("➖ Убрать преподавателей", REMOVE_TEACHER) }
+    row { dataButton("\uD83D\uDD04 Изменить описание", EDIT_DESCRIPTION) }
+    row { dataButton("➕ Добавить отложенное сообщение", ADD_SCHEDULED_MESSAGE) }
+    row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
   }
 }

@@ -80,7 +80,6 @@ suspend fun main(vararg args: String) {
     assignmentStorageDecorator,
     problemStorage,
     solutionDistributor,
-    teacherStorage,
     core,
   )
 }

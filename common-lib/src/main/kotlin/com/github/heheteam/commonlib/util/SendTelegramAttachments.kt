@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.heheteam.commonlib.TelegramAttachment
-import com.github.heheteam.commonlib.TelegramMediaKind
+import com.github.heheteam.commonlib.AttachmentKind
+import com.github.heheteam.commonlib.SolutionContent
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
@@ -33,41 +33,40 @@ fun downloadFile(fileURL: String, outputFileName: String): File {
 }
 
 @OptIn(RiskFeature::class)
-suspend fun BehaviourContext.sendAttachments(
+suspend fun BehaviourContext.sendSolutionContent(
   chatId: ChatId,
-  attachment: TelegramAttachment,
+  solutionContent: SolutionContent,
   replyMarkup: InlineKeyboardMarkup? = null,
 ): ContentMessage<*> {
-  val mediaUnits = attachment.media
-  val text = attachment.text
-  val singleMedia = mediaUnits.singleOrNull()
-  return if (mediaUnits.isEmpty()) {
+  val attachments = solutionContent.attachments
+  val text = solutionContent.text
+  val singleAttachment = attachments.singleOrNull()
+  return if (attachments.isEmpty()) {
     sendMessage(chatId, text, replyMarkup = replyMarkup)
-  } else if (singleMedia != null) {
-
-    val file = downloadFile(singleMedia.downloadUrl, singleMedia.uniqueString)
-    return when (singleMedia.kind) {
-      TelegramMediaKind.PHOTO -> {
-        sendPhoto(chatId, file.asMultipartFile(), text = attachment.text)
+  } else if (singleAttachment != null) {
+    val file = downloadFile(singleAttachment.downloadUrl, singleAttachment.uniqueString)
+    return when (singleAttachment.kind) {
+      AttachmentKind.PHOTO -> {
+        sendPhoto(chatId, file.asMultipartFile(), text = solutionContent.text)
       }
-      TelegramMediaKind.DOCUMENT -> {
-        sendDocument(chatId, file.asMultipartFile(), text = attachment.text)
+      AttachmentKind.DOCUMENT -> {
+        sendDocument(chatId, file.asMultipartFile(), text = solutionContent.text)
       }
     }
   } else {
-    val telegramData =
-      mediaUnits.mapIndexed { index, media ->
+    val telegramMediaGroup =
+      attachments.mapIndexed { index, media ->
         val firstMediaText = if (index == 0) text else null
         val file = downloadFile(media.downloadUrl, media.uniqueString)
         when (media.kind) {
-          TelegramMediaKind.PHOTO -> {
+          AttachmentKind.PHOTO -> {
             TelegramMediaPhoto(file.asMultipartFile(), firstMediaText)
           }
-          TelegramMediaKind.DOCUMENT -> {
+          AttachmentKind.DOCUMENT -> {
             TelegramMediaDocument(file.asMultipartFile(), firstMediaText)
           }
         }
       }
-    bot.sendMediaGroup(chatId, telegramData)
+    bot.sendMediaGroup(chatId, telegramMediaGroup)
   }
 }

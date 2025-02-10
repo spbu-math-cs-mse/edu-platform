@@ -2,7 +2,7 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.TelegramAttachment
+import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
@@ -151,7 +151,7 @@ class StudentBotTest {
           userId,
           chatId,
           MessageId(it.toLong()),
-          TelegramAttachment(text = "sample$it"),
+          SolutionContent(text = "sample$it"),
           createProblem(courseId),
         )
       }

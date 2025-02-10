@@ -1,10 +1,10 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.TelegramAttachment
-import com.github.heheteam.commonlib.TelegramMedia
-import com.github.heheteam.commonlib.TelegramMediaKind
+import com.github.heheteam.commonlib.SolutionAttachment
+import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
@@ -92,7 +92,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is CommonMessage<*>) {
         val messageId = content.messageId
 
-        val attachment = extractAttachments(content, studentBotToken)
+        val attachment = extractSolutionContent(content, studentBotToken)
         if (attachment == null) {
           deleteMessage(botMessage)
           botMessage =
@@ -123,43 +123,47 @@ suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: Str
   return "https://api.telegram.org/file/bot$studentBotToken/${contentInfo.filePath}"
 }
 
-private suspend fun BehaviourContext.extractAttachments(
+private suspend fun BehaviourContext.extractSolutionContent(
   message: CommonMessage<*>,
   studentBotToken: String,
-): TelegramAttachment? =
+): SolutionContent? =
   when (val content = message.content) {
-    is TextContent -> TelegramAttachment(content.text)
+    is TextContent -> SolutionContent(content.text)
     is PhotoContent ->
-      TelegramAttachment(
+      SolutionContent(
         content.text.orEmpty(),
         listOf(
-          TelegramMedia(
-            TelegramMediaKind.PHOTO,
+          SolutionAttachment(
+            AttachmentKind.PHOTO,
             makeURL(content, studentBotToken),
             content.media.fileId.fileId,
           )
         ),
       )
     is MediaGroupContent<*> ->
-      TelegramAttachment(
+      SolutionContent(
         content.text.orEmpty(),
         content.group.map {
           val kind =
             when (it.content) {
-              is DocumentContent -> TelegramMediaKind.DOCUMENT
-              is PhotoContent -> TelegramMediaKind.PHOTO
+              is DocumentContent -> AttachmentKind.DOCUMENT
+              is PhotoContent -> AttachmentKind.PHOTO
               is AudioContent -> return null
               is VideoContent -> return null
             }
-          TelegramMedia(kind, makeURL(it.content, studentBotToken), it.content.media.fileId.fileId)
+          SolutionAttachment(
+            kind,
+            makeURL(it.content, studentBotToken),
+            it.content.media.fileId.fileId,
+          )
         },
       )
     is DocumentContent ->
-      TelegramAttachment(
+      SolutionContent(
         content.text.orEmpty(),
         listOf(
-          TelegramMedia(
-            TelegramMediaKind.DOCUMENT,
+          SolutionAttachment(
+            AttachmentKind.DOCUMENT,
             makeURL(content, studentBotToken),
             content.media.fileId.fileId,
           )

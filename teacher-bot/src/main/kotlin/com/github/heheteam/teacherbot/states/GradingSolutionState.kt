@@ -7,7 +7,7 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.util.BotState
-import com.github.heheteam.commonlib.util.sendAttachments
+import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
@@ -102,7 +102,7 @@ class GradingSolutionState(
 
   private suspend fun sendSolution(bot: BehaviourContext) {
     with(bot) {
-      solutionMessage = sendAttachments(context.id, solution.attachments)
+      solutionMessage = sendSolutionContent(context.id, solution.attachments)
       markupMessage =
         bot.send(
           context,

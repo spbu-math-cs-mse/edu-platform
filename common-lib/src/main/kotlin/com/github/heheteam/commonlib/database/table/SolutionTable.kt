@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database.table
 
-import com.github.heheteam.commonlib.TelegramAttachment
+import com.github.heheteam.commonlib.SolutionContent
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.json.json
@@ -13,5 +13,5 @@ object SolutionTable : LongIdTable("solution") {
   val messageId = long("messageId")
   val problemId = reference("problemId", ProblemTable.id)
   val timestamp = datetime("timestamp").defaultExpression(CurrentDateTime)
-  val attachments = json<TelegramAttachment>("attachments", Json)
+  val solutionContent = json<SolutionContent>("content", Json)
 }

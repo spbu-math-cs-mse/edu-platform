@@ -43,28 +43,24 @@ data class ProblemDescription(
   val deadline: LocalDateTime? = null,
 )
 
-enum class SolutionType {
-  TEXT,
-  PHOTO,
-  DOCUMENT,
-  GROUP,
-}
-
 @Serializable
-enum class TelegramMediaKind {
+enum class AttachmentKind {
   PHOTO,
   DOCUMENT,
 }
 
 @Serializable
-data class TelegramMedia(
-  val kind: TelegramMediaKind,
+data class SolutionAttachment(
+  val kind: AttachmentKind,
   val downloadUrl: String,
   val uniqueString: String,
 )
 
 @Serializable
-data class TelegramAttachment(val text: String = "", val media: List<TelegramMedia> = listOf())
+data class SolutionContent(
+  val text: String = "",
+  val attachments: List<SolutionAttachment> = listOf(),
+)
 
 data class Solution(
   val id: SolutionId,
@@ -72,7 +68,7 @@ data class Solution(
   val chatId: RawChatId,
   val messageId: MessageId,
   val problemId: ProblemId,
-  val attachments: TelegramAttachment,
+  val attachments: SolutionContent,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 

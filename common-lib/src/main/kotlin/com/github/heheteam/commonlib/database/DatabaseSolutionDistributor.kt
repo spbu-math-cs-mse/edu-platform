@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.TelegramAttachment
+import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SolutionDistributor
@@ -39,7 +39,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    attachment: TelegramAttachment,
+    solutionContent: SolutionContent,
     problemId: ProblemId,
     timestamp: LocalDateTime,
   ): SolutionId {
@@ -51,7 +51,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             it[SolutionTable.messageId] = messageId.long
             it[SolutionTable.problemId] = problemId.id
             it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
-            it[SolutionTable.attachments] = attachment
+            it[SolutionTable.solutionContent] = solutionContent
           } get SolutionTable.id
         }
         .value
@@ -105,7 +105,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          solution[SolutionTable.attachments],
+          solution[SolutionTable.solutionContent],
           solution[SolutionTable.timestamp],
         )
       )
@@ -124,7 +124,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          solution[SolutionTable.attachments],
+          solution[SolutionTable.solutionContent],
           solution[SolutionTable.timestamp],
         )
       )

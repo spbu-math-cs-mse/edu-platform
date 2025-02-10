@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
@@ -19,9 +20,9 @@ import com.github.michaelbull.result.toResultOr
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.utils.asTextContent
 import dev.inmo.tgbotapi.extensions.utils.contentMessageOrNull
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
+import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.types.chat.Chat
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.PreviewFeature
@@ -43,7 +44,17 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   ): State {
     with(bot) {
       bus.subscribeToNewSolutionEvent { solution: Solution ->
-        sendSolutionIntoGroup(solutionResolver, solution, bot)
+        println("received event about $solution")
+        val belongsToChat =
+          binding {
+              val problem = solutionResolver.resolveProblem(solution.problemId).bind()
+              val assignment = solutionResolver.resolveAssignment(problem.assignmentId).bind()
+              assignment.courseId == courseId
+            }
+            .get() ?: false
+        if (belongsToChat) {
+          sendSolutionIntoGroup(solution)
+        }
       }
       waitTextMessageWithUser(context.id.toChatId())
         .map { commonMessage ->
@@ -57,7 +68,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
                   reply
                     .contentMessageOrNull()
                     ?.content
-                    ?.asTextContent()
+                    ?.textedContentOrNull()
                     ?.text
                     .toResultOr { "message not a text" }
                     .bind()
@@ -87,26 +98,12 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     }
   }
 
-  private suspend fun sendSolutionIntoGroup(
-    solutionResolver: SolutionResolver,
-    solution: Solution,
-    bot: BehaviourContext,
-  ) {
-    val solutionText =
-      binding {
-          val problem = solutionResolver.resolveProblem(solution.problemId).bind()
-          val assignment = solutionResolver.resolveAssignment(problem.assignmentId).bind()
-          return@binding if (assignment.courseId != courseId) {
-            null
-          } else {
-            solution.content.text
-          }
-        }
-        .get()
-    if (solutionText != null) {
-      val submissionSignature = Json.encodeToString(SubmissionInfo(solutionId = solution.id))
-      bot.sendMessage(context, "$solutionText\n[$submissionSignature]")
-    }
+  private suspend fun BehaviourContext.sendSolutionIntoGroup(solution: Solution) {
+    val submissionSignature = Json.encodeToString(SubmissionInfo(solutionId = solution.id))
+    sendSolutionContent(
+      context.id.toChatId(),
+      solution.content.copy(text = "${solution.content.text}\n[$submissionSignature]"),
+    )
   }
 
   @Serializable private data class SubmissionInfo(val solutionId: SolutionId)

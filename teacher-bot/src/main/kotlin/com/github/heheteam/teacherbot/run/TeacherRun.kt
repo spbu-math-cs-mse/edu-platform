@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.run
 
+import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
@@ -46,7 +46,7 @@ suspend fun teacherRun(
   coursesDistributor: CoursesDistributor,
   coursesStatisticsResolver: CoursesStatisticsResolver,
   solutionResolver: SolutionResolver,
-  botEventBus: RedisBotEventBus,
+  botEventBus: BotEventBus,
   solutionAssessor: SolutionAssessor,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
@@ -100,7 +100,7 @@ suspend fun teacherRun(
 private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaround(
   solutionResolver: SolutionResolver,
   solutionAssessor: SolutionAssessor,
-  botEventBus: RedisBotEventBus,
+  botEventBus: BotEventBus,
 ) {
   strictlyOn<ListeningForSolutionsGroupState>(
     registerState(solutionResolver, solutionAssessor, botEventBus)
@@ -110,7 +110,7 @@ private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaroun
 private fun registerState(
   solutionResolver: SolutionResolver,
   solutionAssessor: SolutionAssessor,
-  botEventBus: RedisBotEventBus,
+  botEventBus: BotEventBus,
 ): suspend BehaviourContextWithFSM<in State>.(state: ListeningForSolutionsGroupState) -> State? =
   { state ->
     state.execute(

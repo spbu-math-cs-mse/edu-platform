@@ -1,14 +1,17 @@
 package com.github.heheteam.multibot
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.long
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.ObserverBus
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
@@ -58,6 +61,7 @@ class MultiBotRunner : CliktCommand() {
   val parentBotToken: String by option().required().help("parent bot token")
   val presetStudentId: Long? by option().long()
   val presetTeacherId: Long? by option().long()
+  val useRedis: Boolean by option().boolean().default(false)
 
   override fun run() {
     val config = loadConfig()
@@ -116,7 +120,9 @@ class MultiBotRunner : CliktCommand() {
         }
       }
     val notificationService = StudentNotificationService(bot)
-    val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
+    val botEventBus =
+      if (useRedis)
+        RedisBotEventBus(config.redisConfig.host, config.redisConfig.port) else ObserverBus()
     val studentCore =
       StudentCore(
         solutionDistributor,

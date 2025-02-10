@@ -5,15 +5,11 @@
     <ID>ForbiddenComment:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$// TODO: this needs to be fixed properly</ID>
     <ID>FunctionOnlyReturningConstant:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$fun getMaxGrade(): Grade</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askIdentifier(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noSolutionsToCheck(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionNotSent(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun solutionSent(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun testSendSolution(): String</ID>
     <ID>InjectDispatcher:TeacherRun.kt$IO</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongParameterList:TeacherRun.kt$( botToken: String, teacherStorage: TeacherStorage, teacherStatistics: TeacherStatistics, coursesDistributor: CoursesDistributor, coursesStatisticsResolver: CoursesStatisticsResolver, solutionResolver: SolutionResolver, solutionAssessor: SolutionAssessor, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
@@ -26,6 +22,9 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.filesURL!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.text!!</ID>
+    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.type!!</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
   </CurrentIssues>
 </SmellBaseline>

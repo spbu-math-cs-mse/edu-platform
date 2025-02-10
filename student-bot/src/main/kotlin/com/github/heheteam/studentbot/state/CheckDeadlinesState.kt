@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -16,7 +17,7 @@ class CheckDeadlinesState(override val context: User, val studentId: StudentId) 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckDeadlinesState(core: StudentCore) {
   strictlyOn<CheckDeadlinesState> { state ->
     val course =
-      queryCourse(state.context, core.getCourses(), "Выберите курс")
+      queryCourse(state.context, core.getCourses())
         ?: return@strictlyOn MenuState(state.context, state.studentId)
     val assignments = core.getCourseAssignments(course.id)
     val problemsByAssignments = assignments.associateWith { core.getProblemsFromAssignment(it) }

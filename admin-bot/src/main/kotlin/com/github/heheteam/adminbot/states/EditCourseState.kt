@@ -1,58 +1,55 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.Keyboards
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
-import dev.inmo.tgbotapi.utils.row
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditCourseState(core: AdminCore) {
-  strictlyOn<EditCourseState> { state ->
-    bot.send(
-      state.context,
-      "Выберите курс, который хотите изменить:",
-      replyMarkup =
-        inlineKeyboard {
-          for ((name, _) in core.getCourses()) {
-            row { dataButton(text = name, data = name) }
+class EditCourseState(override val context: User, private val course: Course) :
+  BotState<State, Unit, Unit> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: Unit): State {
+    val message =
+      bot.send(context, "Изменить курс ${course.name}:", replyMarkup = Keyboards.editCourse())
+    val newState =
+      bot
+        .waitDataCallbackQueryWithUser(context.id)
+        .mapNotNull { callback ->
+          when (callback.data) {
+            Keyboards.RETURN_BACK -> MenuState(context)
+
+            Keyboards.ADD_STUDENT -> AddStudentState(context, course, course.name)
+
+            Keyboards.REMOVE_STUDENT -> RemoveStudentState(context, course, course.name)
+
+            Keyboards.ADD_TEACHER -> AddTeacherState(context, course, course.name)
+
+            Keyboards.REMOVE_TEACHER -> RemoveTeacherState(context, course, course.name)
+
+            Keyboards.EDIT_DESCRIPTION -> EditDescriptionState(context, course, course.name)
+
+            Keyboards.ADD_SCHEDULED_MESSAGE -> AddScheduledMessageState(context, course)
+
+            Keyboards.CREATE_ASSIGNMENT -> CreateAssignmentState(context, course)
+
+            else -> null
           }
-        },
-    )
+        }
+        .first()
 
-    val message = waitDataCallbackQueryWithUser(state.context.id).first()
-    val answer = message.data
-
-    if (answer == "/stop") {
-      return@strictlyOn MenuState(state.context)
-    }
-
-    val courseName = answer
-    val course = core.getCourse(answer)!!
-
-    bot.send(state.context, "Изменить курс $courseName:", replyMarkup = Keyboards.editCourse())
-    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-    val action = callback.data
-
-    when (action) {
-      Keyboards.returnBack -> StartState(state.context)
-
-      Keyboards.addStudent -> AddStudentState(state.context, course, courseName)
-
-      Keyboards.removeStudent -> RemoveStudentState(state.context, course, courseName)
-
-      Keyboards.addTeacher -> AddTeacherState(state.context, course, courseName)
-
-      Keyboards.removeTeacher -> RemoveTeacherState(state.context, course, courseName)
-
-      Keyboards.editDescription -> EditDescriptionState(state.context, course, courseName)
-
-      Keyboards.addScheduledMessage -> AddScheduledMessageState(state.context, course, courseName)
-
-      else -> EditCourseState(state.context)
-    }
+    bot.delete(message)
+    return newState
   }
+
+  override fun computeNewState(service: Unit, input: State): Pair<State, Unit> {
+    return Pair(input, Unit)
+  }
+
+  override suspend fun sendResponse(bot: BehaviourContext, service: Unit, response: Unit) = Unit
 }

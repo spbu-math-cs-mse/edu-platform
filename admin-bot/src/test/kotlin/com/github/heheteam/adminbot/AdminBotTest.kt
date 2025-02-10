@@ -5,10 +5,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ScheduledMessage
-import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
@@ -39,9 +36,6 @@ class AdminBotTest {
       DatabaseCoursesDistributor(database),
       DatabaseStudentStorage(database),
       DatabaseTeacherStorage(database),
-      DatabaseAssignmentStorage(database),
-      DatabaseProblemStorage(database),
-      DatabaseSolutionDistributor(database),
     )
 
   private val course = Course(CourseId(1L), "")

@@ -130,47 +130,57 @@ private suspend fun BehaviourContext.extractSolutionContent(
   when (val content = message.content) {
     is TextContent -> SolutionContent(content.text)
     is PhotoContent ->
-      SolutionContent(
+      extractSingleAttachment(
         content.text.orEmpty(),
-        listOf(
-          SolutionAttachment(
-            AttachmentKind.PHOTO,
-            makeURL(content, studentBotToken),
-            content.media.fileId.fileId,
-          )
-        ),
-      )
-    is MediaGroupContent<*> ->
-      SolutionContent(
-        content.text.orEmpty(),
-        content.group.map {
-          val kind =
-            when (it.content) {
-              is DocumentContent -> AttachmentKind.DOCUMENT
-              is PhotoContent -> AttachmentKind.PHOTO
-              is AudioContent -> return null
-              is VideoContent -> return null
-            }
-          SolutionAttachment(
-            kind,
-            makeURL(it.content, studentBotToken),
-            it.content.media.fileId.fileId,
-          )
-        },
+        AttachmentKind.PHOTO,
+        content,
+        studentBotToken,
       )
     is DocumentContent ->
-      SolutionContent(
+      extractSingleAttachment(
         content.text.orEmpty(),
-        listOf(
-          SolutionAttachment(
-            AttachmentKind.DOCUMENT,
-            makeURL(content, studentBotToken),
-            content.media.fileId.fileId,
-          )
-        ),
+        AttachmentKind.DOCUMENT,
+        content,
+        studentBotToken,
       )
+    is MediaGroupContent<*> -> extractMultipleAttachments(content, studentBotToken)
     else -> null
   }
+
+private suspend fun BehaviourContext.extractSingleAttachment(
+  text: String,
+  attachmentKind: AttachmentKind,
+  content: MediaContent,
+  studentBotToken: String,
+) =
+  SolutionContent(
+    text,
+    listOf(
+      SolutionAttachment(
+        attachmentKind,
+        makeURL(content, studentBotToken),
+        content.media.fileId.fileId,
+      )
+    ),
+  )
+
+private suspend fun BehaviourContext.extractMultipleAttachments(
+  content: MediaGroupContent<*>,
+  studentBotToken: String,
+): SolutionContent? =
+  SolutionContent(
+    content.text.orEmpty(),
+    content.group.map {
+      val kind =
+        when (it.content) {
+          is DocumentContent -> AttachmentKind.DOCUMENT
+          is PhotoContent -> AttachmentKind.PHOTO
+          is AudioContent -> return null
+          is VideoContent -> return null
+        }
+      SolutionAttachment(kind, makeURL(it.content, studentBotToken), it.content.media.fileId.fileId)
+    },
+  )
 
 private suspend fun BehaviourContext.queryProblem(
   state: SendSolutionState,

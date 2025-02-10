@@ -22,8 +22,6 @@
     <ID>MagicNumber:ProblemTable.kt$ProblemTable$64</ID>
     <ID>MagicNumber:SampleFill.kt$10</ID>
     <ID>MagicNumber:SampleFill.kt$5</ID>
-    <ID>MagicNumber:SolutionTable.kt$SolutionTable$10</ID>
-    <ID>MagicNumber:SolutionTable.kt$SolutionTable$200</ID>
     <ID>MagicNumber:StudentTable.kt$StudentTable$255</ID>
     <ID>MagicNumber:TeacherTable.kt$TeacherTable$255</ID>
     <ID>MaxLineLength:GoogleSheetsService.kt$GoogleSheetsService$"userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"</ID>
@@ -40,7 +38,5 @@
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setTop(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UseAnyOrNoneInsteadOfFind:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$firstOrNull()</ID>
-    <ID>UseOrEmpty:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$solutionContent.filesURL ?: listOf()</ID>
-    <ID>UseOrEmpty:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$solutionContent.text ?: ""</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -12,18 +12,24 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.Keyboards.badSolution
+import com.github.heheteam.teacherbot.Keyboards.goodSolution
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.SolutionAssessor
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.InlineKeyboardMarkup
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
+import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.utils.matrix
+import dev.inmo.tgbotapi.utils.row
 import java.io.File
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 
@@ -106,7 +112,16 @@ class GradingSolutionState(
         bot.send(
           context,
           solutionInfo(student, assignment, problem),
-          replyMarkup = Keyboards.solutionMenu(),
+          replyMarkup =
+            InlineKeyboardMarkup(
+              keyboard =
+                matrix {
+                  row {
+                    dataButton("\uD83D\uDE80+", goodSolution)
+                    dataButton("\uD83D\uDE2D-", badSolution)
+                  }
+                }
+            ),
         )
     }
   }

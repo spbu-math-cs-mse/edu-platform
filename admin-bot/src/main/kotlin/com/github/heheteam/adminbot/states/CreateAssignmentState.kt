@@ -19,6 +19,7 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.info
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
@@ -202,24 +203,29 @@ fun parseProblemsDescriptions(
         .map { it.groups[1]?.value ?: it.value }
         .toList()
 
-    when {
-      arguments.isEmpty() -> {
-        return Err(incorrectProblemDescriptionEmpty())
-      }
+    val maxScore =
+      when {
+        arguments.isEmpty() -> {
+          Err(incorrectProblemDescriptionEmpty())
+        }
 
-      arguments.size > 3 -> {
-        return Err(incorrectProblemDescriptionTooManyArguments(problemDescription))
-      }
+        arguments.size > 3 -> {
+          Err(incorrectProblemDescriptionTooManyArguments(problemDescription))
+        }
 
-      else -> {
-        val maxScore =
-          arguments.elementAtOrElse(2) { "1" }.toIntOrNull()
-            ?: return Err(incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()))
-        problemsDescriptions.add(
-          ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore)
-        )
+        else -> {
+          arguments
+            .elementAtOrElse(2) { "1" }
+            .toIntOrNull()
+            .toResultOr { incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()) }
+        }
       }
+    if (maxScore.isErr) {
+      return Err(maxScore.error)
     }
+    problemsDescriptions.add(
+      ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore.value)
+    )
   }
   return Ok(problemsDescriptions)
 }

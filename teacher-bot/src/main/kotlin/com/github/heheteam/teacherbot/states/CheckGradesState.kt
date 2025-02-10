@@ -65,7 +65,7 @@ class CheckGradesState(override val context: User, private val teacherId: Teache
     user: User,
     courses: List<Course>,
     queryText: String,
-  ): Course? = bot.run { queryPickerWithBackFromList(user, courses, { it.name }, queryText) }
+  ): Course? = bot.run { queryPickerWithBackFromList(user, courses, queryText) { it.name } }
 
   private fun List<Pair<StudentId, Grade?>>.withGradesToText(maxGrade: Grade) =
     joinToString(separator = "\n") { (studentId, grade) -> "Ученик $studentId : $grade/$maxGrade" }

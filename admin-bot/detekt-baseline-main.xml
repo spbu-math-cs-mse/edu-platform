@@ -3,9 +3,8 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:CreateAssignmentState.kt$CreateAssignmentState$private suspend fun queryProblemsDescriptions( bot: BehaviourContext, state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
-    <ID>CyclomaticComplexMethod:MenuState.kt$MenuState$override suspend fun readUserInput(bot: BehaviourContext, service: Unit): State</ID>
+    <ID>CyclomaticComplexMethod:MenuState.kt$MenuState$override suspend fun readUserInput(bot: BehaviourContext, service: CoursesDistributor): State</ID>
     <ID>ForbiddenComment:EditDescriptionState.kt$EditDescriptionState$// course.name = answer TODO: implement this feature</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourse(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentDescriptionIsNotText(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentWasCreatedSuccessfully(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
@@ -45,7 +44,6 @@
     <ID>NestedBlockDepth:CreateAssignmentState.kt$CreateAssignmentState$private suspend fun queryProblemsDescriptions( bot: BehaviourContext, state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
     <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser( state: AddScheduledMessageState ): LocalDate?</ID>
     <ID>ReturnCount:CreateAssignmentState.kt$CreateAssignmentState$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun queryAssignmentDescription( bot: BehaviourContext, state: CreateAssignmentState, ): Pair&lt;String, LocalDateTime?&gt;?</ID>
-    <ID>ReturnCount:CreateAssignmentState.kt$fun parseProblemsDescriptions( problemsDescriptionsFromText: String ): Result&lt;List&lt;ProblemDescription&gt;, String&gt;</ID>
     <ID>TooManyFunctions:AdminCore.kt$AdminCore</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
     <ID>UnsafeCallOnNullableType:AdminRun.kt$it.from!!</ID>

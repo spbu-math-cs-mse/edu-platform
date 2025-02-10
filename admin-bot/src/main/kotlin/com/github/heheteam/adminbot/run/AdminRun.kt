@@ -5,7 +5,6 @@ import com.github.heheteam.adminbot.AssignmentCreator
 import com.github.heheteam.adminbot.AssignmentProblemsResolver
 import com.github.heheteam.adminbot.CourseStatisticsComposer
 import com.github.heheteam.adminbot.states.CourseInfoState
-import com.github.heheteam.adminbot.states.CourseSelectorState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
@@ -66,8 +65,7 @@ suspend fun adminRun(
 
       command("start") { startChain(MenuState(it.from!!)) }
 
-      registerState<MenuState, Unit>(Unit)
-      registerState<CourseSelectorState, CoursesDistributor>(coursesDistributor)
+      registerState<MenuState, CoursesDistributor>(coursesDistributor)
       registerState<CreateCourseState, CoursesDistributor>(coursesDistributor)
       registerState<CourseInfoState, CourseStatisticsComposer>(
         CourseStatisticsComposer(

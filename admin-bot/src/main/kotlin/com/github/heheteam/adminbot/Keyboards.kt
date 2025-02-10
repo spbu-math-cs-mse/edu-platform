@@ -1,6 +1,5 @@
 package com.github.heheteam.adminbot
 
-import com.github.heheteam.commonlib.Course
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -47,17 +46,4 @@ object Keyboards {
     row { dataButton("Добавить отложенное сообщение", ADD_SCHEDULED_MESSAGE) }
     row { dataButton("Назад", RETURN_BACK) }
   }
-
-  private const val COURSE_ID = "courseId"
-
-  fun buildCoursesSelector(availableCourses: List<Course>) =
-    InlineKeyboardMarkup(
-      keyboard =
-        matrix {
-          availableCourses.forEach { course ->
-            row { dataButton(course.name, "$COURSE_ID ${course.id}") }
-          }
-          row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
-        }
-    )
 }

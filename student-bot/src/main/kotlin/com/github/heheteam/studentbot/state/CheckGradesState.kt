@@ -1,13 +1,13 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
-import com.github.heheteam.commonlib.util.queryPickerWithBackFromList
+import com.github.heheteam.commonlib.util.queryAssignment
+import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.ButtonKey
@@ -17,14 +17,13 @@ import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getStudentCourses(state.studentId)
     val courseId: CourseId =
-      queryCourse(state.context, courses, "Выберите серию")?.id
+      queryCourse(state.context, courses)?.id
         ?: return@strictlyOn MenuState(state.context, state.studentId)
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
     val queryGradeType = queryGradeTypeKeyboard(state, assignmentsFromCourse, core, courseId)
@@ -116,15 +115,3 @@ fun List<Grade>.withTopGradesToText() =
       else -> "${index + 1}. $grade"
     }
   }
-
-internal suspend fun BehaviourContext.queryCourse(
-  user: User,
-  courses: List<Course>,
-  queryText: String,
-): Course? = queryPickerWithBackFromList(user, courses, { it.name }, queryText)
-
-internal suspend fun BehaviourContext.queryAssignment(
-  user: User,
-  assignments: List<Assignment>,
-): Assignment? =
-  queryPickerWithBackFromList(user, assignments, { it.description }, "Выберите серию")

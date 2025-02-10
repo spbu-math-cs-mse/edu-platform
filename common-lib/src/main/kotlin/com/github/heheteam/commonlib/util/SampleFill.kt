@@ -9,8 +9,6 @@ import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.reset
-import java.time.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 fun generateCourse(
@@ -23,11 +21,10 @@ fun generateCourse(
 ): CourseId {
   val courseId = coursesDistributor.createCourse(name)
   (1..assignmentsPerCourse).map { assgnNum ->
-    val deadline = LocalDateTime.now().plusMinutes(2).toKotlinLocalDateTime()
     assignmentStorage.createAssignment(
       courseId,
       "assignment $courseId.$assgnNum",
-      (1..problemsPerAssignment).map { ProblemDescription("$assgnNum.$it", "", 1, deadline) },
+      (1..problemsPerAssignment).map { ProblemDescription("$assgnNum.$it", "", 1, null) },
       problemStorage,
     )
   }

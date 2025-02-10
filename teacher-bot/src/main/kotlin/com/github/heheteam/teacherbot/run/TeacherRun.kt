@@ -9,9 +9,9 @@ import com.github.heheteam.teacherbot.CoursesStatisticsResolver
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.states.CheckGradesState
-import com.github.heheteam.teacherbot.states.CheckingSolutionState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
 import com.github.heheteam.teacherbot.states.GettingSolutionState
+import com.github.heheteam.teacherbot.states.GradingSolutionState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
 import com.github.heheteam.teacherbot.states.SendStatisticInfoState
@@ -72,7 +72,7 @@ suspend fun teacherRun(
       registerState<SendStatisticInfoState, TeacherStatistics>(teacherStatistics)
       registerState<CheckGradesState, CoursesStatisticsResolver>(coursesStatisticsResolver)
       registerState<GettingSolutionState, SolutionResolver>(solutionResolver)
-      registerState<CheckingSolutionState, SolutionAssessor>(solutionAssessor)
+      registerState<GradingSolutionState, SolutionAssessor>(solutionAssessor)
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }

@@ -1,9 +1,10 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
@@ -22,11 +23,13 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.content.AudioContent
 import dev.inmo.tgbotapi.types.message.content.DocumentContent
 import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
+import dev.inmo.tgbotapi.types.message.content.VideoContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -89,9 +92,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
       if (content is CommonMessage<*>) {
         val messageId = content.messageId
 
-        val solutionContent = extractSolutionContent(content, studentBotToken)
-
-        if (solutionContent == null) {
+        val attachment = extractSolutionContent(content, studentBotToken)
+        if (attachment == null) {
           deleteMessage(botMessage)
           botMessage =
             bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
@@ -105,13 +107,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
         if (missedDeadline) {
           bot.sendMessage(state.context, "К сожалению, дедлайн по задаче уже истек :(")
         } else {
-          core.inputSolution(
-            studentId,
-            state.context.id.chatId,
-            messageId,
-            solutionContent,
-            problem.id,
-          )
+          core.inputSolution(studentId, state.context.id.chatId, messageId, attachment, problem.id)
           bot.sendSticker(state.context, Dialogues.okSticker)
           bot.send(state.context, Dialogues.tellSolutionIsSent())
         }
@@ -131,25 +127,60 @@ private suspend fun BehaviourContext.extractSolutionContent(
   message: CommonMessage<*>,
   studentBotToken: String,
 ): SolutionContent? =
-  when (val messageContent = message.content) {
-    is TextContent -> SolutionContent(text = messageContent.text, type = SolutionType.TEXT)
+  when (val content = message.content) {
+    is TextContent -> SolutionContent(content.text)
     is PhotoContent ->
-      SolutionContent(
-        filesURL = listOf(makeURL(messageContent, studentBotToken)),
-        type = SolutionType.PHOTO,
-      )
-    is MediaGroupContent<*> ->
-      SolutionContent(
-        filesURL = messageContent.group.map { makeURL(it.content, studentBotToken) },
-        type = SolutionType.GROUP,
+      extractSingleAttachment(
+        content.text.orEmpty(),
+        AttachmentKind.PHOTO,
+        content,
+        studentBotToken,
       )
     is DocumentContent ->
-      SolutionContent(
-        filesURL = listOf(makeURL(messageContent, studentBotToken)),
-        type = SolutionType.DOCUMENT,
+      extractSingleAttachment(
+        content.text.orEmpty(),
+        AttachmentKind.DOCUMENT,
+        content,
+        studentBotToken,
       )
+    is MediaGroupContent<*> -> extractMultipleAttachments(content, studentBotToken)
     else -> null
   }
+
+private suspend fun BehaviourContext.extractSingleAttachment(
+  text: String,
+  attachmentKind: AttachmentKind,
+  content: MediaContent,
+  studentBotToken: String,
+) =
+  SolutionContent(
+    text,
+    listOf(
+      SolutionAttachment(
+        attachmentKind,
+        makeURL(content, studentBotToken),
+        content.media.fileId.fileId,
+      )
+    ),
+  )
+
+private suspend fun BehaviourContext.extractMultipleAttachments(
+  content: MediaGroupContent<*>,
+  studentBotToken: String,
+): SolutionContent? =
+  SolutionContent(
+    content.text.orEmpty(),
+    content.group.map {
+      val kind =
+        when (it.content) {
+          is DocumentContent -> AttachmentKind.DOCUMENT
+          is PhotoContent -> AttachmentKind.PHOTO
+          is AudioContent -> return null
+          is VideoContent -> return null
+        }
+      SolutionAttachment(kind, makeURL(it.content, studentBotToken), it.content.media.fileId.fileId)
+    },
+  )
 
 private suspend fun BehaviourContext.queryProblem(
   state: SendSolutionState,

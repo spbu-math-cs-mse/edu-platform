@@ -37,7 +37,7 @@ class GettingSolutionState(override val context: User, private val teacherId: Te
         val problem = service.resolveProblem(solution.problemId).toStrErr().bind()
         val assignment = service.resolveAssignment(problem.assignmentId).toStrErr().bind()
         Pair(
-          CheckingSolutionState(context, teacherId, solution, problem, assignment, student),
+          GradingSolutionState(context, teacherId, solution, problem, assignment, student),
           null as String?,
         )
       }

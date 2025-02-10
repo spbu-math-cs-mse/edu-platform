@@ -30,6 +30,7 @@ dependencyResolutionManagement {
       library("slf4j-api", "org.slf4j", "slf4j-api").versionRef("slf4j")
       library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")
       library("exposed-core", "org.jetbrains.exposed", "exposed-core").versionRef("exposed")
+      library("exposed-json", "org.jetbrains.exposed", "exposed-json").versionRef("exposed")
       library("exposed-kotlin-datetime", "org.jetbrains.exposed", "exposed-kotlin-datetime").versionRef("exposed")
       library("exposed-spring-boot-starter", "org.jetbrains.exposed", "exposed-spring-boot-starter").versionRef("exposed")
       library("h2database", "com.h2database", "h2").versionRef("h2")

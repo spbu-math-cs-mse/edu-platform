@@ -43,12 +43,24 @@ data class ProblemDescription(
   val deadline: LocalDateTime? = null,
 )
 
-enum class SolutionType {
-  TEXT,
+@Serializable
+enum class AttachmentKind {
   PHOTO,
   DOCUMENT,
-  GROUP,
 }
+
+@Serializable
+data class SolutionAttachment(
+  val kind: AttachmentKind,
+  val downloadUrl: String,
+  val uniqueString: String,
+)
+
+@Serializable
+data class SolutionContent(
+  val text: String = "",
+  val attachments: List<SolutionAttachment> = listOf(),
+)
 
 data class Solution(
   val id: SolutionId,
@@ -56,18 +68,12 @@ data class Solution(
   val chatId: RawChatId,
   val messageId: MessageId,
   val problemId: ProblemId,
-  val content: SolutionContent,
+  val attachments: SolutionContent,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 
 data class Course(val id: CourseId, val name: String)
 
 data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
-
-data class SolutionContent(
-  val filesURL: List<String>? = null,
-  val text: String? = null,
-  val type: SolutionType? = null,
-)
 
 data class SolutionAssessment(val grade: Grade, val comment: String)

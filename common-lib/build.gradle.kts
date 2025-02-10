@@ -9,6 +9,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(libs.tgbotapi)
     implementation(libs.exposed.core)
+    implementation(libs.exposed.json)
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.exposed.spring.boot.starter)
     implementation(libs.h2database)

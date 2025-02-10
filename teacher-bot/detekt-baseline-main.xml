@@ -25,5 +25,6 @@
     <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.filesURL!!</ID>
     <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.text!!</ID>
     <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.type!!</ID>
+    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
   </CurrentIssues>
 </SmellBaseline>

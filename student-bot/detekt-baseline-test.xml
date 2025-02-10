@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>LibraryEntitiesShouldNotBePublic:StudentBotTest.kt$StudentBotTest</ID>
     <ID>LongMethod:StudentBotTest.kt$StudentBotTest$@Test fun `send solution test`()</ID>
   </CurrentIssues>
 </SmellBaseline>

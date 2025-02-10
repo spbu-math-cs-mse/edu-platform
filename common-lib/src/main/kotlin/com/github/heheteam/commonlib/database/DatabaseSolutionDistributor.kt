@@ -2,7 +2,6 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.SolutionType
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SolutionDistributor
@@ -51,10 +50,8 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             it[SolutionTable.chatId] = chatId.toChatId().chatId.long
             it[SolutionTable.messageId] = messageId.long
             it[SolutionTable.problemId] = problemId.id
-            it[SolutionTable.content] = solutionContent.text ?: ""
-            it[SolutionTable.fileUrl] = solutionContent.filesURL ?: listOf()
-            it[SolutionTable.solutionType] = solutionContent.type.toString()
             it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
+            it[SolutionTable.solutionContent] = solutionContent
           } get SolutionTable.id
         }
         .value
@@ -108,11 +105,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(
-            solution[SolutionTable.fileUrl],
-            solution[SolutionTable.content],
-            SolutionType.valueOf(solution[SolutionTable.solutionType]),
-          ),
+          solution[SolutionTable.solutionContent],
           solution[SolutionTable.timestamp],
         )
       )
@@ -131,11 +124,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.chatId].toChatId().chatId,
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
-          SolutionContent(
-            solution[SolutionTable.fileUrl],
-            solution[SolutionTable.content],
-            SolutionType.valueOf(solution[SolutionTable.solutionType]),
-          ),
+          solution[SolutionTable.solutionContent],
           solution[SolutionTable.timestamp],
         )
       )

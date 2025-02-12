@@ -83,16 +83,6 @@ class StudentCore(
     solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
   }
 
-  fun getCoursesBulletList(studentId: StudentId): String {
-    val studentCourses = coursesDistributor.getStudentCourses(studentId)
-    val notRegisteredMessage = "Вы не записаны ни на один курс!"
-    return if (studentCourses.isNotEmpty()) {
-      studentCourses.joinToString("\n") { course -> "- " + course.name }
-    } else {
-      notRegisteredMessage
-    }
-  }
-
   fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
     problemStorage.getProblemsFromAssignment(assignment.id)
 

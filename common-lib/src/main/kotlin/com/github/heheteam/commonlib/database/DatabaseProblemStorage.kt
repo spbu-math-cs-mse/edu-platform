@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.AssignmentId
@@ -8,6 +9,7 @@ import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.toAssignmentId
+import com.github.heheteam.commonlib.api.toCourseId
 import com.github.heheteam.commonlib.api.toProblemId
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
@@ -97,5 +99,37 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
             it[ProblemTable.deadline],
           )
         }
+    }
+
+  override fun getProblemsWithAssignmentsFromCourse(
+    courseId: CourseId
+  ): List<Pair<Assignment, List<Problem>>> =
+    transaction(database) {
+      ProblemTable.join(
+          AssignmentTable,
+          JoinType.INNER,
+          onColumn = ProblemTable.assignmentId,
+          otherColumn = AssignmentTable.id,
+        )
+        .selectAll()
+        .where(AssignmentTable.courseId eq courseId.id)
+        .groupBy({
+          Assignment(
+            it[AssignmentTable.id].value.toAssignmentId(),
+            it[AssignmentTable.description],
+            it[AssignmentTable.courseId].value.toCourseId(),
+          )
+        }) {
+          Problem(
+            it[ProblemTable.id].value.toProblemId(),
+            it[ProblemTable.number],
+            it[ProblemTable.description],
+            it[ProblemTable.maxScore],
+            it[ProblemTable.assignmentId].value.toAssignmentId(),
+            it[ProblemTable.deadline],
+          )
+        }
+        .map { it.key to it.value }
+        .sortedBy { it.first.id.id }
     }
 }

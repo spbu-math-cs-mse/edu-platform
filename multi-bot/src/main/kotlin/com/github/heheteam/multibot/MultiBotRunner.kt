@@ -160,7 +160,16 @@ class MultiBotRunner : CliktCommand() {
     val presetTeacher = presetTeacherId?.toTeacherId()
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
     runBlocking {
-      launch { studentRun(studentBotToken, studentStorage, studentCore, developerOptions) }
+      launch {
+        studentRun(
+          studentBotToken,
+          studentStorage,
+          coursesDistributor,
+          problemStorage,
+          studentCore,
+          developerOptions,
+        )
+      }
       launch {
         teacherRun(
           teacherBotToken,

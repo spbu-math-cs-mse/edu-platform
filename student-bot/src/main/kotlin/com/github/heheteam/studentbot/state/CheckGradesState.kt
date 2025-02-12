@@ -4,22 +4,29 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.queryAssignment
 import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
+import com.github.heheteam.studentbot.Keyboards.STUDENT_GRADES
+import com.github.heheteam.studentbot.Keyboards.TOP_GRADES
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.get
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
+data class CheckGradesState(override val context: User, val studentId: StudentId) : State
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getStudentCourses(state.studentId)
     val courseId: CourseId =
@@ -47,7 +54,7 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
   courseId: CourseId,
 ) =
   buildColumnMenu(
-    ButtonData("Моя успеваемость", ButtonKey.STUDENT_GRADES) {
+    ButtonData("Моя успеваемость", STUDENT_GRADES) {
       val assignment =
         queryAssignment(state.context, assignmentsFromCourse)
           ?: return@ButtonData CheckGradesState(state.context, state.studentId)
@@ -55,12 +62,12 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
       respondWithGrades(state, assignment, gradedProblems)
       MenuState(state.context, state.studentId)
     },
-    ButtonData("Лучшие на курсе", ButtonKey.TOP_GRADES) {
+    ButtonData("Лучшие на курсе", TOP_GRADES) {
       val topGrades = core.getTopGrades(courseId)
       respondWithTopGrades(state, topGrades)
       MenuState(state.context, state.studentId)
     },
-    ButtonData("Назад", ButtonKey.BACK) { CheckGradesState(state.context, state.studentId) },
+    ButtonData("Назад", RETURN_BACK) { CheckGradesState(state.context, state.studentId) },
   )
 
 private suspend fun BehaviourContext.respondWithGrades(

@@ -121,8 +121,8 @@ class MultiBotRunner : CliktCommand() {
       }
     val notificationService = StudentNotificationService(bot)
     val botEventBus =
-      if (useRedis)
-        RedisBotEventBus(config.redisConfig.host, config.redisConfig.port) else ObserverBus()
+      if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
+      else ObserverBus()
     val studentCore =
       StudentCore(
         solutionDistributor,

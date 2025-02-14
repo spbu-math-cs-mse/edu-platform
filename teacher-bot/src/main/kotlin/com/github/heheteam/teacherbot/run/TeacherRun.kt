@@ -89,7 +89,7 @@ suspend fun teacherRun(
       registerState<GettingSolutionState, SolutionResolver>(solutionResolver)
       registerState<GradingSolutionState, SolutionAssessor>(solutionAssessor)
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
-      registerState<ChooseGroupCourseState, Unit>(Unit)
+      registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

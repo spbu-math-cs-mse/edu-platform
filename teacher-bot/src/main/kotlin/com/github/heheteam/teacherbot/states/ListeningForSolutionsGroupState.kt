@@ -13,18 +13,24 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getError
+import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
+import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.contentMessageOrNull
+import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
@@ -32,14 +38,19 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.Chat
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.RiskFeature
+import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
+import dev.inmo.tgbotapi.utils.spoiler
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -60,7 +71,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               val assignment = solutionResolver.resolveAssignment(problem.assignmentId).bind()
               assignment.courseId == courseId
             }
-            .get() ?: false
+            .getOr(false)
         if (belongsToChat) {
           sendSolutionIntoGroup(solution)
         }
@@ -79,49 +90,89 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     }
   }
 
+  @OptIn(RiskFeature::class)
   private suspend fun BehaviourContext.processDataCallback(
     dataCallback: DataCallbackQuery,
     solutionDistributor: SolutionDistributor,
     solutionAssessor: SolutionAssessor,
   ) {
-    println("in process callback!")
     val gradingInfo =
       com.github.michaelbull.result.runCatching {
         Json.decodeFromString<GradingButtonContent>(dataCallback.data)
       }
-    println("grading info: $gradingInfo")
-    binding {
-        val buttonInfo = gradingInfo.bind()
-        val assessment = SolutionAssessment(buttonInfo.grade, "")
-        val solution =
-          solutionDistributor
-            .resolveSolution(buttonInfo.solutionId)
-            .mapError { "failed to resolve solution" }
-            .bind()
-        solutionAssessor.assessSolution(solution, TeacherId(1L), assessment)
-      }
+    assessSolutionFromButtonPress(gradingInfo, solutionDistributor, solutionAssessor)
       .mapError { sendMessage(context.id, "Error: $it") }
+      .map { submissionInfo ->
+        val message = dataCallback.message
+        if (message != null) {
+          edit(
+            message.chat.id.toChatId(),
+            message.messageId,
+            createTechnicalMessageContent(submissionInfo),
+          )
+        }
+      }
   }
 
-  @OptIn(RiskFeature::class)
+  private fun assessSolutionFromButtonPress(
+    gradingInfo: Result<GradingButtonContent, Throwable>,
+    solutionDistributor: SolutionDistributor,
+    solutionAssessor: SolutionAssessor,
+  ) = binding {
+    val buttonInfo = gradingInfo.bind()
+    val assessment = SolutionAssessment(buttonInfo.grade, "")
+    val solution =
+      solutionDistributor
+        .resolveSolution(buttonInfo.solutionId)
+        .mapError { "failed to resolve solution" }
+        .bind()
+    val teacherId = TeacherId(1L)
+    solutionAssessor.assessSolution(solution, teacherId, assessment)
+    SubmissionInfo(
+      solution.id,
+      GradingInfo(
+        teacherId,
+        assessment.grade,
+        java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+      ),
+    )
+  }
+
   private suspend fun BehaviourContext.processCommonMessage(
     commonMessage: CommonMessage<TextContent>,
     solutionDistributor: SolutionDistributor,
     solutionAssessor: SolutionAssessor,
   ) {
-    val comment = commonMessage.text.orEmpty()
-    val grade = if (comment.contains("[+]")) 1 else 0
     val error =
       binding {
-          val text = extractReplyText(commonMessage).bind()
-          val submissionInfo = parseReplyText(text).bind()
+          val technicalMessageText = extractReplyText(commonMessage).bind()
+          val submissionInfo = parseTechnicalMessage(technicalMessageText).bind()
           val solution =
             solutionDistributor
               .resolveSolution(submissionInfo.solutionId)
               .mapError { "failed to resolve solution" }
               .bind()
-          val assessment = SolutionAssessment(grade, commonMessage.text.orEmpty())
-          solutionAssessor.assessSolution(solution, TeacherId(1L), assessment)
+          val assessment = extractAssesmentFromMessage(commonMessage).bind()
+          val teacherId = TeacherId(1L)
+          solutionAssessor.assessSolution(solution, teacherId, assessment)
+          SubmissionInfo(
+            solution.id,
+            GradingInfo(
+              teacherId,
+              assessment.grade,
+              java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+            ),
+          )
+        }
+        .map { submissionInfo ->
+          val message = commonMessage.replyTo
+          if (message != null) {
+            edit(
+              message.chat.id.toChatId(),
+              message.messageId,
+              createTechnicalMessageContent(submissionInfo),
+            )
+          }
         }
         .getError()
     if (error != null) {
@@ -129,11 +180,25 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     }
   }
 
-  private fun parseReplyText(text: String) = binding {
+  @OptIn(RiskFeature::class)
+  private fun extractAssesmentFromMessage(commonMessage: CommonMessage<TextContent>) = binding {
+    val comment = commonMessage.text.orEmpty()
+    val grade =
+      when {
+        comment.contains("[+]") -> Ok(1)
+        comment.contains("[-]") -> Ok(0)
+        else -> Err("message must contain [+] or [-] to be graded")
+      }.bind()
+    SolutionAssessment(grade, commonMessage.text.orEmpty())
+  }
+
+  private fun parseTechnicalMessage(text: String) = binding {
     val regex = Regex(".*\\[(.*)]", option = RegexOption.DOT_MATCHES_ALL)
     val match = regex.matchEntire(text).toResultOr { "Not a submission message" }.bind()
+    val submissionInfoString =
+      match.groups[1]?.value.toResultOr { "bad regex (no group number 1)" }.bind()
     val submissionInfo =
-      runCatching { match.groups[1]?.value!!.let { Json.decodeFromString<SubmissionInfo>(it) } }
+      runCatching { submissionInfoString.let { Json.decodeFromString<SubmissionInfo>(it) } }
         .mapError { "Bad regex or failed submission format" }
         .bind()
     submissionInfo
@@ -152,11 +217,16 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     text
   }
 
+  private val prettyJson = Json {
+    prettyPrint = true
+    explicitNulls = true
+  }
+
   private suspend fun BehaviourContext.sendSolutionIntoGroup(solution: Solution) {
-    val submissionSignature = Json.encodeToString(SubmissionInfo(solutionId = solution.id))
-    sendSolutionContent(context.id.toChatId(), solution.content)
-    val technicalMessage =
-      sendMessage(context.id.toChatId(), "reply to me to grade this\n[$submissionSignature]")
+    val solutionMessage = sendSolutionContent(context.id.toChatId(), solution.content)
+    val submissionInfo = SubmissionInfo(solutionId = solution.id)
+    val content = createTechnicalMessageContent(submissionInfo)
+    val technicalMessage = reply(solutionMessage, content)
     editMessageReplyMarkup(
       technicalMessage,
       replyMarkup =
@@ -178,8 +248,28 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     )
   }
 
-  @Serializable private data class SubmissionInfo(val solutionId: SolutionId)
+  private fun createTechnicalMessageContent(submissionInfo: SubmissionInfo): TextSourcesList {
+    val submissionSignature = prettyJson.encodeToString(submissionInfo)
+    val content = buildEntities {
+      +"reply to me to grade this\n"
+      spoiler("[$submissionSignature]")
+    }
+    return content
+  }
+
+  @Serializable
+  private data class SubmissionInfo(
+    val solutionId: SolutionId,
+    val gradingInfo: GradingInfo? = null,
+  )
 
   @Serializable
   private data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
+
+  @Serializable
+  private data class GradingInfo(
+    val teacherId: TeacherId,
+    val grade: Grade,
+    val time: LocalDateTime,
+  )
 }

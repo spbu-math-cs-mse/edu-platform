@@ -24,6 +24,7 @@ data class Parent(
   val children: List<StudentId> = listOf(),
 )
 
+@Serializable
 data class Teacher(val id: TeacherId, val name: String = "", val surname: String = "")
 
 @Serializable

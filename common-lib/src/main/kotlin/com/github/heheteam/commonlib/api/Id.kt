@@ -21,6 +21,7 @@ data class StudentId(val id: Long) {
   override fun toString(): String = "$id"
 }
 
+@Serializable
 data class TeacherId(val id: Long) {
   override fun toString(): String = "$id"
 }

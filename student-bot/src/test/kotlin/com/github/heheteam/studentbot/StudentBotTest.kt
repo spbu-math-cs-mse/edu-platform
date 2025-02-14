@@ -174,7 +174,7 @@ class StudentBotTest {
     val firstSolutionResult = solutionDistributor.resolveSolution(solutions.first())
     assertTrue(firstSolutionResult.isOk)
     val firstSolution = firstSolutionResult.value
-    assertEquals("sample0", firstSolution.attachments.text)
+    assertEquals("sample0", firstSolution.content.text)
 
     val lastSolutionResult = solutionDistributor.resolveSolution(solutions.last())
     assertTrue(lastSolutionResult.isOk)

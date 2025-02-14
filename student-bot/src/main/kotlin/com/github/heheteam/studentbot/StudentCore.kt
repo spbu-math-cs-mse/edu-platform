@@ -24,6 +24,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 
 // this class represents a service given by the bot;
 // students ids are parameters in this class
+@Suppress("LongParameterList")
 class StudentCore(
   private val solutionDistributor: SolutionDistributor,
   private val coursesDistributor: CoursesDistributor,

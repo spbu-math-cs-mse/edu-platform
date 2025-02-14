@@ -5,11 +5,12 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ObserverBus : BotEventBus {
+class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventBus {
   private val newSolutionHandlers = mutableListOf<suspend (Solution) -> Unit>()
   private val newGradeHandlers =
     mutableListOf<suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit>()
@@ -22,13 +23,13 @@ class ObserverBus : BotEventBus {
     problem: Problem,
   ) =
     newGradeHandlers.forEach {
-      CoroutineScope(Dispatchers.IO).launch {
+      CoroutineScope(context).launch {
         it.invoke(studentId, chatId, messageId, assessment, problem)
       }
     }
 
   override fun publishNewSolutionEvent(solutionId: Solution) =
-    newSolutionHandlers.forEach { CoroutineScope(Dispatchers.IO).launch { it.invoke(solutionId) } }
+    newSolutionHandlers.forEach { CoroutineScope(context).launch { it.invoke(solutionId) } }
 
   override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
     newSolutionHandlers.add(handler)

@@ -34,11 +34,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.extensions.utils.groupContentMessageOrNull
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-@OptIn(RiskFeature::class)
+@Suppress("LongParameterList")
 suspend fun teacherRun(
   botToken: String,
   teacherStorage: TeacherStorage,
@@ -67,18 +68,7 @@ suspend fun teacherRun(
     ) {
       println(getMe())
 
-      command("start") {
-        val user = it.from
-        val groupContent = it.groupContentMessageOrNull()
-        if (groupContent != null) {
-          println(groupContent)
-          sendMessage(groupContent.chat, "greetings!")
-          startChain(ChooseGroupCourseState(groupContent.chat))
-        } else if (user != null) {
-          val startingState = findStartState(developerOptions, user)
-          startChain(startingState)
-        }
-      }
+      command("start") { startFsm(it, developerOptions) }
 
       internalCompilerErrorWorkaround(solutionResolver, solutionAssessor, botEventBus)
       registerState<StartState, TeacherStorage>(teacherStorage)
@@ -95,6 +85,22 @@ suspend fun teacherRun(
     }
     .second
     .join()
+}
+
+@OptIn(RiskFeature::class)
+private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(
+  it: TextMessage,
+  developerOptions: DeveloperOptions?,
+) {
+  val user = it.from
+  val groupContent = it.groupContentMessageOrNull()
+  if (groupContent != null) {
+    sendMessage(groupContent.chat, "greetings!")
+    startChain(ChooseGroupCourseState(groupContent.chat))
+  } else if (user != null) {
+    val startingState = findStartState(developerOptions, user)
+    startChain(startingState)
+  }
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaround(

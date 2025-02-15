@@ -4,15 +4,10 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotState
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.InlineKeyboardMarkup
-import dev.inmo.tgbotapi.types.buttons.InlineKeyboardButtons.CallbackDataInlineKeyboardButton
 import dev.inmo.tgbotapi.types.chat.User
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 
 class CheckDeadlinesState(
   override val context: User,
@@ -30,12 +25,7 @@ class CheckDeadlinesState(
             "  • ${problem.number} ${problem.deadline?.toString()}"
           }
       }
-    bot.sendMessage(
-      context,
-      messageText,
-      replyMarkup = InlineKeyboardMarkup(CallbackDataInlineKeyboardButton("OK", "ok")),
-    )
-    bot.waitDataCallbackQueryWithUser(context.id).filter { it.data == "ok" }.first()
+    bot.sendMessage(context, messageText)
   }
 
   override fun computeNewState(service: ProblemStorage, input: Unit): Pair<State, Unit> {

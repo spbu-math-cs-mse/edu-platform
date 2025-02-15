@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
@@ -73,7 +74,7 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
 private suspend fun BehaviourContext.respondWithGrades(
   state: CheckGradesState,
   assignment: Assignment,
-  gradedProblems: List<Pair<Problem, Grade?>>,
+  gradedProblems: Pair<List<Problem>, Map<ProblemId, Grade?>>,
 ) {
   val strGrades = "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
   val gradesMessage = bot.send(state.context, text = strGrades, replyMarkup = back())
@@ -102,18 +103,26 @@ private suspend fun BehaviourContext.respondWithTopGrades(
   deleteMessage(gradesMessage)
 }
 
-fun List<Pair<Problem, Grade?>>.withGradesToText() =
-  joinToString(separator = "\n") { (problem, grade) ->
+private fun Pair<List<Problem>, Map<ProblemId, Grade?>>.withGradesToText(): String {
+  val problems = first
+  val grades = second
+  return problems.joinToString(separator = "\n") { problem ->
     "№${problem.number} — " +
-      when {
-        grade == null -> "не сдано"
-        grade <= 0 -> "❌ 0/${problem.maxScore}"
-        grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-        else -> "✅ $grade/${problem.maxScore}"
+      if (grades.containsKey(problem.id)) {
+        val grade = grades[problem.id]
+        when {
+          grade == null -> "🕊 не проверено"
+          grade <= 0 -> "❌ 0/${problem.maxScore}"
+          grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+          else -> "✅ $grade/${problem.maxScore}"
+        }
+      } else {
+        "не сдано"
       }
   }
+}
 
-fun List<Grade>.withTopGradesToText() =
+private fun List<Grade>.withTopGradesToText() =
   this.withIndex().joinToString(separator = "\n") { (index, grade) ->
     when (index) {
       0 -> "\uD83E\uDD47 $grade"

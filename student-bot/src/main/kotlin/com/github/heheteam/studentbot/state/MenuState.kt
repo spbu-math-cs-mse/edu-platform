@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -17,7 +18,6 @@ import com.github.heheteam.studentbot.Keyboards.VIEW
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -39,23 +39,29 @@ data class MenuState(override val context: User, val studentId: StudentId) :
       bot.waitDataCallbackQueryWithUser(context.id).mapNotNull { callback ->
         when (callback.data) {
           SIGN_UP -> {
+            bot.delete(stickerMessage, initialMessage)
             SignUpState(context, studentId)
           }
 
           VIEW -> {
+            bot.delete(stickerMessage, initialMessage)
             ViewState(context, studentId)
           }
 
           SEND_SOLUTION -> {
-            SendSolutionState(context, studentId)
+            bot.delete(stickerMessage, initialMessage)
+            val courses = service.getStudentCourses(studentId)
+            bot.queryCourse(context, courses)?.let { SendSolutionState(context, studentId, it) }
           }
 
           CHECK_GRADES -> {
+            bot.delete(stickerMessage, initialMessage)
             CheckGradesState(context, studentId)
           }
 
           CHECK_DEADLINES -> {
-            val courses = service.getCourses()
+            bot.delete(stickerMessage, initialMessage)
+            val courses = service.getStudentCourses(studentId)
             bot.queryCourse(context, courses)?.let { CheckDeadlinesState(context, studentId, it) }
           }
 
@@ -66,8 +72,6 @@ data class MenuState(override val context: User, val studentId: StudentId) :
     val texts =
       bot.waitTextMessageWithUser(context.id).mapNotNull { t -> bot.handleTextMessage(t, context) }
     val newState = merge(dataCallbacks, texts).first()
-    bot.deleteMessage(initialMessage)
-    bot.deleteMessage(stickerMessage)
     return newState
   }
 

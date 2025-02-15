@@ -17,15 +17,15 @@ class GradeTableDecorator(
   private val gradeTable: GradeTable,
   private val ratingRecorder: GoogleSheetsRatingRecorder,
 ) : GradeTable {
-  override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> =
+  override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?> =
     gradeTable.getStudentPerformance(studentId)
 
   override fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: List<AssignmentId>,
-  ): Map<ProblemId, Grade> = gradeTable.getStudentPerformance(studentId)
+  ): Map<ProblemId, Grade?> = gradeTable.getStudentPerformance(studentId)
 
-  override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade>> =
+  override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
     gradeTable.getCourseRating(courseId)
 
   override fun assessSolution(

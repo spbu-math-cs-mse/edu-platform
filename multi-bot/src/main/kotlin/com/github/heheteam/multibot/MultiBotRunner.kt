@@ -28,6 +28,7 @@ import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
+import com.github.heheteam.commonlib.decorators.SolutionDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
@@ -98,7 +99,8 @@ class MultiBotRunner : CliktCommand() {
     val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
     val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
-
+    val solutionDistributorDecorator =
+      SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
     val studentStorage = DatabaseStudentStorage(database)
     fillWithSamples(
       coursesDistributor,
@@ -121,7 +123,7 @@ class MultiBotRunner : CliktCommand() {
     val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
     val studentCore =
       StudentCore(
-        solutionDistributor,
+        solutionDistributorDecorator,
         coursesDistributor,
         problemStorage,
         assignmentStorageDecorator,

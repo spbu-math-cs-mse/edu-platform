@@ -12,3 +12,9 @@ suspend fun <R> BehaviourContext.withMessageCleanup(
   delete(message)
   return result
 }
+
+suspend fun BehaviourContext.delete(vararg messages: ContentMessage<*>) {
+  for (message in messages) {
+    delete(message)
+  }
+}

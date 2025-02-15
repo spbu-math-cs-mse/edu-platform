@@ -38,4 +38,5 @@ fun buildProblemSendingSelector(availableProblems: Map<Assignment, List<Problem>
       }
   )
 
-fun back() = InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Назад", Keyboards.RETURN_BACK) } })
+fun back() =
+  InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Назад", Keyboards.RETURN_BACK) } })

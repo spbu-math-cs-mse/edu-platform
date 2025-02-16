@@ -71,7 +71,7 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.password,
       )
 
-    val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
+    val coursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
     val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
@@ -89,27 +89,29 @@ class MultiBotRunner : CliktCommand() {
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
         googleSheetsService,
-        databaseCoursesDistributor,
+        coursesDistributor,
         assignmentStorage,
         problemStorage,
         databaseGradeTable,
         solutionDistributor,
       )
-
-    val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
-    val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
-    val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
-    val solutionDistributorDecorator =
-      SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
     val studentStorage = DatabaseStudentStorage(database)
     fillWithSamples(
       coursesDistributor,
       problemStorage,
-      assignmentStorageDecorator,
+      assignmentStorage,
       studentStorage,
       teacherStorage,
       database,
     )
+    coursesDistributor.getCourses().forEach { course -> ratingRecorder.updateRating(course.id) }
+
+    val coursesDistributorDecorator =
+      CoursesDistributorDecorator(coursesDistributor, ratingRecorder)
+    val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
+    val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
+    val solutionDistributorDecorator =
+      SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
 
     val parentStorage = MockParentStorage()
 
@@ -124,7 +126,7 @@ class MultiBotRunner : CliktCommand() {
     val studentCore =
       StudentCore(
         solutionDistributorDecorator,
-        coursesDistributor,
+        coursesDistributorDecorator,
         problemStorage,
         assignmentStorageDecorator,
         gradeTable,
@@ -147,12 +149,13 @@ class MultiBotRunner : CliktCommand() {
         problemStorage,
         botEventBus,
       )
-    val coursesStatisticsResolver = CoursesStatisticsResolver(coursesDistributor, gradeTable)
+    val coursesStatisticsResolver =
+      CoursesStatisticsResolver(coursesDistributorDecorator, gradeTable)
 
     val adminCore =
       AdminCore(
         inMemoryScheduledMessagesDistributor,
-        coursesDistributor,
+        coursesDistributorDecorator,
         studentStorage,
         teacherStorage,
       )
@@ -166,7 +169,7 @@ class MultiBotRunner : CliktCommand() {
         studentRun(
           studentBotToken,
           studentStorage,
-          coursesDistributor,
+          coursesDistributorDecorator,
           problemStorage,
           studentCore,
           developerOptions,
@@ -177,7 +180,7 @@ class MultiBotRunner : CliktCommand() {
           teacherBotToken,
           teacherStorage,
           teacherStatistics,
-          coursesDistributor,
+          coursesDistributorDecorator,
           coursesStatisticsResolver,
           solutionResolver,
           solutionAssessor,
@@ -186,7 +189,7 @@ class MultiBotRunner : CliktCommand() {
       launch {
         adminRun(
           adminBotToken,
-          coursesDistributor,
+          coursesDistributorDecorator,
           assignmentStorageDecorator,
           problemStorage,
           solutionDistributor,

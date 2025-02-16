@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.AddSheetRequest
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest
+import com.google.api.services.sheets.v4.model.ClearValuesRequest
 import com.google.api.services.sheets.v4.model.DimensionProperties
 import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.GridRange
@@ -18,6 +19,7 @@ import com.google.api.services.sheets.v4.model.MergeCellsRequest
 import com.google.api.services.sheets.v4.model.Request
 import com.google.api.services.sheets.v4.model.RowData
 import com.google.api.services.sheets.v4.model.SheetProperties
+import com.google.api.services.sheets.v4.model.UnmergeCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateDimensionPropertiesRequest
 import com.google.auth.http.HttpCredentialsAdapter
@@ -71,13 +73,27 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()
         .setRequests(
-          generateUpdateRequests(table.cells, sheetId) +
+          generateUnmergeRequests(sheetId) +
+            generateUpdateRequests(table.cells, sheetId) +
             generateResizeRequests(table.columnWidths, sheetId) +
             generateMergeRequests(table.cells, sheetId)
         )
-
+    clearSheet(course.name)
     apiClient.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute()
   }
+
+  private fun clearSheet(sheetName: String) {
+    apiClient
+      .spreadsheets()
+      .values()
+      .clear(spreadsheetId, sheetName, ClearValuesRequest())
+      .execute()
+  }
+
+  private fun generateUnmergeRequests(sheetId: Int?): List<Request?> =
+    listOf(
+      Request().setUnmergeCells(UnmergeCellsRequest().setRange(GridRange().setSheetId(sheetId)))
+    )
 
   private fun generateMergeRequests(data: List<List<FormattedCell>>, sheetId: Int?): List<Request> =
     data

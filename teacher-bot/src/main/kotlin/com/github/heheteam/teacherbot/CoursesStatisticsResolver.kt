@@ -18,7 +18,7 @@ class CoursesStatisticsResolver(
     val students = coursesDistributor.getStudents(course.id)
     val grades =
       students.map { student ->
-        student.id to gradeTable.getStudentPerformance(student.id).values.sum()
+        student.id to gradeTable.getStudentPerformance(student.id).values.filterNotNull().sum()
       }
     return grades
   }

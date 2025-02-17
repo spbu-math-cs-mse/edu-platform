@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.michaelbull.result.Result
@@ -19,4 +20,6 @@ interface ProblemStorage {
   fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem>
 
   fun getProblemsFromCourse(courseId: CourseId): List<Problem>
+
+  fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>>
 }

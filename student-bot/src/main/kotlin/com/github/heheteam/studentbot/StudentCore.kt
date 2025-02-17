@@ -40,14 +40,13 @@ class StudentCore(
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): List<Pair<Problem, Grade?>> {
+  ): Pair<List<Problem>, Map<ProblemId, Grade?>> {
+    val problems =
+      problemStorage.getProblemsFromAssignment(assignmentId).sortedBy { problem ->
+        problem.number
+      } // TODO: sort it in actual order, not in alphabetical
     val grades = gradeTable.getStudentPerformance(studentId, listOf(assignmentId))
-    val gradedProblems =
-      problemStorage
-        .getProblemsFromAssignment(assignmentId)
-        .sortedBy { problem -> problem.number }
-        .map { problem -> problem to grades[problem.id] }
-    return gradedProblems
+    return problems to grades
   }
 
   fun getTopGrades(courseId: CourseId): List<Int> {
@@ -55,7 +54,9 @@ class StudentCore(
     val assignments = getCourseAssignments(courseId).map { it.id }
     val grades =
       students
-        .map { studentId -> gradeTable.getStudentPerformance(studentId, assignments).values.sum() }
+        .map { studentId ->
+          gradeTable.getStudentPerformance(studentId, assignments).values.filterNotNull().sum()
+        }
         .sortedDescending()
         .take(5)
         .filter { it != 0 }
@@ -81,16 +82,6 @@ class StudentCore(
     problemId: ProblemId,
   ) {
     solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
-  }
-
-  fun getCoursesBulletList(studentId: StudentId): String {
-    val studentCourses = coursesDistributor.getStudentCourses(studentId)
-    val notRegisteredMessage = "Вы не записаны ни на один курс!"
-    return if (studentCourses.isNotEmpty()) {
-      studentCourses.joinToString("\n") { course -> "- " + course.name }
-    } else {
-      notRegisteredMessage
-    }
   }
 
   fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =

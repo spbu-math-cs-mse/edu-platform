@@ -112,8 +112,6 @@ class StudentBotTest {
 
     val studentCourses = studentCore.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.id })
-
-    assertEquals("Вы не записаны ни на один курс!", studentCore.getCoursesBulletList(studentId))
   }
 
   @Test
@@ -129,9 +127,7 @@ class StudentBotTest {
       listOf(courseIds[0], courseIds[3]),
       studentCourses.map { it.id }.sortedBy { it.id },
     )
-    assertEquals("Начала мат. анализа", studentCourses.first().name)
-
-    assertEquals("- Начала мат. анализа\n- ТФКП", studentCore.getCoursesBulletList(studentId))
+    assertEquals(listOf("Начала мат. анализа", "ТФКП"), studentCourses.map { it.name }.toList())
   }
 
   @Test

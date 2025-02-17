@@ -4,10 +4,11 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildCoursesSelector
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -15,11 +16,16 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.reply_markup
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
+import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSignUpState(core: StudentCore) {
+data class SignUpState(override val context: User, val studentId: StudentId) : State
+
+// TODO: rewrite or remove this state
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnSignUpState(core: StudentCore) {
   strictlyOn<SignUpState> { state ->
     val studentId = state.studentId
     val courses = core.getCourses()
@@ -62,7 +68,7 @@ class SigningUpState(
   private suspend fun BehaviourContext.courseIndex(message: ContentMessage<*>) {
     val callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
 
-    if (callbackData == ButtonKey.APPLY) {
+    if (callbackData == Keyboards.APPLY) {
       return applyWithCourses(message)
     }
 
@@ -70,7 +76,7 @@ class SigningUpState(
 
     val index =
       when {
-        callbackData.contains(ButtonKey.COURSE_ID) -> {
+        callbackData.contains(Keyboards.COURSE_ID) -> {
           courses.indexOfFirst { it.id == CourseId(courseId.toLong()) }
         }
 

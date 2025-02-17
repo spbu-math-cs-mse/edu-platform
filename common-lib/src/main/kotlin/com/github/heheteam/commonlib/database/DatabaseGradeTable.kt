@@ -31,13 +31,13 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     transaction(database) { SchemaUtils.create(AssessmentTable) }
   }
 
-  override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> =
+  override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?> =
     transaction(database) {
-      AssessmentTable.join(
-          SolutionTable,
-          JoinType.INNER,
-          onColumn = AssessmentTable.solutionId,
-          otherColumn = SolutionTable.id,
+      SolutionTable.join(
+          AssessmentTable,
+          JoinType.LEFT,
+          onColumn = SolutionTable.id,
+          otherColumn = AssessmentTable.solutionId,
         )
         .join(
           ProblemTable,
@@ -46,20 +46,20 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = ProblemTable.id,
         )
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id and AssessmentTable.grade.isNotNull() }
+        .where { SolutionTable.studentId eq studentId.id }
         .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    assignmentId: List<AssignmentId>,
-  ): Map<ProblemId, Grade> =
+    assignmentIds: List<AssignmentId>,
+  ): Map<ProblemId, Grade?> =
     transaction(database) {
-      AssessmentTable.join(
-          SolutionTable,
-          JoinType.INNER,
-          onColumn = AssessmentTable.solutionId,
-          otherColumn = SolutionTable.id,
+      SolutionTable.join(
+          AssessmentTable,
+          JoinType.LEFT,
+          onColumn = SolutionTable.id,
+          otherColumn = AssessmentTable.solutionId,
         )
         .join(
           ProblemTable,
@@ -70,19 +70,18 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         .selectAll()
         .where {
           (SolutionTable.studentId eq studentId.id) and
-            (ProblemTable.assignmentId inList assignmentId.map { it.id }) and
-            AssessmentTable.grade.isNotNull()
+            (ProblemTable.assignmentId inList assignmentIds.map { it.id })
         }
         .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }
 
-  override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade>> =
+  override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
     transaction(database) {
-      AssessmentTable.join(
-          SolutionTable,
-          JoinType.INNER,
-          onColumn = AssessmentTable.solutionId,
-          otherColumn = SolutionTable.id,
+      SolutionTable.join(
+          AssessmentTable,
+          JoinType.LEFT,
+          onColumn = SolutionTable.id,
+          otherColumn = AssessmentTable.solutionId,
         )
         .join(
           ProblemTable,
@@ -97,7 +96,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where { (AssignmentTable.courseId eq courseId.id) and AssessmentTable.grade.isNotNull() }
+        .where { AssignmentTable.courseId eq courseId.id }
         .groupBy { it[SolutionTable.studentId].value.toStudentId() }
         .mapValues { (_, trios) -> // Transform each group into a Map
           trios.associate { it[ProblemTable.id].value.toProblemId() to it[AssessmentTable.grade] }

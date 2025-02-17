@@ -22,9 +22,5 @@
     <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val testSendSolution = "Отправить решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val viewStats = "Статистика проверок"</ID>
-    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.filesURL!!</ID>
-    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.text!!</ID>
-    <ID>UnsafeCallOnNullableType:CheckingSolutionState.kt$CheckingSolutionState$solution.content.type!!</ID>
-    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
   </CurrentIssues>
 </SmellBaseline>

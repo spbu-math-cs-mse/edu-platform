@@ -2,7 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
+    <ID>ForbiddenComment:SignUpState.kt$// TODO: rewrite or remove this state</ID>
+    <ID>ForbiddenComment:StudentCore.kt$StudentCore$// TODO: sort it in actual order, not in alphabetical</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourseForSolution(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askProblem(): String</ID>
@@ -15,14 +16,10 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellValidSolutionTypes(): String</ID>
     <ID>InjectDispatcher:StudentRun.kt$IO</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
+    <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;State&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
     <ID>LongParameterList:StudentCore.kt$StudentCore$( private val solutionDistributor: SolutionDistributor, private val coursesDistributor: CoursesDistributor, private val problemStorage: ProblemStorage, private val assignmentStorage: AssignmentStorage, private val gradeTable: GradeTable, private val notificationService: NotificationService, botEventBus: BotEventBus, )</ID>
-    <ID>LoopWithTooManyJumpStatements:SendSolutionState.kt$while</ID>
+    <ID>LongParameterList:StudentRun.kt$( botToken: String, studentStorage: StudentStorage, coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, core: StudentCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
     <ID>MagicNumber:StudentCore.kt$StudentCore$5</ID>
-    <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>
-    <ID>MayBeConst:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
-    <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-    <ID>TooManyFunctions:StudentCore.kt$StudentCore</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -21,7 +21,5 @@ interface ProblemStorage {
 
   fun getProblemsFromCourse(courseId: CourseId): List<Problem>
 
-  fun getProblemsWithAssignmentsFromCourse(
-    courseId: CourseId
-  ): List<Pair<Assignment, List<Problem>>>
+  fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>>
 }

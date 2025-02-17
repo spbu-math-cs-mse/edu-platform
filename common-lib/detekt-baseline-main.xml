@@ -29,6 +29,7 @@
     <ID>TooManyFunctions:CoursesDistributor.kt$CoursesDistributor</ID>
     <ID>TooManyFunctions:CoursesDistributorDecorator.kt$CoursesDistributorDecorator : CoursesDistributor</ID>
     <ID>TooManyFunctions:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor : CoursesDistributor</ID>
+    <ID>TooManyFunctions:GoogleSheetsService.kt$GoogleSheetsService</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>

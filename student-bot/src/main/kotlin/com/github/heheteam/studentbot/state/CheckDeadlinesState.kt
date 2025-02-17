@@ -17,14 +17,17 @@ class CheckDeadlinesState(
   override suspend fun readUserInput(bot: BehaviourContext, service: ProblemStorage) {
     val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id)
     val messageText =
-      problemsByAssignments.toList().joinToString("\n\n") { (assignment, problems) ->
-        assignment.description +
-          "\n" +
-          problems.joinToString("\n") { problem ->
-            println(problem.deadline)
-            "  • ${problem.number} ${problem.deadline?.toString()}"
-          }
-      }
+      problemsByAssignments
+        .toList()
+        .sortedBy { it.first.id.id }
+        .joinToString("\n\n") { (assignment, problems) ->
+          assignment.description +
+            "\n" +
+            problems.joinToString("\n") { problem ->
+              println(problem.deadline)
+              "  • ${problem.number} ${problem.deadline?.toString()}"
+            }
+        }
     bot.sendMessage(context, messageText)
   }
 

@@ -103,7 +103,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
 
   override fun getProblemsWithAssignmentsFromCourse(
     courseId: CourseId
-  ): List<Pair<Assignment, List<Problem>>> =
+  ): Map<Assignment, List<Problem>> =
     transaction(database) {
       ProblemTable.join(
           AssignmentTable,
@@ -129,7 +129,5 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
             it[ProblemTable.deadline],
           )
         }
-        .map { it.key to it.value }
-        .sortedBy { it.first.id.id }
     }
 }

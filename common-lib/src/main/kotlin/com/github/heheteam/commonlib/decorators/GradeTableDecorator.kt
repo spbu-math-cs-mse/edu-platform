@@ -22,7 +22,7 @@ class GradeTableDecorator(
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    assignmentId: List<AssignmentId>,
+    assignmentIds: List<AssignmentId>,
   ): Map<ProblemId, Grade?> = gradeTable.getStudentPerformance(studentId)
 
   override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =

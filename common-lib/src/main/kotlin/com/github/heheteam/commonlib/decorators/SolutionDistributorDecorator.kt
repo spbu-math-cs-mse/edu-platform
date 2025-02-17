@@ -29,10 +29,7 @@ class SolutionDistributorDecorator(
   ): SolutionId =
     solutionDistributor
       .inputSolution(studentId, chatId, messageId, solutionContent, problemId, timestamp)
-      .also {
-        println("Updating rating on solution input")
-        ratingRecorder.updateRating(problemId)
-      }
+      .also { ratingRecorder.updateRating(problemId) }
 
   override fun querySolution(teacherId: TeacherId): Result<Solution?, SolutionResolveError> =
     solutionDistributor.querySolution(teacherId)

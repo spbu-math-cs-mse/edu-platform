@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.StudentId
@@ -15,6 +16,14 @@ class MockBotEventBus : BotEventBus {
     assessment: SolutionAssessment,
     problem: Problem,
   ) {
+    // Do nothing
+  }
+
+  override fun publishNewSolutionEvent(solutionId: Solution) {
+    // Do nothing
+  }
+
+  override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
     // Do nothing
   }
 

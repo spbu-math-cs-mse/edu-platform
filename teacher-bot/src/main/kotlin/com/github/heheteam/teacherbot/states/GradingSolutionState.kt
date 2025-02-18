@@ -12,18 +12,25 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues.solutionInfo
 import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.Keyboards.badSolution
+import com.github.heheteam.teacherbot.Keyboards.goodSolution
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.SolutionAssessor
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.InlineKeyboardMarkup
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
+import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.utils.matrix
+import dev.inmo.tgbotapi.utils.row
 import java.io.File
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 
@@ -40,7 +47,6 @@ class GradingSolutionState(
   private var markupMessage: ContentMessage<*>? = null
   private val files: MutableList<Pair<MultipartFile, File>> = mutableListOf()
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: SolutionAssessor,
@@ -82,7 +88,7 @@ class GradingSolutionState(
   ): Pair<BotState<*, *, *>, Unit> {
     val solutionAssessment = input
     if (solutionAssessment != null) {
-      service.assessSolution(solution, teacherId, solutionAssessment)
+      service.assessSolution(solution, teacherId, solutionAssessment, LocalDateTime.now())
     }
     return Pair(MenuState(context, teacherId), Unit)
   }
@@ -102,12 +108,21 @@ class GradingSolutionState(
 
   private suspend fun sendSolution(bot: BehaviourContext) {
     with(bot) {
-      solutionMessage = sendSolutionContent(context.id, solution.attachments)
+      solutionMessage = sendSolutionContent(context.id, solution.content)
       markupMessage =
         bot.send(
           context,
           solutionInfo(student, assignment, problem),
-          replyMarkup = Keyboards.solutionMenu(),
+          replyMarkup =
+            InlineKeyboardMarkup(
+              keyboard =
+                matrix {
+                  row {
+                    dataButton("\uD83D\uDE80+", goodSolution)
+                    dataButton("\uD83D\uDE2D-", badSolution)
+                  }
+                }
+            ),
         )
     }
   }

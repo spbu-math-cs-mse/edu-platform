@@ -16,7 +16,7 @@ import com.github.heheteam.commonlib.api.TeacherId
 import com.github.michaelbull.result.Result
 
 class SolutionResolver(
-  private val solutionDistributor: SolutionDistributor,
+  val solutionDistributor: SolutionDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val studentStorage: StudentStorage,

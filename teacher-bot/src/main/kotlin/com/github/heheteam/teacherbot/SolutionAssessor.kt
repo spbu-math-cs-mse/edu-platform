@@ -22,7 +22,7 @@ class SolutionAssessor(
     solution: Solution,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    timestamp: LocalDateTime = LocalDateTime.now(),
+    timestamp: LocalDateTime,
   ) {
     gradeTable.assessSolution(solution.id, teacherId, assessment, teacherStatistics, timestamp)
     teacherStatistics.recordAssessment(

@@ -24,6 +24,7 @@ data class Parent(
   val children: List<StudentId> = listOf(),
 )
 
+@Serializable
 data class Teacher(val id: TeacherId, val name: String = "", val surname: String = "")
 
 @Serializable
@@ -62,13 +63,14 @@ data class SolutionContent(
   val attachments: List<SolutionAttachment> = listOf(),
 )
 
+@Serializable
 data class Solution(
   val id: SolutionId,
   val studentId: StudentId,
   val chatId: RawChatId,
   val messageId: MessageId,
   val problemId: ProblemId,
-  val attachments: SolutionContent,
+  val content: SolutionContent,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 

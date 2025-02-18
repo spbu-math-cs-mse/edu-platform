@@ -1,34 +1,46 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCreateCourseState(core: AdminCore) {
-  strictlyOn<CreateCourseState> { state ->
-    send(
-      state.context,
+class CreateCourseState(override val context: User) :
+  BotState<String, String?, CoursesDistributor> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: CoursesDistributor): String {
+    bot.send(
+      context,
       "Введите название курса, который хотите создать, или отправьте /stop, чтобы отменить операцию",
     )
 
-    val message = waitTextMessageWithUser(state.context.id).first()
-    val answer = message.content.text
+    val message = bot.waitTextMessageWithUser(context.id).first()
+    return message.content.text
+  }
 
-    when {
-      answer == "/stop" -> MenuState(state.context)
+  override fun computeNewState(service: CoursesDistributor, input: String): Pair<State, String?> {
+    val response =
+      when {
+        input == "/stop" -> null
 
-      core.courseExists(answer) -> {
-        send(state.context, "Курс с таким названием уже существует")
-        MenuState(state.context)
+        service.getCourses().any { it.name == input } -> "Курс с таким названием уже существует"
+
+        else -> {
+          service.createCourse(input)
+          "Курс $input успешно создан"
+        }
       }
+    return Pair(MenuState(context), response)
+  }
 
-      else -> {
-        core.addCourse(answer)
-        send(state.context, "Курс $answer успешно создан")
-        MenuState(state.context)
-      }
-    }
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: CoursesDistributor,
+    response: String?,
+  ) {
+    if (response != null) bot.send(context, response)
   }
 }

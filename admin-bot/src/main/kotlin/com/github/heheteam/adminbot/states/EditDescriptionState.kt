@@ -1,28 +1,39 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.newLine
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnEditDescriptionState() {
-  strictlyOn<EditDescriptionState> { state ->
-    send(state.context) {
-      +"Введите новое описание курса ${state.courseName}. Текущее описание:" + newLine + newLine
-      +state.course.name
+class EditDescriptionState(override val context: User, val course: Course, val courseName: String) :
+  BotState<String, String?, Unit> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: Unit): String {
+    bot.send(context) {
+      +"Введите новое описание курса ${courseName}. Текущее описание:" + newLine + newLine
+      +course.name
     }
-    val message = waitTextMessageWithUser(state.context.id).first()
-    val answer = message.content.text
-    when {
-      answer == "/stop" -> MenuState(state.context)
+    val message = bot.waitTextMessageWithUser(context.id).first()
+    return message.content.text
+  }
 
-      else -> {
-        //        state.course.name = answer TODO: implement this feature
-        send(state.context, "Описание курса ${state.courseName} успешно обновлено")
-
-        MenuState(state.context)
+  override fun computeNewState(service: Unit, input: String): Pair<State, String?> {
+    val response =
+      when {
+        input == "/stop" -> null
+        else -> {
+          //        course.name = answer TODO: implement this feature
+          "Описание курса ${courseName} успешно обновлено"
+        }
       }
-    }
+    return Pair(MenuState(context), response)
+  }
+
+  override suspend fun sendResponse(bot: BehaviourContext, service: Unit, response: String?) {
+    if (response != null) bot.send(context, response)
   }
 }

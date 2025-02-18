@@ -1,51 +1,44 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminCore
+import com.github.heheteam.adminbot.CourseStatistics
+import com.github.heheteam.adminbot.CourseStatisticsComposer
 import com.github.heheteam.adminbot.Keyboards
-import com.github.heheteam.adminbot.Keyboards.returnBack
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
-import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCourseInfoState(core: AdminCore) {
-  strictlyOn<CourseInfoState> { state ->
-    val courses = core.getCourses().values.toList()
-    if (courses.isEmpty()) {
-      bot.send(state.context, "Не найдено ни одного курса!")
-      return@strictlyOn MenuState(state.context)
-    }
+class CourseInfoState(override val context: User, val course: Course) :
+  BotState<Unit, CourseStatistics, CourseStatisticsComposer> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: CourseStatisticsComposer) =
+    Unit
 
-    val message =
-      bot.send(
-        state.context,
-        "Выберите курс:",
-        replyMarkup = Keyboards.buildCoursesSelector(courses),
-      )
+  override fun computeNewState(
+    service: CourseStatisticsComposer,
+    input: Unit,
+  ): Pair<State, CourseStatistics> {
+    val stats = service.getCourseStatistics(course.id)
+    return Pair(MenuState(context), stats)
+  }
 
-    val callback = waitDataCallbackQueryWithUser(state.context.id).first()
-    deleteMessage(message)
-
-    if (callback.data == returnBack) {
-      return@strictlyOn MenuState(state.context)
-    }
-
-    val courseId = callback.data.split(" ").last()
-    val course = courses.first { it.id == CourseId(courseId.toLong()) }
-    val stats = core.getCourseStatistics(course.id)
-
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: CourseStatisticsComposer,
+    response: CourseStatistics,
+  ) {
     val statsMessage =
       bot.send(
-        state.context,
-        entities = CourseStatisticsFormatter.format(course.name, stats),
-        replyMarkup = returnBack(),
+        context,
+        entities = CourseStatisticsFormatter.format(course.name, response),
+        replyMarkup = Keyboards.returnBack(),
       )
-
-    waitDataCallbackQueryWithUser(state.context.id).first()
-    deleteMessage(statsMessage)
-    MenuState(state.context)
+    bot.waitDataCallbackQueryWithUser(context.id).first()
+    bot.deleteMessage(statsMessage)
   }
 }

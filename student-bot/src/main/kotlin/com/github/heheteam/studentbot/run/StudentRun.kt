@@ -1,20 +1,21 @@
 package com.github.heheteam.studentbot.run
 
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
+import com.github.heheteam.commonlib.util.registerState
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.state.DevStartState
+import com.github.heheteam.studentbot.state.CheckDeadlinesState
+import com.github.heheteam.studentbot.state.DeveloperStartState
+import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.StartState
-import com.github.heheteam.studentbot.state.strictlyOnCheckDeadlinesState
+import com.github.heheteam.studentbot.state.ViewState
 import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
-import com.github.heheteam.studentbot.state.strictlyOnDeveloperStartState
-import com.github.heheteam.studentbot.state.strictlyOnMenuState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.heheteam.studentbot.state.strictlyOnSendSolutionState
 import com.github.heheteam.studentbot.state.strictlyOnSignUpState
-import com.github.heheteam.studentbot.state.strictlyOnStartState
-import com.github.heheteam.studentbot.state.strictlyOnViewState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -33,6 +34,8 @@ import kotlinx.coroutines.Dispatchers
 suspend fun studentRun(
   botToken: String,
   studentStorage: StudentStorage,
+  coursesDistributor: CoursesDistributor,
+  problemStorage: ProblemStorage,
   core: StudentCore,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
@@ -61,15 +64,15 @@ suspend fun studentRun(
         }
       }
 
-      strictlyOnStartState(studentStorage)
-      strictlyOnDeveloperStartState(studentStorage)
-      strictlyOnMenuState()
-      strictlyOnViewState(core)
+      registerState<StartState, StudentStorage>(studentStorage)
+      registerState<DeveloperStartState, StudentStorage>(studentStorage)
+      registerState<MenuState, CoursesDistributor>(coursesDistributor)
+      registerState<ViewState, CoursesDistributor>(coursesDistributor)
       strictlyOnSignUpState(core)
       strictlyOnSendSolutionState(core, botToken)
       strictlyOnCheckGradesState(core)
       strictlyOnPresetStudentState(core)
-      strictlyOnCheckDeadlinesState(core)
+      registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
@@ -83,7 +86,7 @@ private fun findStartState(developerOptions: DeveloperOptions?, user: User) =
     if (presetStudent != null) {
       PresetStudentState(user, presetStudent)
     } else {
-      DevStartState(user)
+      DeveloperStartState(user)
     }
   } else {
     StartState(user)

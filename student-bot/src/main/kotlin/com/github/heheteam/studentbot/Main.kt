@@ -90,5 +90,5 @@ suspend fun main(vararg args: String) {
       botEventBus,
     )
 
-  studentRun(botToken, studentStorage, core)
+  studentRun(botToken, studentStorage, coursesDistributor, problemStorage, core)
 }

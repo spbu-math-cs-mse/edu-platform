@@ -1,18 +1,23 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
-import com.github.heheteam.commonlib.util.queryPickerWithBackFromList
+import com.github.heheteam.commonlib.util.queryAssignment
+import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
+import com.github.heheteam.studentbot.Keyboards.STUDENT_GRADES
+import com.github.heheteam.studentbot.Keyboards.TOP_GRADES
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.get
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -20,11 +25,13 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnCheckGradesState(core: StudentCore) {
+data class CheckGradesState(override val context: User, val studentId: StudentId) : State
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnCheckGradesState(core: StudentCore) {
   strictlyOn<CheckGradesState> { state ->
     val courses = core.getStudentCourses(state.studentId)
     val courseId: CourseId =
-      queryCourse(state.context, courses, "Выберите серию")?.id
+      queryCourse(state.context, courses)?.id
         ?: return@strictlyOn MenuState(state.context, state.studentId)
     val assignmentsFromCourse = core.getCourseAssignments(courseId)
     val queryGradeType = queryGradeTypeKeyboard(state, assignmentsFromCourse, core, courseId)
@@ -48,7 +55,7 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
   courseId: CourseId,
 ) =
   buildColumnMenu(
-    ButtonData("Моя успеваемость", ButtonKey.STUDENT_GRADES) {
+    ButtonData("Моя успеваемость", STUDENT_GRADES) {
       val assignment =
         queryAssignment(state.context, assignmentsFromCourse)
           ?: return@ButtonData CheckGradesState(state.context, state.studentId)
@@ -56,18 +63,18 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
       respondWithGrades(state, assignment, gradedProblems)
       MenuState(state.context, state.studentId)
     },
-    ButtonData("Лучшие на курсе", ButtonKey.TOP_GRADES) {
+    ButtonData("Лучшие на курсе", TOP_GRADES) {
       val topGrades = core.getTopGrades(courseId)
       respondWithTopGrades(state, topGrades)
       MenuState(state.context, state.studentId)
     },
-    ButtonData("Назад", ButtonKey.BACK) { CheckGradesState(state.context, state.studentId) },
+    ButtonData("Назад", RETURN_BACK) { CheckGradesState(state.context, state.studentId) },
   )
 
 private suspend fun BehaviourContext.respondWithGrades(
   state: CheckGradesState,
   assignment: Assignment,
-  gradedProblems: List<Pair<Problem, Grade?>>,
+  gradedProblems: Pair<List<Problem>, Map<ProblemId, Grade?>>,
 ) {
   val strGrades = "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
   val gradesMessage = bot.send(state.context, text = strGrades, replyMarkup = back())
@@ -96,18 +103,26 @@ private suspend fun BehaviourContext.respondWithTopGrades(
   deleteMessage(gradesMessage)
 }
 
-fun List<Pair<Problem, Grade?>>.withGradesToText() =
-  joinToString(separator = "\n") { (problem, grade) ->
+private fun Pair<List<Problem>, Map<ProblemId, Grade?>>.withGradesToText(): String {
+  val problems = first
+  val grades = second
+  return problems.joinToString(separator = "\n") { problem ->
     "№${problem.number} — " +
-      when {
-        grade == null -> "не сдано"
-        grade <= 0 -> "❌ 0/${problem.maxScore}"
-        grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-        else -> "✅ $grade/${problem.maxScore}"
+      if (grades.containsKey(problem.id)) {
+        val grade = grades[problem.id]
+        when {
+          grade == null -> "🕊 не проверено"
+          grade <= 0 -> "❌ 0/${problem.maxScore}"
+          grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+          else -> "✅ $grade/${problem.maxScore}"
+        }
+      } else {
+        "не сдано"
       }
   }
+}
 
-fun List<Grade>.withTopGradesToText() =
+private fun List<Grade>.withTopGradesToText() =
   this.withIndex().joinToString(separator = "\n") { (index, grade) ->
     when (index) {
       0 -> "\uD83E\uDD47 $grade"
@@ -116,15 +131,3 @@ fun List<Grade>.withTopGradesToText() =
       else -> "${index + 1}. $grade"
     }
   }
-
-internal suspend fun BehaviourContext.queryCourse(
-  user: User,
-  courses: List<Course>,
-  queryText: String,
-): Course? = queryPickerWithBackFromList(user, courses, { it.name }, queryText)
-
-internal suspend fun BehaviourContext.queryAssignment(
-  user: User,
-  assignments: List<Assignment>,
-): Assignment? =
-  queryPickerWithBackFromList(user, assignments, { it.description }, "Выберите серию")

@@ -2,11 +2,9 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ExplicitItLambdaParameter:GoogleSheetsService.kt$GoogleSheetsService${ index, it -&gt; if ( index == sortedProblems.size - 1 || sortedProblems[index].assignmentId != sortedProblems[index + 1].assignmentId ) { it.rightBorder() } it }</ID>
     <ID>InjectDispatcher:GoogleSheetsRatingRecorder.kt$GoogleSheetsRatingRecorder$Default</ID>
     <ID>InjectDispatcher:RedisBotEventBus.kt$RedisBotEventBus$IO</ID>
     <ID>LongMethod:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$override fun querySolution(teacherId: TeacherId): Result&lt;Solution?, SolutionResolveError&gt;</ID>
-    <ID>LongMethod:GoogleSheetsService.kt$GoogleSheetsService$private fun composeTable( course: Course, problems: List&lt;Problem&gt;, assignments: List&lt;Assignment&gt;, students: List&lt;Student&gt;, performance: Map&lt;StudentId, Map&lt;ProblemId, Grade&gt;&gt;, ): ComposedTable</ID>
     <ID>LongMethod:SampleFill.kt$fun fillWithSamples( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, ): List&lt;CourseId&gt;</ID>
     <ID>LongParameterList:SampleFill.kt$( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, )</ID>
     <ID>LongParameterList:SampleFill.kt$( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, )</ID>
@@ -17,14 +15,12 @@
     <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$3</ID>
     <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$30</ID>
     <ID>MagicNumber:GoogleSheetsService.kt$GoogleSheetsService$40</ID>
-    <ID>MagicNumber:Init.kt$3</ID>
     <ID>MagicNumber:ParentTable.kt$ParentTable$255</ID>
     <ID>MagicNumber:ProblemTable.kt$ProblemTable$64</ID>
     <ID>MagicNumber:SampleFill.kt$10</ID>
     <ID>MagicNumber:SampleFill.kt$5</ID>
     <ID>MagicNumber:StudentTable.kt$StudentTable$255</ID>
     <ID>MagicNumber:TeacherTable.kt$TeacherTable$255</ID>
-    <ID>MaxLineLength:GoogleSheetsService.kt$GoogleSheetsService$"userEnteredValue,userEnteredFormat.textFormat.bold,userEnteredFormat.horizontalAlignment,userEnteredFormat.Borders"</ID>
     <ID>SpreadOperator:Init.kt$(*allTables)</ID>
     <ID>SuspendFunWithFlowReturnType:CallbackWithUser.kt$suspend</ID>
     <ID>SwallowedException:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
@@ -33,6 +29,7 @@
     <ID>TooManyFunctions:CoursesDistributor.kt$CoursesDistributor</ID>
     <ID>TooManyFunctions:CoursesDistributorDecorator.kt$CoursesDistributorDecorator : CoursesDistributor</ID>
     <ID>TooManyFunctions:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor : CoursesDistributor</ID>
+    <ID>TooManyFunctions:GoogleSheetsService.kt$GoogleSheetsService</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>

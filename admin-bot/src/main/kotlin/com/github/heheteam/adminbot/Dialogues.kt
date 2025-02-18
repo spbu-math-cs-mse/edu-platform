@@ -105,8 +105,6 @@ object Dialogues {
   fun problemsDescriptionsAreNotTexts(): String =
     "Описания задач должны быть представлены в текстовом виде. Отправьте текстовое сообщение!"
 
-  fun askCourse(): String = "Выберите курс:"
-
   fun askAssignmentDescription(): String =
     "Введите название серии, которую хотите создать, и дедлайн по ней. " +
       "Например, \"Диффуры и не только\"\$2025-01-19T23:55:00"

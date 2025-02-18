@@ -7,10 +7,11 @@ import com.github.heheteam.commonlib.api.ParentId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.StudentStorage
+import dev.inmo.tgbotapi.utils.mapNotNullValues
 
 class ParentCore(private val studentStorage: StudentStorage, private val gradeTable: GradeTable) {
   fun getChildren(parentId: ParentId): List<Student> = studentStorage.getChildren(parentId)
 
   fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> =
-    gradeTable.getStudentPerformance(studentId)
+    gradeTable.getStudentPerformance(studentId).mapNotNullValues()
 }

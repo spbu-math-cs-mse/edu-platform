@@ -2,26 +2,31 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.AttachmentKind
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
 import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
+import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
+import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.metaData.ButtonKey
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
+import dev.inmo.micro_utils.coroutines.filterNotNull
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
-import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
+import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.AudioContent
 import dev.inmo.tgbotapi.types.message.content.DocumentContent
@@ -36,86 +41,82 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toKotlinLocalDateTime
 
+data class SendSolutionState(
+  override val context: User,
+  val studentId: StudentId,
+  var selectedCourse: Course,
+) : State
+
 @OptIn(ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnSendSolutionState(
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
   core: StudentCore,
   studentBotToken: String,
 ) {
   strictlyOn<SendSolutionState> { state ->
     val studentId = state.studentId
-    val courses = core.getStudentCourses(studentId)
-
-    val stickerMessage = bot.sendSticker(state.context, Dialogues.nerdSticker)
-
-    if (courses.isEmpty()) {
-      suggestToApplyForCourses(state)
-      return@strictlyOn MenuState(state.context, state.studentId)
-    }
-
-    val course = queryCourse(state.context, courses, Dialogues.askCourseForSolution())
-    if (course == null) {
-      deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context, state.studentId)
-    }
-    val assignments = core.getCourseAssignments(course.id)
+    val assignments = core.getCourseAssignments(state.selectedCourse.id)
     val problems = assignments.associateWith { core.getProblemsFromAssignment(it) }
-    val problem = queryProblem(state, problems)
-    if (problem == null) {
-      deleteMessage(stickerMessage)
-      return@strictlyOn MenuState(state.context, state.studentId)
-    }
-
-    state.selectedCourse = course
+    val problem =
+      queryProblem(state, problems) ?: return@strictlyOn MenuState(state.context, state.studentId)
 
     var botMessage =
       bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
 
-    while (true) {
-      val content =
-        flowOf(
-            waitDataCallbackQueryWithUser(state.context.id),
-            waitTextMessageWithUser(state.context.id),
-            waitMediaMessageWithUser(state.context.id),
-            waitDocumentMessageWithUser(state.context.id),
-          )
-          .flattenMerge()
-          .first()
+    flowOf(
+        waitDataCallbackQueryWithUser(state.context.id),
+        waitTextMessageWithUser(state.context.id),
+        waitMediaMessageWithUser(state.context.id),
+        waitDocumentMessageWithUser(state.context.id),
+      )
+      .flattenMerge()
+      .map { solutionMessage ->
+        when (solutionMessage) {
+          is DataCallbackQuery ->
+            if (solutionMessage.data == RETURN_BACK) {
+              deleteMessage(botMessage)
+              MenuState(state.context, state.studentId)
+            } else null
 
-      if (content is DataCallbackQuery && content.data == ButtonKey.BACK) {
-        deleteMessage(botMessage)
-        deleteMessage(stickerMessage)
-        return@strictlyOn SendSolutionState(state.context, state.studentId)
-      }
+          is CommonMessage<*> -> {
+            val attachment = extractSolutionContent(solutionMessage, studentBotToken)
+            deleteMessage(botMessage)
 
-      if (content is CommonMessage<*>) {
-        val messageId = content.messageId
+            if (attachment == null) {
+              botMessage =
+                bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
+              return@map null
+            }
 
-        val attachment = extractSolutionContent(content, studentBotToken)
-        if (attachment == null) {
-          deleteMessage(botMessage)
-          botMessage =
-            bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
-          continue
+            if (isDeadlineMissed(problem)) {
+              bot.reply(solutionMessage, "К сожалению, дедлайн по задаче уже истек :(")
+            } else {
+              core.inputSolution(
+                studentId,
+                state.context.id.chatId,
+                solutionMessage.messageId,
+                attachment,
+                problem.id,
+              )
+              bot.reply(solutionMessage, Dialogues.tellSolutionIsSent())
+            }
+
+            MenuState(state.context, state.studentId)
+          }
+
+          else -> null
         }
-        deleteMessage(botMessage)
-        deleteMessage(stickerMessage)
-        val problemDeadline = problem.deadline
-        val missedDeadline =
-          problemDeadline != null && LocalDateTime.now().toKotlinLocalDateTime() > problemDeadline
-        if (missedDeadline) {
-          bot.sendMessage(state.context, "К сожалению, дедлайн по задаче уже истек :(")
-        } else {
-          core.inputSolution(studentId, state.context.id.chatId, messageId, attachment, problem.id)
-          bot.sendSticker(state.context, Dialogues.okSticker)
-          bot.send(state.context, Dialogues.tellSolutionIsSent())
-        }
-        break
       }
-    }
-    MenuState(state.context, state.studentId)
+      .filterNotNull()
+      .first()
   }
+}
+
+private fun isDeadlineMissed(problem: Problem): Boolean {
+  val problemDeadline = problem.deadline
+  return problemDeadline != null && LocalDateTime.now().toKotlinLocalDateTime() > problemDeadline
 }
 
 suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: String): String {
@@ -136,6 +137,7 @@ private suspend fun BehaviourContext.extractSolutionContent(
         content,
         studentBotToken,
       )
+
     is DocumentContent ->
       extractSingleAttachment(
         content.text.orEmpty(),
@@ -143,6 +145,7 @@ private suspend fun BehaviourContext.extractSolutionContent(
         content,
         studentBotToken,
       )
+
     is MediaGroupContent<*> -> extractMultipleAttachments(content, studentBotToken)
     else -> null
   }
@@ -194,21 +197,15 @@ private suspend fun BehaviourContext.queryProblem(
     )
 
   var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  while (callbackData == ButtonKey.FICTITIOUS) {
+  while (callbackData == FICTITIOUS) {
     callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
   }
   deleteMessage(message)
 
-  if (callbackData == ButtonKey.BACK) {
+  if (callbackData == RETURN_BACK) {
     return null
   }
 
   val problemId = callbackData.split(" ").last()
   return problems.values.flatten().single { it.id == ProblemId(problemId.toLong()) }
-}
-
-private suspend fun BehaviourContext.suggestToApplyForCourses(state: SendSolutionState) {
-  val message = bot.send(state.context, Dialogues.tellToApplyForCourses(), replyMarkup = back())
-  waitDataCallbackQueryWithUser(state.context.id).first()
-  deleteMessage(message)
 }

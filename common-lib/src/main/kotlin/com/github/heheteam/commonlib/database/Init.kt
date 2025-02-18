@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.loadConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
@@ -36,9 +37,9 @@ private val allTables =
     ParentTable,
   )
 
-/** @param args Url, driver, user, password */
-fun main(args: Array<String>) {
-  val database = Database.connect(args[0], args[1], args[2], args[3])
+fun main() {
+  val config = loadConfig().databaseConfig
+  val database = Database.connect(config.url, config.driver, config.login, config.password)
 
   transaction {
     addLogger(StdOutSqlLogger)

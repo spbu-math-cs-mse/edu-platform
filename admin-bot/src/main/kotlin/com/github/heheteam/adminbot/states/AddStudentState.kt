@@ -9,18 +9,25 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForStudentAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.adminbot.processStringIds
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnAddStudentState(core: AdminCore) {
+class AddStudentState(override val context: User, val course: Course, val courseName: String) :
+  State
+
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddStudentState(core: AdminCore) {
   strictlyOn<AddStudentState> { state ->
     send(
       state.context,
-      "Введите ID учеников (через запятую), которых хотите добавить на курс ${state.courseName}, или отправьте /stop, чтобы отменить операцию.",
+      "Введите ID учеников (через запятую), которых хотите добавить на курс ${state.course.name}" +
+        ", или отправьте /stop, чтобы отменить операцию.",
     )
     val ids: List<Long>
     while (true) {

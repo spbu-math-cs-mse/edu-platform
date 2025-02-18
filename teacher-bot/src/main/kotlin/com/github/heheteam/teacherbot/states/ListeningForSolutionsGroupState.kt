@@ -37,6 +37,7 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.Chat
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.abstracts.Message
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
@@ -127,7 +128,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
         .mapError { "failed to resolve solution" }
         .bind()
     val teacherId = TeacherId(1L)
-    solutionAssessor.assessSolution(solution, teacherId, assessment)
+    solutionAssessor.assessSolution(solution, teacherId, assessment, java.time.LocalDateTime.now())
     SubmissionInfo(
       solution.id,
       GradingInfo(
@@ -154,7 +155,12 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               .bind()
           val assessment = extractAssesmentFromMessage(commonMessage).bind()
           val teacherId = TeacherId(1L)
-          solutionAssessor.assessSolution(solution, teacherId, assessment)
+          solutionAssessor.assessSolution(
+            solution,
+            teacherId,
+            assessment,
+            java.time.LocalDateTime.now(),
+          )
           SubmissionInfo(
             solution.id,
             GradingInfo(
@@ -164,19 +170,23 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
             ),
           )
         }
-        .map { submissionInfo ->
-          val message = commonMessage.replyTo
-          if (message != null) {
-            edit(
-              message.chat.id.toChatId(),
-              message.messageId,
-              createTechnicalMessageContent(submissionInfo),
-            )
-          }
-        }
+        .map { submissionInfo -> updateTechnicalMessage(commonMessage.replyTo, submissionInfo) }
         .getError()
     if (error != null) {
       sendMessage(context, error)
+    }
+  }
+
+  private suspend fun BehaviourContext.updateTechnicalMessage(
+    technicalMessage: Message?,
+    submissionInfo: SubmissionInfo,
+  ) {
+    if (technicalMessage != null) {
+      edit(
+        technicalMessage.chat.id.toChatId(),
+        technicalMessage.messageId,
+        createTechnicalMessageContent(submissionInfo),
+      )
     }
   }
 

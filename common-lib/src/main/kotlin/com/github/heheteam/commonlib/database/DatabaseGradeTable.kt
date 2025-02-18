@@ -20,6 +20,7 @@ import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
@@ -47,6 +48,15 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         )
         .selectAll()
         .where { SolutionTable.studentId eq studentId.id and AssessmentTable.grade.isNotNull() }
+        .orderBy(
+          AssessmentTable.timestamp,
+          SortOrder.ASC,
+        ) // associate takes the latter entry with the same key
+        .map {
+          println("here!!!!")
+          println(it)
+          it
+        }
         .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }
 
@@ -72,6 +82,15 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           (SolutionTable.studentId eq studentId.id) and
             (ProblemTable.assignmentId inList assignmentId.map { it.id }) and
             AssessmentTable.grade.isNotNull()
+        }
+        .orderBy(
+          AssessmentTable.timestamp,
+          SortOrder.ASC,
+        ) // associate takes the latter entry with the same key
+        .map {
+          println("here!!!!")
+          println(it)
+          it
         }
         .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }

@@ -30,6 +30,7 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import java.io.File
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 
@@ -87,7 +88,7 @@ class GradingSolutionState(
   ): Pair<BotState<*, *, *>, Unit> {
     val solutionAssessment = input
     if (solutionAssessment != null) {
-      service.assessSolution(solution, teacherId, solutionAssessment)
+      service.assessSolution(solution, teacherId, solutionAssessment, LocalDateTime.now())
     }
     return Pair(MenuState(context, teacherId), Unit)
   }

@@ -68,10 +68,10 @@ class TeacherBotTest {
       assignmentStorage.createAssignment(
         courseId,
         "test assignment",
-        listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)),
+        listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
         DatabaseProblemStorage(database),
       )
-    problemId = problemStorage.createProblem(assignmentId, "test problem 1", 1, "test problem")
+    problemId = problemStorage.createProblem(assignmentId, 1, "test problem 1", 1, "test problem")
   }
 
   companion object {

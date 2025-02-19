@@ -191,8 +191,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ): ComposedTable {
     val sortedProblems =
-      problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.number })
-    val sortedAssignments = assignments.sortedWith(compareBy { it.id.id })
+      problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.serialNumber })
     val assignmentSizes = mutableMapOf<AssignmentId, Int>()
 
     for (problem in sortedProblems) {
@@ -201,7 +200,7 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
     }
 
     return ComposedTable(
-      composeHeader(course, sortedAssignments, assignmentSizes, sortedProblems) +
+      composeHeader(course, assignments, assignmentSizes, sortedProblems) +
         composeGrades(students, sortedProblems, performance),
       listOf(30, null, null) + List<Int?>(sortedProblems.size) { 40 },
     )

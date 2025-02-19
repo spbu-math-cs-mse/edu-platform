@@ -30,6 +30,7 @@ data class Teacher(val id: TeacherId, val name: String = "", val surname: String
 @Serializable
 data class Problem(
   val id: ProblemId,
+  val serialNumber: Int,
   val number: String,
   val description: String,
   val maxScore: Grade,
@@ -38,6 +39,7 @@ data class Problem(
 )
 
 data class ProblemDescription(
+  val serialNumber: Int,
   val number: String,
   val description: String = "",
   val maxScore: Grade = 1,

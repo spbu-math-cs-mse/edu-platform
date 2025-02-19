@@ -24,7 +24,7 @@ fun generateCourse(
     assignmentStorage.createAssignment(
       courseId,
       "assignment $courseId.$assgnNum",
-      (1..problemsPerAssignment).map { ProblemDescription("$assgnNum.$it", "", 1, null) },
+      (1..problemsPerAssignment).map { ProblemDescription(it, "$assgnNum.$it", "", 1, null) },
       problemStorage,
     )
   }

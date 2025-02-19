@@ -74,29 +74,29 @@ class GoogleSheetsTest {
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 1",
-      listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
+      listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
       problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 2",
-      listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
+      listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
       problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 3",
-      listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
+      listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
       problemStorage,
     )
     assignmentStorage.createAssignment(
       course2Id,
       "assignment 1",
       listOf(
-        ProblemDescription("p1"),
-        ProblemDescription("p2"),
-        ProblemDescription("p3"),
-        ProblemDescription("p4"),
+        ProblemDescription(1, "p1"),
+        ProblemDescription(2, "p2"),
+        ProblemDescription(3, "p3"),
+        ProblemDescription(4, "p4"),
       ),
       problemStorage,
     )

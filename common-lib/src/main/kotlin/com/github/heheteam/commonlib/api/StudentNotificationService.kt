@@ -2,11 +2,19 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.util.DeleteMessageAction
 import dev.inmo.tgbotapi.bot.TelegramBot
+import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.send.reply
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
+import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.flatMatrix
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class StudentNotificationService(private val bot: TelegramBot) : NotificationService {
   override suspend fun notifyStudentAboutGrade(
@@ -23,7 +31,7 @@ class StudentNotificationService(private val bot: TelegramBot) : NotificationSer
         else -> "✅"
       }
 
-    val message = buildString {
+    val messageText = buildString {
       append(
         "Ваше решение задачи ${problem.number}, серия ${problem.assignmentId} (id задачи: ${problem.id}) проверено!\n"
       )
@@ -32,7 +40,22 @@ class StudentNotificationService(private val bot: TelegramBot) : NotificationSer
         append("Комментарий преподавателя: ${assessment.comment}")
       }
     }
-
-    bot.reply(ChatId(chatId), messageId, message)
+    with(bot) {
+      val message = reply(ChatId(chatId), messageId, messageText)
+      edit(
+        message,
+        replyMarkup =
+          InlineKeyboardMarkup(
+            flatMatrix {
+              dataButton(
+                "Ok (delete message)",
+                Json.encodeToString(
+                  DeleteMessageAction(message.chat.id.toChatId(), message.messageId)
+                ),
+              )
+            }
+          ),
+      )
+    }
   }
 }

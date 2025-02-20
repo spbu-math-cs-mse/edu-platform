@@ -10,12 +10,16 @@ import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+
+private const val DELAY_IN_MILLISECONDS: Long = 1000
 
 class GoogleSheetsRatingRecorder(
   private val googleSheetsService: GoogleSheetsService,
@@ -27,6 +31,7 @@ class GoogleSheetsRatingRecorder(
 ) : RatingRecorder {
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
+  private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
   init {
     coursesDistributor.getCourses().forEach { course -> updateRating(course.id) }
@@ -35,14 +40,23 @@ class GoogleSheetsRatingRecorder(
   override fun updateRating(courseId: CourseId) {
     scope.launch {
       val mutex = courseMutexes.computeIfAbsent(courseId) { Mutex() }
-      mutex.withLock {
-        googleSheetsService.updateRating(
-          coursesDistributor.resolveCourse(courseId).value,
-          assignmentStorage.getAssignmentsForCourse(courseId),
-          problemStorage.getProblemsFromCourse(courseId),
-          coursesDistributor.getStudents(courseId),
-          gradeTable.getCourseRating(courseId),
-        )
+      if (!willBeUpdated.computeIfAbsent(courseId) { false }) {
+        willBeUpdated.replace(courseId, true)
+        mutex.withLock {
+          println("Updating course ${courseId.id}...")
+          willBeUpdated.replace(courseId, false)
+          val elapsedTime = measureTimeMillis {
+            googleSheetsService.updateRating(
+              coursesDistributor.resolveCourse(courseId).value,
+              assignmentStorage.getAssignmentsForCourse(courseId),
+              problemStorage.getProblemsFromCourse(courseId),
+              coursesDistributor.getStudents(courseId),
+              gradeTable.getCourseRating(courseId),
+            )
+          }
+          delay(DELAY_IN_MILLISECONDS - elapsedTime)
+          println("Finished update course ${courseId.id}!")
+        }
       }
     }
   }

@@ -8,7 +8,7 @@ import com.google.api.services.sheets.v4.model.ErrorValue
 import com.google.api.services.sheets.v4.model.ExtendedValue
 import com.google.api.services.sheets.v4.model.TextFormat
 
-enum class DataType {
+internal enum class DataType {
   STRING,
   LONG,
   DOUBLE,

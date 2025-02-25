@@ -36,7 +36,7 @@ class CourseInfoState(override val context: User, val course: Course) :
       bot.send(
         context,
         entities = CourseStatisticsFormatter.format(course.name, response),
-        replyMarkup = Keyboards.returnBack(),
+        replyMarkup = Keyboards.courseInfo(service.getRatingLink(course.id)),
       )
     bot.waitDataCallbackQueryWithUser(context.id).first()
     bot.deleteMessage(statsMessage)

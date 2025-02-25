@@ -44,11 +44,7 @@ suspend fun main(vararg args: String) {
   val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
   val studentStorage = DatabaseStudentStorage(database)
 
-  val googleSheetsService =
-    GoogleSheetsService(
-      config.googleSheetsConfig.serviceAccountKey,
-      config.googleSheetsConfig.spreadsheetId,
-    )
+  val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
   val ratingRecorder =
     GoogleSheetsRatingRecorder(
       googleSheetsService,

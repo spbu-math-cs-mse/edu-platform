@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot
 
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
@@ -40,6 +41,11 @@ object Keyboards {
     row { dataButton("➖ Убрать преподавателей", REMOVE_TEACHER) }
     row { dataButton("\uD83D\uDD04 Изменить описание", EDIT_DESCRIPTION) }
     row { dataButton("➕ Добавить отложенное сообщение", ADD_SCHEDULED_MESSAGE) }
+    row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
+  }
+
+  fun courseInfo(ratingUrl: String?) = inlineKeyboard {
+    if (ratingUrl != null) row { urlButton("Кондуит", ratingUrl) }
     row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
   }
 }

@@ -85,11 +85,7 @@ class MultiBotRunner : CliktCommand() {
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 
-    val googleSheetsService =
-      GoogleSheetsService(
-        config.googleSheetsConfig.serviceAccountKey,
-        config.googleSheetsConfig.spreadsheetId,
-      )
+    val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
         googleSheetsService,
@@ -100,14 +96,6 @@ class MultiBotRunner : CliktCommand() {
         solutionDistributor,
       )
     val studentStorage = DatabaseStudentStorage(database)
-    fillWithSamples(
-      coursesDistributor,
-      problemStorage,
-      assignmentStorage,
-      studentStorage,
-      teacherStorage,
-      database,
-    )
     coursesDistributor.getCourses().forEach { course -> ratingRecorder.updateRating(course.id) }
 
     val coursesDistributorDecorator =
@@ -116,6 +104,15 @@ class MultiBotRunner : CliktCommand() {
     val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
     val solutionDistributorDecorator =
       SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
+
+    fillWithSamples(
+      coursesDistributorDecorator,
+      problemStorage,
+      assignmentStorage,
+      studentStorage,
+      teacherStorage,
+      database,
+    )
 
     val parentStorage = MockParentStorage()
 

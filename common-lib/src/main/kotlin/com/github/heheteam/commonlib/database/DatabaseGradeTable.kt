@@ -47,7 +47,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = ProblemTable.id,
         )
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id and AssessmentTable.grade.isNotNull() }
+        .where { SolutionTable.studentId eq studentId.id }
         .orderBy(
           AssessmentTable.timestamp,
           SortOrder.ASC,
@@ -81,11 +81,6 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           AssessmentTable.timestamp,
           SortOrder.ASC,
         ) // associate takes the latter entry with the same key
-        .map {
-          println("here!!!!")
-          println(it)
-          it
-        }
         .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
     }
 

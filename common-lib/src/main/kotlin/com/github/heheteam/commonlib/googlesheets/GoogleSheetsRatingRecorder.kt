@@ -9,6 +9,8 @@ import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.SpreadsheetId
+import com.github.heheteam.commonlib.util.toUrl
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.CoroutineScope
@@ -33,8 +35,13 @@ class GoogleSheetsRatingRecorder(
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
-  init {
-    coursesDistributor.getCourses().forEach { course -> updateRating(course.id) }
+  override fun createRatingSpreadsheet(courseId: CourseId): SpreadsheetId {
+    val course = coursesDistributor.resolveCourse(courseId).value
+    val spreadsheetId = googleSheetsService.createCourseSpreadsheet(course)
+    coursesDistributor.updateCourseSpreadsheetId(courseId, spreadsheetId)
+    updateRating(courseId)
+    println("Created spreadsheet ${spreadsheetId.toUrl()} for course $courseId")
+    return spreadsheetId
   }
 
   override fun updateRating(courseId: CourseId) {
@@ -43,11 +50,13 @@ class GoogleSheetsRatingRecorder(
       if (!willBeUpdated.computeIfAbsent(courseId) { false }) {
         willBeUpdated.replace(courseId, true)
         mutex.withLock {
-          println("Updating course ${courseId.id}...")
           willBeUpdated.replace(courseId, false)
           val elapsedTime = measureTimeMillis {
+            val (course, spreadsheetId) =
+              coursesDistributor.resolveCourseWithSpreadsheetId(courseId).value
             googleSheetsService.updateRating(
-              coursesDistributor.resolveCourse(courseId).value,
+              spreadsheetId.id,
+              course,
               assignmentStorage.getAssignmentsForCourse(courseId),
               problemStorage.getProblemsFromCourse(courseId),
               coursesDistributor.getStudents(courseId),
@@ -55,7 +64,6 @@ class GoogleSheetsRatingRecorder(
             )
           }
           delay(DELAY_IN_MILLISECONDS - elapsedTime)
-          println("Finished update course ${courseId.id}!")
         }
       }
     }

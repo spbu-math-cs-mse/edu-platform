@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.h2database)
     implementation(libs.kotlin.result)
     implementation(libs.google.api.services.sheets)
+    implementation(libs.google.api.services.drive)
     implementation(libs.hoplite.json)
     implementation(libs.postgresql)
 }

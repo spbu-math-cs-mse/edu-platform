@@ -41,11 +41,7 @@ class GoogleSheetsTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStatistics = InMemoryTeacherStatistics()
 
-  private val googleSheetsService =
-    GoogleSheetsService(
-      config.googleSheetsConfig.serviceAccountKey,
-      config.googleSheetsConfig.spreadsheetId,
-    )
+  private val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
 
   @BeforeTest
   @AfterTest
@@ -132,6 +128,7 @@ class GoogleSheetsTest {
     }
 
     googleSheetsService.updateRating(
+      config.googleSheetsConfig.spreadsheetId,
       coursesDistributor.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id),
       problemStorage.getProblemsFromCourse(course1Id),
@@ -139,6 +136,7 @@ class GoogleSheetsTest {
       gradeTable.getCourseRating(course1Id),
     )
     googleSheetsService.updateRating(
+      config.googleSheetsConfig.spreadsheetId,
       coursesDistributor.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id),
       problemStorage.getProblemsFromCourse(course2Id),

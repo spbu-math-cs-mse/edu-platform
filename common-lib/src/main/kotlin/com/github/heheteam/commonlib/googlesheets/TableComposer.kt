@@ -9,6 +9,9 @@ import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 
+private const val ID_COLUMN_WIDTH: Int = 30
+private const val RATING_COLUMN_WIDTH: Int = 40
+
 internal class TableComposer {
   fun composeTable(
     course: Course,
@@ -29,7 +32,7 @@ internal class TableComposer {
     return ComposedTable(
       composeHeader(course, assignments, assignmentSizes, sortedProblems) +
         composeGrades(students, sortedProblems, performance),
-      listOf(30, null, null) + List<Int?>(sortedProblems.size) { 40 },
+      listOf(ID_COLUMN_WIDTH, null, null) + List<Int?>(sortedProblems.size) { RATING_COLUMN_WIDTH },
     )
   }
 

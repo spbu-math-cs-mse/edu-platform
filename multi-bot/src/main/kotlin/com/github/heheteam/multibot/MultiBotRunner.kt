@@ -29,6 +29,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.FirstTeacherResolver
+import com.github.heheteam.commonlib.database.table.DatabaseTelegramSolutionMessagesHandler
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
@@ -192,6 +193,7 @@ class MultiBotRunner : CliktCommand() {
           solutionResolver,
           botEventBus,
           solutionAssessor,
+          DatabaseTelegramSolutionMessagesHandler(database),
           developerOptions,
         )
       }

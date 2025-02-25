@@ -8,6 +8,8 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
+import com.github.heheteam.commonlib.database.table.TelegramSolutionMessagesHandler
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -30,7 +32,6 @@ import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.contentMessageOrNull
-import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
@@ -62,6 +63,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     solutionResolver: SolutionResolver,
     solutionDistributor: SolutionDistributor,
     solutionAssessor: SolutionAssessor,
+    telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
     bus: BotEventBus,
   ): State {
     with(bot) {
@@ -74,7 +76,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
             }
             .getOr(false)
         if (belongsToChat) {
-          sendSolutionIntoGroup(solution)
+          sendSolutionIntoGroup(solution, telegramSolutionMessagesHandler)
         }
       }
       while (true) {
@@ -83,7 +85,12 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               processCommonMessage(commonMessage, solutionDistributor, solutionAssessor)
             },
             waitDataCallbackQueryWithUser(context.id.toChatId()).map { dataCallback ->
-              processDataCallback(dataCallback, solutionDistributor, solutionAssessor)
+              processDataCallback(
+                dataCallback,
+                solutionDistributor,
+                solutionAssessor,
+                telegramSolutionMessagesHandler,
+              )
             },
           )
           .first()
@@ -96,6 +103,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     dataCallback: DataCallbackQuery,
     solutionDistributor: SolutionDistributor,
     solutionAssessor: SolutionAssessor,
+    telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
   ) {
     val gradingInfo =
       com.github.michaelbull.result.runCatching {
@@ -104,11 +112,11 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     assessSolutionFromButtonPress(gradingInfo, solutionDistributor, solutionAssessor)
       .mapError { sendMessage(context.id, "Error: $it") }
       .map { submissionInfo ->
-        val message = dataCallback.message
-        if (message != null) {
+        telegramSolutionMessagesHandler.resolveGroupMessage(submissionInfo.solutionId).map {
+          technicalMessage ->
           edit(
-            message.chat.id.toChatId(),
-            message.messageId,
+            technicalMessage.chatId.toChatId(),
+            technicalMessage.messageId,
             createTechnicalMessageContent(submissionInfo),
           )
         }
@@ -232,11 +240,18 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     explicitNulls = true
   }
 
-  private suspend fun BehaviourContext.sendSolutionIntoGroup(solution: Solution) {
+  private suspend fun BehaviourContext.sendSolutionIntoGroup(
+    solution: Solution,
+    telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
+  ) {
     val solutionMessage = sendSolutionContent(context.id.toChatId(), solution.content)
     val submissionInfo = SubmissionInfo(solutionId = solution.id)
     val content = createTechnicalMessageContent(submissionInfo)
     val technicalMessage = reply(solutionMessage, content)
+    telegramSolutionMessagesHandler.registerGroupSolutionPublication(
+      solution.id,
+      TelegramMessageInfo(technicalMessage.chat.id.chatId, technicalMessage.messageId),
+    )
     editMessageReplyMarkup(
       technicalMessage,
       replyMarkup =

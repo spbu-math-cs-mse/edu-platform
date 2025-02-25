@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.database.table.CourseTeachers
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.ParentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
+import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
@@ -35,6 +36,7 @@ private val allTables =
     TeacherTable,
     AdminTable,
     ParentTable,
+    SolutionGroupMessagesTable,
   )
 
 fun main() {

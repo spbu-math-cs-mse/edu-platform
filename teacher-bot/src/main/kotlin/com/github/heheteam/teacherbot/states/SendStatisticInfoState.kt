@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.api.TeacherStatsData
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.michaelbull.result.get
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -23,7 +24,7 @@ class SendStatisticInfoState(override val context: User, val teacherId: TeacherI
   override fun computeNewState(
     service: TeacherStatistics,
     input: Unit,
-  ): Pair<BotState<*, *, *>, Statistics?> {
+  ): Pair<State, Statistics?> {
     val teacherStats: TeacherStatsData? = service.resolveTeacherStats(teacherId).get()
     val globalStats = service.getGlobalStats()
     val stats =

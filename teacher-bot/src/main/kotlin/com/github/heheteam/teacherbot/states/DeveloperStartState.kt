@@ -9,6 +9,7 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -27,10 +28,7 @@ class DeveloperStartState(override val context: User) :
     return teacherIdFromText
   }
 
-  override fun computeNewState(
-    service: TeacherStorage,
-    input: TeacherId?,
-  ): Pair<BotState<*, *, *>, String> =
+  override fun computeNewState(service: TeacherStorage, input: TeacherId?): Pair<State, String> =
     binding {
         val teacherId = input.toResultOr { Dialogues.devIdIsNotLong() }.bind()
         service.resolveTeacher(teacherId).mapError { Dialogues.devIdNotFound() }.bind()

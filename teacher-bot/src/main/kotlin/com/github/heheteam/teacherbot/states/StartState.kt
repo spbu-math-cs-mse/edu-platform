@@ -28,10 +28,7 @@ class StartState(override val context: User) : BotState<TeacherId?, String, Teac
     return teacherStorage.createTeacher(firstName, lastName, context.id.chatId.long)
   }
 
-  override fun computeNewState(
-    service: TeacherStorage,
-    input: TeacherId?,
-  ): Pair<State, String> {
+  override fun computeNewState(service: TeacherStorage, input: TeacherId?): Pair<State, String> {
     val teacherId = input ?: return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
     return Pair(MenuState(context, teacherId), Dialogues.greetings())
   }

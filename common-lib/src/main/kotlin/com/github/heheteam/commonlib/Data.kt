@@ -73,6 +73,7 @@ data class Solution(
   val messageId: MessageId,
   val problemId: ProblemId,
   val content: SolutionContent,
+  val responsibleTeacherId: TeacherId?,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 

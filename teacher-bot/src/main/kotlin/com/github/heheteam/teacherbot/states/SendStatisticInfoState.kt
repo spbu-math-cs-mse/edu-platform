@@ -21,10 +21,7 @@ class SendStatisticInfoState(override val context: User, val teacherId: TeacherI
   BotState<Unit, Statistics?, TeacherStatistics> {
   override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStatistics) = Unit
 
-  override fun computeNewState(
-    service: TeacherStatistics,
-    input: Unit,
-  ): Pair<State, Statistics?> {
+  override fun computeNewState(service: TeacherStatistics, input: Unit): Pair<State, Statistics?> {
     val teacherStats: TeacherStatsData? = service.resolveTeacherStats(teacherId).get()
     val globalStats = service.getGlobalStats()
     val stats =

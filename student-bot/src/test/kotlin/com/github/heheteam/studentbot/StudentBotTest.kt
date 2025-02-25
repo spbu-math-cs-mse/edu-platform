@@ -24,6 +24,7 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.MockBotEventBus
 import com.github.heheteam.commonlib.mock.MockNotificationService
+import com.github.heheteam.commonlib.mock.MockResponsibleTeacherResolver
 import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -97,6 +98,7 @@ class StudentBotTest {
         gradeTable,
         MockNotificationService(),
         MockBotEventBus(),
+        MockResponsibleTeacherResolver(null),
       )
   }
 

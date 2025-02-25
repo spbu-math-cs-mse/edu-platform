@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.database.table.TelegramSolutionMessagesHandler
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
 import com.github.heheteam.teacherbot.CoursesStatisticsResolver
@@ -49,6 +50,7 @@ suspend fun teacherRun(
   solutionResolver: SolutionResolver,
   botEventBus: BotEventBus,
   solutionAssessor: SolutionAssessor,
+  telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
   telegramBot(botToken) {
@@ -70,7 +72,12 @@ suspend fun teacherRun(
 
       command("start") { startFsm(it, developerOptions) }
 
-      internalCompilerErrorWorkaround(solutionResolver, solutionAssessor, botEventBus)
+      internalCompilerErrorWorkaround(
+        solutionResolver,
+        solutionAssessor,
+        botEventBus,
+        telegramSolutionMessagesHandler,
+      )
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
       registerState<MenuState, TeacherStatistics>(teacherStatistics)
@@ -107,16 +114,23 @@ private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaroun
   solutionResolver: SolutionResolver,
   solutionAssessor: SolutionAssessor,
   botEventBus: BotEventBus,
+  telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
 ) {
   strictlyOn<ListeningForSolutionsGroupState>(
-    registerState(solutionResolver, solutionAssessor, botEventBus)
+    registerListeningForSolutionState(
+      solutionResolver,
+      solutionAssessor,
+      botEventBus,
+      telegramSolutionMessagesHandler,
+    )
   )
 }
 
-private fun registerState(
+private fun registerListeningForSolutionState(
   solutionResolver: SolutionResolver,
   solutionAssessor: SolutionAssessor,
   botEventBus: BotEventBus,
+  telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
 ): suspend BehaviourContextWithFSM<in State>.(state: ListeningForSolutionsGroupState) -> State? =
   { state ->
     state.execute(
@@ -124,6 +138,7 @@ private fun registerState(
       solutionResolver,
       solutionResolver.solutionDistributor,
       solutionAssessor,
+      telegramSolutionMessagesHandler,
       botEventBus,
     )
   }

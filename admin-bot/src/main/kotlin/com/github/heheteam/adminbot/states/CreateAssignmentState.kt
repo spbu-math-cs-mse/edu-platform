@@ -195,7 +195,7 @@ fun parseProblemsDescriptions(
   problemsDescriptionsFromText: String
 ): Result<List<ProblemDescription>, String> {
   val problemsDescriptions = mutableListOf<ProblemDescription>()
-  for (problemDescription in problemsDescriptionsFromText.lines()) {
+  problemsDescriptionsFromText.lines().mapIndexed { index, problemDescription ->
     val arguments =
       """[^\s"]+|"([^"]*)""""
         .toRegex()
@@ -224,7 +224,12 @@ fun parseProblemsDescriptions(
       return Err(maxScore.error)
     }
     problemsDescriptions.add(
-      ProblemDescription(arguments.first(), arguments.elementAtOrElse(1) { "" }, maxScore.value)
+      ProblemDescription(
+        index + 1,
+        arguments.first(),
+        arguments.elementAtOrElse(1) { "" },
+        maxScore.value,
+      )
     )
   }
   return Ok(problemsDescriptions)

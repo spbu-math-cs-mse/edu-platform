@@ -46,8 +46,8 @@ class StudentCore(
   ): Pair<List<Problem>, Map<ProblemId, Grade?>> {
     val problems =
       problemStorage.getProblemsFromAssignment(assignmentId).sortedBy { problem ->
-        problem.number
-      } // TODO: sort it in actual order, not in alphabetical
+        problem.serialNumber
+      }
     val grades = gradeTable.getStudentPerformance(studentId, listOf(assignmentId))
     return problems to grades
   }

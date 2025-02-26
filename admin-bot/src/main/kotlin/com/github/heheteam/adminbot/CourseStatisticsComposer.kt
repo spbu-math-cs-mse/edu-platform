@@ -5,6 +5,8 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.util.toUrl
+import com.github.michaelbull.result.get
 
 class CourseStatisticsComposer(
   private val coursesDistributor: CoursesDistributor,
@@ -12,6 +14,9 @@ class CourseStatisticsComposer(
   private val problemStorage: ProblemStorage,
   private val solutionDistributor: SolutionDistributor,
 ) {
+  fun getRatingLink(courseId: CourseId): String? =
+    coursesDistributor.resolveCourseWithSpreadsheetId(courseId).get()?.second?.toUrl()
+
   fun getCourseStatistics(courseId: CourseId): CourseStatistics {
     val students = coursesDistributor.getStudents(courseId)
     val teachers = coursesDistributor.getTeachers(courseId)

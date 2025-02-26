@@ -45,11 +45,7 @@ suspend fun main(vararg args: String) {
     InMemoryScheduledMessagesDistributor()
   val studentStorage = DatabaseStudentStorage(database)
 
-  val googleSheetsService =
-    GoogleSheetsService(
-      config.googleSheetsConfig.serviceAccountKey,
-      config.googleSheetsConfig.spreadsheetId,
-    )
+  val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
   val ratingRecorder =
     GoogleSheetsRatingRecorder(
       googleSheetsService,

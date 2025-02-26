@@ -38,6 +38,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
     return Ok(
       Problem(
         problemId,
+        row[ProblemTable.serialNumber],
         row[ProblemTable.number],
         row[ProblemTable.description],
         row[ProblemTable.maxScore],
@@ -48,6 +49,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
 
   override fun createProblem(
     assignmentId: AssignmentId,
+    serialNumber: Int,
     number: String,
     maxScore: Grade,
     description: String,
@@ -55,6 +57,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   ): ProblemId =
     transaction(database) {
         ProblemTable.insertAndGetId {
+          it[ProblemTable.serialNumber] = serialNumber
           it[ProblemTable.number] = number
           it[ProblemTable.assignmentId] = assignmentId.id
           it[ProblemTable.maxScore] = maxScore
@@ -70,6 +73,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
       ProblemTable.selectAll().where(ProblemTable.assignmentId eq assignmentId.id).map {
         Problem(
           it[ProblemTable.id].value.toProblemId(),
+          it[ProblemTable.serialNumber],
           it[ProblemTable.number],
           it[ProblemTable.description],
           it[ProblemTable.maxScore],
@@ -92,6 +96,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
         .map {
           Problem(
             it[ProblemTable.id].value.toProblemId(),
+            it[ProblemTable.serialNumber],
             it[ProblemTable.number],
             it[ProblemTable.description],
             it[ProblemTable.maxScore],
@@ -122,6 +127,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
         }) {
           Problem(
             it[ProblemTable.id].value.toProblemId(),
+            it[ProblemTable.serialNumber],
             it[ProblemTable.number],
             it[ProblemTable.description],
             it[ProblemTable.maxScore],

@@ -85,10 +85,10 @@ class AdminBotTest {
     assertTrue(parsedProblemsDescriptions.isOk)
     val expectedProblemsDescriptions =
       listOf(
-        ProblemDescription("1"),
-        ProblemDescription("2", maxScore = 5),
-        ProblemDescription("3a", "Лёгкая задача"),
-        ProblemDescription("3b", "Сложная задача", 10),
+        ProblemDescription(1, "1"),
+        ProblemDescription(2, "2", maxScore = 5),
+        ProblemDescription(3, "3a", "Лёгкая задача"),
+        ProblemDescription(4, "3b", "Сложная задача", 10),
       )
     assertEquals(expectedProblemsDescriptions, parsedProblemsDescriptions.value)
 

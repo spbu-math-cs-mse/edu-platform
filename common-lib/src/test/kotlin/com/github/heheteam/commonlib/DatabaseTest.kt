@@ -75,9 +75,9 @@ class DatabaseTest {
         course1Id,
         "assignment 1",
         listOf(
-          ProblemDescription("p1", "", 1),
-          ProblemDescription("p2", "", 1),
-          ProblemDescription("p3", "", 1),
+          ProblemDescription(1, "p1", "", 1),
+          ProblemDescription(2, "p2", "", 1),
+          ProblemDescription(3, "p3", "", 1),
         ),
         problemStorage,
       )
@@ -86,9 +86,9 @@ class DatabaseTest {
         course1Id,
         "assignment 2",
         listOf(
-          ProblemDescription("p1", "", 1),
-          ProblemDescription("p2", "", 1),
-          ProblemDescription("p3", "", 1),
+          ProblemDescription(1, "p1", "", 1),
+          ProblemDescription(2, "p2", "", 1),
+          ProblemDescription(3, "p3", "", 1),
         ),
         problemStorage,
       )
@@ -96,7 +96,7 @@ class DatabaseTest {
       assignmentStorage.createAssignment(
         course2Id,
         "assignment 3",
-        listOf(ProblemDescription("p1", "", 1), ProblemDescription("p2", "", 1)),
+        listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
         problemStorage,
       )
 

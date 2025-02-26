@@ -41,11 +41,7 @@ class GoogleSheetsTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStatistics = InMemoryTeacherStatistics()
 
-  private val googleSheetsService =
-    GoogleSheetsService(
-      config.googleSheetsConfig.serviceAccountKey,
-      config.googleSheetsConfig.spreadsheetId,
-    )
+  private val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
 
   @BeforeTest
   @AfterTest
@@ -74,29 +70,29 @@ class GoogleSheetsTest {
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 1",
-      listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
+      listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
       problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 2",
-      listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
+      listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
       problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 3",
-      listOf(ProblemDescription("p1"), ProblemDescription("p2"), ProblemDescription("p3")),
+      listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
       problemStorage,
     )
     assignmentStorage.createAssignment(
       course2Id,
       "assignment 1",
       listOf(
-        ProblemDescription("p1"),
-        ProblemDescription("p2"),
-        ProblemDescription("p3"),
-        ProblemDescription("p4"),
+        ProblemDescription(1, "p1"),
+        ProblemDescription(2, "p2"),
+        ProblemDescription(3, "p3"),
+        ProblemDescription(4, "p4"),
       ),
       problemStorage,
     )
@@ -132,6 +128,7 @@ class GoogleSheetsTest {
     }
 
     googleSheetsService.updateRating(
+      config.googleSheetsConfig.spreadsheetId,
       coursesDistributor.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id),
       problemStorage.getProblemsFromCourse(course1Id),
@@ -139,6 +136,7 @@ class GoogleSheetsTest {
       gradeTable.getCourseRating(course1Id),
     )
     googleSheetsService.updateRating(
+      config.googleSheetsConfig.spreadsheetId,
       coursesDistributor.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id),
       problemStorage.getProblemsFromCourse(course2Id),

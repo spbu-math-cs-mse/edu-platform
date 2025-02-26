@@ -5,13 +5,17 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.SpreadsheetId
 import com.github.heheteam.commonlib.api.StudentId
+import com.google.api.services.drive.Drive
+import com.google.api.services.drive.DriveScopes
+import com.google.api.services.drive.model.Permission
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.AddSheetRequest
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest
 import com.google.api.services.sheets.v4.model.ClearValuesRequest
+import com.google.api.services.sheets.v4.model.DeleteSheetRequest
 import com.google.api.services.sheets.v4.model.DimensionProperties
 import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.GridRange
@@ -19,21 +23,28 @@ import com.google.api.services.sheets.v4.model.MergeCellsRequest
 import com.google.api.services.sheets.v4.model.Request
 import com.google.api.services.sheets.v4.model.RowData
 import com.google.api.services.sheets.v4.model.SheetProperties
+import com.google.api.services.sheets.v4.model.Spreadsheet
+import com.google.api.services.sheets.v4.model.SpreadsheetProperties
 import com.google.api.services.sheets.v4.model.UnmergeCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateDimensionPropertiesRequest
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 
-class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheetId: String) {
+private const val RATING_SHEET_TITLE: String = "Рейтинг"
+private const val DEFAULT_SHEET_TITLE: String = "Sheet1"
+
+class GoogleSheetsService(serviceAccountKeyFile: String) {
   private val apiClient: Sheets
+  private val driveClient: Drive
+  private val tableComposer: TableComposer = TableComposer()
 
   init {
     val credentials =
       GoogleCredentials.fromStream(
           object {}.javaClass.classLoader.getResourceAsStream(serviceAccountKeyFile)
         )
-        .createScoped(listOf("https://www.googleapis.com/auth/spreadsheets"))
+        .createScoped(listOf("https://www.googleapis.com/auth/spreadsheets", DriveScopes.DRIVE))
 
     apiClient =
       Sheets.Builder(
@@ -43,32 +54,67 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
         )
         .setApplicationName("GoogleSheetsService")
         .build()
+
+    driveClient =
+      Drive.Builder(
+          com.google.api.client.http.javanet.NetHttpTransport(),
+          com.google.api.client.json.gson.GsonFactory.getDefaultInstance(),
+          HttpCredentialsAdapter(credentials),
+        )
+        .setApplicationName("GoogleDriveService")
+        .build()
   }
 
-  private fun createCourseSheet(course: Course) {
-    val addSheetRequest = AddSheetRequest().setProperties(SheetProperties().setTitle(course.name))
+  fun createCourseSpreadsheet(course: Course): SpreadsheetId {
+    val spreadsheetProperties = SpreadsheetProperties().setTitle(course.name)
+    val spreadsheet = Spreadsheet().setProperties(spreadsheetProperties)
+    val createdSpreadsheet = apiClient.spreadsheets().create(spreadsheet).execute()
+
+    val permission =
+      Permission().apply {
+        this.type = "anyone"
+        this.role = "reader"
+      }
+    driveClient.permissions().create(createdSpreadsheet.spreadsheetId, permission).execute()
+
+    val addSheetRequest =
+      AddSheetRequest().setProperties(SheetProperties().setTitle(RATING_SHEET_TITLE))
+
+    val defaultSheetId =
+      createdSpreadsheet.sheets
+        .first { it.properties.title == DEFAULT_SHEET_TITLE }
+        .properties
+        .sheetId
+    val deleteDefaultSheetRequest = DeleteSheetRequest().setSheetId(defaultSheetId)
 
     val batchUpdateRequest =
-      BatchUpdateSpreadsheetRequest().setRequests(listOf(Request().setAddSheet(addSheetRequest)))
-
-    apiClient.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute()
+      BatchUpdateSpreadsheetRequest()
+        .setRequests(
+          listOf(
+            Request().setAddSheet(addSheetRequest),
+            Request().setDeleteSheet(deleteDefaultSheetRequest),
+          )
+        )
+    apiClient
+      .spreadsheets()
+      .batchUpdate(createdSpreadsheet.spreadsheetId, batchUpdateRequest)
+      .execute()
+    return SpreadsheetId(createdSpreadsheet.spreadsheetId)
   }
 
   fun updateRating(
+    courseSpreadsheetId: String,
     course: Course,
     assignments: List<Assignment>,
     problems: List<Problem>,
     students: List<Student>,
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ) {
-    var spreadsheet = apiClient.spreadsheets().get(spreadsheetId).execute()
-    val sheetNames = spreadsheet.sheets.map { it.properties.title }
-    if (course.name !in sheetNames) {
-      createCourseSheet(course)
-      spreadsheet = apiClient.spreadsheets().get(spreadsheetId).execute()
-    }
-    val sheetId = spreadsheet.sheets.first { it.properties.title == course.name }.properties.sheetId
-    val table: ComposedTable = composeTable(course, problems, assignments, students, performance)
+    val spreadsheet = apiClient.spreadsheets().get(courseSpreadsheetId).execute()
+    val sheetId =
+      spreadsheet.sheets.first { it.properties.title == RATING_SHEET_TITLE }.properties.sheetId
+    val table: ComposedTable =
+      tableComposer.composeTable(course, problems, assignments, students, performance)
 
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()
@@ -78,11 +124,11 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
             generateResizeRequests(table.columnWidths, sheetId) +
             generateMergeRequests(table.cells, sheetId)
         )
-    clearSheet(course.name)
-    apiClient.spreadsheets().batchUpdate(spreadsheetId, batchUpdateRequest).execute()
+    clearSheet(spreadsheet.spreadsheetId, RATING_SHEET_TITLE)
+    apiClient.spreadsheets().batchUpdate(courseSpreadsheetId, batchUpdateRequest).execute()
   }
 
-  private fun clearSheet(sheetName: String) {
+  private fun clearSheet(spreadsheetId: String, sheetName: String) {
     apiClient
       .spreadsheets()
       .values()
@@ -182,90 +228,4 @@ class GoogleSheetsService(serviceAccountKeyFile: String, private val spreadsheet
       .setEndRowIndex(endRow + 1)
       .setStartColumnIndex(startColumn)
       .setEndColumnIndex(endColumn)
-
-  private fun composeTable(
-    course: Course,
-    problems: List<Problem>,
-    assignments: List<Assignment>,
-    students: List<Student>,
-    performance: Map<StudentId, Map<ProblemId, Grade?>>,
-  ): ComposedTable {
-    val sortedProblems =
-      problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.number })
-    val sortedAssignments = assignments.sortedWith(compareBy { it.id.id })
-    val assignmentSizes = mutableMapOf<AssignmentId, Int>()
-
-    for (problem in sortedProblems) {
-      assignmentSizes[problem.assignmentId] =
-        assignmentSizes[problem.assignmentId]?.let { i -> i + 1 } ?: 1
-    }
-
-    return ComposedTable(
-      composeHeader(course, sortedAssignments, assignmentSizes, sortedProblems) +
-        composeGrades(students, sortedProblems, performance),
-      listOf(30, null, null) + List<Int?>(sortedProblems.size) { 40 },
-    )
-  }
-
-  private fun composeHeader(
-    course: Course,
-    sortedAssignments: List<Assignment>,
-    assignmentSizes: MutableMap<AssignmentId, Int>,
-    sortedProblems: List<Problem>,
-  ) =
-    listOf(
-      // Row 1
-      // Name of the course
-      listOf(FormattedCell(course.name, DataType.STRING, 3).centerAlign().bold().borders(2)) +
-        // Assignments
-        sortedAssignments.map {
-          FormattedCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0)
-            .bold()
-            .borders(2)
-            .centerAlign()
-        },
-      // Row 2
-      listOf("id", "surname", "name").map { FormattedCell(it, DataType.STRING).bold().borders() } +
-        sortedProblems.map {
-          FormattedCell(it.number, DataType.STRING).bold().borders().centerAlign()
-        },
-    )
-
-  private fun composeGrades(
-    students: List<Student>,
-    sortedProblems: List<Problem>,
-    performance: Map<StudentId, Map<ProblemId, Grade?>>,
-  ) =
-    students.map { student ->
-      listOf(student.id.id, student.surname, student.name).map {
-        FormattedCell(it.toString(), DataType.STRING).borders()
-      } +
-        sortedProblems
-          .asSequence()
-          .map { problem ->
-            val grades = performance[student.id]
-            if (grades != null) gradeToString(problem.id, grades) else ""
-          }
-          .map { FormattedCell(it, DataType.STRING).topBorder().bottomBorder().centerAlign() }
-          .mapIndexed { index, cell ->
-            if (
-              index == sortedProblems.size - 1 ||
-                sortedProblems[index].assignmentId != sortedProblems[index + 1].assignmentId
-            ) {
-              cell.rightBorder()
-            }
-            cell
-          }
-    }
-
-  private fun gradeToString(problemId: ProblemId, grades: Map<ProblemId, Grade?>): String =
-    if (grades.containsKey(problemId)) {
-      val grade = grades[problemId]
-      when {
-        grade == null -> "П"
-        else -> grade.toString()
-      }
-    } else {
-      ""
-    }
 }

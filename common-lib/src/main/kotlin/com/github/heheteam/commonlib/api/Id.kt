@@ -40,6 +40,11 @@ data class AssignmentId(val id: Long) {
   override fun toString(): String = "$id"
 }
 
+@Serializable
+data class SpreadsheetId(val id: String) {
+  override fun toString(): String = id
+}
+
 fun Long.toCourseId() = CourseId(this)
 
 fun Long.toAssignmentId() = AssignmentId(this)

@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object ProblemTable : LongIdTable("problem") {
+  val serialNumber = integer("serialNumber")
   val number = varchar("number", 64)
   val description = text("description")
   val maxScore = integer("maxScore")

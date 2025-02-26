@@ -11,6 +11,7 @@ interface ProblemStorage {
 
   fun createProblem(
     assignmentId: AssignmentId,
+    serialNumber: Int,
     number: String,
     maxScore: Grade,
     description: String,

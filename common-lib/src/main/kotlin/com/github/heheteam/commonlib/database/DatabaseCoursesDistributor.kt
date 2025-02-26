@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.DeleteError
 import com.github.heheteam.commonlib.api.ResolveError
+import com.github.heheteam.commonlib.api.SpreadsheetId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.toCourseId
@@ -32,6 +33,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   init {
@@ -56,7 +58,6 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           .isNotEmpty()
       if (!exists) {
         Ok(Unit)
-
         runCatching {
             CourseStudents.insert {
               it[CourseStudents.studentId] = studentId.id
@@ -172,9 +173,32 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       Ok(Course(courseId, row[CourseTable.name]))
     }
 
+  override fun resolveCourseWithSpreadsheetId(
+    courseId: CourseId
+  ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
+    transaction(database) {
+      val row =
+        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+          ?: return@transaction Err(ResolveError(courseId))
+      val spreadsheetId =
+        row[CourseTable.spreadsheetId]
+          ?: return@transaction Err(ResolveError<CourseId>(courseId, "SpreadsheetId"))
+      Ok(Pair(Course(courseId, row[CourseTable.name]), SpreadsheetId(spreadsheetId)))
+    }
+
+  override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId): Unit =
+    transaction(database) {
+      CourseTable.update({ CourseTable.id eq courseId.id }) {
+        it[CourseTable.spreadsheetId] = spreadsheetId.id
+      }
+    }
+
   override fun createCourse(description: String): CourseId =
     transaction(database) {
-        CourseTable.insert { it[CourseTable.name] = description } get CourseTable.id
+        CourseTable.insert {
+          it[CourseTable.name] = description
+          it[CourseTable.spreadsheetId] = null
+        } get CourseTable.id
       }
       .value
       .toCourseId()

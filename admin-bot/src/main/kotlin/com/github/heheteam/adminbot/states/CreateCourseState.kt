@@ -2,7 +2,10 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.util.toUrl
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.get
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -29,8 +32,12 @@ class CreateCourseState(override val context: User) :
         service.getCourses().any { it.name == input } -> "Курс с таким названием уже существует"
 
         else -> {
-          service.createCourse(input)
-          "Курс $input успешно создан"
+          val courseId = service.createCourse(input)
+          binding {
+              val (_, spreadsheetId) = service.resolveCourseWithSpreadsheetId(courseId).bind()
+              "Курс $input успешно создан\nРейтинг доступен по ссылке:\n\n${spreadsheetId.toUrl()}"
+            }
+            .get() ?: "Не удалось создать курс $input\n"
         }
       }
     return Pair(MenuState(context), response)

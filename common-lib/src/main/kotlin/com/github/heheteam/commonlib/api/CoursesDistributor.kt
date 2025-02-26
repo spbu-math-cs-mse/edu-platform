@@ -34,6 +34,12 @@ interface CoursesDistributor {
 
   fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>>
 
+  fun resolveCourseWithSpreadsheetId(
+    courseId: CourseId
+  ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>>
+
+  fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId)
+
   fun createCourse(description: String): CourseId
 
   fun getStudents(courseId: CourseId): List<Student>

@@ -44,7 +44,6 @@ fun main() {
   transaction {
     addLogger(StdOutSqlLogger)
     reset(database)
-    fillWithMockData()
   }
 }
 

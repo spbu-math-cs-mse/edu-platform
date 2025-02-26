@@ -17,6 +17,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.map
@@ -103,14 +104,27 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
       }
     assessSolutionFromButtonPress(gradingInfo, solutionDistributor, solutionAssessor)
       .mapError { sendMessage(context.id, "Error: $it") }
-      .map { submissionInfo ->
+      .map { gradingData ->
         val message = dataCallback.message
         if (message != null) {
-          edit(
-            message.chat.id.toChatId(),
-            message.messageId,
-            createTechnicalMessageContent(submissionInfo),
-          )
+          val previous = parseTechnicalMessage(message.text.orEmpty()).get()
+          if (previous != null) {
+            edit(
+              message.chat.id.toChatId(),
+              message.messageId,
+              createTechnicalMessageContent(
+                previous.copy(gradingInfo = previous.gradingInfo + gradingData)
+              ),
+            )
+            editMessageReplyMarkup(
+              message.chat,
+              message.messageId,
+              replyMarkup =
+                InlineKeyboardMarkup(keyboard = createSolutionCheckKeyboard(previous.solutionId)),
+            )
+          } else {
+            println("result!!!! is ${message.text.orEmpty()}")
+          }
         }
       }
   }
@@ -129,14 +143,8 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
         .bind()
     val teacherId = TeacherId(1L)
     solutionAssessor.assessSolution(solution, teacherId, assessment, java.time.LocalDateTime.now())
-    SubmissionInfo(
-      solution.id,
-      GradingInfo(
-        teacherId,
-        assessment.grade,
-        java.time.LocalDateTime.now().toKotlinLocalDateTime(),
-      ),
-    )
+
+    GradingInfo(teacherId, assessment.grade, java.time.LocalDateTime.now().toKotlinLocalDateTime())
   }
 
   private suspend fun BehaviourContext.processCommonMessage(
@@ -163,11 +171,12 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
           )
           SubmissionInfo(
             solution.id,
-            GradingInfo(
-              teacherId,
-              assessment.grade,
-              java.time.LocalDateTime.now().toKotlinLocalDateTime(),
-            ),
+            submissionInfo.gradingInfo +
+              GradingInfo(
+                teacherId,
+                assessment.grade,
+                java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+              ),
           )
         }
         .map { submissionInfo -> updateTechnicalMessage(commonMessage.replyTo, submissionInfo) }
@@ -187,6 +196,12 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
         technicalMessage.messageId,
         createTechnicalMessageContent(submissionInfo),
       )
+      editMessageReplyMarkup(
+        technicalMessage.chat,
+        technicalMessage.messageId,
+        replyMarkup =
+          InlineKeyboardMarkup(keyboard = createSolutionCheckKeyboard(submissionInfo.solutionId)),
+      )
     }
   }
 
@@ -203,7 +218,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   }
 
   private fun parseTechnicalMessage(text: String) = binding {
-    val regex = Regex(".*\\[(.*)]", option = RegexOption.DOT_MATCHES_ALL)
+    val regex = Regex(".*\\<(.*)>", option = RegexOption.DOT_MATCHES_ALL)
     val match = regex.matchEntire(text).toResultOr { "Not a submission message" }.bind()
     val submissionInfoString =
       match.groups[1]?.value.toResultOr { "bad regex (no group number 1)" }.bind()
@@ -239,30 +254,22 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     val technicalMessage = reply(solutionMessage, content)
     editMessageReplyMarkup(
       technicalMessage,
-      replyMarkup =
-        InlineKeyboardMarkup(
-          keyboard =
-            matrix {
-              row {
-                dataButton(
-                  "\uD83D\uDE80+",
-                  Json.encodeToString(GradingButtonContent(solution.id, 1)),
-                )
-                dataButton(
-                  "\uD83D\uDE2D-",
-                  Json.encodeToString(GradingButtonContent(solution.id, 0)),
-                )
-              }
-            }
-        ),
+      replyMarkup = InlineKeyboardMarkup(keyboard = createSolutionCheckKeyboard(solution.id)),
     )
+  }
+
+  private fun createSolutionCheckKeyboard(solutionId: SolutionId) = matrix {
+    row {
+      dataButton("\uD83D\uDE80+", Json.encodeToString(GradingButtonContent(solutionId, 1)))
+      dataButton("\uD83D\uDE2D-", Json.encodeToString(GradingButtonContent(solutionId, 0)))
+    }
   }
 
   private fun createTechnicalMessageContent(submissionInfo: SubmissionInfo): TextSourcesList {
     val submissionSignature = prettyJson.encodeToString(submissionInfo)
     val content = buildEntities {
       +"reply to me to grade this\n"
-      spoiler("[$submissionSignature]")
+      spoiler("<$submissionSignature>")
     }
     return content
   }
@@ -270,7 +277,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   @Serializable
   private data class SubmissionInfo(
     val solutionId: SolutionId,
-    val gradingInfo: GradingInfo? = null,
+    val gradingInfo: List<GradingInfo> = listOf(),
   )
 
   @Serializable

@@ -33,7 +33,6 @@
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setTop(Border().setWidth(width).setStyle("SOLID")) }</ID>
-    <ID>UnsafeCallOnNullableType:DatabaseCoursesDistributor.kt$DatabaseCoursesDistributor$row[CourseTable.spreadsheetId]!!</ID>
     <ID>UseAnyOrNoneInsteadOfFind:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$firstOrNull()</ID>
   </CurrentIssues>
 </SmellBaseline>

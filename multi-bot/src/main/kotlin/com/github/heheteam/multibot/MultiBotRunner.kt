@@ -96,7 +96,8 @@ class MultiBotRunner : CliktCommand() {
         solutionDistributor,
       )
     val studentStorage = DatabaseStudentStorage(database)
-    coursesDistributor.getCourses().forEach { course -> ratingRecorder.updateRating(course.id) }
+    //    coursesDistributor.getCourses().forEach { course -> ratingRecorder.updateRating(course.id)
+    // }
 
     val coursesDistributorDecorator =
       CoursesDistributorDecorator(coursesDistributor, ratingRecorder)

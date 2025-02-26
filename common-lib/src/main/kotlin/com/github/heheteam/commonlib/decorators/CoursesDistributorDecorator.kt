@@ -13,6 +13,7 @@ import com.github.heheteam.commonlib.api.SpreadsheetId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getError
 
 class CoursesDistributorDecorator(
   private val coursesDistributor: CoursesDistributor,
@@ -66,7 +67,9 @@ class CoursesDistributorDecorator(
     coursesDistributor.updateCourseSpreadsheetId(courseId, spreadsheetId)
 
   override fun createCourse(description: String): CourseId =
-    coursesDistributor.createCourse(description).also { ratingRecorder.createRatingSpreadsheet(it) }
+    coursesDistributor.createCourse(description).also {
+      ratingRecorder.createRatingSpreadsheet(it).getError()?.also { err -> println(err) }
+    }
 
   override fun getStudents(courseId: CourseId): List<Student> =
     coursesDistributor.getStudents(courseId)

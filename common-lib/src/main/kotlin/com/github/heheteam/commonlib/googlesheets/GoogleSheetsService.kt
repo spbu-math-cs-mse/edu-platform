@@ -15,6 +15,7 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.AddSheetRequest
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest
 import com.google.api.services.sheets.v4.model.ClearValuesRequest
+import com.google.api.services.sheets.v4.model.DeleteSheetRequest
 import com.google.api.services.sheets.v4.model.DimensionProperties
 import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.GridRange
@@ -31,6 +32,7 @@ import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 
 private const val RATING_SHEET_TITLE: String = "Рейтинг"
+private const val DEFAULT_SHEET_TITLE: String = "Sheet1"
 
 class GoogleSheetsService(serviceAccountKeyFile: String) {
   private val apiClient: Sheets
@@ -73,13 +75,26 @@ class GoogleSheetsService(serviceAccountKeyFile: String) {
         this.type = "anyone"
         this.role = "reader"
       }
-
     driveClient.permissions().create(createdSpreadsheet.spreadsheetId, permission).execute()
 
     val addSheetRequest =
       AddSheetRequest().setProperties(SheetProperties().setTitle(RATING_SHEET_TITLE))
+
+    val defaultSheetId =
+      createdSpreadsheet.sheets
+        .first { it.properties.title == DEFAULT_SHEET_TITLE }
+        .properties
+        .sheetId
+    val deleteDefaultSheetRequest = DeleteSheetRequest().setSheetId(defaultSheetId)
+
     val batchUpdateRequest =
-      BatchUpdateSpreadsheetRequest().setRequests(listOf(Request().setAddSheet(addSheetRequest)))
+      BatchUpdateSpreadsheetRequest()
+        .setRequests(
+          listOf(
+            Request().setAddSheet(addSheetRequest),
+            Request().setDeleteSheet(deleteDefaultSheetRequest),
+          )
+        )
     apiClient
       .spreadsheets()
       .batchUpdate(createdSpreadsheet.spreadsheetId, batchUpdateRequest)

@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.googlesheets
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.CreateError
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
@@ -11,6 +12,9 @@ import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.SpreadsheetId
 import com.github.heheteam.commonlib.util.toUrl
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.CoroutineScope
@@ -35,13 +39,20 @@ class GoogleSheetsRatingRecorder(
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
-  override fun createRatingSpreadsheet(courseId: CourseId): SpreadsheetId {
+  override fun createRatingSpreadsheet(courseId: CourseId): Result<SpreadsheetId, CreateError> {
     val course = coursesDistributor.resolveCourse(courseId).value
-    val spreadsheetId = googleSheetsService.createCourseSpreadsheet(course)
+    val spreadsheetId =
+      try {
+        googleSheetsService.createCourseSpreadsheet(course)
+      } catch (e: java.io.IOException) {
+        return Err(CreateError("Google Spreadheet", e.message))
+      }
     coursesDistributor.updateCourseSpreadsheetId(courseId, spreadsheetId)
+    println(
+      "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${course.name}\" (id: $courseId)"
+    )
     updateRating(courseId)
-    println("Created spreadsheet ${spreadsheetId.toUrl()} for course $courseId")
-    return spreadsheetId
+    return Ok(spreadsheetId)
   }
 
   override fun updateRating(courseId: CourseId) {

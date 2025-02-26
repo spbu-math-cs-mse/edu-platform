@@ -8,6 +8,11 @@ data class DeleteError<T>(val id: T, val rows: Int) {
   override fun toString(): String = "Error: deleted $rows rows while deleting $id"
 }
 
+data class CreateError(val objectClassName: String, val message: String? = null) {
+  override fun toString(): String =
+    "Error: can not create $objectClassName. " + if (message != null) "Reason: $message" else ""
+}
+
 data class BindError<T, U>(val id1: T, val id2: U) {
   override fun toString(): String = "Error: can't bind $id1 to $id2"
 }

@@ -58,7 +58,6 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           .isNotEmpty()
       if (!exists) {
         Ok(Unit)
-
         runCatching {
             CourseStudents.insert {
               it[CourseStudents.studentId] = studentId.id
@@ -181,12 +180,10 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       val row =
         CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
           ?: return@transaction Err(ResolveError(courseId))
-      Ok(
-        Pair(
-          Course(courseId, row[CourseTable.name]),
-          SpreadsheetId(row[CourseTable.spreadsheetId]!!),
-        )
-      )
+      val spreadsheetId =
+        row[CourseTable.spreadsheetId]
+          ?: return@transaction Err(ResolveError<CourseId>(courseId, "SpreadsheetId"))
+      Ok(Pair(Course(courseId, row[CourseTable.name]), SpreadsheetId(spreadsheetId)))
     }
 
   override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId): Unit =
@@ -198,7 +195,10 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
 
   override fun createCourse(description: String): CourseId =
     transaction(database) {
-        CourseTable.insert { it[CourseTable.name] = description } get CourseTable.id
+        CourseTable.insert {
+          it[CourseTable.name] = description
+          it[CourseTable.spreadsheetId] = null
+        } get CourseTable.id
       }
       .value
       .toCourseId()

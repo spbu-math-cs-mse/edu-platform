@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -18,6 +19,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
   init {
@@ -44,7 +46,14 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
       val row =
         TeacherTable.selectAll().where(TeacherTable.id eq teacherId.id).singleOrNull()
           ?: return@transaction Err(ResolveError(teacherId))
-      Ok(Teacher(teacherId, row[TeacherTable.name], row[TeacherTable.surname]))
+      Ok(
+        Teacher(
+          teacherId,
+          row[TeacherTable.name],
+          row[TeacherTable.surname],
+          RawChatId(row[TeacherTable.tgId]),
+        )
+      )
     }
 
   override fun getTeachers(): List<Teacher> =
@@ -54,6 +63,7 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
           TeacherId(it[TeacherTable.id].value),
           it[TeacherTable.name],
           it[TeacherTable.surname],
+          RawChatId(it[TeacherTable.tgId]),
         )
       }
     }
@@ -68,7 +78,25 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
           row[TeacherTable.id].value.toTeacherId(),
           row[TeacherTable.name],
           row[TeacherTable.surname],
+          RawChatId(row[TeacherTable.tgId]),
         )
       )
     }
+
+  override fun updateTgId(
+    teacherId: TeacherId,
+    newTgId: UserId,
+  ): Result<Unit, ResolveError<TeacherId>> {
+    val rows =
+      transaction(database) {
+        TeacherTable.update({ TeacherTable.id eq teacherId.id }) {
+          it[TeacherTable.tgId] = newTgId.chatId.long
+        }
+      }
+    return if (rows == 1) {
+      Ok(Unit)
+    } else {
+      Err(ResolveError(teacherId))
+    }
+  }
 }

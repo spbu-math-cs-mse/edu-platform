@@ -78,6 +78,11 @@ data class Solution(
 
 data class Course(val id: CourseId, val name: String)
 
-data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
+data class Assignment(
+  val id: AssignmentId,
+  val serialNumber: Int,
+  val description: String,
+  val courseId: CourseId,
+)
 
 data class SolutionAssessment(val grade: Grade, val comment: String)

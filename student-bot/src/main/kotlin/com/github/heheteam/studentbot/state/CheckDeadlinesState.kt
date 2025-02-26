@@ -4,10 +4,21 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.textsources.bold
+import dev.inmo.tgbotapi.types.message.textsources.italic
+import dev.inmo.tgbotapi.types.message.textsources.regular
+import dev.inmo.tgbotapi.utils.buildEntities
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 
 class CheckDeadlinesState(
   override val context: User,
@@ -17,19 +28,40 @@ class CheckDeadlinesState(
   override suspend fun readUserInput(bot: BehaviourContext, service: ProblemStorage) {
     val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id)
     val messageText =
-      problemsByAssignments
-        .toList()
-        .sortedBy { it.first.id.id }
-        .joinToString("\n\n") { (assignment, problems) ->
-          assignment.description +
-            "\n" +
-            problems.joinToString("\n") { problem ->
-              println(problem.deadline)
-              "  • ${problem.number} ${problem.deadline?.toString()}"
+      buildEntities(" ") {
+        problemsByAssignments
+          .filterByDeadlineAndSort()
+          .sortedBy { it.first.id.id }
+          .forEach { (assignment, problems) ->
+            +bold(assignment.description) + regular("\n")
+            problems.forEach { problem ->
+              val formattedDeadline = problem.deadline?.format(deadlineFormat)?.let { regular(it) }
+              +" • ${problem.number}:   " + (formattedDeadline ?: italic("Без дедлайна")) + "\n"
             }
-        }
+            +"\n"
+          }
+      }
     bot.sendMessage(context, messageText)
   }
+
+  private val deadlineFormat =
+    LocalDateTime.Format {
+      date(
+        LocalDate.Format {
+          monthName(MonthNames.ENGLISH_ABBREVIATED)
+          char(' ')
+          dayOfMonth()
+        }
+      )
+      chars(" ")
+      time(
+        LocalTime.Format {
+          hour()
+          char(':')
+          minute()
+        }
+      )
+    }
 
   override fun computeNewState(service: ProblemStorage, input: Unit): Pair<State, Unit> {
     return MenuState(context, studentId) to Unit

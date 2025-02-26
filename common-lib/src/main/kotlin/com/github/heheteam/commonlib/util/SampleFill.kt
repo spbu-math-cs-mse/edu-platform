@@ -9,6 +9,10 @@ import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 fun generateCourse(
@@ -20,11 +24,17 @@ fun generateCourse(
   problemsPerAssignment: Int = 5,
 ): CourseId {
   val courseId = coursesDistributor.createCourse(name)
-  (1..assignmentsPerCourse).map { assgnNum ->
+  (1..assignmentsPerCourse).map { assignNum ->
     assignmentStorage.createAssignment(
       courseId,
-      "assignment $courseId.$assgnNum",
-      (1..problemsPerAssignment).map { ProblemDescription(it, "$assgnNum.$it", "", 1, null) },
+      "assignment $courseId.$assignNum",
+      (0..<problemsPerAssignment).map {
+        val timeZone = TimeZone.currentSystemDefault()
+        val deadline =
+          if (it % 2 == 0) (Clock.System.now() + 2.minutes).toLocalDateTime(timeZone) else null
+        val number = "${it / 2 + 1}" + ('a' + it % 2)
+        ProblemDescription(it, number, "", 1, deadline)
+      },
       problemStorage,
     )
   }

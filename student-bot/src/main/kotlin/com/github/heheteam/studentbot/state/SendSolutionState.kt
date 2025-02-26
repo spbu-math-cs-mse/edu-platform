@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.util.isDeadlineMissed
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
 import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
@@ -36,13 +37,11 @@ import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.VideoContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
   override val context: User,
@@ -114,12 +113,10 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
   }
 }
 
-private fun isDeadlineMissed(problem: Problem): Boolean {
-  val problemDeadline = problem.deadline
-  return problemDeadline != null && LocalDateTime.now().toKotlinLocalDateTime() > problemDeadline
-}
-
-suspend fun BehaviourContext.makeURL(content: MediaContent, studentBotToken: String): String {
+private suspend fun BehaviourContext.makeURL(
+  content: MediaContent,
+  studentBotToken: String,
+): String {
   val contentInfo = bot.getFileAdditionalInfo(content)
   return "https://api.telegram.org/file/bot$studentBotToken/${contentInfo.filePath}"
 }

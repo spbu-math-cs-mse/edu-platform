@@ -24,6 +24,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
+import dev.inmo.tgbotapi.types.RawChatId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -237,6 +238,9 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
             it[CourseTeachers.teacherId].value.toTeacherId(),
             it[TeacherTable.name].toString(),
             it[TeacherTable.surname].toString(),
+            RawChatId(
+              it[TeacherTable.tgId]
+            )
           )
         }
     }

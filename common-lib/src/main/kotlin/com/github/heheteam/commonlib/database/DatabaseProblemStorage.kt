@@ -121,6 +121,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
         .groupBy({
           Assignment(
             it[AssignmentTable.id].value.toAssignmentId(),
+            it[AssignmentTable.serialNumber],
             it[AssignmentTable.description],
             it[AssignmentTable.courseId].value.toCourseId(),
           )

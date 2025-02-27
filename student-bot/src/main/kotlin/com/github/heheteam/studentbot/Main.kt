@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.database.FirstTeacherResolver
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
@@ -84,6 +85,7 @@ suspend fun main(vararg args: String) {
       DatabaseGradeTable(database),
       notificationService,
       botEventBus,
+      FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor),
     )
 
   studentRun(botToken, studentStorage, coursesDistributor, problemStorage, core)

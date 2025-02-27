@@ -9,6 +9,7 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.requests.abstracts.MultipartFile
@@ -27,10 +28,7 @@ class GettingSolutionState(override val context: User, private val teacherId: Te
 
   override suspend fun readUserInput(bot: BehaviourContext, service: SolutionResolver) = Unit
 
-  override fun computeNewState(
-    service: SolutionResolver,
-    input: Unit,
-  ): Pair<BotState<*, *, *>, String?> =
+  override fun computeNewState(service: SolutionResolver, input: Unit): Pair<State, String?> =
     binding {
         val solution = service.querySolution(teacherId).toResultOr { noSolutionsToCheck() }.bind()
         val student = service.resolveStudent(solution.studentId).toStrErr().bind()

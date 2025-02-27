@@ -14,4 +14,5 @@ object SolutionTable : LongIdTable("solution") {
   val problemId = reference("problemId", ProblemTable.id)
   val timestamp = datetime("timestamp").defaultExpression(CurrentDateTime)
   val solutionContent = json<SolutionContent>("content", Json)
+  val responsibleTeacher = reference("responsibleTeacher", TeacherTable.id).nullable()
 }

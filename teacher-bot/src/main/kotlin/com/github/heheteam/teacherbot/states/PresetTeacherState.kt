@@ -16,7 +16,7 @@ class PresetTeacherState(override val context: User, private val teacherId: Teac
   override fun computeNewState(
     service: CoursesDistributor,
     input: Unit,
-  ): Pair<BotState<*, *, *>, List<Course>> {
+  ): Pair<State, List<Course>> {
     val coursesDistributor = service
     return Pair(MenuState(context, teacherId), coursesDistributor.getTeacherCourses(teacherId))
   }

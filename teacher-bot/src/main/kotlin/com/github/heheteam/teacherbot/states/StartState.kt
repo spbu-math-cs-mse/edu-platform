@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.get
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -27,10 +28,7 @@ class StartState(override val context: User) : BotState<TeacherId?, String, Teac
     return teacherStorage.createTeacher(firstName, lastName, context.id.chatId.long)
   }
 
-  override fun computeNewState(
-    service: TeacherStorage,
-    input: TeacherId?,
-  ): Pair<BotState<*, *, *>, String> {
+  override fun computeNewState(service: TeacherStorage, input: TeacherId?): Pair<State, String> {
     val teacherId = input ?: return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
     return Pair(MenuState(context, teacherId), Dialogues.greetings())
   }

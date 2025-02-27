@@ -35,7 +35,7 @@ class CheckGradesState(override val context: User, private val teacherId: Teache
   override fun computeNewState(
     service: CoursesStatisticsResolver,
     input: Course?,
-  ): Pair<BotState<*, *, *>, CourseGrades?> {
+  ): Pair<State, CourseGrades?> {
     val course = input ?: return Pair(MenuState(context, teacherId), null)
     val gradedProblems = service.getGrading(course)
     val maxGrade = service.getMaxGrade()

@@ -28,6 +28,9 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.database.FirstTeacherResolver
+import com.github.heheteam.commonlib.database.RandomTeacherResolver
+import com.github.heheteam.commonlib.database.table.DatabaseTelegramSolutionMessagesHandler
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
@@ -127,6 +130,7 @@ class MultiBotRunner : CliktCommand() {
     val botEventBus =
       if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
       else ObserverBus()
+
     val studentCore =
       StudentCore(
         solutionDistributorDecorator,
@@ -136,6 +140,7 @@ class MultiBotRunner : CliktCommand() {
         gradeTable,
         notificationService,
         botEventBus,
+        RandomTeacherResolver(problemStorage, assignmentStorage, coursesDistributor),
       )
 
     val solutionResolver =
@@ -189,6 +194,8 @@ class MultiBotRunner : CliktCommand() {
           solutionResolver,
           botEventBus,
           solutionAssessor,
+          DatabaseTelegramSolutionMessagesHandler(database),
+          solutionDistributor,
           developerOptions,
         )
       }

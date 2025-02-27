@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherDoesNotExist
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.toSolutionId
+import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.CourseTable
@@ -42,6 +43,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     solutionContent: SolutionContent,
     problemId: ProblemId,
     timestamp: LocalDateTime,
+    teacherId: TeacherId?,
   ): SolutionId {
     val solutionId =
       transaction(database) {
@@ -52,6 +54,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             it[SolutionTable.problemId] = problemId.id
             it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
             it[SolutionTable.solutionContent] = solutionContent
+            it[SolutionTable.responsibleTeacher] = teacherId?.id
           } get SolutionTable.id
         }
         .value
@@ -106,6 +109,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
           solution[SolutionTable.solutionContent],
+          solution[SolutionTable.responsibleTeacher]?.value?.toTeacherId(),
           solution[SolutionTable.timestamp],
         )
       )
@@ -125,6 +129,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           MessageId(solution[SolutionTable.messageId]),
           ProblemId(solution[SolutionTable.problemId].value),
           solution[SolutionTable.solutionContent],
+          solution[SolutionTable.responsibleTeacher]?.value?.toTeacherId(),
           solution[SolutionTable.timestamp],
         )
       )

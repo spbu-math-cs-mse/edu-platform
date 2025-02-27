@@ -16,6 +16,7 @@ import com.github.heheteam.teacherbot.Keyboards.badSolution
 import com.github.heheteam.teacherbot.Keyboards.goodSolution
 import com.github.heheteam.teacherbot.Keyboards.returnBack
 import com.github.heheteam.teacherbot.SolutionAssessor
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -85,7 +86,7 @@ class GradingSolutionState(
   override fun computeNewState(
     service: SolutionAssessor,
     input: SolutionAssessment?,
-  ): Pair<BotState<*, *, *>, Unit> {
+  ): Pair<State, Unit> {
     val solutionAssessment = input
     if (solutionAssessment != null) {
       service.assessSolution(solution, teacherId, solutionAssessment, LocalDateTime.now())

@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatistics
+import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -21,14 +21,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
 class MenuState(override val context: User, val teacherId: TeacherId) :
-  BotState<Pair<BotState<*, *, *>, String?>, String?, TeacherStatistics> {
+  BotState<Pair<BotState<*, *, *>, String?>, String?, TeacherStorage> {
   private val messages = mutableListOf<ContentMessage<*>>()
   private val epilogueMessage: String? = null
 
   override suspend fun readUserInput(
     bot: BehaviourContext,
-    service: TeacherStatistics,
+    service: TeacherStorage,
   ): Pair<BotState<*, *, *>, String?> {
+    val result = service.updateTgId(teacherId, context.id)
     if (context.username == null) {
       return Pair(StartState(context), null)
     }
@@ -49,7 +50,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
   }
 
   override fun computeNewState(
-    service: TeacherStatistics,
+    service: TeacherStorage,
     input: Pair<BotState<*, *, *>, String?>,
   ): Pair<BotState<*, *, *>, String?> {
     return input
@@ -57,7 +58,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
-    service: TeacherStatistics,
+    service: TeacherStorage,
     response: String?,
   ) {
     messages.forEach { bot.deleteMessage(context, it.messageId) }

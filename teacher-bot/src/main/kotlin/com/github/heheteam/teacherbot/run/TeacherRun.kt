@@ -80,7 +80,7 @@ suspend fun teacherRun(
       )
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
-      registerState<MenuState, TeacherStatistics>(teacherStatistics)
+      registerState<MenuState, TeacherStorage>(teacherStorage)
       registerState<SendStatisticInfoState, TeacherStatistics>(teacherStatistics)
       registerState<CheckGradesState, CoursesStatisticsResolver>(coursesStatisticsResolver)
       registerState<GettingSolutionState, SolutionResolver>(solutionResolver)

@@ -238,9 +238,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
             it[CourseTeachers.teacherId].value.toTeacherId(),
             it[TeacherTable.name].toString(),
             it[TeacherTable.surname].toString(),
-            RawChatId(
-              it[TeacherTable.tgId]
-            )
+            RawChatId(it[TeacherTable.tgId]),
           )
         }
     }

@@ -28,3 +28,22 @@ class FirstTeacherResolver(
     return result
   }
 }
+
+class RandomTeacherResolver(
+  val problemStorage: ProblemStorage,
+  val assignmentStorage: AssignmentStorage,
+  val coursesDistributor: CoursesDistributor,
+) : ResponsibleTeacherResolver {
+  override fun resolveResponsibleTeacher(problemId: ProblemId): Result<TeacherId, String> {
+    val result =
+      binding {
+        val problem = problemStorage.resolveProblem(problemId).bind()
+        val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
+        val teachers = coursesDistributor.getTeachers(assignment.courseId).shuffled()
+        println(teachers)
+        teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
+      }
+        .mapError { it.toString() }
+    return result
+  }
+}

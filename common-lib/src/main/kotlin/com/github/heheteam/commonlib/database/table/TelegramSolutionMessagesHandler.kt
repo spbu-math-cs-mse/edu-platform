@@ -19,4 +19,5 @@ interface TelegramSolutionMessagesHandler {
   )
 
   fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
+  fun resolvePersonalMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
 }

@@ -3,6 +3,7 @@ package com.github.heheteam.teacherbot.run
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
@@ -62,6 +63,7 @@ suspend fun teacherRun(
   botEventBus: BotEventBus,
   solutionAssessor: SolutionAssessor,
   telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
+  solutionDistributor: SolutionDistributor,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
   telegramBot(botToken) {
@@ -117,7 +119,12 @@ suspend fun teacherRun(
       )
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
-      registerState<MenuState, TeacherStorage>(teacherStorage)
+      registerMainState(
+        teacherStorage,
+        solutionDistributor,
+        solutionAssessor,
+        telegramSolutionMessagesHandler,
+      )
       registerState<SendStatisticInfoState, TeacherStatistics>(teacherStatistics)
       registerState<CheckGradesState, CoursesStatisticsResolver>(coursesStatisticsResolver)
       registerState<GettingSolutionState, SolutionResolver>(solutionResolver)
@@ -129,6 +136,23 @@ suspend fun teacherRun(
     }
     .second
     .join()
+}
+
+private fun DefaultBehaviourContextWithFSM<State>.registerMainState(
+  teacherStorage: TeacherStorage,
+  solutionDistributor: SolutionDistributor,
+  solutionAssessor: SolutionAssessor,
+  telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
+) {
+  strictlyOn<MenuState> { state ->
+    state.handle(
+      this,
+      teacherStorage,
+      solutionDistributor,
+      solutionAssessor,
+      telegramSolutionMessagesHandler,
+    )
+  }
 }
 
 @OptIn(RiskFeature::class)

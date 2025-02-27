@@ -29,6 +29,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.FirstTeacherResolver
+import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.database.table.DatabaseTelegramSolutionMessagesHandler
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
@@ -141,7 +142,7 @@ class MultiBotRunner : CliktCommand() {
         gradeTable,
         notificationService,
         botEventBus,
-        FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor),
+        RandomTeacherResolver(problemStorage, assignmentStorage, coursesDistributor),
       )
 
     val solutionResolver =
@@ -196,6 +197,7 @@ class MultiBotRunner : CliktCommand() {
           botEventBus,
           solutionAssessor,
           DatabaseTelegramSolutionMessagesHandler(database),
+          solutionDistributor,
           developerOptions,
         )
       }

@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionDistributor
@@ -13,12 +12,11 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.mapError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.edit.edit
@@ -26,13 +24,11 @@ import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.types.chat.Chat
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.Message
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.toChatId
-import dev.inmo.tgbotapi.utils.RiskFeature
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -70,12 +66,35 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
             },
             waitDataCallbackQueryWithUser(context.id.toChatId()).map { dataCallback ->
               tryProcessGradingByButtonPress(
-                context.id.toChatId(),
-                dataCallback,
-                solutionDistributor,
-                solutionAssessor,
-                telegramSolutionMessagesHandler,
-              )
+                  dataCallback,
+                  solutionDistributor,
+                  solutionAssessor,
+                  telegramSolutionMessagesHandler,
+                )
+                .mapBoth(
+                  success = { solutionGradings ->
+                    val messageContent = createTechnicalMessageContent(solutionGradings)
+                    telegramSolutionMessagesHandler
+                      .resolveGroupMessage(solutionGradings.solutionId)
+                      .map { groupTechnicalMessage ->
+                        edit(
+                          groupTechnicalMessage.chatId.toChatId(),
+                          groupTechnicalMessage.messageId,
+                          messageContent,
+                        )
+                      }
+                    telegramSolutionMessagesHandler
+                      .resolvePersonalMessage(solutionGradings.solutionId)
+                      .map { personalTechnicalMessage ->
+                        edit(
+                          personalTechnicalMessage.chatId.toChatId(),
+                          personalTechnicalMessage.messageId,
+                          messageContent,
+                        )
+                      }
+                  },
+                  failure = { error -> sendMessage(context.id, "Error: " + error.toString()) },
+                )
             },
           )
           .first()
@@ -101,7 +120,9 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
         solutionAssessor.assessSolution(solution, teacherId, assessment, LocalDateTime.now())
         SolutionGradings(
           solution.id,
-          GradingEntry(teacherId, assessment.grade, LocalDateTime.now().toKotlinLocalDateTime()),
+          listOf(
+            GradingEntry(teacherId, assessment.grade, LocalDateTime.now().toKotlinLocalDateTime())
+          ),
         )
       }
       .map { solutionGradings ->
@@ -120,20 +141,11 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
       technicalMessage.messageId,
       createTechnicalMessageContent(solutionGradings),
     )
-  }
-
-  @OptIn(RiskFeature::class)
-  private fun extractAssessmentFromMessage(
-    commonMessage: CommonMessage<TextContent>
-  ): Result<SolutionAssessment, String> = binding {
-    val comment = commonMessage.text.orEmpty()
-    val grade =
-      when {
-        comment.contains("[+]") -> Ok(1)
-        comment.contains("[-]") -> Ok(0)
-        else -> Err("message must contain [+] or [-] to be graded")
-      }.bind()
-    SolutionAssessment(grade, commonMessage.text.orEmpty())
+    editMessageReplyMarkup(
+      technicalMessage.chat.id.toChatId(),
+      technicalMessage.messageId,
+      replyMarkup = createSolutionGradingKeyboard(solutionGradings.solutionId),
+    )
   }
 
   private suspend fun BehaviourContext.sendSolutionIntoGroup(

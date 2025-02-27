@@ -31,6 +31,19 @@ class DatabaseTelegramSolutionMessagesHandler(val database: Database) :
     }
   }
 
+  override fun registerPersonalSolutionPublication(
+    solutionId: SolutionId,
+    telegramMessageInfo: TelegramMessageInfo,
+  ) {
+    transaction(database) {
+      SolutionPersonalMessagesTable.insert {
+        it[SolutionPersonalMessagesTable.solutionId] = solutionId.id
+        it[SolutionPersonalMessagesTable.messageId] = telegramMessageInfo.messageId.long
+        it[SolutionPersonalMessagesTable.chatId] = telegramMessageInfo.chatId.long
+      }
+    }
+  }
+
   override fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String> {
     val row =
       transaction(database) {

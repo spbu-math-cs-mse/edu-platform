@@ -13,5 +13,10 @@ interface TelegramSolutionMessagesHandler {
     telegramMessageInfo: TelegramMessageInfo,
   )
 
+  fun registerPersonalSolutionPublication(
+    solutionId: SolutionId,
+    telegramMessageInfo: TelegramMessageInfo,
+  )
+
   fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
 }

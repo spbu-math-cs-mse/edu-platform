@@ -31,11 +31,10 @@ interface GradeTable {
    */
   fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>>
 
-  fun assessSolution(
+  fun recordSolutionAssessment(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime = LocalDateTime.now(),
   )
 

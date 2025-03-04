@@ -9,7 +9,6 @@ import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.toProblemId
 import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.database.table.AssessmentTable
@@ -112,11 +111,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         }
     }
 
-  override fun assessSolution(
+  override fun recordSolutionAssessment(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime,
   ) {
     transaction(database) {

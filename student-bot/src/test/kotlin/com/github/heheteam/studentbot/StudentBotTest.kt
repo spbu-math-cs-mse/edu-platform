@@ -22,7 +22,6 @@ import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockBotEventBus
 import com.github.heheteam.commonlib.mock.MockNotificationService
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -156,11 +155,10 @@ class StudentBotTest {
         val solution = solutionDistributor.querySolution(teacherId).value
         if (solution != null) {
           solutions.add(solution.id)
-          gradeTable.assessSolution(
+          gradeTable.recordSolutionAssessment(
             solution.id,
             teacherId,
             SolutionAssessment(5, "comment"),
-            InMemoryTeacherStatistics(),
             LocalDateTime.now(),
           )
         }

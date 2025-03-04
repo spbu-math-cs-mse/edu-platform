@@ -124,21 +124,19 @@ class DatabaseTest {
     repeat(10) {
       val solution = solutionDistributor.querySolution(teacher1Id).value
       assertNotNull(solution)
-      gradeTable.assessSolution(
+      gradeTable.recordSolutionAssessment(
         solution.id,
         teacher1Id,
         SolutionAssessment(1, "comment"),
-        teacherStatistics,
       )
     }
     repeat(2) {
       val solution = solutionDistributor.querySolution(teacher1Id).value
       assertNotNull(solution)
-      gradeTable.assessSolution(
+      gradeTable.recordSolutionAssessment(
         solution.id,
         teacher1Id,
         SolutionAssessment(0, "comment"),
-        teacherStatistics,
       )
     }
     val gradesS1A1 = mapOf(ProblemId(1) to 1, ProblemId(2) to 1, ProblemId(3) to 1)

@@ -119,11 +119,10 @@ class GoogleSheetsTest {
     for (solutionId in 1..17) {
       val solution = solutionDistributor.querySolution(teacher1Id).get()
       assertNotNull(solution)
-      gradeTable.assessSolution(
+      gradeTable.recordSolutionAssessment(
         solution.id,
         teacher1Id,
         SolutionAssessment(solutionId % 2, "comment"),
-        teacherStatistics,
       )
     }
 

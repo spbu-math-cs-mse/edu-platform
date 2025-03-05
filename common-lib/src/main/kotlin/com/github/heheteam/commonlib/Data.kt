@@ -86,5 +86,4 @@ data class Course(val id: CourseId, val name: String)
 
 data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
 
-@Serializable
-data class SolutionAssessment(val grade: Grade, val comment: String = "")
+@Serializable data class SolutionAssessment(val grade: Grade, val comment: String = "")

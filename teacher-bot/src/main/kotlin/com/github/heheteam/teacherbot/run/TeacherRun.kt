@@ -3,24 +3,18 @@ package com.github.heheteam.teacherbot.run
 import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.table.TelegramSolutionMessagesHandler
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
-import com.github.heheteam.teacherbot.CoursesStatisticsResolver
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.logic.SolutionGrader
-import com.github.heheteam.teacherbot.states.CheckGradesState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
-import com.github.heheteam.teacherbot.states.GettingSolutionState
-import com.github.heheteam.teacherbot.states.GradingSolutionState
 import com.github.heheteam.teacherbot.states.ListeningForSolutionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
-import com.github.heheteam.teacherbot.states.SendStatisticInfoState
 import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -48,9 +42,7 @@ import kotlinx.coroutines.Dispatchers
 suspend fun teacherRun(
   botToken: String,
   teacherStorage: TeacherStorage,
-  teacherStatistics: TeacherStatistics,
   coursesDistributor: CoursesDistributor,
-  coursesStatisticsResolver: CoursesStatisticsResolver,
   solutionResolver: SolutionResolver,
   botEventBus: BotEventBus,
   solutionAssessor: SolutionAssessor,
@@ -82,32 +74,32 @@ suspend fun teacherRun(
         )
       )
       command("start") { startFsm(it, telegramSolutionMessagesHandler, developerOptions) }
-//      botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
-//        val responsibleTeacherId = solution.responsibleTeacherId
-//        if (responsibleTeacherId != null) {
-//          val responsibleTeacher = teacherStorage.resolveTeacher(responsibleTeacherId)
-//          println("responsible teacher is $responsibleTeacher")
-//          responsibleTeacher.map { responsibleTeacher ->
-//            val chatId = responsibleTeacher.tgId.toChatId()
-//            val solutionMessage = sendSolutionContent(chatId, solution.content)
-//            val solutionGradings = SolutionGradings(solutionId = solution.id)
-//            val content = createTechnicalMessageContent(solutionGradings)
-//            val technicalMessage = reply(solutionMessage, content)
-//            telegramSolutionMessagesHandler.registerPersonalSolutionPublication(
-//              solution.id,
-//              TelegramMessageInfo(technicalMessage.chat.id.chatId, technicalMessage.messageId),
-//            )
-//            editMessageReplyMarkup(
-//              technicalMessage,
-//              replyMarkup = createSolutionGradingKeyboard(solution.id),
-//            )
-//          }
-//        }
-//      }
+      //      botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
+      //        val responsibleTeacherId = solution.responsibleTeacherId
+      //        if (responsibleTeacherId != null) {
+      //          val responsibleTeacher = teacherStorage.resolveTeacher(responsibleTeacherId)
+      //          println("responsible teacher is $responsibleTeacher")
+      //          responsibleTeacher.map { responsibleTeacher ->
+      //            val chatId = responsibleTeacher.tgId.toChatId()
+      //            val solutionMessage = sendSolutionContent(chatId, solution.content)
+      //            val solutionGradings = SolutionGradings(solutionId = solution.id)
+      //            val content = createTechnicalMessageContent(solutionGradings)
+      //            val technicalMessage = reply(solutionMessage, content)
+      //            telegramSolutionMessagesHandler.registerPersonalSolutionPublication(
+      //              solution.id,
+      //              TelegramMessageInfo(technicalMessage.chat.id.chatId,
+      // technicalMessage.messageId),
+      //            )
+      //            editMessageReplyMarkup(
+      //              technicalMessage,
+      //              replyMarkup = createSolutionGradingKeyboard(solution.id),
+      //            )
+      //          }
+      //        }
+      //      }
       val solutionGrader = solutionGraderCreator(this)
       internalCompilerErrorWorkaround(
         solutionResolver,
-        solutionAssessor,
         botEventBus,
         telegramSolutionMessagesHandler,
         solutionGrader,
@@ -120,10 +112,6 @@ suspend fun teacherRun(
         solutionAssessor,
         telegramSolutionMessagesHandler,
       )
-      registerState<SendStatisticInfoState, TeacherStatistics>(teacherStatistics)
-      registerState<CheckGradesState, CoursesStatisticsResolver>(coursesStatisticsResolver)
-      registerState<GettingSolutionState, SolutionResolver>(solutionResolver)
-      registerState<GradingSolutionState, SolutionAssessor>(solutionAssessor)
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
       registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)
 
@@ -161,7 +149,6 @@ private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(
 
 private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaround(
   solutionResolver: SolutionResolver,
-  solutionAssessor: SolutionAssessor,
   botEventBus: BotEventBus,
   telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
   solutionGrader: SolutionGrader,
@@ -169,7 +156,6 @@ private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaroun
   strictlyOn<ListeningForSolutionsGroupState>(
     registerListeningForSolutionState(
       solutionResolver,
-      solutionAssessor,
       botEventBus,
       telegramSolutionMessagesHandler,
       solutionGrader,
@@ -179,7 +165,6 @@ private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaroun
 
 private fun registerListeningForSolutionState(
   solutionResolver: SolutionResolver,
-  solutionAssessor: SolutionAssessor,
   botEventBus: BotEventBus,
   telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
   solutionGrader: SolutionGrader,

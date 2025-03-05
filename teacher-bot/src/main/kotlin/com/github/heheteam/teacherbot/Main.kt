@@ -86,9 +86,7 @@ suspend fun main(vararg args: String) {
   teacherRun(
     botToken,
     teacherStorage,
-    teacherStatistics,
     coursesDistributor,
-    coursesStatisticsResolver,
     solutionResolver,
     botEventBus,
     solutionAssessor,

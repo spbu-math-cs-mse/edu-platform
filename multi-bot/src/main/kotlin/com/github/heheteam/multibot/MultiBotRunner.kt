@@ -185,7 +185,7 @@ class MultiBotRunner : CliktCommand() {
           StudentNewGradeNotifierImpl(),
           TelegramMessagesJournalUpdater(
             gradeTable,
-            TechnicalMessageUpdaterImpl(bot, DatabaseTelegramSolutionMessagesHandler(database))
+            TechnicalMessageUpdaterImpl(bot, DatabaseTelegramSolutionMessagesHandler(database)),
           ),
         ),
       )
@@ -205,9 +205,7 @@ class MultiBotRunner : CliktCommand() {
         teacherRun(
           teacherBotToken,
           teacherStorage,
-          teacherStatistics,
           coursesDistributorDecorator,
-          coursesStatisticsResolver,
           solutionResolver,
           botEventBus,
           solutionAssessor,

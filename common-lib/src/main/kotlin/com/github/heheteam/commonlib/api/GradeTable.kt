@@ -2,8 +2,8 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
-import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class GradingEntry(

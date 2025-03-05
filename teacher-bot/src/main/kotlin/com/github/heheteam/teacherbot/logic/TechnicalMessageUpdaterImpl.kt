@@ -22,7 +22,8 @@ class TechnicalMessageUpdaterImpl(
     runBlocking(Dispatchers.IO) {
       with(bot) {
         x.resolveGroupMessage(solutionId).map { technicalMessage ->
-//          bot.edit(technicalMessage.chatId.toChatId(), technicalMessage.messageId, "edited by bot")
+          //          bot.edit(technicalMessage.chatId.toChatId(), technicalMessage.messageId,
+          // "edited by bot")
           edit(
             technicalMessage.chatId.toChatId(),
             technicalMessage.messageId,

@@ -93,5 +93,7 @@ suspend fun main(vararg args: String) {
     botEventBus,
     solutionAssessor,
     DatabaseTelegramSolutionMessagesHandler(database),
+    solutionDistributor,
+    TODO(),
   )
 }

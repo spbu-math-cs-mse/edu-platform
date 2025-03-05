@@ -58,4 +58,19 @@ class DatabaseTelegramSolutionMessagesHandler(val database: Database) :
       }
     return row.singleOrNull().toResultOr { "" }
   }
+
+  override fun resolvePersonalMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String> {
+    val row =
+      transaction(database) {
+        SolutionPersonalMessagesTable.selectAll()
+          .where(SolutionPersonalMessagesTable.solutionId eq solutionId.id)
+          .map {
+            TelegramMessageInfo(
+              RawChatId(it[SolutionPersonalMessagesTable.chatId]),
+              MessageId(it[SolutionPersonalMessagesTable.messageId]),
+            )
+          }
+      }
+    return row.singleOrNull().toResultOr { "" }
+  }
 }

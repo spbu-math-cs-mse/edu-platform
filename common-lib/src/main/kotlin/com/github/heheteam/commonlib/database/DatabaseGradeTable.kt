@@ -18,7 +18,6 @@ import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
 import java.time.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -143,7 +142,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         GradingEntry(
           it[AssessmentTable.teacherId].value.toTeacherId(),
           SolutionAssessment(it[AssessmentTable.grade], it[AssessmentTable.comment]),
-          it[AssessmentTable.timestamp].toJavaLocalDateTime(),
+          it[AssessmentTable.timestamp],
         )
       }
     }

@@ -2,12 +2,14 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
+@Serializable
 data class GradingEntry(
   val teacherId: TeacherId,
   val assessment: SolutionAssessment,
-  val timestamp: LocalDateTime,
+  val timestamp: kotlinx.datetime.LocalDateTime,
 )
 
 // bound to a course

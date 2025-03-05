@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
@@ -38,4 +39,7 @@ class GradeTableDecorator(
     }
 
   override fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
+
+  override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
+    gradeTable.getGradingsForSolution(solutionId)
 }

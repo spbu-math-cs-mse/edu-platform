@@ -4,6 +4,12 @@ import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
 import java.time.LocalDateTime
 
+data class GradingEntry(
+  val teacherId: TeacherId,
+  val assessment: SolutionAssessment,
+  val timestamp: LocalDateTime,
+)
+
 // bound to a course
 interface GradeTable {
   // maps student problem ids to grades
@@ -39,4 +45,6 @@ interface GradeTable {
   )
 
   fun isChecked(solutionId: SolutionId): Boolean
+
+  fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry>
 }

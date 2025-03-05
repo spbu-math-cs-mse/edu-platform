@@ -80,4 +80,4 @@ data class Course(val id: CourseId, val name: String)
 
 data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
 
-data class SolutionAssessment(val grade: Grade, val comment: String)
+data class SolutionAssessment(val grade: Grade, val comment: String = "")

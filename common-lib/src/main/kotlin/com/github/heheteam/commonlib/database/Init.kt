@@ -49,6 +49,7 @@ fun main() {
 
 fun reset(database: Database) {
   transaction(database) {
+    exec("DROP TABLE IF EXISTS solution CASCADE")
     drop(*allTables)
     create(*allTables)
   }

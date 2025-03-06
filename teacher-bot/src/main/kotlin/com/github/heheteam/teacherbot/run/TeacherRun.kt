@@ -3,13 +3,9 @@ package com.github.heheteam.teacherbot.run
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
-import com.github.heheteam.teacherbot.SolutionAssessor
-import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.logic.NewSolutionTeacherNotifier
 import com.github.heheteam.teacherbot.logic.SolutionGrader
 import com.github.heheteam.teacherbot.logic.TelegramSolutionSenderImpl
@@ -29,7 +25,6 @@ import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
@@ -46,11 +41,7 @@ suspend fun teacherRun(
   botToken: String,
   teacherStorage: TeacherStorage,
   coursesDistributor: CoursesDistributor,
-  solutionResolver: SolutionResolver,
   botEventBus: BotEventBus,
-  solutionAssessor: SolutionAssessor,
-  telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
-  solutionDistributor: SolutionDistributor,
   solutionGraderCreator: (BehaviourContext) -> SolutionGrader,
   solutionTeacherNotifier: NewSolutionTeacherNotifier,
   telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
@@ -82,22 +73,12 @@ suspend fun teacherRun(
           dev.inmo.tgbotapi.types.BotCommand("end", "endCommand"),
         )
       )
-      command("start") { startFsm(it, telegramSolutionMessagesHandler, developerOptions) }
+      command("start") { startFsm(it, developerOptions) }
       val solutionGrader = solutionGraderCreator(this)
-      internalCompilerErrorWorkaround(
-        solutionResolver,
-        botEventBus,
-        telegramSolutionMessagesHandler,
-        solutionGrader,
-      )
+      registerListeningForSolutionsGroupState(solutionGrader, telegramSolutionSenderImpl)
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
-      registerMainState(
-        teacherStorage,
-        solutionDistributor,
-        solutionAssessor,
-        telegramSolutionMessagesHandler,
-      )
+      registerMainState(teacherStorage)
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
       registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)
 
@@ -108,10 +89,7 @@ suspend fun teacherRun(
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerMainState(
-  teacherStorage: TeacherStorage,
-  solutionDistributor: SolutionDistributor,
-  solutionAssessor: SolutionAssessor,
-  telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
+  teacherStorage: TeacherStorage
 ) {
   strictlyOn<MenuState> { state -> state.handle(this, teacherStorage) }
 }
@@ -119,7 +97,6 @@ private fun DefaultBehaviourContextWithFSM<State>.registerMainState(
 @OptIn(RiskFeature::class)
 private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(
   it: TextMessage,
-  telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
   developerOptions: DeveloperOptions?,
 ) {
   val user = it.from
@@ -133,37 +110,14 @@ private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(
   }
 }
 
-private fun DefaultBehaviourContextWithFSM<State>.internalCompilerErrorWorkaround(
-  solutionResolver: SolutionResolver,
-  botEventBus: BotEventBus,
-  telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
+private fun DefaultBehaviourContextWithFSM<State>.registerListeningForSolutionsGroupState(
   solutionGrader: SolutionGrader,
+  telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
 ) {
-  strictlyOn<ListeningForSolutionsGroupState>(
-    registerListeningForSolutionState(
-      solutionResolver,
-      botEventBus,
-      telegramSolutionMessagesHandler,
-      solutionGrader,
-    )
-  )
+  strictlyOn<ListeningForSolutionsGroupState>({ state ->
+    state.execute(this, solutionGrader, telegramSolutionSenderImpl)
+  })
 }
-
-private fun registerListeningForSolutionState(
-  solutionResolver: SolutionResolver,
-  botEventBus: BotEventBus,
-  telegramTechnicalMessagesStorage: TelegramTechnicalMessagesStorage,
-  solutionGrader: SolutionGrader,
-): suspend BehaviourContextWithFSM<in State>.(state: ListeningForSolutionsGroupState) -> State? =
-  { state ->
-    state.execute(
-      this,
-      solutionResolver,
-      telegramTechnicalMessagesStorage,
-      botEventBus,
-      solutionGrader,
-    )
-  }
 
 private fun findStartState(developerOptions: DeveloperOptions?, user: User) =
   if (developerOptions != null) {

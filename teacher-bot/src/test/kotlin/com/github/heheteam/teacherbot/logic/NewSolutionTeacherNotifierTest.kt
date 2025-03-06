@@ -2,6 +2,7 @@ package com.github.heheteam.teacherbot.logic
 
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
@@ -20,8 +21,11 @@ class NewSolutionTeacherNotifierTest {
   private val teacherId = TeacherId(0)
   val teacherTgId = RawChatId(5)
   val teacher = Teacher(teacherId, "", "", tgId = teacherTgId)
-  val sampleMessageInfo = TelegramMessageInfo(RawChatId(1L), MessageId(2L))
+  val samplePersonalMessageInfo = TelegramMessageInfo(RawChatId(1L), MessageId(2L))
+  val sampleGroupMessageInfo = TelegramMessageInfo(RawChatId(8L), MessageId(13L))
   val solutionId = SolutionId(6)
+  val courseIdOfSolution = CourseId(7)
+
   lateinit var teacherStorage: TeacherStorage
   lateinit var solution: Solution
 
@@ -34,29 +38,69 @@ class NewSolutionTeacherNotifierTest {
     every { teacherStorage.resolveTeacher(teacherId) } returns Ok(teacher)
   }
 
-  @Test
-  fun `teacher notifier sends solution to responsible teacher`() {
+  private fun createSolutionResolver(): SolutionCourseResolver {
+    val solutionCourseResolver = mockk<SolutionCourseResolver>()
+    every { solutionCourseResolver.resolveCourse(solutionId) } returns Ok(courseIdOfSolution)
+    return solutionCourseResolver
+  }
+
+  private fun createTgSolutionSender(): TelegramSolutionSender {
     val telegramSolutionSender = mockk<TelegramSolutionSender>(relaxed = true)
-    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
-    val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(teacherStorage, telegramSolutionSender, technicalMessageStorage)
-    newSolutionTeacherNotifier.notifyNewSolution(solution)
-    verify { telegramSolutionSender.sendPersonalSolutionNotification(teacherTgId, solution) }
+    every { telegramSolutionSender.sendPersonalSolutionNotification(teacherId, solution) } returns
+      Ok(samplePersonalMessageInfo)
+    every {
+      telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution)
+    } returns Ok(sampleGroupMessageInfo)
+    return telegramSolutionSender
   }
 
   @Test
-  fun `personal messages sent to telegram gets recorded`() {
-    val telegramSolutionSender = mockk<TelegramSolutionSender>(relaxed = true)
-    every { telegramSolutionSender.sendPersonalSolutionNotification(teacherTgId, solution) } returns
-      Ok(sampleMessageInfo)
-
+  fun `teacher notifier sends solution to responsible teacher`() {
+    val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val solutionCourseResolver = createSolutionResolver()
     val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(teacherStorage, telegramSolutionSender, technicalMessageStorage)
+      NewSolutionTeacherNotifier(
+        telegramSolutionSender,
+        technicalMessageStorage,
+        solutionCourseResolver,
+      )
+    newSolutionTeacherNotifier.notifyNewSolution(solution)
+    verify { telegramSolutionSender.sendPersonalSolutionNotification(teacherId, solution) }
+  }
+
+  @Test
+  fun `personal messages sent to teacher dm gets recorded`() {
+    val telegramSolutionSender = createTgSolutionSender()
+    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val solutionCourseResolver = createSolutionResolver()
+    val newSolutionTeacherNotifier =
+      NewSolutionTeacherNotifier(
+        telegramSolutionSender,
+        technicalMessageStorage,
+        solutionCourseResolver,
+      )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
 
     verify {
-      technicalMessageStorage.registerPersonalSolutionPublication(solutionId, sampleMessageInfo)
+      technicalMessageStorage.registerPersonalSolutionPublication(
+        solutionId,
+        samplePersonalMessageInfo,
+      )
     }
+  }
+
+  @Test
+  fun `group messages are getting sent`() {
+    val telegramSolutionSender = createTgSolutionSender()
+    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val newSolutionTeacherNotifier =
+      NewSolutionTeacherNotifier(
+        telegramSolutionSender,
+        technicalMessageStorage,
+        createSolutionResolver(),
+      )
+    newSolutionTeacherNotifier.notifyNewSolution(solution)
+    verify { telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution) }
   }
 }

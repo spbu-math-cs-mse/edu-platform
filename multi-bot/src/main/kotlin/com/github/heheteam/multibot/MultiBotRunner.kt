@@ -49,6 +49,7 @@ import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.logic.NewSolutionTeacherNotifier
+import com.github.heheteam.teacherbot.logic.SolutionCourseResolverImpl
 import com.github.heheteam.teacherbot.logic.SolutionGrader
 import com.github.heheteam.teacherbot.logic.StudentNewGradeNotifierImpl
 import com.github.heheteam.teacherbot.logic.TechnicalMessageUpdaterImpl
@@ -190,9 +191,15 @@ class MultiBotRunner : CliktCommand() {
         ),
       )
     }
-    val telegramSolutionSender = TelegramSolutionSenderImpl()
+    val telegramSolutionSender = TelegramSolutionSenderImpl(teacherStorage)
+    val solutionCourseResolver =
+      SolutionCourseResolverImpl(solutionDistributor, problemStorage, assignmentStorageDecorator)
     val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(teacherStorage, telegramSolutionSender, tgTechnicalMessagesStorage)
+      NewSolutionTeacherNotifier(
+        telegramSolutionSender,
+        tgTechnicalMessagesStorage,
+        solutionCourseResolver,
+      )
     runBlocking {
       launch {
         studentRun(
@@ -209,11 +216,7 @@ class MultiBotRunner : CliktCommand() {
           teacherBotToken,
           teacherStorage,
           coursesDistributorDecorator,
-          solutionResolver,
           botEventBus,
-          solutionAssessor,
-          tgTechnicalMessagesStorage,
-          solutionDistributor,
           solutionGrader,
           newSolutionTeacherNotifier,
           telegramSolutionSender,

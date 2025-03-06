@@ -80,13 +80,14 @@ class StudentBotTest {
     problemStorage = DatabaseProblemStorage(database)
     courseIds =
       fillWithSamples(
-        coursesDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+          coursesDistributor,
+          problemStorage,
+          assignmentStorage,
+          studentStorage,
+          teacherStorage,
+          database,
+        )
+        .courses
     gradeTable = DatabaseGradeTable(database)
 
     studentCore =

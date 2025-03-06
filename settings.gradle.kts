@@ -23,6 +23,7 @@ dependencyResolutionManagement {
       version("postgresql", "42.7.2")
       version("h2", "2.2.224")
       version("kotlin-result", "2.0.0")
+      version("kotlin-result-coroutines", "2.0.0")
       version("google-api-sheets", "v4-rev20241008-2.0.0")
       version("google-api-drive", "v3-rev20220815-2.0.0")
       version("hoplite", "2.7.5")

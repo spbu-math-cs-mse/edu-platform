@@ -13,7 +13,6 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.database.table.DatabaseTelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
@@ -83,17 +82,5 @@ suspend fun main(vararg args: String) {
     database,
   )
 
-  teacherRun(
-    botToken,
-    teacherStorage,
-    coursesDistributor,
-    solutionResolver,
-    botEventBus,
-    solutionAssessor,
-    DatabaseTelegramTechnicalMessagesStorage(database),
-    solutionDistributor,
-    TODO(),
-    TODO(),
-    TODO(),
-  )
+  teacherRun(botToken, teacherStorage, coursesDistributor, botEventBus, TODO(), TODO(), TODO())
 }

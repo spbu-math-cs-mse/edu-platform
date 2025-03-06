@@ -23,6 +23,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 class DatabaseTest {
@@ -170,7 +171,7 @@ class DatabaseTest {
       val assessment = if (i % 2 == 0) good else bad
       val timestamp = defaultTimestamp.plusMinutes(i.toLong())
       gradeTable.recordSolutionAssessment(solution, teacher, assessment, timestamp)
-      expected.add(GradingEntry(teacher, assessment, timestamp))
+      expected.add(GradingEntry(teacher, assessment, timestamp.toKotlinLocalDateTime()))
     }
     val gradingEntries = gradeTable.getGradingsForSolution(solution)
     assertEquals(expected, gradingEntries.toSet())

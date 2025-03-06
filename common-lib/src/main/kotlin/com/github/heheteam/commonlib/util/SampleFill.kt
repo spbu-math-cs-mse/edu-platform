@@ -38,6 +38,7 @@ data class FillContent(
   val teachers: List<TeacherId>,
 )
 
+@Suppress("LongParameterList")
 fun fillWithSamples(
   coursesDistributor: CoursesDistributor,
   problemStorage: ProblemStorage,

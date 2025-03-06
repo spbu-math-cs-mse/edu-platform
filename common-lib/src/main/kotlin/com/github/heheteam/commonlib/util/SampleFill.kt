@@ -55,6 +55,30 @@ fun fillWithSamples(
   val linAlgebra =
     generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
   val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
+  val students = createStudent(studentStorage)
+  students.slice(0..<5).map { studentId ->
+    coursesDistributor.addStudentToCourse(studentId, realAnalysis)
+    coursesDistributor.addStudentToCourse(studentId, probTheory)
+  }
+  students.slice(5..<10).map { studentId ->
+    coursesDistributor.addStudentToCourse(studentId, probTheory)
+    coursesDistributor.addStudentToCourse(studentId, linAlgebra)
+  }
+  val teachers =
+    listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
+      teacherStorage.createTeacher(it.first, it.second)
+    }
+
+  coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
+
+  return FillContent(
+    courses = listOf(realAnalysis, probTheory, linAlgebra, complAnalysis),
+    students = students,
+    teachers = teachers,
+  )
+}
+
+private fun createStudent(studentStorage: StudentStorage): List<StudentId> {
   val students =
     listOf(
         "Алексей" to "Иванов",
@@ -69,30 +93,5 @@ fun fillWithSamples(
         "Николай" to "Васильев",
       )
       .map { studentStorage.createStudent(it.first, it.second) }
-  students.slice(0..<5).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, realAnalysis)
-  }
-  students.slice(0..<5).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, probTheory)
-  }
-  students.slice(5..<10).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, probTheory)
-  }
-  students.slice(5..<10).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, linAlgebra)
-  }
-  println("first student is ${studentStorage.resolveStudent(students.first())}")
-
-  val teachers =
-    listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
-      teacherStorage.createTeacher(it.first, it.second)
-    }
-
-  coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
-
-  return FillContent(
-    courses = listOf(realAnalysis, probTheory, linAlgebra, complAnalysis),
-    students = students,
-    teachers = teachers,
-  )
+  return students
 }

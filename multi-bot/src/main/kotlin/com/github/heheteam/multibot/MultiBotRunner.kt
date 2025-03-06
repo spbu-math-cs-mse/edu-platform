@@ -17,7 +17,6 @@ import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.StudentNotificationService
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.api.toTeacherId
@@ -38,7 +37,6 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
-import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -89,7 +87,6 @@ class MultiBotRunner : CliktCommand() {
     val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-    val teacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 

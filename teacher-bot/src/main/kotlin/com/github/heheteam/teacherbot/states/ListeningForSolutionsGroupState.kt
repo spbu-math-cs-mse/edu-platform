@@ -1,11 +1,7 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.logic.SolutionGrader
@@ -14,8 +10,6 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
-import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.Chat
@@ -63,24 +57,6 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
       teacherId,
       assessment,
       LocalDateTime.now(),
-    )
-  }
-
-  private suspend fun BehaviourContext.sendSolutionIntoGroup(
-    solution: Solution,
-    telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
-  ) {
-    val solutionMessage = sendSolutionContent(context.id.toChatId(), solution.content)
-    val solutionGradings = SolutionGradings(solutionId = solution.id)
-    val content = createTechnicalMessageContent(solutionGradings)
-    val technicalMessage = reply(solutionMessage, content)
-    telegramSolutionMessagesHandler.registerGroupSolutionPublication(
-      solution.id,
-      TelegramMessageInfo(technicalMessage.chat.id.chatId, technicalMessage.messageId),
-    )
-    editMessageReplyMarkup(
-      technicalMessage,
-      replyMarkup = createSolutionGradingKeyboard(solution.id),
     )
   }
 }

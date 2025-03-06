@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.merge
 
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
   private val messages = mutableListOf<ContentMessage<*>>()
-  private val epilogueMessage: String? = null
 
   suspend fun handle(
     bot: BehaviourContext,
@@ -50,7 +49,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     service: TeacherStorage,
     solutionGrader: SolutionGrader,
   ): Pair<State, String?> {
-    val result = service.updateTgId(teacherId, context.id)
+    service.updateTgId(teacherId, context.id)
     if (context.username == null) {
       return Pair(StartState(context), null)
     }

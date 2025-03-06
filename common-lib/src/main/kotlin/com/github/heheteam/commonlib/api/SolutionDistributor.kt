@@ -8,6 +8,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 
 interface SolutionDistributor {
+  @Suppress("LongParameterList")
   fun inputSolution(
     studentId: StudentId,
     chatId: RawChatId,
@@ -15,6 +16,7 @@ interface SolutionDistributor {
     solutionContent: SolutionContent,
     problemId: ProblemId,
     timestamp: LocalDateTime = LocalDateTime.now(),
+    teacherId: TeacherId? = null,
   ): SolutionId
 
   fun querySolution(teacherId: TeacherId): Result<Solution?, SolutionResolveError>

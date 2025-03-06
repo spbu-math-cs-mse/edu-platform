@@ -3,6 +3,14 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
 import java.time.LocalDateTime
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class GradingEntry(
+  val teacherId: TeacherId,
+  val assessment: SolutionAssessment,
+  val timestamp: kotlinx.datetime.LocalDateTime,
+)
 
 // bound to a course
 interface GradeTable {
@@ -31,13 +39,14 @@ interface GradeTable {
    */
   fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>>
 
-  fun assessSolution(
+  fun recordSolutionAssessment(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime = LocalDateTime.now(),
   )
 
   fun isChecked(solutionId: SolutionId): Boolean
+
+  fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry>
 }

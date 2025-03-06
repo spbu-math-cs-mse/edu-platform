@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
@@ -41,6 +42,13 @@ fun generateCourse(
   return courseId
 }
 
+data class FillContent(
+  val courses: List<CourseId>,
+  val students: List<StudentId>,
+  val teachers: List<TeacherId>,
+)
+
+@Suppress("LongParameterList")
 fun fillWithSamples(
   coursesDistributor: CoursesDistributor,
   problemStorage: ProblemStorage,
@@ -48,7 +56,7 @@ fun fillWithSamples(
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
   database: Database,
-): List<CourseId> {
+): FillContent {
   reset(database)
   val realAnalysis =
     generateCourse("Начала мат. анализа", coursesDistributor, assignmentStorage, problemStorage)
@@ -57,6 +65,30 @@ fun fillWithSamples(
   val linAlgebra =
     generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
   val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
+  val students = createStudent(studentStorage)
+  students.slice(0..<5).map { studentId ->
+    coursesDistributor.addStudentToCourse(studentId, realAnalysis)
+    coursesDistributor.addStudentToCourse(studentId, probTheory)
+  }
+  students.slice(5..<10).map { studentId ->
+    coursesDistributor.addStudentToCourse(studentId, probTheory)
+    coursesDistributor.addStudentToCourse(studentId, linAlgebra)
+  }
+  val teachers =
+    listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
+      teacherStorage.createTeacher(it.first, it.second)
+    }
+
+  coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
+
+  return FillContent(
+    courses = listOf(realAnalysis, probTheory, linAlgebra, complAnalysis),
+    students = students,
+    teachers = teachers,
+  )
+}
+
+private fun createStudent(studentStorage: StudentStorage): List<StudentId> {
   val students =
     listOf(
         "Алексей" to "Иванов",
@@ -71,25 +103,5 @@ fun fillWithSamples(
         "Николай" to "Васильев",
       )
       .map { studentStorage.createStudent(it.first, it.second) }
-  students.slice(0..<5).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, realAnalysis)
-  }
-  students.slice(0..<5).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, probTheory)
-  }
-  students.slice(5..<10).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, probTheory)
-  }
-  students.slice(5..<10).map { studentId ->
-    coursesDistributor.addStudentToCourse(studentId, linAlgebra)
-  }
-  println("first student is ${studentStorage.resolveStudent(students.first())}")
-
-  listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
-    teacherStorage.createTeacher(it.first, it.second)
-  }
-
-  coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
-
-  return listOf(realAnalysis, probTheory, linAlgebra, complAnalysis)
+  return students
 }

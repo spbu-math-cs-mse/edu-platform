@@ -22,9 +22,9 @@ import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockBotEventBus
 import com.github.heheteam.commonlib.mock.MockNotificationService
+import com.github.heheteam.commonlib.mock.MockResponsibleTeacherResolver
 import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -80,13 +80,14 @@ class StudentBotTest {
     problemStorage = DatabaseProblemStorage(database)
     courseIds =
       fillWithSamples(
-        coursesDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+          coursesDistributor,
+          problemStorage,
+          assignmentStorage,
+          studentStorage,
+          teacherStorage,
+          database,
+        )
+        .courses
     gradeTable = DatabaseGradeTable(database)
 
     studentCore =
@@ -98,6 +99,7 @@ class StudentBotTest {
         gradeTable,
         MockNotificationService(),
         MockBotEventBus(),
+        MockResponsibleTeacherResolver(null),
       )
   }
 
@@ -156,11 +158,10 @@ class StudentBotTest {
         val solution = solutionDistributor.querySolution(teacherId).value
         if (solution != null) {
           solutions.add(solution.id)
-          gradeTable.assessSolution(
+          gradeTable.recordSolutionAssessment(
             solution.id,
             teacherId,
             SolutionAssessment(5, "comment"),
-            InMemoryTeacherStatistics(),
             LocalDateTime.now(),
           )
         }

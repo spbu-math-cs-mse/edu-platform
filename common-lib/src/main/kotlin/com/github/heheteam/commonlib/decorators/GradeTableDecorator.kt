@@ -5,11 +5,11 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import java.time.LocalDateTime
 
@@ -28,16 +28,18 @@ class GradeTableDecorator(
   override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
     gradeTable.getCourseRating(courseId)
 
-  override fun assessSolution(
+  override fun recordSolutionAssessment(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime,
   ) =
-    gradeTable.assessSolution(solutionId, teacherId, assessment, teacherStatistics).apply {
+    gradeTable.recordSolutionAssessment(solutionId, teacherId, assessment).apply {
       ratingRecorder.updateRating(solutionId)
     }
 
   override fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
+
+  override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
+    gradeTable.getGradingsForSolution(solutionId)
 }

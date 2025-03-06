@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.max
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -35,6 +36,7 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
     return Ok(
       Assignment(
         assignmentId,
+        row[AssignmentTable.serialNumber],
         row[AssignmentTable.description],
         row[AssignmentTable.courseId].value.toCourseId(),
       )
@@ -49,7 +51,13 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
   ): AssignmentId {
     val assignId =
       transaction(database) {
+          val serialNumber =
+            (AssignmentTable.select(AssignmentTable.serialNumber.max())
+              .where(AssignmentTable.courseId eq courseId.id)
+              .firstOrNull()
+              ?.get(AssignmentTable.serialNumber.max()) ?: 0) + 1
           AssignmentTable.insertAndGetId {
+            it[AssignmentTable.serialNumber] = serialNumber
             it[AssignmentTable.description] = description
             it[AssignmentTable.courseId] = courseId.id
           }
@@ -73,6 +81,7 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
     AssignmentTable.selectAll().where(AssignmentTable.courseId eq courseId.id).map {
       Assignment(
         it[AssignmentTable.id].value.toAssignmentId(),
+        it[AssignmentTable.serialNumber],
         it[AssignmentTable.description],
         it[AssignmentTable.courseId].value.toCourseId(),
       )

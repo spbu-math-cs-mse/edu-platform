@@ -11,8 +11,7 @@ import java.time.LocalDateTime
 import org.junit.jupiter.api.Test
 
 class SolutionGraderTest {
-  val solution = mockk<Solution>()
-  val defaultTimestamp = LocalDateTime.of(2000, 1, 1, 12, 0)
+  val defaultTimestamp: LocalDateTime = LocalDateTime.of(2000, 1, 1, 12, 0)
   val good = SolutionAssessment(1)
   val bad = SolutionAssessment(0)
 

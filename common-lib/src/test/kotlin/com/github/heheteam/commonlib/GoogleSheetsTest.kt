@@ -39,8 +39,6 @@ class GoogleSheetsTest {
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
-  private val teacherStatistics = InMemoryTeacherStatistics()
-
   private val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
 
   @BeforeTest

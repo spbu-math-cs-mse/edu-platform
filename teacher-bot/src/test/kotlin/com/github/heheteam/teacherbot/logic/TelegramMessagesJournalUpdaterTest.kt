@@ -14,7 +14,7 @@ import kotlinx.datetime.toKotlinLocalDateTime
 
 class TelegramMessagesJournalUpdaterTest {
   val solutionId = SolutionId(1L)
-  val defaultTimestamp = LocalDateTime.of(2000, 1, 1, 12, 0)
+  val defaultTimestamp: LocalDateTime = LocalDateTime.of(2000, 1, 1, 12, 0)
   val good = SolutionAssessment(1)
   val bad = SolutionAssessment(0)
 

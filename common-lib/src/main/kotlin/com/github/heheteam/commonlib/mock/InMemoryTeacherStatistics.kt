@@ -98,10 +98,4 @@ class InMemoryTeacherStatistics : TeacherStatistics {
       .associateWith { resolveTeacherStats(it) }
       .filter { it.value.isOk }
       .mapValues { it.value.value }
-
-  fun addMockFilling(teacherId: TeacherId) {
-    teacherStats
-      .getOrPut(teacherId) { mutableListOf() }
-      .add(SolutionReview(LocalDateTime.now().minusHours(2), LocalDateTime.now()))
-  }
 }

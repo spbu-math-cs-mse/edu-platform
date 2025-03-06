@@ -62,8 +62,8 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
         val tryGrading = tryProcessGradingByButtonPress(callback, solutionGrader, teacherId).get()
         if (tryGrading == null) {
-          Pair(handleDataCallbackFromMenuButtons(callback.data), null)
-          handleDataCallbackFromMenuButtons(callback.data)?.let { Pair(it, null) }
+          Pair(null as State?, null)
+          (null as State?)?.let { Pair(it, null) }
         } else {
           null
         }
@@ -111,14 +111,6 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
       Pair(MenuState(context, teacherId), "Unrecognized command")
     }
   }
-
-  private fun handleDataCallbackFromMenuButtons(callback: String): State? =
-    when (callback) {
-      Keyboards.checkGrades -> CheckGradesState(context, teacherId)
-      Keyboards.getSolution -> GettingSolutionState(context, teacherId)
-      Keyboards.viewStats -> SendStatisticInfoState(context, teacherId)
-      else -> null
-    }
 
   fun tryParseGradingReply(
     commonMessage: CommonMessage<TextContent>,

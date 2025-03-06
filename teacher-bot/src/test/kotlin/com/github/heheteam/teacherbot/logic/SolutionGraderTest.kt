@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 class SolutionGraderTest {
   val defaultTimestamp: LocalDateTime = LocalDateTime.of(2000, 1, 1, 12, 0)
   val good = SolutionAssessment(1)
-  val bad = SolutionAssessment(0)
 
   val solutionId = 0L.toSolutionId()
   val teacherId = 0L.toTeacherId()

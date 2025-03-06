@@ -80,6 +80,7 @@ fun fillWithSamples(
     }
 
   coursesDistributor.addTeacherToCourse(TeacherId(1), realAnalysis)
+  coursesDistributor.addTeacherToCourse(TeacherId(2), realAnalysis)
 
   return FillContent(
     courses = listOf(realAnalysis, probTheory, linAlgebra, complAnalysis),

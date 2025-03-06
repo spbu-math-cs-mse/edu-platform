@@ -67,7 +67,8 @@ class CoursesDistributorDecorator(
 
   override fun createCourse(description: String): CourseId =
     coursesDistributor.createCourse(description).also {
-      //      ratingRecorder.createRatingSpreadsheet(it).getError()?.also { err -> println(err) }
+      //            ratingRecorder.createRatingSpreadsheet(it).getError()?.also { err ->
+      // println(err) }
     }
 
   override fun getStudents(courseId: CourseId): List<Student> =

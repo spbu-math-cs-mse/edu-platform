@@ -6,9 +6,7 @@ import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendSolutionContent
-import com.github.heheteam.teacherbot.states.SolutionGradings
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
-import com.github.heheteam.teacherbot.states.createTechnicalMessageContent
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -22,8 +20,10 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-class TelegramSolutionSenderImpl(private val teacherStorage: TeacherStorage) :
-  TelegramSolutionSender, TelegramBotController {
+class TelegramSolutionSenderImpl(
+  private val teacherStorage: TeacherStorage,
+  private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
+) : TelegramSolutionSender, TelegramBotController {
   private var lateInitTeacherBot: TelegramBot? = null
 
   override fun sendPersonalSolutionNotification(
@@ -37,7 +37,10 @@ class TelegramSolutionSenderImpl(private val teacherStorage: TeacherStorage) :
           val teacher =
             teacherStorage.resolveTeacher(teacherId).mapError { "Failed to resolve teacher" }.bind()
           val solutionMessage = sendSolutionContent(teacher.tgId.toChatId(), solution.content)
-          val technicalMessageContent = createTechnicalMessageContent(SolutionGradings(solution.id))
+          val technicalMessageContent =
+            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+              solution.id
+            )
           val technicalMessage = reply(solutionMessage, technicalMessageContent)
           editMessageReplyMarkup(
             technicalMessage,
@@ -59,7 +62,10 @@ class TelegramSolutionSenderImpl(private val teacherStorage: TeacherStorage) :
           val chat =
             registeredGroups[courseId].toResultOr { "no chat registered for $courseId" }.bind()
           val solutionMessage = sendSolutionContent(chat.toChatId(), solution.content)
-          val technicalMessageContent = createTechnicalMessageContent(SolutionGradings(solution.id))
+          val technicalMessageContent =
+            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+              solution.id
+            )
           val technicalMessage = reply(solutionMessage, technicalMessageContent)
           editMessageReplyMarkup(
             technicalMessage,

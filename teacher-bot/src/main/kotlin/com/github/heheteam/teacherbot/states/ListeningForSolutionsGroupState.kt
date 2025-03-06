@@ -49,14 +49,9 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     solutionGrader: SolutionGrader,
   ): Result<Unit, String> = binding {
     val technicalMessageText = extractReplyText(commonMessage).bind()
-    val submissionInfo = parseTechnicalMessageContent(technicalMessageText).bind()
+    val solutionId = parseTechnicalMessageContent(technicalMessageText).bind()
     val assessment = extractAssessmentFromMessage(commonMessage).bind()
     val teacherId = TeacherId(1L)
-    solutionGrader.assessSolution(
-      submissionInfo.solutionId,
-      teacherId,
-      assessment,
-      LocalDateTime.now(),
-    )
+    solutionGrader.assessSolution(solutionId, teacherId, assessment, LocalDateTime.now())
   }
 }

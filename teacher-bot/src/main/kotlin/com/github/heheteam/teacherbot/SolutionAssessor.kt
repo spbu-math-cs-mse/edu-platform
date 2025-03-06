@@ -13,11 +13,12 @@ import java.time.LocalDateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class SolutionAssessor(private val botEventBus: BotEventBus) : KoinComponent {
+class SolutionAssessor : KoinComponent {
   private val teacherStatistics: TeacherStatistics by inject()
   private val solutionDistributor: SolutionDistributor by inject()
   private val gradeTable: GradeTable by inject()
   private val problemStorage: ProblemStorage by inject()
+  private val botEventBus: BotEventBus by inject()
 
   fun assessSolution(
     solution: Solution,

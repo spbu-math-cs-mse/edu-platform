@@ -41,7 +41,7 @@ class AdminRunner : KoinComponent {
   private val solutionDistributor: SolutionDistributor by inject()
 
   @OptIn(RiskFeature::class)
-  suspend fun run(botToken: String, core: AdminCore) {
+  suspend fun run(botToken: String) {
     telegramBot(botToken) {
       logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
         println(defaultMessageFormatter(level, tag, message, throwable))
@@ -60,7 +60,7 @@ class AdminRunner : KoinComponent {
         println(getMe())
 
         command("start") { startChain(MenuState(it.from!!)) }
-
+        val core = AdminCore()
         registerState<MenuState, CoursesDistributor>(coursesDistributor)
         registerState<CreateCourseState, CoursesDistributor>(coursesDistributor)
         registerState<CourseInfoState, CourseStatisticsComposer>(

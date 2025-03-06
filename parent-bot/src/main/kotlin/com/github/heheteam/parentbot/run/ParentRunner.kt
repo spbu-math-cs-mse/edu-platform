@@ -26,7 +26,7 @@ class ParentRunner : KoinComponent {
   private val parentStorage: ParentStorage by inject()
 
   @OptIn(RiskFeature::class)
-  suspend fun run(botToken: String, core: ParentCore) {
+  suspend fun run(botToken: String) {
     telegramBot(botToken) {
       logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
         println(defaultMessageFormatter(level, tag, message, throwable))
@@ -51,6 +51,7 @@ class ParentRunner : KoinComponent {
           }
         }
 
+        val core = ParentCore()
         strictlyOnStartState(parentStorage, isDeveloperRun = true)
         strictlyOnMenuState(core)
         strictlyOnGivingFeedbackState()

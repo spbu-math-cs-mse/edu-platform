@@ -27,15 +27,13 @@ import org.koin.core.component.inject
 // this class represents a service given by the bot;
 // students ids are parameters in this class
 @Suppress("LongParameterList")
-class StudentCore(
-  private val notificationService: NotificationService,
-  private val botEventBus: BotEventBus,
-) : KoinComponent {
+class StudentCore(private val notificationService: NotificationService) : KoinComponent {
   private val solutionDistributor: SolutionDistributor by inject()
   private val coursesDistributor: CoursesDistributor by inject()
   private val problemStorage: ProblemStorage by inject()
   private val assignmentStorage: AssignmentStorage by inject()
   private val gradeTable: GradeTable by inject()
+  private val botEventBus: BotEventBus by inject()
 
   init {
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->

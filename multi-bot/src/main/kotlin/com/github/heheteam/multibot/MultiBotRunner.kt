@@ -7,9 +7,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.long
-import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.run.AdminRunner
 import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ObserverBus
@@ -19,7 +19,6 @@ import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.StudentNotificationService
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
@@ -44,18 +43,9 @@ import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.SampleGenerator
-import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.run.ParentRunner
-import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.run.StudentRunner
-import com.github.heheteam.teacherbot.CoursesStatisticsResolver
-import com.github.heheteam.teacherbot.SolutionAssessor
-import com.github.heheteam.teacherbot.SolutionResolver
 import com.github.heheteam.teacherbot.run.TeacherRunner
-import dev.inmo.kslog.common.KSLog
-import dev.inmo.kslog.common.LogLevel
-import dev.inmo.kslog.common.defaultMessageFormatter
-import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
@@ -63,15 +53,33 @@ import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.module
 
 class MultiBotRunner : CliktCommand() {
-  val studentBotToken: String by option().required().help("student bot token")
-  val teacherBotToken: String by option().required().help("teacher bot token")
-  val adminBotToken: String by option().required().help("admin bot token")
-  val parentBotToken: String by option().required().help("parent bot token")
-  val presetStudentId: Long? by option().long()
-  val presetTeacherId: Long? by option().long()
-  val useRedis: Boolean by option().boolean().default(false)
+  private val studentBotToken: String by option().required().help("student bot token")
+  private val teacherBotToken: String by option().required().help("teacher bot token")
+  private val adminBotToken: String by option().required().help("admin bot token")
+  private val parentBotToken: String by option().required().help("parent bot token")
+  private val presetStudentId: Long? by option().long()
+  private val presetTeacherId: Long? by option().long()
+  private val useRedis: Boolean by option().boolean().default(false)
 
   override fun run() {
+    val coreModule = injectDependencies()
+    startKoin { modules(coreModule) }
+
+    SampleGenerator().fillWithSamples()
+
+    val presetStudent = presetStudentId?.toStudentId()
+    val presetTeacher = presetTeacherId?.toTeacherId()
+    val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
+
+    runBlocking {
+      launch { StudentRunner().run(studentBotToken, developerOptions) }
+      launch { TeacherRunner().run(teacherBotToken, developerOptions) }
+      launch { AdminRunner().run(adminBotToken) }
+      launch { ParentRunner().run(parentBotToken) }
+    }
+  }
+
+  private fun injectDependencies(): org.koin.core.module.Module {
     val config = loadConfig()
     val database =
       Database.connect(
@@ -80,8 +88,7 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.login,
         config.databaseConfig.password,
       )
-
-    val appModule = module {
+    return module {
       single<Database> { database }
       val coursesDistributor = DatabaseCoursesDistributor(database)
       val gradeTable = DatabaseGradeTable(database)
@@ -116,49 +123,11 @@ class MultiBotRunner : CliktCommand() {
       single<SolutionDistributor> {
         SolutionDistributorDecorator(solutionDistributor, ratingRecorder = get())
       }
-    }
 
-    startKoin { modules(appModule) }
-
-    SampleGenerator().fillWithSamples()
-
-    val bot =
-      telegramBot(studentBotToken) {
-        logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-          println(defaultMessageFormatter(level, tag, message, throwable))
-        }
+      single<BotEventBus> {
+        if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
+        else ObserverBus()
       }
-    val notificationService = StudentNotificationService(bot)
-    val botEventBus =
-      if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
-      else ObserverBus()
-    val studentCore = StudentCore(notificationService, botEventBus)
-
-    val solutionResolver = SolutionResolver()
-    val solutionAssessor = SolutionAssessor(botEventBus)
-    val coursesStatisticsResolver = CoursesStatisticsResolver()
-
-    val adminCore = AdminCore()
-
-    val parentCore = ParentCore(DatabaseStudentStorage(database), DatabaseGradeTable(database))
-    val presetStudent = presetStudentId?.toStudentId()
-    val presetTeacher = presetTeacherId?.toTeacherId()
-    val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
-    runBlocking {
-      launch { StudentRunner().run(studentBotToken, studentCore, developerOptions) }
-      launch {
-        TeacherRunner()
-          .run(
-            teacherBotToken,
-            coursesStatisticsResolver,
-            solutionResolver,
-            botEventBus,
-            solutionAssessor,
-            developerOptions,
-          )
-      }
-      launch { AdminRunner().run(adminBotToken, adminCore) }
-      launch { ParentRunner().run(parentBotToken, parentCore) }
     }
   }
 }

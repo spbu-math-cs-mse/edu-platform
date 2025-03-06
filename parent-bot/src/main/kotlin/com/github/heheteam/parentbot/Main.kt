@@ -1,7 +1,5 @@
 package com.github.heheteam.parentbot
 
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import org.jetbrains.exposed.sql.Database
@@ -20,7 +18,7 @@ suspend fun main(vararg args: String) {
     )
 
   val parentStorage = MockParentStorage()
-  val core = ParentCore(DatabaseStudentStorage(database), DatabaseGradeTable(database))
+  val core = ParentCore()
 
   //  parentRun(botToken, parentStorage, core)
 }

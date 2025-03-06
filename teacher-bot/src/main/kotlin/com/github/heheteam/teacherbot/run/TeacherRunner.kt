@@ -45,16 +45,10 @@ class TeacherRunner : KoinComponent {
   private val teacherStorage: TeacherStorage by inject()
   private val teacherStatistics: TeacherStatistics by inject()
   private val coursesDistributor: CoursesDistributor by inject()
+  private val botEventBus: BotEventBus by inject()
 
   @Suppress("LongParameterList")
-  suspend fun run(
-    botToken: String,
-    coursesStatisticsResolver: CoursesStatisticsResolver,
-    solutionResolver: SolutionResolver,
-    botEventBus: BotEventBus,
-    solutionAssessor: SolutionAssessor,
-    developerOptions: DeveloperOptions? = DeveloperOptions(),
-  ) {
+  suspend fun run(botToken: String, developerOptions: DeveloperOptions? = DeveloperOptions()) {
     telegramBot(botToken) {
       logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
         println(defaultMessageFormatter(level, tag, message, throwable))
@@ -74,6 +68,9 @@ class TeacherRunner : KoinComponent {
 
         command("start") { startFsm(it, developerOptions) }
 
+        val solutionResolver = SolutionResolver()
+        val solutionAssessor = SolutionAssessor()
+        val coursesStatisticsResolver = CoursesStatisticsResolver()
         internalCompilerErrorWorkaround(solutionResolver, solutionAssessor, botEventBus)
         registerState<StartState, TeacherStorage>(teacherStorage)
         registerState<DeveloperStartState, TeacherStorage>(teacherStorage)

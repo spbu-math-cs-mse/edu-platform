@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot.run
 
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.StudentNotificationService
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
@@ -38,11 +39,7 @@ class StudentRunner : KoinComponent {
   private val problemStorage: ProblemStorage by inject()
 
   @OptIn(RiskFeature::class)
-  suspend fun run(
-    botToken: String,
-    core: StudentCore,
-    developerOptions: DeveloperOptions? = DeveloperOptions(),
-  ) {
+  suspend fun run(botToken: String, developerOptions: DeveloperOptions? = DeveloperOptions()) {
     telegramBot(botToken) {
       logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
         println(defaultMessageFormatter(level, tag, message, throwable))
@@ -68,6 +65,7 @@ class StudentRunner : KoinComponent {
           }
         }
 
+        val core = StudentCore(StudentNotificationService(bot))
         registerState<StartState, StudentStorage>(studentStorage)
         registerState<DeveloperStartState, StudentStorage>(studentStorage)
         registerState<MenuState, CoursesDistributor>(coursesDistributor)

@@ -6,11 +6,13 @@ import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class CoursesStatisticsResolver(
-  private val coursesDistributor: CoursesDistributor,
-  private val gradeTable: GradeTable,
-) {
+class CoursesStatisticsResolver : KoinComponent {
+  private val coursesDistributor: CoursesDistributor by inject()
+  private val gradeTable: GradeTable by inject()
+
   fun getAvailableCourses(teacherId: TeacherId): List<Course> =
     coursesDistributor.getTeacherCourses(teacherId)
 

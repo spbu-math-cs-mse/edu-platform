@@ -14,13 +14,15 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.michaelbull.result.Result
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class SolutionResolver(
-  val solutionDistributor: SolutionDistributor,
-  private val problemStorage: ProblemStorage,
-  private val assignmentStorage: AssignmentStorage,
-  private val studentStorage: StudentStorage,
-) {
+class SolutionResolver : KoinComponent {
+  val solutionDistributor: SolutionDistributor by inject()
+  private val problemStorage: ProblemStorage by inject()
+  private val assignmentStorage: AssignmentStorage by inject()
+  private val studentStorage: StudentStorage by inject()
+
   fun querySolution(teacherId: TeacherId): Solution? =
     solutionDistributor.querySolution(teacherId).value
 

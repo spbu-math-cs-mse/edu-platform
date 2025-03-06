@@ -26,6 +26,7 @@ dependencyResolutionManagement {
       version("google-api-sheets", "v4-rev20241008-2.0.0")
       version("google-api-drive", "v3-rev20220815-2.0.0")
       version("hoplite", "2.7.5")
+      version("koin-core", "4.0.2")
 
       library("tgbotapi", "dev.inmo", "tgbotapi").versionRef("tgbotapi")
       library("slf4j-api", "org.slf4j", "slf4j-api").versionRef("slf4j")
@@ -41,6 +42,7 @@ dependencyResolutionManagement {
       library("google-api-services-drive", "com.google.apis", "google-api-services-drive").versionRef("google-api-drive")
       library("hoplite-json", "com.sksamuel.hoplite","hoplite-json").versionRef("hoplite")
       library("kotlin-result-coroutines" , "com.michael-bull.kotlin-result", "kotlin-result-coroutines").versionRef("kotlin-result")
+      library("koin-core", "io.insert-koin", "koin-core").versionRef("koin-core")
     }
   }
 }

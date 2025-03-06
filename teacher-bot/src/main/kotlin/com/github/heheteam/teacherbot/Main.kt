@@ -1,5 +1,7 @@
 package com.github.heheteam.teacherbot
 
+// import com.github.heheteam.commonlib.util.fillWithSamples
+// import com.github.heheteam.teacherbot.run.teacherRun
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemStorage
@@ -19,8 +21,6 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
-import com.github.heheteam.commonlib.util.fillWithSamples
-import com.github.heheteam.teacherbot.run.teacherRun
 import org.jetbrains.exposed.sql.Database
 
 /** @param args bot token and telegram @username for mocking data. */
@@ -61,35 +61,35 @@ suspend fun main(vararg args: String) {
 
   val botEventBus = RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
 
-  val solutionResolver =
-    SolutionResolver(solutionDistributor, problemStorage, assignmentStorage, studentStorage)
-  val solutionAssessor =
-    SolutionAssessor(
-      teacherStatistics,
-      solutionDistributor,
-      gradeTable,
-      problemStorage,
-      botEventBus,
-    )
-  val coursesStatisticsResolver = CoursesStatisticsResolver(coursesDistributor, gradeTable)
-
-  fillWithSamples(
-    coursesDistributor,
-    problemStorage,
-    assignmentStorage,
-    studentStorage,
-    teacherStorage,
-    database,
-  )
-
-  teacherRun(
-    botToken,
-    teacherStorage,
-    teacherStatistics,
-    coursesDistributor,
-    coursesStatisticsResolver,
-    solutionResolver,
-    botEventBus,
-    solutionAssessor,
-  )
+  //  val solutionResolver =
+  //    SolutionResolver(solutionDistributor, problemStorage, assignmentStorage, studentStorage)
+  //  val solutionAssessor =
+  //    SolutionAssessor(
+  //      teacherStatistics,
+  //      solutionDistributor,
+  //      gradeTable,
+  //      problemStorage,
+  //      botEventBus,
+  //    )
+  //  val coursesStatisticsResolver = CoursesStatisticsResolver(coursesDistributor, gradeTable)
+  //
+  //  fillWithSamples(
+  //    coursesDistributor,
+  //    problemStorage,
+  //    assignmentStorage,
+  //    studentStorage,
+  //    teacherStorage,
+  //    database,
+  //  )
+  //
+  //  teacherRun(
+  //    botToken,
+  //    teacherStorage,
+  //    teacherStatistics,
+  //    coursesDistributor,
+  //    coursesStatisticsResolver,
+  //    solutionResolver,
+  //    botEventBus,
+  //    solutionAssessor,
+  //  )
 }

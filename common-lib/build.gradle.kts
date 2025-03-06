@@ -18,4 +18,5 @@ dependencies {
     implementation(libs.google.api.services.drive)
     implementation(libs.hoplite.json)
     implementation(libs.postgresql)
+    implementation(libs.koin.core)
 }

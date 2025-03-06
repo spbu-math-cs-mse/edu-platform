@@ -1,5 +1,7 @@
 package com.github.heheteam.studentbot
 
+// import com.github.heheteam.commonlib.util.fillWithSamples
+// import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RedisBotEventBus
@@ -16,8 +18,6 @@ import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.util.fillWithSamples
-import com.github.heheteam.studentbot.run.studentRun
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -66,25 +66,25 @@ suspend fun main(vararg args: String) {
 
   val notificationService = StudentNotificationService(bot)
 
-  fillWithSamples(
-    coursesDistributor,
-    problemStorage,
-    assignmentStorage,
-    studentStorage,
-    teacherStorage,
-    database,
-  )
-
-  val core =
-    StudentCore(
-      solutionDistributor,
-      coursesDistributor,
-      problemStorage,
-      assignmentStorage,
-      DatabaseGradeTable(database),
-      notificationService,
-      botEventBus,
-    )
-
-  studentRun(botToken, studentStorage, coursesDistributor, problemStorage, core)
+  //  fillWithSamples(
+  //    coursesDistributor,
+  //    problemStorage,
+  //    assignmentStorage,
+  //    studentStorage,
+  //    teacherStorage,
+  //    database,
+  //  )
+  //
+  //  val core =
+  //    StudentCore(
+  //      solutionDistributor,
+  //      coursesDistributor,
+  //      problemStorage,
+  //      assignmentStorage,
+  //      DatabaseGradeTable(database),
+  //      notificationService,
+  //      botEventBus,
+  //    )
+  //
+  //  studentRun(botToken, studentStorage, coursesDistributor, problemStorage, core)
 }

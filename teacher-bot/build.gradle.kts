@@ -15,4 +15,5 @@ dependencies {
     implementation(libs.kotlin.result)
     implementation(libs.hoplite.json)
     implementation(libs.postgresql)
+    implementation(libs.koin.core)
 }

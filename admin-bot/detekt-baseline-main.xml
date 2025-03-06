@@ -14,13 +14,13 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noCoursesWasFoundForCreationOfAssignment(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noIdInInput(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun problemsDescriptionsAreNotTexts(): String</ID>
-    <ID>InjectDispatcher:AdminRun.kt$IO</ID>
+    <ID>InjectDispatcher:AdminRunner.kt$IO</ID>
     <ID>LongMethod:AddScheduledMessageState.kt$private fun keyboardWithDates(): InlineKeyboardMarkup</ID>
-    <ID>LongMethod:AdminRun.kt$@OptIn(RiskFeature::class) suspend fun adminRun( botToken: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, solutionDistributor: SolutionDistributor, core: AdminCore, )</ID>
+    <ID>LongMethod:AdminRunner.kt$@OptIn(RiskFeature::class) suspend fun adminRun( botToken: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, solutionDistributor: SolutionDistributor, core: AdminCore, )</ID>
     <ID>LongMethod:CreateAssignmentState.kt$CreateAssignmentState$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun queryAssignmentDescription( bot: BehaviourContext, state: CreateAssignmentState, ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>LongMethod:CreateAssignmentState.kt$CreateAssignmentState$private suspend fun queryProblemsDescriptions( bot: BehaviourContext, state: CreateAssignmentState, ): List&lt;ProblemDescription&gt;?</ID>
     <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
-    <ID>LongParameterList:AdminRun.kt$( botToken: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, solutionDistributor: SolutionDistributor, core: AdminCore, )</ID>
+    <ID>LongParameterList:AdminRunner.kt$( botToken: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, solutionDistributor: SolutionDistributor, core: AdminCore, )</ID>
     <ID>LoopWithTooManyJumpStatements:AddStudentState.kt$while</ID>
     <ID>LoopWithTooManyJumpStatements:AddTeacherState.kt$while</ID>
     <ID>LoopWithTooManyJumpStatements:CreateAssignmentState.kt$CreateAssignmentState$while</ID>
@@ -45,7 +45,7 @@
     <ID>ReturnCount:CreateAssignmentState.kt$CreateAssignmentState$@OptIn(ExperimentalCoroutinesApi::class) private suspend fun queryAssignmentDescription( bot: BehaviourContext, state: CreateAssignmentState, ): Pair&lt;String, LocalDateTime?&gt;?</ID>
     <ID>TooManyFunctions:AdminCore.kt$AdminCore</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-    <ID>UnsafeCallOnNullableType:AdminRun.kt$it.from!!</ID>
+    <ID>UnsafeCallOnNullableType:AdminRunner.kt$it.from!!</ID>
     <ID>UseAnyOrNoneInsteadOfFind:AdminCore.kt$AdminCore$find { it.id == course.id }</ID>
   </CurrentIssues>
 </SmellBaseline>

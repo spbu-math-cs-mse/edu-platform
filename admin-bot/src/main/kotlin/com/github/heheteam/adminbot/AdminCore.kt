@@ -1,12 +1,8 @@
 package com.github.heheteam.adminbot
 
-import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.ScheduledMessage
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.api.StudentId
@@ -14,13 +10,15 @@ import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import java.time.LocalDateTime
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class AdminCore(
-  private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
-  private val coursesDistributor: CoursesDistributor,
-  private val studentStorage: StudentStorage,
-  private val teacherStorage: TeacherStorage,
-) {
+class AdminCore : KoinComponent {
+  private val scheduledMessagesDistributor: ScheduledMessagesDistributor by inject()
+  private val coursesDistributor: CoursesDistributor by inject()
+  private val studentStorage: StudentStorage by inject()
+  private val teacherStorage: TeacherStorage by inject()
+
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
   fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
@@ -61,17 +59,4 @@ class AdminCore(
 
   fun removeStudent(studentId: StudentId, courseId: CourseId): Boolean =
     coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
-}
-
-class AssignmentProblemsResolver(
-  private val assignmentStorage: AssignmentStorage,
-  private val problemStorage: ProblemStorage,
-) {
-  fun getAssignments(courseId: CourseId): List<Pair<Assignment, List<Problem>>> {
-    val assignments = assignmentStorage.getAssignmentsForCourse(courseId)
-    val problems = problemStorage.getProblemsFromCourse(courseId)
-    return assignments.map { assignment ->
-      Pair(assignment, problems.filter { it.assignmentId == assignment.id })
-    }
-  }
 }

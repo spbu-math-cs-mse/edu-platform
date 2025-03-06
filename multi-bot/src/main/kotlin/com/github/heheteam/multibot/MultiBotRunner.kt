@@ -8,15 +8,19 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.long
 import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.adminbot.run.adminRun
+import com.github.heheteam.adminbot.run.AdminRunner
 import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ObserverBus
+import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.StudentNotificationService
+import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.api.toStudentId
@@ -39,15 +43,15 @@ import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
-import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.heheteam.commonlib.util.SampleGenerator
 import com.github.heheteam.parentbot.ParentCore
-import com.github.heheteam.parentbot.run.parentRun
+import com.github.heheteam.parentbot.run.ParentRunner
 import com.github.heheteam.studentbot.StudentCore
-import com.github.heheteam.studentbot.run.studentRun
+import com.github.heheteam.studentbot.run.StudentRunner
 import com.github.heheteam.teacherbot.CoursesStatisticsResolver
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
-import com.github.heheteam.teacherbot.run.teacherRun
+import com.github.heheteam.teacherbot.run.TeacherRunner
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -55,6 +59,8 @@ import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
+import org.koin.core.context.GlobalContext.startKoin
+import org.koin.dsl.module
 
 class MultiBotRunner : CliktCommand() {
   val studentBotToken: String by option().required().help("student bot token")
@@ -75,47 +81,46 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.password,
       )
 
-    val coursesDistributor = DatabaseCoursesDistributor(database)
-    val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
-    val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
-    val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
-    val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-    val teacherStatistics: TeacherStatistics = InMemoryTeacherStatistics()
-    val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
-      InMemoryScheduledMessagesDistributor()
+    val appModule = module {
+      single<Database> { database }
+      val coursesDistributor = DatabaseCoursesDistributor(database)
+      val gradeTable = DatabaseGradeTable(database)
+      val assignmentStorage = DatabaseAssignmentStorage(database)
+      val solutionDistributor = DatabaseSolutionDistributor(database)
+      single<ProblemStorage> { DatabaseProblemStorage(database) }
+      single<TeacherStorage> { DatabaseTeacherStorage(database) }
+      single<TeacherStatistics> { InMemoryTeacherStatistics() }
+      single<ScheduledMessagesDistributor> { InMemoryScheduledMessagesDistributor() }
+      single<StudentStorage> { DatabaseStudentStorage(database) }
+      single<ParentStorage> { MockParentStorage() }
 
-    val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
-    val ratingRecorder =
-      GoogleSheetsRatingRecorder(
-        googleSheetsService,
-        coursesDistributor,
-        assignmentStorage,
-        problemStorage,
-        databaseGradeTable,
-        solutionDistributor,
-      )
-    val studentStorage = DatabaseStudentStorage(database)
-    //    coursesDistributor.getCourses().forEach { course -> ratingRecorder.updateRating(course.id)
-    // }
+      val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
+      single<RatingRecorder> {
+        GoogleSheetsRatingRecorder(
+          googleSheetsService,
+          coursesDistributor,
+          assignmentStorage,
+          problemStorage = get(),
+          gradeTable,
+          solutionDistributor,
+        )
+      }
 
-    val coursesDistributorDecorator =
-      CoursesDistributorDecorator(coursesDistributor, ratingRecorder)
-    val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
-    val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
-    val solutionDistributorDecorator =
-      SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
+      single<CoursesDistributor> {
+        CoursesDistributorDecorator(coursesDistributor, ratingRecorder = get())
+      }
+      single<GradeTable> { GradeTableDecorator(gradeTable, ratingRecorder = get()) }
+      single<AssignmentStorage> {
+        AssignmentStorageDecorator(assignmentStorage, ratingRecorder = get())
+      }
+      single<SolutionDistributor> {
+        SolutionDistributorDecorator(solutionDistributor, ratingRecorder = get())
+      }
+    }
 
-    fillWithSamples(
-      coursesDistributorDecorator,
-      problemStorage,
-      assignmentStorage,
-      studentStorage,
-      teacherStorage,
-      database,
-    )
+    startKoin { modules(appModule) }
 
-    val parentStorage = MockParentStorage()
+    SampleGenerator().fillWithSamples()
 
     val bot =
       telegramBot(studentBotToken) {
@@ -127,82 +132,33 @@ class MultiBotRunner : CliktCommand() {
     val botEventBus =
       if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
       else ObserverBus()
-    val studentCore =
-      StudentCore(
-        solutionDistributorDecorator,
-        coursesDistributorDecorator,
-        problemStorage,
-        assignmentStorageDecorator,
-        gradeTable,
-        notificationService,
-        botEventBus,
-      )
+    val studentCore = StudentCore(notificationService, botEventBus)
 
-    val solutionResolver =
-      SolutionResolver(
-        solutionDistributor,
-        problemStorage,
-        assignmentStorageDecorator,
-        studentStorage,
-      )
-    val solutionAssessor =
-      SolutionAssessor(
-        teacherStatistics,
-        solutionDistributor,
-        gradeTable,
-        problemStorage,
-        botEventBus,
-      )
-    val coursesStatisticsResolver =
-      CoursesStatisticsResolver(coursesDistributorDecorator, gradeTable)
+    val solutionResolver = SolutionResolver()
+    val solutionAssessor = SolutionAssessor(botEventBus)
+    val coursesStatisticsResolver = CoursesStatisticsResolver()
 
-    val adminCore =
-      AdminCore(
-        inMemoryScheduledMessagesDistributor,
-        coursesDistributorDecorator,
-        studentStorage,
-        teacherStorage,
-      )
+    val adminCore = AdminCore()
 
     val parentCore = ParentCore(DatabaseStudentStorage(database), DatabaseGradeTable(database))
     val presetStudent = presetStudentId?.toStudentId()
     val presetTeacher = presetTeacherId?.toTeacherId()
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
     runBlocking {
+      launch { StudentRunner().run(studentBotToken, studentCore, developerOptions) }
       launch {
-        studentRun(
-          studentBotToken,
-          studentStorage,
-          coursesDistributorDecorator,
-          problemStorage,
-          studentCore,
-          developerOptions,
-        )
+        TeacherRunner()
+          .run(
+            teacherBotToken,
+            coursesStatisticsResolver,
+            solutionResolver,
+            botEventBus,
+            solutionAssessor,
+            developerOptions,
+          )
       }
-      launch {
-        teacherRun(
-          teacherBotToken,
-          teacherStorage,
-          teacherStatistics,
-          coursesDistributorDecorator,
-          coursesStatisticsResolver,
-          solutionResolver,
-          botEventBus,
-          solutionAssessor,
-          developerOptions,
-        )
-      }
-      launch {
-        adminRun(
-          adminBotToken,
-          coursesDistributorDecorator,
-          assignmentStorageDecorator,
-          problemStorage,
-          solutionDistributor,
-          adminCore,
-        )
-      }
-      launch { parentRun(parentBotToken, parentStorage, parentCore) }
+      launch { AdminRunner().run(adminBotToken, adminCore) }
+      launch { ParentRunner().run(parentBotToken, parentCore) }
     }
   }
 }

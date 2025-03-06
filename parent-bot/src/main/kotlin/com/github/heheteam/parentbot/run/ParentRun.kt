@@ -19,40 +19,46 @@ import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-@OptIn(RiskFeature::class)
-suspend fun parentRun(botToken: String, parentStorage: ParentStorage, core: ParentCore) {
-  telegramBot(botToken) {
-    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-      println(defaultMessageFormatter(level, tag, message, throwable))
-    }
-  }
+class ParentRunner : KoinComponent {
+  private val parentStorage: ParentStorage by inject()
 
-  telegramBotWithBehaviourAndFSMAndStartLongPolling(
-      botToken,
-      CoroutineScope(Dispatchers.IO),
-      onStateHandlingErrorHandler = { state, e ->
-        println("Thrown error on $state")
-        e.printStackTrace()
-        state
-      },
-    ) {
-      println(getMe())
-
-      command("start") {
-        val user = it.from
-        if (user != null) {
-          startChain(StartState(user))
-        }
+  @OptIn(RiskFeature::class)
+  suspend fun run(botToken: String, core: ParentCore) {
+    telegramBot(botToken) {
+      logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+        println(defaultMessageFormatter(level, tag, message, throwable))
       }
-
-      strictlyOnStartState(parentStorage, isDeveloperRun = true)
-      strictlyOnMenuState(core)
-      strictlyOnGivingFeedbackState()
-      strictlyOnChildPerformanceState(core)
-
-      allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
-    .second
-    .join()
+
+    telegramBotWithBehaviourAndFSMAndStartLongPolling(
+        botToken,
+        CoroutineScope(Dispatchers.IO),
+        onStateHandlingErrorHandler = { state, e ->
+          println("Thrown error on $state")
+          e.printStackTrace()
+          state
+        },
+      ) {
+        println(getMe())
+
+        command("start") {
+          val user = it.from
+          if (user != null) {
+            startChain(StartState(user))
+          }
+        }
+
+        strictlyOnStartState(parentStorage, isDeveloperRun = true)
+        strictlyOnMenuState(core)
+        strictlyOnGivingFeedbackState()
+        strictlyOnChildPerformanceState(core)
+
+        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
+      }
+      .second
+      .join()
+  }
 }

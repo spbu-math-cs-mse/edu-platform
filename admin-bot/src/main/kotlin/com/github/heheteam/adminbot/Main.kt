@@ -1,6 +1,7 @@
 package com.github.heheteam.adminbot
 
-import com.github.heheteam.adminbot.run.adminRun
+// import com.github.heheteam.adminbot.run.adminRun
+// import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemStorage
@@ -20,7 +21,6 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
-import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
 
 suspend fun main(vararg args: String) {
@@ -58,24 +58,24 @@ suspend fun main(vararg args: String) {
   val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
   val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
 
-  fillWithSamples(
-    coursesDistributor,
-    problemStorage,
-    assignmentStorageDecorator,
-    studentStorage,
-    teacherStorage,
-    database,
-  )
-
-  val core =
-    AdminCore(scheduledMessagesDistributor, coursesDistributor, studentStorage, teacherStorage)
-
-  adminRun(
-    botToken,
-    coursesDistributor,
-    assignmentStorageDecorator,
-    problemStorage,
-    solutionDistributor,
-    core,
-  )
+  //  fillWithSamples(
+  //    coursesDistributor,
+  //    problemStorage,
+  //    assignmentStorageDecorator,
+  //    studentStorage,
+  //    teacherStorage,
+  //    database,
+  //  )
+  //
+  //  val core =
+  //    AdminCore(scheduledMessagesDistributor, coursesDistributor, studentStorage, teacherStorage)
+  //
+  //  adminRun(
+  //    botToken,
+  //    coursesDistributor,
+  //    assignmentStorageDecorator,
+  //    problemStorage,
+  //    solutionDistributor,
+  //    core,
+  //  )
 }

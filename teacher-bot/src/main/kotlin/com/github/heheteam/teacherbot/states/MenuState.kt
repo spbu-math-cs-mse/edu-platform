@@ -17,11 +17,11 @@ import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.bot.TelegramBot
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
+import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.extensions.utils.accessibleMessageOrNull
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
@@ -39,19 +39,18 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     solutionGrader: SolutionGrader,
   ): State =
     with(bot) {
-      val (state, response) = readUserInput(this, teacherStorage, solutionGrader)
-      sendResponse(bot, response)
+      val state = readUserInput(this, teacherStorage, solutionGrader)
       state
     }
 
-  suspend fun readUserInput(
+  private suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherStorage,
     solutionGrader: SolutionGrader,
-  ): Pair<State, String?> {
+  ): State {
     service.updateTgId(teacherId, context.id)
     if (context.username == null) {
-      return Pair(StartState(context), null)
+      return StartState(context)
     }
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
     val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
@@ -60,40 +59,38 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
 
     val callbacksFlow =
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
-        val tryGrading = tryProcessGradingByButtonPress(callback, solutionGrader, teacherId).get()
-        if (tryGrading == null) {
-          Pair(null as State?, null)
-          (null as State?)?.let { Pair(it, null) }
-        } else {
-          null
-        }
+        tryProcessGradingByButtonPress(callback, solutionGrader, teacherId).get()
+        null
       }
     val messagesFlow =
       bot.waitTextMessageWithUser(context.id).map { message ->
         val maybeAssessed = tryParseGradingReply(message, solutionGrader)
-        maybeAssessed.mapBoth(
-          success = { Pair(MenuState(context, teacherId), "Решение успешно проверено") },
-          failure = {
-            when (it) {
-              is BadAssessment -> Pair(MenuState(context, teacherId), it.error)
-              NotReply -> handleCommands(message.content.text)
-              ReplyNotToSolution ->
-                Pair(
-                  MenuState(context, teacherId),
-                  "If you want to grade an error, you have to reply to a message below the actual solution",
-                )
-            }
-          },
-        )
+        maybeAssessed
+          .mapBoth(
+            success = { Pair(MenuState(context, teacherId), "Решение успешно проверено") },
+            failure = {
+              when (it) {
+                is BadAssessment -> Pair(MenuState(context, teacherId), it.error)
+                NotReply -> handleCommands(message.content.text)
+                ReplyNotToSolution ->
+                  Pair(
+                    MenuState(context, teacherId),
+                    "If you want to grade an error, you have to reply to a message below the actual solution",
+                  )
+              }
+            },
+          )
+          .run {
+            second?.let { it1 -> bot.replyOrSend(message, it1) }
+            first
+          }
       }
     return merge(callbacksFlow, messagesFlow).firstNotNull()
   }
 
-  suspend fun sendResponse(bot: TelegramBot, response: String?) {
-    messages.forEach { bot.deleteMessage(context, it.messageId) }
-    if (response != null) {
-      bot.send(context.id, response)
-    }
+  private suspend fun BehaviourContext.replyOrSend(message: CommonMessage<*>, text: String) {
+    val accessibleMessage = message.replyTo?.accessibleMessageOrNull()
+    if (accessibleMessage != null) reply(accessibleMessage, text = text)
   }
 
   private fun handleCommands(message: String): Pair<State, String?> {
@@ -112,7 +109,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     }
   }
 
-  fun tryParseGradingReply(
+  private fun tryParseGradingReply(
     commonMessage: CommonMessage<TextContent>,
     solutionGrader: SolutionGrader,
   ): Result<Unit, MessageError> = binding {

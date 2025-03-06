@@ -23,12 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 class TelegramSolutionSenderImpl(private val teacherStorage: TeacherStorage) :
-  TelegramSolutionSender {
+  TelegramSolutionSender, TelegramBotController {
   private var lateInitTeacherBot: TelegramBot? = null
-
-  fun setBot(bot: TelegramBot) {
-    lateInitTeacherBot = bot
-  }
 
   override fun sendPersonalSolutionNotification(
     teacherId: TeacherId,
@@ -78,5 +74,9 @@ class TelegramSolutionSenderImpl(private val teacherStorage: TeacherStorage) :
 
   fun registerGroupForSolution(courseId: CourseId, chatId: RawChatId) {
     registeredGroups[courseId] = chatId
+  }
+
+  override fun setTelegramBot(telegramBot: TelegramBot) {
+    lateInitTeacherBot = telegramBot
   }
 }

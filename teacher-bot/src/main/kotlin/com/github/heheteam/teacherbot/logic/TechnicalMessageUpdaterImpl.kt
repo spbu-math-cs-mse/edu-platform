@@ -7,23 +7,22 @@ import com.github.heheteam.teacherbot.states.SolutionGradings
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
 import com.github.heheteam.teacherbot.states.createTechnicalMessageContent
 import com.github.michaelbull.result.map
+import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 class TechnicalMessageUpdaterImpl(
-  val bot: BehaviourContext,
-  val x: TelegramTechnicalMessagesStorage,
-) : TechnicalMessageUpdater {
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage
+) : TechnicalMessageUpdater, TelegramBotController {
+  lateinit var myBot: TelegramBot
+
   override fun updateTechnicalMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>) {
     runBlocking(Dispatchers.IO) {
-      with(bot) {
-        x.resolveGroupMessage(solutionId).map { technicalMessage ->
-          //          bot.edit(technicalMessage.chatId.toChatId(), technicalMessage.messageId,
-          // "edited by bot")
+      with(myBot) {
+        technicalMessageStorage.resolveGroupMessage(solutionId).map { technicalMessage ->
           edit(
             technicalMessage.chatId.toChatId(),
             technicalMessage.messageId,
@@ -37,5 +36,9 @@ class TechnicalMessageUpdaterImpl(
         }
       }
     }
+  }
+
+  override fun setTelegramBot(telegramBot: TelegramBot) {
+    myBot = telegramBot
   }
 }

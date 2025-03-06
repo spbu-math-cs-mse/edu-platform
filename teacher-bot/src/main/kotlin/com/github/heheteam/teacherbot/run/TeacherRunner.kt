@@ -108,7 +108,7 @@ class StateRegister(
       })
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
-      strictlyOn<MenuState> { state -> state.handle(this, teacherStorage) }
+      strictlyOn<MenuState> { state -> state.handle(this, teacherStorage, solutionGrader) }
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
       registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)
     }

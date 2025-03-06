@@ -38,6 +38,28 @@ class TechnicalMessageUpdaterImpl(
     }
   }
 
+  override fun updateTechnnicalMessageInPersonalChat(
+    solutionId: SolutionId,
+    gradings: List<GradingEntry>,
+  ) {
+    runBlocking(Dispatchers.IO) {
+      with(myBot) {
+        technicalMessageStorage.resolvePersonalMessage(solutionId).map { technicalMessage ->
+          edit(
+            technicalMessage.chatId.toChatId(),
+            technicalMessage.messageId,
+            createTechnicalMessageContent(SolutionGradings(solutionId, gradings)),
+          )
+          editMessageReplyMarkup(
+            technicalMessage.chatId.toChatId(),
+            technicalMessage.messageId,
+            replyMarkup = createSolutionGradingKeyboard(solutionId),
+          )
+        }
+      }
+    }
+  }
+
   override fun setTelegramBot(telegramBot: TelegramBot) {
     myBot = telegramBot
   }

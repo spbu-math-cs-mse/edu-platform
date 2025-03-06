@@ -10,5 +10,6 @@ class TelegramMessagesJournalUpdater(
   override fun updateJournalDisplaysForSolution(solutionId: SolutionId) {
     val gradings = gradeTable.getGradingsForSolution(solutionId)
     technicalMessageService.updateTechnicalMessageInGroup(solutionId, gradings)
+    technicalMessageService.updateTechnnicalMessageInPersonalChat(solutionId, gradings)
   }
 }

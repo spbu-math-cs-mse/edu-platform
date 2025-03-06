@@ -166,7 +166,7 @@ class MultiBotRunner : CliktCommand() {
       SolutionGrader(
         gradeTable,
         UiControllerTelegramSender(
-          StudentNewGradeNotifierImpl(),
+          StudentNewGradeNotifierImpl(botEventBus, problemStorage, solutionDistributor),
           TelegramMessagesJournalUpdater(gradeTable, technicalMessageService),
         ),
       )

@@ -5,4 +5,6 @@ import com.github.heheteam.commonlib.api.SolutionId
 
 interface TechnicalMessageUpdater {
   fun updateTechnicalMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>)
+
+  fun updateTechnnicalMessageInPersonalChat(solutionId: SolutionId, gradings: List<GradingEntry>)
 }

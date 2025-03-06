@@ -8,27 +8,42 @@ import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.logic.SolutionGrader
+import com.github.michaelbull.result.get
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
+import dev.inmo.micro_utils.coroutines.firstNotNull
+import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
-class MenuState(override val context: User, val teacherId: TeacherId) :
-  BotState<Pair<BotState<*, *, *>, String?>, String?, TeacherStorage> {
+class MenuState(override val context: User, val teacherId: TeacherId) : State {
   private val messages = mutableListOf<ContentMessage<*>>()
   private val epilogueMessage: String? = null
 
-  override suspend fun readUserInput(
+  suspend fun handle(
+    bot: BehaviourContext,
+    teacherStorage: TeacherStorage,
+    solutionGrader: SolutionGrader,
+  ): State =
+    with(bot) {
+      val input = readUserInput(this, teacherStorage, solutionGrader)
+      sendResponse(bot)
+      input.first
+    }
+
+  suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherStorage,
-  ): Pair<BotState<*, *, *>, String?> {
+    solutionGrader: SolutionGrader,
+  ): Pair<State, String?> {
     val result = service.updateTgId(teacherId, context.id)
     if (context.username == null) {
       return Pair(StartState(context), null)
@@ -40,32 +55,35 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
 
     val callbacksFlow =
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
-        Pair(handleDataCallback(callback.data), null)
+        val tryGrading = tryProcessGradingByButtonPress(callback, solutionGrader, teacherId).get()
+        println(tryGrading)
+        if (tryGrading == null) {
+          Pair(handleDataCallbackFromMenuButtons(callback.data), null)
+          handleDataCallbackFromMenuButtons(callback.data)?.let { Pair(it, null) }
+        } else {
+          null
+        }
       }
     val messagesFlow =
       bot.waitTextMessageWithUser(context.id).map { message ->
         handleTextMessage(message.content.text)
       }
-    return merge(callbacksFlow, messagesFlow).first()
+    return merge(callbacksFlow, messagesFlow).firstNotNull()
   }
 
-  override fun computeNewState(
+  fun computeNewState(
     service: TeacherStorage,
     input: Pair<BotState<*, *, *>, String?>,
   ): Pair<BotState<*, *, *>, String?> {
     return input
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: TeacherStorage,
-    response: String?,
-  ) {
+  suspend fun sendResponse(bot: TelegramBot) {
     messages.forEach { bot.deleteMessage(context, it.messageId) }
     if (epilogueMessage != null) bot.send(context, epilogueMessage)
   }
 
-  private fun handleTextMessage(message: String): Pair<BotState<*, *, *>, String?> {
+  private fun handleTextMessage(message: String): Pair<State, String?> {
     val re = Regex("/setid ([0-9]+)")
     val match = re.matchEntire(message)
     return if (match != null) {
@@ -81,11 +99,11 @@ class MenuState(override val context: User, val teacherId: TeacherId) :
     }
   }
 
-  private fun handleDataCallback(callback: String): BotState<*, *, *> =
+  private fun handleDataCallbackFromMenuButtons(callback: String): State? =
     when (callback) {
       Keyboards.checkGrades -> CheckGradesState(context, teacherId)
       Keyboards.getSolution -> GettingSolutionState(context, teacherId)
       Keyboards.viewStats -> SendStatisticInfoState(context, teacherId)
-      else -> GettingSolutionState(context, teacherId)
+      else -> null
     }
 }

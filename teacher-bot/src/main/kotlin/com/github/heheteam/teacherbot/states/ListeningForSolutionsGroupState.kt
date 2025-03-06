@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
-import com.github.heheteam.commonlib.database.table.TelegramSolutionMessagesHandler
+import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -33,7 +33,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   suspend fun execute(
     bot: BehaviourContext,
     solutionResolver: SolutionResolver,
-    telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
+    telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
     bus: BotEventBus,
     solutionGrader: SolutionGrader,
   ): State {
@@ -83,7 +83,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
 
   private suspend fun BehaviourContext.sendSolutionIntoGroup(
     solution: Solution,
-    telegramSolutionMessagesHandler: TelegramSolutionMessagesHandler,
+    telegramSolutionMessagesHandler: TelegramTechnicalMessagesStorage,
   ) {
     val solutionMessage = sendSolutionContent(context.id.toChatId(), solution.content)
     val solutionGradings = SolutionGradings(solutionId = solution.id)

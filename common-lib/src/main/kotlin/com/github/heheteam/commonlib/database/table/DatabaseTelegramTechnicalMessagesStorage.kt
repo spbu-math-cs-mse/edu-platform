@@ -12,8 +12,8 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseTelegramSolutionMessagesHandler(val database: Database) :
-  TelegramSolutionMessagesHandler {
+class DatabaseTelegramTechnicalMessagesStorage(val database: Database) :
+  TelegramTechnicalMessagesStorage {
   init {
     transaction(database) { SchemaUtils.create(SolutionGroupMessagesTable) }
   }

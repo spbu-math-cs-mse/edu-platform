@@ -7,7 +7,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 
 data class TelegramMessageInfo(val chatId: RawChatId, val messageId: MessageId)
 
-interface TelegramSolutionMessagesHandler {
+interface TelegramTechnicalMessagesStorage {
   fun registerGroupSolutionPublication(
     solutionId: SolutionId,
     telegramMessageInfo: TelegramMessageInfo,

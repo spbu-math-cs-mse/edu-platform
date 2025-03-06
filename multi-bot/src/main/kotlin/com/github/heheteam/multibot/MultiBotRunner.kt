@@ -29,7 +29,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
-import com.github.heheteam.commonlib.database.table.DatabaseTelegramSolutionMessagesHandler
+import com.github.heheteam.commonlib.database.table.DatabaseTelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
@@ -46,13 +46,14 @@ import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.run.parentRun
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.run.studentRun
-import com.github.heheteam.teacherbot.CoursesStatisticsResolver
 import com.github.heheteam.teacherbot.SolutionAssessor
 import com.github.heheteam.teacherbot.SolutionResolver
+import com.github.heheteam.teacherbot.logic.NewSolutionTeacherNotifier
 import com.github.heheteam.teacherbot.logic.SolutionGrader
 import com.github.heheteam.teacherbot.logic.StudentNewGradeNotifierImpl
 import com.github.heheteam.teacherbot.logic.TechnicalMessageUpdaterImpl
 import com.github.heheteam.teacherbot.logic.TelegramMessagesJournalUpdater
+import com.github.heheteam.teacherbot.logic.TelegramSolutionSenderImpl
 import com.github.heheteam.teacherbot.logic.UiControllerTelegramSender
 import com.github.heheteam.teacherbot.run.teacherRun
 import dev.inmo.kslog.common.KSLog
@@ -163,8 +164,6 @@ class MultiBotRunner : CliktCommand() {
         problemStorage,
         botEventBus,
       )
-    val coursesStatisticsResolver =
-      CoursesStatisticsResolver(coursesDistributorDecorator, gradeTable)
 
     val adminCore =
       AdminCore(
@@ -178,6 +177,7 @@ class MultiBotRunner : CliktCommand() {
     val presetStudent = presetStudentId?.toStudentId()
     val presetTeacher = presetTeacherId?.toTeacherId()
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
+    val tgTechnicalMessagesStorage = DatabaseTelegramTechnicalMessagesStorage(database)
     val solutionGrader = { bot: BehaviourContext ->
       SolutionGrader(
         gradeTable,
@@ -185,11 +185,14 @@ class MultiBotRunner : CliktCommand() {
           StudentNewGradeNotifierImpl(),
           TelegramMessagesJournalUpdater(
             gradeTable,
-            TechnicalMessageUpdaterImpl(bot, DatabaseTelegramSolutionMessagesHandler(database)),
+            TechnicalMessageUpdaterImpl(bot, tgTechnicalMessagesStorage),
           ),
         ),
       )
     }
+    val telegramSolutionSender = TelegramSolutionSenderImpl()
+    val newSolutionTeacherNotifier =
+      NewSolutionTeacherNotifier(teacherStorage, telegramSolutionSender, tgTechnicalMessagesStorage)
     runBlocking {
       launch {
         studentRun(
@@ -209,9 +212,11 @@ class MultiBotRunner : CliktCommand() {
           solutionResolver,
           botEventBus,
           solutionAssessor,
-          DatabaseTelegramSolutionMessagesHandler(database),
+          tgTechnicalMessagesStorage,
           solutionDistributor,
           solutionGrader,
+          newSolutionTeacherNotifier,
+          telegramSolutionSender,
           developerOptions,
         )
       }

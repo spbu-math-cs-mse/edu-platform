@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot.logic
 
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.database.table.TelegramSolutionMessagesHandler
+import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
 import com.github.heheteam.teacherbot.states.SolutionGradings
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
 import com.github.heheteam.teacherbot.states.createTechnicalMessageContent
@@ -16,7 +16,7 @@ import kotlinx.coroutines.runBlocking
 
 class TechnicalMessageUpdaterImpl(
   val bot: BehaviourContext,
-  val x: TelegramSolutionMessagesHandler,
+  val x: TelegramTechnicalMessagesStorage,
 ) : TechnicalMessageUpdater {
   override fun updateTechnicalMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>) {
     runBlocking(Dispatchers.IO) {

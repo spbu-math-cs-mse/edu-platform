@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import java.time.LocalDateTime
 import kotlin.test.Test
+import kotlinx.datetime.toKotlinLocalDateTime
 
 class TelegramMessagesJournalUpdaterTest {
   val solutionId = SolutionId(1L)
@@ -19,8 +20,8 @@ class TelegramMessagesJournalUpdaterTest {
 
   val gradings =
     listOf(
-      GradingEntry(0L.toTeacherId(), good, defaultTimestamp),
-      GradingEntry(1L.toTeacherId(), bad, defaultTimestamp.plusMinutes(1L)),
+      GradingEntry(0L.toTeacherId(), good, defaultTimestamp.toKotlinLocalDateTime()),
+      GradingEntry(1L.toTeacherId(), bad, defaultTimestamp.plusMinutes(1L).toKotlinLocalDateTime()),
     )
 
   @Test

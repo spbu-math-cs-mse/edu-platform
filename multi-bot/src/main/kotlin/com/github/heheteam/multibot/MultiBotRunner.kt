@@ -2,6 +2,7 @@ package com.github.heheteam.multibot
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -60,12 +61,14 @@ class MultiBotRunner : CliktCommand() {
   private val presetStudentId: Long? by option().long()
   private val presetTeacherId: Long? by option().long()
   private val useRedis: Boolean by option().boolean().default(false)
+  private val needsInit: Boolean by option("--init", "-i").flag()
+    .help("resets the database and fills it with sample values")
 
   override fun run() {
     val coreModule = injectDependencies()
     startKoin { modules(coreModule) }
 
-    SampleGenerator().fillWithSamples()
+    if (needsInit) SampleGenerator().fillWithSamples()
 
     val presetStudent = presetStudentId?.toStudentId()
     val presetTeacher = presetTeacherId?.toTeacherId()

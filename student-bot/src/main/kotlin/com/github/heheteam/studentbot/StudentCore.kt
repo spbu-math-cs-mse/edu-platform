@@ -16,8 +16,10 @@ import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.NotificationService
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -33,7 +35,9 @@ class StudentCore(private val notificationService: NotificationService) : KoinCo
   private val problemStorage: ProblemStorage by inject()
   private val assignmentStorage: AssignmentStorage by inject()
   private val gradeTable: GradeTable by inject()
+  private val notificationService: NotificationService by inject()
   private val botEventBus: BotEventBus by inject()
+  private val responsibleTeacherResolver: ResponsibleTeacherResolver by inject()
 
   init {
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
@@ -85,6 +89,7 @@ class StudentCore(private val notificationService: NotificationService) : KoinCo
     solutionContent: SolutionContent,
     problemId: ProblemId,
   ) {
+    val teacher = responsibleTeacherResolver.resolveResponsibleTeacher(problemId)
     val solutionId =
       solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
     solutionDistributor.resolveSolution(solutionId).map { solution: Solution ->

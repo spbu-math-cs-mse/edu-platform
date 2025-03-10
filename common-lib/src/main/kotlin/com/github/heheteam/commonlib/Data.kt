@@ -25,7 +25,12 @@ data class Parent(
 )
 
 @Serializable
-data class Teacher(val id: TeacherId, val name: String = "", val surname: String = "")
+data class Teacher(
+  val id: TeacherId,
+  val name: String = "",
+  val surname: String = "",
+  val tgId: RawChatId,
+)
 
 @Serializable
 data class Problem(
@@ -73,11 +78,17 @@ data class Solution(
   val messageId: MessageId,
   val problemId: ProblemId,
   val content: SolutionContent,
+  val responsibleTeacherId: TeacherId?,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
 
 data class Course(val id: CourseId, val name: String)
 
-data class Assignment(val id: AssignmentId, val description: String, val courseId: CourseId)
+data class Assignment(
+  val id: AssignmentId,
+  val serialNumber: Int,
+  val description: String,
+  val courseId: CourseId,
+)
 
-data class SolutionAssessment(val grade: Grade, val comment: String)
+@Serializable data class SolutionAssessment(val grade: Grade, val comment: String = "")

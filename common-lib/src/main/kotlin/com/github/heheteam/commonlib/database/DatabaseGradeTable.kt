@@ -5,18 +5,20 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.toProblemId
 import com.github.heheteam.commonlib.api.toStudentId
+import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
 import java.time.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -112,11 +114,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         }
     }
 
-  override fun assessSolution(
+  override fun recordSolutionAssessment(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    teacherStatistics: TeacherStatistics,
     timestamp: LocalDateTime,
   ) {
     transaction(database) {
@@ -125,6 +126,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         it[AssessmentTable.teacherId] = teacherId.id
         it[AssessmentTable.grade] = assessment.grade
         it[AssessmentTable.comment] = assessment.comment
+        it[AssessmentTable.timestamp] = timestamp.toKotlinLocalDateTime()
       }
     }
   }
@@ -132,5 +134,16 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
   override fun isChecked(solutionId: SolutionId): Boolean =
     !transaction(database) {
       AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.id).empty()
+    }
+
+  override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
+    transaction(database) {
+      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.id).map {
+        GradingEntry(
+          it[AssessmentTable.teacherId].value.toTeacherId(),
+          SolutionAssessment(it[AssessmentTable.grade], it[AssessmentTable.comment]),
+          it[AssessmentTable.timestamp],
+        )
+      }
     }
 }

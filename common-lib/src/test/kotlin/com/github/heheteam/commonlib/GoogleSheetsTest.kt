@@ -10,7 +10,6 @@ import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
-import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -39,8 +38,6 @@ class GoogleSheetsTest {
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
-  private val teacherStatistics = InMemoryTeacherStatistics()
-
   private val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
 
   @BeforeTest
@@ -119,11 +116,10 @@ class GoogleSheetsTest {
     for (solutionId in 1..17) {
       val solution = solutionDistributor.querySolution(teacher1Id).get()
       assertNotNull(solution)
-      gradeTable.assessSolution(
+      gradeTable.recordSolutionAssessment(
         solution.id,
         teacher1Id,
         SolutionAssessment(solutionId % 2, "comment"),
-        teacherStatistics,
       )
     }
 

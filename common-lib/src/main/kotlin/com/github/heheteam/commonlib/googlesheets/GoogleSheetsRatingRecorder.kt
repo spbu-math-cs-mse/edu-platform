@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.CoroutineScope
@@ -63,16 +64,17 @@ class GoogleSheetsRatingRecorder(
         mutex.withLock {
           willBeUpdated.replace(courseId, false)
           val elapsedTime = measureTimeMillis {
-            val (course, spreadsheetId) =
-              coursesDistributor.resolveCourseWithSpreadsheetId(courseId).value
-            googleSheetsService.updateRating(
-              spreadsheetId.id,
-              course,
-              assignmentStorage.getAssignmentsForCourse(courseId),
-              problemStorage.getProblemsFromCourse(courseId),
-              coursesDistributor.getStudents(courseId),
-              gradeTable.getCourseRating(courseId),
-            )
+            coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map {
+              (course, spreadsheetId) ->
+              googleSheetsService.updateRating(
+                spreadsheetId.id,
+                course,
+                assignmentStorage.getAssignmentsForCourse(courseId),
+                problemStorage.getProblemsFromCourse(courseId),
+                coursesDistributor.getStudents(courseId),
+                gradeTable.getCourseRating(courseId),
+              )
+            }
           }
           delay(DELAY_IN_MILLISECONDS - elapsedTime)
         }

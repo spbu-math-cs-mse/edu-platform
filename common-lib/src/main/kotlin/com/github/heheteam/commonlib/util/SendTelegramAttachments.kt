@@ -3,11 +3,11 @@ package com.github.heheteam.commonlib.util
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
+import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -36,7 +36,7 @@ fun downloadFile(fileURL: String, outputFileName: String): File {
 }
 
 @OptIn(RiskFeature::class)
-suspend fun BehaviourContext.sendSolutionContent(
+suspend fun TelegramBot.sendSolutionContent(
   chatId: ChatId,
   solutionContent: SolutionContent,
   replyMarkup: InlineKeyboardMarkup? = null,
@@ -49,11 +49,11 @@ suspend fun BehaviourContext.sendSolutionContent(
   } else if (singleAttachment != null) {
     sendSingleMedia(singleAttachment, chatId, solutionContent)
   } else {
-    sendMediaGroup(attachments, text, chatId)
+    sendSolutionAsGroupMedia(attachments, text, chatId)
   }
 }
 
-private suspend fun BehaviourContext.sendSingleMedia(
+private suspend fun TelegramBot.sendSingleMedia(
   singleAttachment: SolutionAttachment,
   chatId: ChatId,
   solutionContent: SolutionContent,
@@ -74,7 +74,7 @@ private suspend fun BehaviourContext.sendSingleMedia(
 }
 
 @OptIn(RiskFeature::class)
-private suspend fun BehaviourContext.sendMediaGroup(
+private suspend fun TelegramBot.sendSolutionAsGroupMedia(
   attachments: List<SolutionAttachment>,
   text: String,
   chatId: ChatId,
@@ -95,7 +95,7 @@ private suspend fun BehaviourContext.sendMediaGroup(
         } to file
       }
       .unzip()
-  return bot.sendMediaGroup(chatId, telegramMediaGroup).also {
+  return sendMediaGroup(chatId, telegramMediaGroup).also {
     files.forEach { file ->
       try {
         file.delete()

@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.logic
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError

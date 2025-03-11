@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
-  private val messages = mutableListOf<ContentMessage<*>>()
+//  private val messages = mutableListOf<ContentMessage<*>>()
 
   suspend fun handle(
     bot: BehaviourContext,
@@ -52,10 +52,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     if (context.username == null) {
       return StartState(context)
     }
-    val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
-    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
-    messages.add(stickerMessage)
-    messages.add(menuMessage)
+    bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
 
     val callbacksFlow =
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->

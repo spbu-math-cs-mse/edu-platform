@@ -5,11 +5,11 @@ import com.github.heheteam.commonlib.api.SolutionId
 
 class TelegramMessagesJournalUpdater(
   private val gradeTable: GradeTable,
-  private val technicalMessageService: TechnicalMessageUpdater,
+  private val technicalMessageService: SolutionMessageUpdater,
 ) : JournalUpdater {
   override fun updateJournalDisplaysForSolution(solutionId: SolutionId) {
     val gradings = gradeTable.getGradingsForSolution(solutionId)
-    technicalMessageService.updateTechnicalMessageInGroup(solutionId, gradings)
-    technicalMessageService.updateTechnnicalMessageInPersonalChat(solutionId, gradings)
+    technicalMessageService.updateSolutionMessageInGroup(solutionId, gradings)
+    technicalMessageService.updateSolutionMessageInPersonalChat(solutionId, gradings)
   }
 }

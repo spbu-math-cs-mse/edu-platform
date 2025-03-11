@@ -1,7 +1,7 @@
-package com.github.heheteam.commonlib.database.table
+package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.api.SolutionId
 import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -21,4 +21,9 @@ interface TelegramTechnicalMessagesStorage {
   fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
 
   fun resolvePersonalMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
+
+  fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo)
+
+  fun resolveTeacherMenuMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
+  fun resolveTeacherFirstUncheckedSolutionMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
 }

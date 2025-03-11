@@ -17,8 +17,7 @@ class PresetTeacherState(override val context: User, private val teacherId: Teac
     service: CoursesDistributor,
     input: Unit,
   ): Pair<State, List<Course>> {
-    val coursesDistributor = service
-    return Pair(MenuState(context, teacherId), coursesDistributor.getTeacherCourses(teacherId))
+    return Pair(MenuState(context, teacherId), service.getTeacherCourses(teacherId))
   }
 
   override suspend fun sendResponse(

@@ -44,7 +44,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     }
   }
 
-  fun tryParseGradingReply(
+  private fun tryParseGradingReply(
     commonMessage: CommonMessage<TextContent>,
     solutionGrader: SolutionGrader,
   ): Result<Unit, String> = binding {

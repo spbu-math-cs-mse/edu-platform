@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.api.SolutionId
 class UiControllerTelegramSender(
   val studentNotifier: StudentNewGradeNotifier,
   val journalUpdater: JournalUpdater,
+  val menuMessageUpdater: MenuMessageUpdater
 ) : UiController {
   override fun updateUiOnSolutionAssessment(
     solutionId: SolutionId,
@@ -13,5 +14,6 @@ class UiControllerTelegramSender(
   ) {
     studentNotifier.notifyStudentOnNewAssignment(solutionId, assessment)
     journalUpdater.updateJournalDisplaysForSolution(solutionId)
+    menuMessageUpdater.updateMenuMessageInPersonalChat(solutionId)
   }
 }

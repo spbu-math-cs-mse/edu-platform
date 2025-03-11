@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
+import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.teacherbot.states.SolutionGradings
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard

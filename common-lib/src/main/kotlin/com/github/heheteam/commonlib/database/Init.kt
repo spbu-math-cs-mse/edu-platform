@@ -13,13 +13,13 @@ import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
 import com.github.heheteam.commonlib.database.table.StudentTable
+import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.loadConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SchemaUtils.drop
 import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -39,6 +39,7 @@ private val allTables =
     ParentTable,
     SolutionGroupMessagesTable,
     SolutionPersonalMessagesTable,
+    TeacherMenuMessageTable,
   )
 
 fun main() {
@@ -57,14 +58,4 @@ fun reset(database: Database) {
     drop(*allTables)
     create(*allTables)
   }
-}
-
-class MissingDataException(name: String, location: String) :
-  RuntimeException("$name is missing in $location")
-
-fun Transaction.fillWithMockData() {
-  exec(
-    object {}.javaClass.getClassLoader().getResource("mock_data.sql")?.readText(Charsets.UTF_8)
-      ?: throw MissingDataException("mock_data.sql", "resources")
-  )
 }

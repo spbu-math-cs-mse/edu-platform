@@ -59,11 +59,13 @@ class NewSolutionTeacherNotifierTest {
     val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
     val solutionCourseResolver = createSolutionResolver()
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,
         technicalMessageStorage,
         solutionCourseResolver,
+        menuMessageUpdater,
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
     verify { telegramSolutionSender.sendPersonalSolutionNotification(teacherId, solution) }
@@ -74,11 +76,13 @@ class NewSolutionTeacherNotifierTest {
     val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
     val solutionCourseResolver = createSolutionResolver()
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,
         technicalMessageStorage,
         solutionCourseResolver,
+        menuMessageUpdater,
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
 
@@ -94,11 +98,13 @@ class NewSolutionTeacherNotifierTest {
   fun `group messages are getting sent`() {
     val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,
         technicalMessageStorage,
         createSolutionResolver(),
+        menuMessageUpdater,
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
     verify { telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution) }

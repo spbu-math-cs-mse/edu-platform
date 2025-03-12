@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.michaelbull.result.Result
-import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -24,6 +23,13 @@ interface TelegramTechnicalMessagesStorage {
 
   fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo)
 
-  fun resolveTeacherMenuMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
-  fun resolveTeacherFirstUncheckedSolutionMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String>
+  fun resolveTeacherMenuMessage(solutionId: SolutionId): Result<List<TelegramMessageInfo>, String>
+
+  /**
+   * @return TelegramMessageInfo of the menu message if it exists. Otherwise, just returns the chat
+   *   id.
+   */
+  fun resolveTeacherFirstUncheckedSolutionMessage(
+    solutionId: SolutionId
+  ): Result<Result<TelegramMessageInfo, RawChatId>, String>
 }

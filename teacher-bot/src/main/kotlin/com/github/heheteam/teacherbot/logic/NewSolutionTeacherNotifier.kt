@@ -11,10 +11,12 @@ class NewSolutionTeacherNotifier(
   private val telegramSolutionSender: TelegramSolutionSender,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val solutionCourseResolver: SolutionCourseResolver,
+  private val menuMessageUpdater: MenuMessageUpdater,
 ) {
   fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> = binding {
     sendSolutionToTeacherPersonally(solution)
     sendSolutionToGroup(solution)
+    menuMessageUpdater.updateMenuMessageInPersonalChat(solution.id)
   }
 
   private fun sendSolutionToGroup(solution: Solution): Result<Unit, SolutionSendingError> =

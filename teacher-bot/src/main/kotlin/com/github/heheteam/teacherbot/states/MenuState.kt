@@ -17,21 +17,19 @@ import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.accessibleMessageOrNull
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
-//  private val messages = mutableListOf<ContentMessage<*>>()
+  //  private val messages = mutableListOf<ContentMessage<*>>()
 
   suspend fun handle(
     bot: BehaviourContext,

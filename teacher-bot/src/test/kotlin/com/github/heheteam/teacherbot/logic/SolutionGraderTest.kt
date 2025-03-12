@@ -29,16 +29,20 @@ class SolutionGraderTest {
   fun `telegram solution properly notifies the student`() {
     val studentNotifier = mockk<StudentNewGradeNotifier>(relaxed = true)
     val journalUpdater = mockk<JournalUpdater>(relaxed = true)
-    val uiControllerTelegramSender = UiControllerTelegramSender(studentNotifier, journalUpdater)
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
+    val uiControllerTelegramSender =
+      UiControllerTelegramSender(studentNotifier, journalUpdater, menuMessageUpdater)
     uiControllerTelegramSender.updateUiOnSolutionAssessment(solutionId, good)
-    verify { studentNotifier.notifyStudentOnNewAssignment(solutionId, good) }
+    verify { studentNotifier.notifyStudentOnNewAssessment(solutionId, good) }
   }
 
   @Test
   fun `telegram solution properly notifies the teachers`() {
     val studentNotifier = mockk<StudentNewGradeNotifier>(relaxed = true)
     val journalUpdater = mockk<JournalUpdater>(relaxed = true)
-    val uiControllerTelegramSender = UiControllerTelegramSender(studentNotifier, journalUpdater)
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
+    val uiControllerTelegramSender =
+      UiControllerTelegramSender(studentNotifier, journalUpdater, menuMessageUpdater)
     uiControllerTelegramSender.updateUiOnSolutionAssessment(solutionId, good)
     verify { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
   }

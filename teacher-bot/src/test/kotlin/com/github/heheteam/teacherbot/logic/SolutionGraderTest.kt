@@ -46,4 +46,15 @@ class SolutionGraderTest {
     uiControllerTelegramSender.updateUiOnSolutionAssessment(solutionId, good)
     verify { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
   }
+
+  @Test
+  fun `telegram solution properly updates the responsible teacher's menu message`() {
+    val studentNotifier = mockk<StudentNewGradeNotifier>(relaxed = true)
+    val journalUpdater = mockk<JournalUpdater>(relaxed = true)
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
+    val uiControllerTelegramSender =
+      UiControllerTelegramSender(studentNotifier, journalUpdater, menuMessageUpdater)
+    uiControllerTelegramSender.updateUiOnSolutionAssessment(solutionId, good)
+    verify { menuMessageUpdater.updateMenuMessageInPersonalChat(solutionId) }
+  }
 }

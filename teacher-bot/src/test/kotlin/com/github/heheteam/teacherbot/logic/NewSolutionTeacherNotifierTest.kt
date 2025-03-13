@@ -109,4 +109,22 @@ class NewSolutionTeacherNotifierTest {
     newSolutionTeacherNotifier.notifyNewSolution(solution)
     verify { telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution) }
   }
+
+  @Test
+  fun `menu message gets updated`() {
+    val telegramSolutionSender = createTgSolutionSender()
+    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val solutionCourseResolver = createSolutionResolver()
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
+    val newSolutionTeacherNotifier =
+      NewSolutionTeacherNotifier(
+        telegramSolutionSender,
+        technicalMessageStorage,
+        solutionCourseResolver,
+        menuMessageUpdater,
+      )
+    newSolutionTeacherNotifier.notifyNewSolution(solution)
+
+    verify { menuMessageUpdater.updateMenuMessageInPersonalChat(solutionId) }
+  }
 }

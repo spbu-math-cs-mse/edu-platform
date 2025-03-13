@@ -4,9 +4,9 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.SolutionId
 
 class UiControllerTelegramSender(
-  val studentNotifier: StudentNewGradeNotifier,
-  val journalUpdater: JournalUpdater,
-  val menuMessageUpdater: MenuMessageUpdater,
+  private val studentNotifier: StudentNewGradeNotifier,
+  private val journalUpdater: JournalUpdater,
+  private val menuMessageUpdater: MenuMessageUpdater,
 ) : UiController {
   override fun updateUiOnSolutionAssessment(
     solutionId: SolutionId,

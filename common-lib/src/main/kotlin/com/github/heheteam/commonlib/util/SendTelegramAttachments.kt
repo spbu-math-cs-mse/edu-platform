@@ -35,7 +35,6 @@ fun downloadFile(fileURL: String, outputFileName: String): File {
   return file
 }
 
-@OptIn(RiskFeature::class)
 suspend fun TelegramBot.sendSolutionContent(
   chatId: ChatId,
   solutionContent: SolutionContent,

@@ -4,10 +4,12 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.toSolutionId
 import com.github.heheteam.commonlib.util.isDeadlineMissed
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
@@ -42,6 +44,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
   override val context: User,
@@ -92,6 +96,19 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
             if (isDeadlineMissed(problem)) {
               bot.reply(solutionMessage, "К сожалению, дедлайн по задаче уже истек :(")
             } else {
+              return@map ConfirmSubmissionState(
+                state.context,
+                Solution(
+                  0L.toSolutionId(),
+                  studentId,
+                  solutionMessage.chat.id.chatId,
+                  solutionMessage.messageId,
+                  problem.id,
+                  attachment,
+                  null,
+                  java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+                ),
+              )
               core.inputSolution(
                 studentId,
                 state.context.id.chatId,

@@ -125,6 +125,6 @@ class NewSolutionTeacherNotifierTest {
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
 
-    verify { menuMessageUpdater.updateMenuMessageInPersonalChat(solutionId) }
+    verify { menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId) }
   }
 }

@@ -16,7 +16,10 @@ class NewSolutionTeacherNotifier(
   fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> = binding {
     sendSolutionToTeacherPersonally(solution)
     sendSolutionToGroup(solution)
-    menuMessageUpdater.updateMenuMessageInPersonalChat(solution.id)
+    val teacherId = solution.responsibleTeacherId
+    if (teacherId != null) {
+      menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
+    }
   }
 
   private fun sendSolutionToGroup(solution: Solution): Result<Unit, SolutionSendingError> =

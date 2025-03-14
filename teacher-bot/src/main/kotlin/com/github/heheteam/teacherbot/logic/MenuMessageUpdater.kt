@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.logic
 
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.TeacherId
 
 interface MenuMessageUpdater {
-  fun updateMenuMessageInPersonalChat(solutionId: SolutionId)
+  fun updateMenuMessageInPersonalChat(teacherId: TeacherId)
 }

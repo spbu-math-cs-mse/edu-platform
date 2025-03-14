@@ -167,6 +167,7 @@ class MultiBotRunner : CliktCommand() {
           StudentNewGradeNotifierImpl(botEventBus, problemStorage, solutionDistributor),
           TelegramMessagesJournalUpdater(gradeTable, solutionMessageService),
           menuMessageUpdaterService,
+          solutionDistributor,
         ),
       )
     val telegramSolutionSender = TelegramSolutionSenderImpl(teacherStorage)

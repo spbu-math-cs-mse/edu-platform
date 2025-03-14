@@ -1,6 +1,6 @@
 package com.github.heheteam.teacherbot.logic
 
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.teacherbot.Dialogues
@@ -23,11 +23,11 @@ class MenuMessageUpdaterImpl(
 ) : MenuMessageUpdater, TelegramBotController {
   lateinit var myBot: TelegramBot
 
-  override fun updateMenuMessageInPersonalChat(solutionId: SolutionId) {
+  override fun updateMenuMessageInPersonalChat(teacherId: TeacherId) {
     runBlocking(Dispatchers.IO) {
       coroutineBinding {
         technicalMessageStorage
-          .resolveTeacherMenuMessage(solutionId)
+          .resolveTeacherMenuMessage(teacherId)
           .mapBoth(
             { menuMessages ->
               menuMessages.map { menuMessage ->
@@ -41,22 +41,19 @@ class MenuMessageUpdaterImpl(
             { KSLog.warning("No menu messages registered") },
           )
 
-        val solutionMessage =
-          technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(solutionId).bind()
+        val (chatId, messageId) =
+          technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
         val menuMessage =
-          solutionMessage.mapBoth(
-            { message ->
-              myBot.reply(
-                message.chatId.toChatId(),
-                message.messageId,
-                Dialogues.menu(),
-                replyMarkup = Keyboards.menu(),
-              )
-            },
-            { chatId ->
-              myBot.send(chatId.toChatId(), Dialogues.menu(), replyMarkup = Keyboards.menu())
-            },
-          )
+          if (messageId != null) {
+            myBot.reply(
+              chatId.toChatId(),
+              messageId,
+              Dialogues.menu(),
+              replyMarkup = Keyboards.menu(),
+            )
+          } else {
+            myBot.send(chatId.toChatId(), Dialogues.menu(), replyMarkup = Keyboards.menu())
+          }
 
         technicalMessageStorage.updateTeacherMenuMessage(
           TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)

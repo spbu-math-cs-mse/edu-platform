@@ -1,16 +1,15 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.api.MenuMessageInfo
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.toResultOr
@@ -112,18 +111,18 @@ class DatabaseTelegramTechnicalMessagesStorage(
   }
 
   override fun resolveTeacherMenuMessage(
-    solutionId: SolutionId
+    teacherId: TeacherId
   ): Result<List<TelegramMessageInfo>, String> {
     val row =
       transaction(database) {
-          SolutionPersonalMessagesTable.join(
+          TeacherTable.join(
               TeacherMenuMessageTable,
               joinType = JoinType.INNER,
-              onColumn = SolutionPersonalMessagesTable.chatId,
+              onColumn = TeacherTable.tgId,
               otherColumn = TeacherMenuMessageTable.chatId,
             )
             .selectAll()
-            .where(SolutionPersonalMessagesTable.solutionId eq solutionId.id)
+            .where(TeacherTable.id eq teacherId.id)
             .map {
               TelegramMessageInfo(
                 RawChatId(it[TeacherMenuMessageTable.chatId]),
@@ -136,32 +135,27 @@ class DatabaseTelegramTechnicalMessagesStorage(
   }
 
   override fun resolveTeacherFirstUncheckedSolutionMessage(
-    solutionId: SolutionId
-  ): Result<Result<TelegramMessageInfo, RawChatId>, String> {
+    teacherId: TeacherId
+  ): Result<MenuMessageInfo, String> {
     val row =
       transaction(database) {
-        val (teacherId, chatId) =
-          SolutionPersonalMessagesTable.join(
-              TeacherTable,
-              joinType = JoinType.INNER,
-              onColumn = SolutionPersonalMessagesTable.chatId,
-              otherColumn = TeacherTable.tgId,
-            )
-            .selectAll()
-            .where(SolutionPersonalMessagesTable.solutionId eq solutionId.id)
-            .map { it[TeacherTable.id].value.toTeacherId() to it[TeacherTable.tgId] }
-            .firstOrNull() ?: return@transaction null
-        val solution =
-          solutionDistributor.querySolution(teacherId).get()
-            ?: return@transaction Err(RawChatId(chatId))
+        val solution = solutionDistributor.querySolution(teacherId).get()
+
+        if (solution == null) {
+          val chatId =
+            TeacherTable.selectAll()
+              .where(TeacherTable.id eq teacherId.id)
+              .map { it[TeacherTable.tgId] }
+              .firstOrNull() ?: return@transaction null
+          return@transaction MenuMessageInfo(RawChatId(chatId))
+        }
+
         return@transaction SolutionPersonalMessagesTable.selectAll()
           .where(SolutionPersonalMessagesTable.solutionId eq solution.id.id)
           .map {
-            Ok(
-              TelegramMessageInfo(
-                RawChatId(it[SolutionPersonalMessagesTable.chatId]),
-                MessageId(it[SolutionPersonalMessagesTable.messageId]),
-              )
+            MenuMessageInfo(
+              RawChatId(it[SolutionPersonalMessagesTable.chatId]),
+              MessageId(it[SolutionPersonalMessagesTable.messageId]),
             )
           }
           .firstOrNull()

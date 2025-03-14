@@ -6,6 +6,8 @@ import dev.inmo.tgbotapi.types.RawChatId
 
 data class TelegramMessageInfo(val chatId: RawChatId, val messageId: MessageId)
 
+data class MenuMessageInfo(val chatId: RawChatId, val messageId: MessageId? = null)
+
 interface TelegramTechnicalMessagesStorage {
   fun registerGroupSolutionPublication(
     solutionId: SolutionId,
@@ -23,13 +25,13 @@ interface TelegramTechnicalMessagesStorage {
 
   fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo)
 
-  fun resolveTeacherMenuMessage(solutionId: SolutionId): Result<List<TelegramMessageInfo>, String>
+  fun resolveTeacherMenuMessage(teacherId: TeacherId): Result<List<TelegramMessageInfo>, String>
 
   /**
    * @return TelegramMessageInfo of the menu message if it exists. Otherwise, just returns the chat
    *   id.
    */
   fun resolveTeacherFirstUncheckedSolutionMessage(
-    solutionId: SolutionId
-  ): Result<Result<TelegramMessageInfo, RawChatId>, String>
+    teacherId: TeacherId
+  ): Result<MenuMessageInfo, String>
 }

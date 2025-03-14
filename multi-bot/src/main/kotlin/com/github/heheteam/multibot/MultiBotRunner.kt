@@ -198,6 +198,7 @@ class MultiBotRunner : CliktCommand() {
             coursesDistributorDecorator,
             telegramSolutionSender,
             solutionGrader,
+            tgTechnicalMessagesStorage,
           )
         val teacherRunner =
           TeacherRunner(teacherBotToken, botEventBus, stateRegister, developerOptions)

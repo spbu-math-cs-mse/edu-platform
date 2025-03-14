@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
@@ -100,6 +101,7 @@ class StateRegister(
   private val coursesDistributor: CoursesDistributor,
   private val telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
   private val solutionGrader: SolutionGrader,
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
 ) {
   fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>) {
     with(context) {
@@ -108,7 +110,9 @@ class StateRegister(
       })
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
-      strictlyOn<MenuState> { state -> state.handle(this, teacherStorage, solutionGrader) }
+      strictlyOn<MenuState> { state ->
+        state.handle(this, teacherStorage, solutionGrader, technicalMessageStorage)
+      }
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
       registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)
     }

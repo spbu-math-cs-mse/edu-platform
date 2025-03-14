@@ -2,6 +2,8 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.api.TelegramMessageInfo
+import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -29,15 +31,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
-  //  private val messages = mutableListOf<ContentMessage<*>>()
-
   suspend fun handle(
     bot: BehaviourContext,
     teacherStorage: TeacherStorage,
     solutionGrader: SolutionGrader,
+    technicalMessageStorage: TelegramTechnicalMessagesStorage,
   ): State =
     with(bot) {
-      val state = readUserInput(this, teacherStorage, solutionGrader)
+      val state = readUserInput(this, teacherStorage, solutionGrader, technicalMessageStorage)
       state
     }
 
@@ -45,12 +46,16 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     bot: BehaviourContext,
     service: TeacherStorage,
     solutionGrader: SolutionGrader,
+    technicalMessageStorage: TelegramTechnicalMessagesStorage,
   ): State {
     service.updateTgId(teacherId, context.id)
     if (context.username == null) {
       return StartState(context)
     }
-    bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    technicalMessageStorage.updateTeacherMenuMessage(
+      TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
+    )
 
     val callbacksFlow =
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
@@ -62,14 +67,14 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
         val maybeAssessed = tryParseGradingReply(message, solutionGrader)
         maybeAssessed
           .mapBoth(
-            success = { Pair(MenuState(context, teacherId), "Решение успешно проверено") },
+            success = { Pair(null, "Решение успешно проверено") },
             failure = {
               when (it) {
-                is BadAssessment -> Pair(MenuState(context, teacherId), it.error)
+                is BadAssessment -> Pair(null, it.error)
                 NotReply -> handleCommands(message.content.text)
                 ReplyNotToSolution ->
                   Pair(
-                    MenuState(context, teacherId),
+                    null,
                     "If you want to grade an error, you have to reply to a message below the actual solution",
                   )
               }

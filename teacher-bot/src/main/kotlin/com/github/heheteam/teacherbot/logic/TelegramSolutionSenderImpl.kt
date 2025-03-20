@@ -19,11 +19,12 @@ import dev.inmo.tgbotapi.types.toChatId
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class TelegramSolutionSenderImpl(
-  private val teacherStorage: TeacherStorage,
-  private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
-) : TelegramSolutionSender, TelegramBotController {
+class TelegramSolutionSenderImpl : TelegramSolutionSender, TelegramBotController, KoinComponent {
+  private val teacherStorage: TeacherStorage by inject()
+  private val prettyTechnicalMessageService: PrettyTechnicalMessageService by inject()
   private var lateInitTeacherBot: TelegramBot? = null
 
   override fun sendPersonalSolutionNotification(

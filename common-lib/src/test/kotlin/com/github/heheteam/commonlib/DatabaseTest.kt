@@ -12,7 +12,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
-import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.heheteam.commonlib.util.SampleGenerator
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -23,8 +23,26 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 
 class DatabaseTest {
+  companion object {
+    @JvmStatic
+    @BeforeAll
+    fun startKoinBeforeAll() {
+      startKoin { modules(CoreServicesInitializer().inject(useRedis = false)) }
+    }
+
+    @JvmStatic
+    @AfterAll
+    fun stopKoinAfterAll() {
+      stopKoin()
+    }
+  }
+
   private val config = loadConfig()
 
   private val database =
@@ -175,15 +193,7 @@ class DatabaseTest {
   }
 
   private fun generateSampleTeachersAndSolution(): Pair<List<TeacherId>, SolutionId> {
-    val content =
-      fillWithSamples(
-        coursesDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+    val content = SampleGenerator().fillWithSamples()
     val someAssignment = assignmentStorage.getAssignmentsForCourse(content.courses.first()).first()
     val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).first()
     val someStudent = content.students[0]

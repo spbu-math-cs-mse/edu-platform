@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot
 
+import com.github.heheteam.commonlib.CoreServicesInitializer
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
@@ -13,19 +14,9 @@ import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.database.DatabaseGradeTable
-import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.MockBotEventBus
-import com.github.heheteam.commonlib.mock.MockNotificationService
-import com.github.heheteam.commonlib.mock.MockResponsibleTeacherResolver
-import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.heheteam.commonlib.util.SampleGenerator
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -34,18 +25,39 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
 
-class StudentBotTest {
-  private lateinit var coursesDistributor: CoursesDistributor
-  private lateinit var solutionDistributor: SolutionDistributor
-  private lateinit var studentCore: StudentCore
+class StudentBotTest : KoinComponent {
+  companion object {
+    @JvmStatic
+    @BeforeAll
+    fun initKoin() {
+      startKoin { modules(CoreServicesInitializer().inject(useRedis = false)) }
+    }
+
+    @JvmStatic
+    @AfterAll
+    fun stopKoinAfterAll() {
+      stopKoin()
+    }
+  }
+
+  private val coursesDistributor: CoursesDistributor by inject()
+  private val solutionDistributor: SolutionDistributor by inject()
+  private val gradeTable: GradeTable by inject()
+  private val studentStorage: StudentStorage by inject()
+  private val teacherStorage: TeacherStorage by inject()
+  private val problemStorage: ProblemStorage by inject()
+  private val assignmentStorage: AssignmentStorage by inject()
+
   private lateinit var courseIds: List<CourseId>
-  private lateinit var gradeTable: GradeTable
-  private lateinit var studentStorage: StudentStorage
-  private lateinit var teacherStorage: TeacherStorage
-  private lateinit var problemStorage: ProblemStorage
-  private lateinit var assignmentStorage: AssignmentStorage
+  private lateinit var studentCore: StudentCore
 
   private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
     val assignment =
@@ -71,36 +83,8 @@ class StudentBotTest {
 
   @BeforeEach
   fun setup() {
-    coursesDistributor = DatabaseCoursesDistributor(database)
-    solutionDistributor = DatabaseSolutionDistributor(database)
-    studentStorage = DatabaseStudentStorage(database)
-    assignmentStorage = DatabaseAssignmentStorage(database)
-    studentStorage = DatabaseStudentStorage(database)
-    teacherStorage = DatabaseTeacherStorage(database)
-    problemStorage = DatabaseProblemStorage(database)
-    courseIds =
-      fillWithSamples(
-          coursesDistributor,
-          problemStorage,
-          assignmentStorage,
-          studentStorage,
-          teacherStorage,
-          database,
-        )
-        .courses
-    gradeTable = DatabaseGradeTable(database)
-
-    studentCore =
-      StudentCore(
-        solutionDistributor,
-        coursesDistributor,
-        problemStorage,
-        assignmentStorage,
-        gradeTable,
-        MockNotificationService(),
-        MockBotEventBus(),
-        MockResponsibleTeacherResolver(null),
-      )
+    courseIds = SampleGenerator().fillWithSamples().courses
+    studentCore = StudentCore()
   }
 
   @AfterTest

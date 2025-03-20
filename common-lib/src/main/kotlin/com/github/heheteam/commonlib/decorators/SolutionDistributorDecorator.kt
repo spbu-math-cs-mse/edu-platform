@@ -3,13 +3,13 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.SolutionResolveError
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 
 class SolutionDistributorDecorator(
   private val solutionDistributor: SolutionDistributor,
-  private val ratingRecorder: GoogleSheetsRatingRecorder,
+  private val ratingRecorder: RatingRecorder,
 ) : SolutionDistributor {
   override fun inputSolution(
     studentId: StudentId,

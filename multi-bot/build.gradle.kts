@@ -31,4 +31,5 @@ dependencies {
     implementation(libs.hoplite.json)
     implementation(libs.postgresql)
     implementation("com.github.ajalt.clikt:clikt:5.0.2")
+    implementation(libs.koin.core)
 }

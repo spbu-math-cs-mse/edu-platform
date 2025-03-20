@@ -14,14 +14,32 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
-import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.heheteam.commonlib.util.SampleGenerator
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
 
 class DatabaseStartupTest {
+  companion object {
+    @JvmStatic
+    @BeforeAll
+    fun initKoin() {
+      startKoin { modules(CoreServicesInitializer().inject(useRedis = false)) }
+    }
+
+    @JvmStatic
+    @AfterAll
+    fun stopKoinAfterAll() {
+      stopKoin()
+    }
+  }
+
   private lateinit var database: Database
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var coursesDistributor: CoursesDistributor
@@ -51,14 +69,7 @@ class DatabaseStartupTest {
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
-      fillWithSamples(
-        coursesDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+      SampleGenerator().fillWithSamples()
     }
     println("Startup time: ${startupTime.toFloat() / 1000.0} s")
     assertTrue(startupTime < 12000)

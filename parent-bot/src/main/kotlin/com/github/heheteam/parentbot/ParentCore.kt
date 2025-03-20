@@ -8,8 +8,13 @@ import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.StudentStorage
 import dev.inmo.tgbotapi.utils.mapNotNullValues
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ParentCore(private val studentStorage: StudentStorage, private val gradeTable: GradeTable) {
+class ParentCore : KoinComponent {
+  private val studentStorage: StudentStorage by inject()
+  private val gradeTable: GradeTable by inject()
+
   fun getChildren(parentId: ParentId): List<Student> = studentStorage.getChildren(parentId)
 
   fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade> =

@@ -7,15 +7,15 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import java.time.LocalDateTime
 
 class GradeTableDecorator(
   private val gradeTable: GradeTable,
-  private val ratingRecorder: GoogleSheetsRatingRecorder,
+  private val ratingRecorder: RatingRecorder,
 ) : GradeTable {
   override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?> =
     gradeTable.getStudentPerformance(studentId)

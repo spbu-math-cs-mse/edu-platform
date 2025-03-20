@@ -13,10 +13,7 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellSolutionIsSent(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellToApplyForCourses(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellValidSolutionTypes(): String</ID>
-    <ID>InjectDispatcher:StudentRun.kt$IO</ID>
-    <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>LongMethod:SendSolutionState.kt$@OptIn(ExperimentalCoroutinesApi::class) fun DefaultBehaviourContextWithFSM&lt;State&gt;.strictlyOnSendSolutionState( core: StudentCore, studentBotToken: String, )</ID>
-    <ID>LongParameterList:StudentRun.kt$( botToken: String, studentStorage: StudentStorage, coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, core: StudentCore, developerOptions: DeveloperOptions? = DeveloperOptions(), )</ID>
     <ID>MagicNumber:StudentCore.kt$StudentCore$5</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
   </CurrentIssues>

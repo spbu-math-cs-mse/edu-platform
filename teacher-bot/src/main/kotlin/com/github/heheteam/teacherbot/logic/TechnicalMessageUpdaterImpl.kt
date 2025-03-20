@@ -11,11 +11,13 @@ import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class TechnicalMessageUpdaterImpl(
-  private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
-  private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
-) : TechnicalMessageUpdater, TelegramBotController {
+class TechnicalMessageUpdaterImpl() :
+  TechnicalMessageUpdater, TelegramBotController, KoinComponent {
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage by inject()
+  private val prettyTechnicalMessageService: PrettyTechnicalMessageService by inject()
   lateinit var myBot: TelegramBot
 
   override fun updateTechnicalMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>) {

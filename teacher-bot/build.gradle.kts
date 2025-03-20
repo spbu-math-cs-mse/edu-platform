@@ -17,4 +17,6 @@ dependencies {
     implementation(libs.kotlin.result.coroutines)
     implementation(libs.hoplite.json)
     implementation(libs.postgresql)
+    implementation(libs.koin.core)
+    implementation(libs.koin.test)
 }

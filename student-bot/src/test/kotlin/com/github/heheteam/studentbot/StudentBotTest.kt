@@ -16,7 +16,7 @@ import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.heheteam.commonlib.util.SampleGenerator
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -25,11 +25,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
 
 class StudentBotTest : KoinComponent {
   companion object {
@@ -37,6 +39,12 @@ class StudentBotTest : KoinComponent {
     @BeforeAll
     fun initKoin() {
       startKoin { modules(CoreServicesInitializer().inject(useRedis = false)) }
+    }
+
+    @JvmStatic
+    @AfterAll
+    fun stopKoinAfterAll() {
+      stopKoin()
     }
   }
 
@@ -75,16 +83,7 @@ class StudentBotTest : KoinComponent {
 
   @BeforeEach
   fun setup() {
-    courseIds =
-      fillWithSamples(
-          coursesDistributor,
-          problemStorage,
-          assignmentStorage,
-          studentStorage,
-          teacherStorage,
-          database,
-        )
-        .courses
+    courseIds = SampleGenerator().fillWithSamples().courses
     studentCore = StudentCore()
   }
 

@@ -8,12 +8,14 @@ import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class NewSolutionTeacherNotifier(
-  private val telegramSolutionSender: TelegramSolutionSender,
-  private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
-  private val solutionCourseResolver: SolutionCourseResolver,
-) {
+class NewSolutionTeacherNotifier : KoinComponent {
+  private val telegramSolutionSender: TelegramSolutionSender by inject()
+  private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage by inject()
+  private val solutionCourseResolver: SolutionCourseResolver by inject()
+
   fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> = binding {
     sendSolutionToTeacherPersonally(solution)
     sendSolutionToGroup(solution)

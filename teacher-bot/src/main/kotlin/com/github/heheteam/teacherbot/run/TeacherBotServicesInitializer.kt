@@ -1,6 +1,5 @@
 package com.github.heheteam.teacherbot.run
 
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
 import com.github.heheteam.teacherbot.logic.NewSolutionTeacherNotifier
 import com.github.heheteam.teacherbot.logic.SolutionCourseResolver
 import com.github.heheteam.teacherbot.logic.SolutionCourseResolverImpl
@@ -15,7 +14,6 @@ import com.github.heheteam.teacherbot.logic.TelegramSolutionSenderImpl
 import com.github.heheteam.teacherbot.logic.UiController
 import com.github.heheteam.teacherbot.logic.UiControllerTelegramSender
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.dsl.module
 
 class TeacherBotServicesInitializer : KoinComponent {
@@ -31,18 +29,9 @@ class TeacherBotServicesInitializer : KoinComponent {
     single<TelegramSolutionSender> { telegramSolutionSender }
 
     single<SolutionCourseResolver> { SolutionCourseResolverImpl() }
-    single<NewSolutionTeacherNotifier> {
-      NewSolutionTeacherNotifier(
-        get<TelegramSolutionSender>(),
-        get<TelegramTechnicalMessagesStorage>(),
-        get<SolutionCourseResolver>(),
-      )
-    }
+    single<NewSolutionTeacherNotifier> { NewSolutionTeacherNotifier() }
 
-    val technicalMessageUpdaterImpl =
-      TechnicalMessageUpdaterImpl(get<TelegramTechnicalMessagesStorage>()).also {
-        botControllers.add(it)
-      }
+    val technicalMessageUpdaterImpl = TechnicalMessageUpdaterImpl().also { botControllers.add(it) }
     single<TechnicalMessageUpdater> { technicalMessageUpdaterImpl }
     single<TelegramBotControllersRepository> { botControllers }
   }

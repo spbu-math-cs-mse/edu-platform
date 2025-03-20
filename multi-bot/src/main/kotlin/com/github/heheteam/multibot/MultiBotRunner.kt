@@ -35,7 +35,7 @@ class MultiBotRunner : CliktCommand() {
 
   override fun run() {
     startKoin {
-      modules(CoreServicesInitializer().inject(useRedis))
+      modules(CoreServicesInitializer().inject(useRedis, true))
       modules(TeacherBotServicesInitializer().inject())
     }
 

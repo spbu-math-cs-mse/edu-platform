@@ -15,71 +15,83 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.Test
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.inject
 
-class NewSolutionTeacherNotifierTest {
-  private val teacherId = TeacherId(0)
-  val teacherTgId = RawChatId(5)
-  val teacher = Teacher(teacherId, "", "", tgId = teacherTgId)
-  val samplePersonalMessageInfo = TelegramMessageInfo(RawChatId(1L), MessageId(2L))
-  val sampleGroupMessageInfo = TelegramMessageInfo(RawChatId(8L), MessageId(13L))
-  val solutionId = SolutionId(6)
-  val courseIdOfSolution = CourseId(7)
+class NewSolutionTeacherNotifierTest : KoinTest {
+  private val telegramSolutionSender: TelegramSolutionSender by inject()
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage by inject()
 
-  lateinit var teacherStorage: TeacherStorage
-  lateinit var solution: Solution
+  companion object {
+    private val teacherId = TeacherId(0)
+    private val teacherTgId = RawChatId(5)
+    private val teacher = Teacher(teacherId, "", "", tgId = teacherTgId)
+    private val samplePersonalMessageInfo = TelegramMessageInfo(RawChatId(1L), MessageId(2L))
+    private val sampleGroupMessageInfo = TelegramMessageInfo(RawChatId(8L), MessageId(13L))
+    private val solutionId = SolutionId(6)
+    private val courseIdOfSolution = CourseId(7)
 
-  @BeforeEach
-  fun init() {
-    solution = mockk<Solution>(relaxed = true)
-    teacherStorage = mockk<TeacherStorage>(relaxed = true)
-    every { solution.responsibleTeacherId } returns teacherId
-    every { solution.id } returns solutionId
-    every { teacherStorage.resolveTeacher(teacherId) } returns Ok(teacher)
+    private val testModule = module {
+      single {
+        mockk<Solution>(relaxed = true).apply {
+          every { responsibleTeacherId } returns teacherId
+          every { id } returns solutionId
+        }
+      }
+      single {
+        mockk<TeacherStorage>(relaxed = true).apply {
+          every { resolveTeacher(teacherId) } returns Ok(teacher)
+        }
+      }
+      single {
+        mockk<SolutionCourseResolver>().apply {
+          every { resolveCourse(solutionId) } returns Ok(courseIdOfSolution)
+        }
+      }
+      single {
+        mockk<TelegramSolutionSender>(relaxed = true).apply {
+          every { sendPersonalSolutionNotification(teacherId, get<Solution>()) } returns
+            Ok(samplePersonalMessageInfo)
+          every { sendGroupSolutionNotification(courseIdOfSolution, get<Solution>()) } returns
+            Ok(sampleGroupMessageInfo)
+        }
+      }
+      single { mockk<TelegramTechnicalMessagesStorage>(relaxed = true) }
+    }
+
+    @JvmStatic
+    @BeforeAll
+    fun startKoinBeforeAll() {
+      startKoin { modules(testModule) }
+    }
+
+    @JvmStatic
+    @AfterAll
+    fun stopKoinAfterAll() {
+      stopKoin()
+    }
   }
 
-  private fun createSolutionResolver(): SolutionCourseResolver {
-    val solutionCourseResolver = mockk<SolutionCourseResolver>()
-    every { solutionCourseResolver.resolveCourse(solutionId) } returns Ok(courseIdOfSolution)
-    return solutionCourseResolver
-  }
-
-  private fun createTgSolutionSender(): TelegramSolutionSender {
-    val telegramSolutionSender = mockk<TelegramSolutionSender>(relaxed = true)
-    every { telegramSolutionSender.sendPersonalSolutionNotification(teacherId, solution) } returns
-      Ok(samplePersonalMessageInfo)
-    every {
-      telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution)
-    } returns Ok(sampleGroupMessageInfo)
-    return telegramSolutionSender
-  }
+  private val solution: Solution by inject()
 
   @Test
   fun `teacher notifier sends solution to responsible teacher`() {
-    val telegramSolutionSender = createTgSolutionSender()
-    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
-    val solutionCourseResolver = createSolutionResolver()
-    val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(
-        telegramSolutionSender,
-        technicalMessageStorage,
-        solutionCourseResolver,
-      )
+    val newSolutionTeacherNotifier = NewSolutionTeacherNotifier()
+
     newSolutionTeacherNotifier.notifyNewSolution(solution)
+
     verify { telegramSolutionSender.sendPersonalSolutionNotification(teacherId, solution) }
   }
 
   @Test
   fun `personal messages sent to teacher dm gets recorded`() {
-    val telegramSolutionSender = createTgSolutionSender()
-    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
-    val solutionCourseResolver = createSolutionResolver()
-    val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(
-        telegramSolutionSender,
-        technicalMessageStorage,
-        solutionCourseResolver,
-      )
+    val newSolutionTeacherNotifier = NewSolutionTeacherNotifier()
+
     newSolutionTeacherNotifier.notifyNewSolution(solution)
 
     verify {
@@ -92,15 +104,10 @@ class NewSolutionTeacherNotifierTest {
 
   @Test
   fun `group messages are getting sent`() {
-    val telegramSolutionSender = createTgSolutionSender()
-    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
-    val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(
-        telegramSolutionSender,
-        technicalMessageStorage,
-        createSolutionResolver(),
-      )
+    val newSolutionTeacherNotifier = NewSolutionTeacherNotifier()
+
     newSolutionTeacherNotifier.notifyNewSolution(solution)
+
     verify { telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution) }
   }
 }

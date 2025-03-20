@@ -2,16 +2,21 @@ package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.BotEventBus
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.CreateError
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ObserverBus
 import com.github.heheteam.commonlib.api.ParentStorage
+import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.RedisBotEventBus
 import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.SpreadsheetId
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.TeacherStatistics
 import com.github.heheteam.commonlib.api.TeacherStorage
@@ -34,12 +39,14 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import com.github.heheteam.commonlib.mock.MockParentStorage
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import org.jetbrains.exposed.sql.Database
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 class CoreServicesInitializer {
-  fun inject(useRedis: Boolean = false): Module {
+  fun inject(useRedis: Boolean = false, useGoogleSpreadsheets: Boolean = false): Module {
     val config = loadConfig()
     val database =
       Database.connect(
@@ -61,16 +68,22 @@ class CoreServicesInitializer {
       single<StudentStorage> { DatabaseStudentStorage(database) }
       single<ParentStorage> { MockParentStorage() }
 
-      val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
+      single<GoogleSheetsService> {
+        GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
+      }
       single<RatingRecorder> {
-        GoogleSheetsRatingRecorder(
-          googleSheetsService,
-          coursesDistributor,
-          assignmentStorage,
-          problemStorage = get(),
-          gradeTable,
-          solutionDistributor,
-        )
+        if (useGoogleSpreadsheets) {
+          GoogleSheetsRatingRecorder(
+            googleSheetsService = get(),
+            coursesDistributor,
+            assignmentStorage,
+            problemStorage = get(),
+            gradeTable,
+            solutionDistributor,
+          )
+        } else {
+          createRatingRecorderStub()
+        }
       }
 
       single<CoursesDistributor> {
@@ -98,4 +111,17 @@ class CoreServicesInitializer {
       }
     }
   }
+
+  private fun createRatingRecorderStub(): RatingRecorder =
+    object : RatingRecorder {
+      override fun createRatingSpreadsheet(courseId: CourseId): Result<SpreadsheetId, CreateError> {
+        return Ok(SpreadsheetId(courseId.toString()))
+      }
+
+      override fun updateRating(courseId: CourseId) {}
+
+      override fun updateRating(problemId: ProblemId) {}
+
+      override fun updateRating(solutionId: SolutionId) {}
+    }
 }

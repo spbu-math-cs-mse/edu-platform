@@ -15,8 +15,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
 
 class AdminBotTest {
   companion object {
@@ -24,6 +26,12 @@ class AdminBotTest {
     @BeforeAll
     fun initKoin() {
       startKoin { modules(CoreServicesInitializer().inject(useRedis = false)) }
+    }
+
+    @JvmStatic
+    @AfterAll
+    fun stopKoinAfterAll() {
+      stopKoin()
     }
   }
 

@@ -6,9 +6,7 @@ import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendSolutionContent
-import com.github.heheteam.teacherbot.states.SolutionGradings
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
-import com.github.heheteam.teacherbot.states.createTechnicalMessageContent
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -26,6 +24,7 @@ import org.koin.core.component.inject
 
 class TelegramSolutionSenderImpl : TelegramSolutionSender, TelegramBotController, KoinComponent {
   private val teacherStorage: TeacherStorage by inject()
+  private val prettyTechnicalMessageService: PrettyTechnicalMessageService by inject()
   private var lateInitTeacherBot: TelegramBot? = null
 
   override fun sendPersonalSolutionNotification(
@@ -39,7 +38,10 @@ class TelegramSolutionSenderImpl : TelegramSolutionSender, TelegramBotController
           val teacher =
             teacherStorage.resolveTeacher(teacherId).mapError { "Failed to resolve teacher" }.bind()
           val solutionMessage = sendSolutionContent(teacher.tgId.toChatId(), solution.content)
-          val technicalMessageContent = createTechnicalMessageContent(SolutionGradings(solution.id))
+          val technicalMessageContent =
+            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+              solution.id
+            )
           val technicalMessage = reply(solutionMessage, technicalMessageContent)
           editMessageReplyMarkup(
             technicalMessage,
@@ -61,7 +63,10 @@ class TelegramSolutionSenderImpl : TelegramSolutionSender, TelegramBotController
           val chat =
             registeredGroups[courseId].toResultOr { "no chat registered for $courseId" }.bind()
           val solutionMessage = sendSolutionContent(chat.toChatId(), solution.content)
-          val technicalMessageContent = createTechnicalMessageContent(SolutionGradings(solution.id))
+          val technicalMessageContent =
+            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+              solution.id
+            )
           val technicalMessage = reply(solutionMessage, technicalMessageContent)
           editMessageReplyMarkup(
             technicalMessage,

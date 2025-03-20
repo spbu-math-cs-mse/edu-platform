@@ -114,17 +114,12 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     solutionGrader: SolutionGrader,
   ): Result<Unit, MessageError> = binding {
     val technicalMessageText = extractReplyText(commonMessage).mapError { NotReply }.bind()
-    val oldSolutionGradings =
+    val solutionId =
       parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSolution }.bind()
     val assessment =
       extractAssessmentFromMessage(commonMessage).mapError { BadAssessment(it) }.bind()
     val teacherId = TeacherId(1L)
-    solutionGrader.assessSolution(
-      oldSolutionGradings.solutionId,
-      teacherId,
-      assessment,
-      LocalDateTime.now(),
-    )
+    solutionGrader.assessSolution(solutionId, teacherId, assessment, LocalDateTime.now())
   }
 }
 

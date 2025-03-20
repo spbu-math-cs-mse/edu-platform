@@ -20,14 +20,10 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
-import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
-import dev.inmo.tgbotapi.utils.buildEntities
-import dev.inmo.tgbotapi.utils.code
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -45,30 +41,22 @@ fun extractReplyText(commonMessage: CommonMessage<*>): Result<String, String> = 
   text
 }
 
-fun parseTechnicalMessageContent(text: String): Result<SolutionGradings, String> = binding {
-  val regex = Regex(".*\\<(.*)>", option = RegexOption.DOT_MATCHES_ALL)
-  val match = regex.matchEntire(text).toResultOr { "Not a submission message" }.bind()
-  val submissionInfoString =
+fun parseTechnicalMessageContent(text: String): Result<SolutionId, String> = binding {
+  val regex = Regex("Отправка #(\\d+)", option = RegexOption.DOT_MATCHES_ALL)
+  val match = regex.find(text).toResultOr { "Not a submission message" }.bind()
+  val solutionIdString =
     match.groups[1]?.value.toResultOr { "bad regex (no group number 1)" }.bind()
-  val solutionGradings =
-    runCatching { submissionInfoString.let { Json.decodeFromString<SolutionGradings>(it) } }
+  val solutionId =
+    solutionIdString
+      .let { it.toLongOrNull().toResultOr { Unit } }
       .mapError { "Bad regex or failed submission format" }
       .bind()
-  solutionGradings
+  SolutionId(solutionId)
 }
 
 val prettyJson = Json {
   prettyPrint = true
   explicitNulls = true
-}
-
-fun createTechnicalMessageContent(submissionInfo: SolutionGradings): TextSourcesList {
-  val submissionSignature = prettyJson.encodeToString(submissionInfo)
-  val content = buildEntities {
-    +"reply to me to grade this\n"
-    code("<$submissionSignature>")
-  }
-  return content
 }
 
 @Serializable

@@ -3,9 +3,7 @@ package com.github.heheteam.teacherbot.logic
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
-import com.github.heheteam.teacherbot.states.SolutionGradings
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
-import com.github.heheteam.teacherbot.states.createTechnicalMessageContent
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.edit.edit
@@ -15,7 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 class SolutionMessageUpdaterImpl(
-  private val technicalMessageStorage: TelegramTechnicalMessagesStorage
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
+  private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
 ) : SolutionMessageUpdater, TelegramBotController {
   lateinit var myBot: TelegramBot
 
@@ -26,7 +25,9 @@ class SolutionMessageUpdaterImpl(
           edit(
             technicalMessage.chatId.toChatId(),
             technicalMessage.messageId,
-            createTechnicalMessageContent(SolutionGradings(solutionId, gradings)),
+            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+              solutionId
+            ),
           )
           editMessageReplyMarkup(
             technicalMessage.chatId.toChatId(),
@@ -48,7 +49,9 @@ class SolutionMessageUpdaterImpl(
           edit(
             technicalMessage.chatId.toChatId(),
             technicalMessage.messageId,
-            createTechnicalMessageContent(SolutionGradings(solutionId, gradings)),
+            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+              solutionId
+            ),
           )
           editMessageReplyMarkup(
             technicalMessage.chatId.toChatId(),

@@ -10,6 +10,8 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 
 class RandomTeacherResolver(
   val problemStorage: ProblemStorage,
@@ -25,7 +27,10 @@ class RandomTeacherResolver(
           println(teachers)
           teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
         }
-        .mapError { it.toString() }
+        .mapError {
+          KSLog.warning(it.toString())
+          it.toString()
+        }
     return result
   }
 }

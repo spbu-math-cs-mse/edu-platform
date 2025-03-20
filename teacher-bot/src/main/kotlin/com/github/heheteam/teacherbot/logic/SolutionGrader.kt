@@ -5,6 +5,8 @@ import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import java.time.LocalDateTime
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /*
 Grading entry consists of:
@@ -28,7 +30,10 @@ business tells us that on assessing solution we must:
 
  */
 
-class SolutionGrader(val gradeTable: GradeTable, val uiController: UiController) {
+class SolutionGrader : KoinComponent {
+  private val uiController: UiController by inject()
+  private val gradeTable: GradeTable by inject()
+
   fun assessSolution(
     solutionId: SolutionId,
     teacherId: TeacherId,

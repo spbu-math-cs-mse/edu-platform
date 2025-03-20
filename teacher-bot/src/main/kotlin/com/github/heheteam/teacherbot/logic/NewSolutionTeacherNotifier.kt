@@ -6,6 +6,8 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 
 class NewSolutionTeacherNotifier(
   private val telegramSolutionSender: TelegramSolutionSender,
@@ -39,12 +41,20 @@ class NewSolutionTeacherNotifier(
     solution: Solution
   ): Result<Unit, SolutionSendingError> = binding {
     val teacherId =
-      solution.responsibleTeacherId.toResultOr { NoResponsibleTeacherFor(solution) }.bind()
+      solution.responsibleTeacherId
+        .toResultOr {
+          KSLog.warning("No responsible teacher for solution: $solution")
+          NoResponsibleTeacherFor(solution)
+        }
+        .bind()
 
     val personalTechnicalMessage =
       telegramSolutionSender
         .sendPersonalSolutionNotification(teacherId, solution)
-        .mapError { SendToTeacherSolutionError(teacherId) }
+        .mapError {
+          KSLog.warning("Failed to send solution $solution to the teacher with id: $teacherId")
+          SendToTeacherSolutionError(teacherId)
+        }
         .bind()
     telegramTechnicalMessageStorage.registerPersonalSolutionPublication(
       solution.id,

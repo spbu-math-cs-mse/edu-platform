@@ -23,13 +23,14 @@ import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import java.time.LocalDateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 // this class represents a service given by the bot;
 // students ids are parameters in this class
 @Suppress("LongParameterList")
-class StudentCore(private val notificationService: NotificationService) : KoinComponent {
+class StudentCore : KoinComponent {
   private val solutionDistributor: SolutionDistributor by inject()
   private val coursesDistributor: CoursesDistributor by inject()
   private val problemStorage: ProblemStorage by inject()
@@ -91,7 +92,15 @@ class StudentCore(private val notificationService: NotificationService) : KoinCo
   ) {
     val teacher = responsibleTeacherResolver.resolveResponsibleTeacher(problemId)
     val solutionId =
-      solutionDistributor.inputSolution(studentId, chatId, messageId, solutionContent, problemId)
+      solutionDistributor.inputSolution(
+        studentId,
+        chatId,
+        messageId,
+        solutionContent,
+        problemId,
+        LocalDateTime.now(),
+        teacher.get(),
+      )
     solutionDistributor.resolveSolution(solutionId).map { solution: Solution ->
       botEventBus.publishNewSolutionEvent(solution)
     }

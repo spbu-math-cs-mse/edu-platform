@@ -11,8 +11,6 @@ import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStatistics
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import java.time.LocalDateTime
 
 class GradeTableDecorator(

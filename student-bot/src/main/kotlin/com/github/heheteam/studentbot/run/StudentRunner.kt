@@ -2,7 +2,6 @@ package com.github.heheteam.studentbot.run
 
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.StudentNotificationService
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
@@ -65,7 +64,7 @@ class StudentRunner : KoinComponent {
           }
         }
 
-        val core = StudentCore(StudentNotificationService(bot))
+        val core = StudentCore()
         registerState<StartState, StudentStorage>(studentStorage)
         registerState<DeveloperStartState, StudentStorage>(studentStorage)
         registerState<MenuState, CoursesDistributor>(coursesDistributor)

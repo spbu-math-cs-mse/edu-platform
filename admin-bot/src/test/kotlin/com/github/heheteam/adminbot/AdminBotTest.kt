@@ -1,16 +1,13 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.adminbot.states.parseProblemsDescriptions
+import com.github.heheteam.commonlib.CoreServicesInitializer
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ScheduledMessage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
-import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -18,10 +15,19 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.BeforeAll
+import org.koin.core.context.GlobalContext.startKoin
 
 class AdminBotTest {
-  private val config = loadConfig()
+  companion object {
+    @JvmStatic
+    @BeforeAll
+    fun initKoin() {
+      startKoin { modules(CoreServicesInitializer().inject(useRedis = false)) }
+    }
+  }
 
+  private val config = loadConfig()
   private val database =
     Database.connect(
       config.databaseConfig.url,
@@ -30,14 +36,7 @@ class AdminBotTest {
       config.databaseConfig.password,
     )
 
-  private val core =
-    AdminCore(
-      InMemoryScheduledMessagesDistributor(),
-      DatabaseCoursesDistributor(database),
-      DatabaseStudentStorage(database),
-      DatabaseTeacherStorage(database),
-    )
-
+  private val core = AdminCore()
   private val course = Course(CourseId(1L), "")
 
   @BeforeTest

@@ -16,20 +16,21 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
+private const val ASSIGNMENTS_PER_COURSE: Int = 2
+private const val PROBLEMS_PER_ASSIGNMENT: Int = 5
+
 fun generateCourse(
   name: String,
   coursesDistributor: CoursesDistributor,
   assignmentStorage: AssignmentStorage,
   problemStorage: ProblemStorage,
-  assignmentsPerCourse: Int = 2,
-  problemsPerAssignment: Int = 5,
 ): CourseId {
   val courseId = coursesDistributor.createCourse(name)
-  (1..assignmentsPerCourse).map { assignNum ->
+  (1..ASSIGNMENTS_PER_COURSE).map { assignNum ->
     assignmentStorage.createAssignment(
       courseId,
       "assignment $courseId.$assignNum",
-      (0..<problemsPerAssignment).map {
+      (0..<PROBLEMS_PER_ASSIGNMENT).map {
         val timeZone = TimeZone.currentSystemDefault()
         val deadline =
           if (it % 2 == 0) (Clock.System.now() + 2.minutes).toLocalDateTime(timeZone) else null
@@ -47,6 +48,8 @@ data class FillContent(
   val students: List<StudentId>,
   val teachers: List<TeacherId>,
 )
+
+private const val STUDENTS_PER_COURSE = 5
 
 @Suppress("LongParameterList")
 fun fillWithSamples(
@@ -66,11 +69,12 @@ fun fillWithSamples(
     generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
   val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
   val students = createStudent(studentStorage)
-  students.slice(0..<5).map { studentId ->
+
+  students.slice(0..<STUDENTS_PER_COURSE).map { studentId ->
     coursesDistributor.addStudentToCourse(studentId, realAnalysis)
     coursesDistributor.addStudentToCourse(studentId, probTheory)
   }
-  students.slice(5..<10).map { studentId ->
+  students.slice(STUDENTS_PER_COURSE..<STUDENTS_PER_COURSE * 2).map { studentId ->
     coursesDistributor.addStudentToCourse(studentId, probTheory)
     coursesDistributor.addStudentToCourse(studentId, linAlgebra)
   }

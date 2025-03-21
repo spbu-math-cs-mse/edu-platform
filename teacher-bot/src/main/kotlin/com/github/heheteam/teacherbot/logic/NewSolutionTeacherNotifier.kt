@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.logic
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
@@ -11,10 +11,15 @@ class NewSolutionTeacherNotifier(
   private val telegramSolutionSender: TelegramSolutionSender,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val solutionCourseResolver: SolutionCourseResolver,
+  private val menuMessageUpdater: MenuMessageUpdater,
 ) {
   fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> = binding {
     sendSolutionToTeacherPersonally(solution)
     sendSolutionToGroup(solution)
+    val teacherId = solution.responsibleTeacherId
+    if (teacherId != null) {
+      menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
+    }
   }
 
   private fun sendSolutionToGroup(solution: Solution): Result<Unit, SolutionSendingError> =

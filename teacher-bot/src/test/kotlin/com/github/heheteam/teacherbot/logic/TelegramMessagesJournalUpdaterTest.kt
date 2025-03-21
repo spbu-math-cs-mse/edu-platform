@@ -27,20 +27,20 @@ class TelegramMessagesJournalUpdaterTest {
   @Test
   fun `Journal updater informs group bot`() {
     val gradeTable = mockk<GradeTable>(relaxed = true)
-    val technicalMessageService = mockk<TechnicalMessageUpdater>(relaxed = true)
+    val technicalMessageService = mockk<SolutionMessageUpdater>(relaxed = true)
     every { gradeTable.getGradingsForSolution(solutionId) } returns gradings
     val journalUpdater = TelegramMessagesJournalUpdater(gradeTable, technicalMessageService)
     journalUpdater.updateJournalDisplaysForSolution(solutionId)
-    verify { technicalMessageService.updateTechnicalMessageInGroup(solutionId, gradings) }
+    verify { technicalMessageService.updateSolutionMessageInGroup(solutionId, gradings) }
   }
 
   @Test
   fun `Journal updater informs personal bot`() {
     val gradeTable = mockk<GradeTable>(relaxed = true)
-    val technicalMessageService = mockk<TechnicalMessageUpdater>(relaxed = true)
+    val technicalMessageService = mockk<SolutionMessageUpdater>(relaxed = true)
     every { gradeTable.getGradingsForSolution(solutionId) } returns gradings
     val journalUpdater = TelegramMessagesJournalUpdater(gradeTable, technicalMessageService)
     journalUpdater.updateJournalDisplaysForSolution(solutionId)
-    verify { technicalMessageService.updateTechnnicalMessageInPersonalChat(solutionId, gradings) }
+    verify { technicalMessageService.updateSolutionMessageInPersonalChat(solutionId, gradings) }
   }
 }

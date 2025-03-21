@@ -12,7 +12,7 @@ class StudentNewGradeNotifierImpl(
   private val problemStorage: ProblemStorage,
   private val solutionDistributor: SolutionDistributor,
 ) : StudentNewGradeNotifier {
-  override fun notifyStudentOnNewAssignment(
+  override fun notifyStudentOnNewAssessment(
     solutionId: SolutionId,
     assessment: SolutionAssessment,
   ) {

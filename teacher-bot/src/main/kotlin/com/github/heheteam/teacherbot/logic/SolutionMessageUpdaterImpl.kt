@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot.logic
 
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -12,13 +12,13 @@ import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-class TechnicalMessageUpdaterImpl(
+class SolutionMessageUpdaterImpl(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
-) : TechnicalMessageUpdater, TelegramBotController {
+) : SolutionMessageUpdater, TelegramBotController {
   lateinit var myBot: TelegramBot
 
-  override fun updateTechnicalMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>) {
+  override fun updateSolutionMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>) {
     runBlocking(Dispatchers.IO) {
       with(myBot) {
         technicalMessageStorage.resolveGroupMessage(solutionId).map { technicalMessage ->
@@ -39,7 +39,7 @@ class TechnicalMessageUpdaterImpl(
     }
   }
 
-  override fun updateTechnnicalMessageInPersonalChat(
+  override fun updateSolutionMessageInPersonalChat(
     solutionId: SolutionId,
     gradings: List<GradingEntry>,
   ) {

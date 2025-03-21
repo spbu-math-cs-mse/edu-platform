@@ -6,8 +6,8 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.database.table.TelegramMessageInfo
-import com.github.heheteam.commonlib.database.table.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.api.TelegramMessageInfo
+import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Ok
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -59,11 +59,13 @@ class NewSolutionTeacherNotifierTest {
     val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
     val solutionCourseResolver = createSolutionResolver()
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,
         technicalMessageStorage,
         solutionCourseResolver,
+        menuMessageUpdater,
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
     verify { telegramSolutionSender.sendPersonalSolutionNotification(teacherId, solution) }
@@ -74,11 +76,13 @@ class NewSolutionTeacherNotifierTest {
     val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
     val solutionCourseResolver = createSolutionResolver()
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,
         technicalMessageStorage,
         solutionCourseResolver,
+        menuMessageUpdater,
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
 
@@ -94,13 +98,33 @@ class NewSolutionTeacherNotifierTest {
   fun `group messages are getting sent`() {
     val telegramSolutionSender = createTgSolutionSender()
     val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,
         technicalMessageStorage,
         createSolutionResolver(),
+        menuMessageUpdater,
       )
     newSolutionTeacherNotifier.notifyNewSolution(solution)
     verify { telegramSolutionSender.sendGroupSolutionNotification(courseIdOfSolution, solution) }
+  }
+
+  @Test
+  fun `menu message gets updated`() {
+    val telegramSolutionSender = createTgSolutionSender()
+    val technicalMessageStorage = mockk<TelegramTechnicalMessagesStorage>(relaxed = true)
+    val solutionCourseResolver = createSolutionResolver()
+    val menuMessageUpdater = mockk<MenuMessageUpdater>(relaxed = true)
+    val newSolutionTeacherNotifier =
+      NewSolutionTeacherNotifier(
+        telegramSolutionSender,
+        technicalMessageStorage,
+        solutionCourseResolver,
+        menuMessageUpdater,
+      )
+    newSolutionTeacherNotifier.notifyNewSolution(solution)
+
+    verify { menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId) }
   }
 }

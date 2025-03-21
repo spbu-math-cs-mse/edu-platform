@@ -109,14 +109,6 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
                   java.time.LocalDateTime.now().toKotlinLocalDateTime(),
                 ),
               )
-              core.inputSolution(
-                studentId,
-                state.context.id.chatId,
-                solutionMessage.messageId,
-                attachment,
-                problem.id,
-              )
-              bot.reply(solutionMessage, Dialogues.tellSolutionIsSent())
             }
 
             MenuState(state.context, state.studentId)

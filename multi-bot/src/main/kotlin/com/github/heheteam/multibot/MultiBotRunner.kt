@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.SampleGenerator
 import com.github.heheteam.parentbot.run.ParentRunner
+import com.github.heheteam.studentbot.run.StudentBotServicesInitializer
 import com.github.heheteam.studentbot.run.StudentRunner
 import com.github.heheteam.teacherbot.run.TeacherBotServicesInitializer
 import com.github.heheteam.teacherbot.run.TeacherRunner
@@ -31,12 +32,19 @@ class MultiBotRunner : CliktCommand() {
   private val presetTeacherId: Long? by option().long()
   private val useRedis: Boolean by option().boolean().default(false)
   private val needsInit: Boolean by
-    option("--init", "-i").flag().help("resets the database and fills it with sample values")
+  option("--init", "-i").flag().help("resets the database and fills it with sample values")
 
   override fun run() {
     startKoin {
-      modules(CoreServicesInitializer().inject(useRedis, true))
-      modules(TeacherBotServicesInitializer().inject())
+      modules(
+        CoreServicesInitializer().inject(useRedis, true),
+        BotCoresInitializer().inject()
+      )
+      modules(
+        TeacherBotServicesInitializer().inject(),
+        StudentBotServicesInitializer().inject()
+      )
+
     }
 
     if (needsInit) SampleGenerator().fillWithSamples()

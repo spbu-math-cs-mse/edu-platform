@@ -12,15 +12,17 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapBoth
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class PrettyTechnicalMessageService(
-  private val solutionDistributor: SolutionDistributor,
-  private val problemStorage: ProblemStorage,
-  private val assignmentStorage: AssignmentStorage,
-  private val studentStorage: StudentStorage,
-  private val gradeTable: GradeTable,
-  private val teacherStorage: TeacherStorage,
-) {
+class PrettyTechnicalMessageService: KoinComponent {
+  private val solutionDistributor: SolutionDistributor by inject()
+  private val problemStorage: ProblemStorage by inject()
+  private val assignmentStorage: AssignmentStorage by inject()
+  private val studentStorage: StudentStorage by inject()
+  private val gradeTable: GradeTable by inject()
+  private val teacherStorage: TeacherStorage by inject()
+
   fun createPrettyDisplayForTechnicalForTechnicalMessage(solutionId: SolutionId) =
     binding {
         val gradingEntries = gradeTable.getGradingsForSolution(solutionId)

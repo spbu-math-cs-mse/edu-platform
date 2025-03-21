@@ -13,12 +13,12 @@ import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.NotificationService
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.studentbot.logic.NotificationService
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.MessageId

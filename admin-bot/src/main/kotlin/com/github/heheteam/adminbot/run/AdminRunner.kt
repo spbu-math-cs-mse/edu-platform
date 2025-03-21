@@ -39,6 +39,7 @@ class AdminRunner : KoinComponent {
   private val assignmentStorage: AssignmentStorage by inject()
   private val problemStorage: ProblemStorage by inject()
   private val solutionDistributor: SolutionDistributor by inject()
+  private val core: AdminCore by inject()
 
   @OptIn(RiskFeature::class)
   suspend fun run(botToken: String) {
@@ -60,7 +61,6 @@ class AdminRunner : KoinComponent {
         println(getMe())
 
         command("start") { startChain(MenuState(it.from!!)) }
-        val core = AdminCore()
         registerState<MenuState, CoursesDistributor>(coursesDistributor)
         registerState<CreateCourseState, CoursesDistributor>(coursesDistributor)
         registerState<CourseInfoState, CourseStatisticsComposer>(

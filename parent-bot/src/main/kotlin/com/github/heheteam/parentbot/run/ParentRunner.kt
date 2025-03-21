@@ -24,6 +24,7 @@ import org.koin.core.component.inject
 
 class ParentRunner : KoinComponent {
   private val parentStorage: ParentStorage by inject()
+  private val core: ParentCore by inject()
 
   @OptIn(RiskFeature::class)
   suspend fun run(botToken: String) {
@@ -51,7 +52,6 @@ class ParentRunner : KoinComponent {
           }
         }
 
-        val core = ParentCore()
         strictlyOnStartState(parentStorage, isDeveloperRun = true)
         strictlyOnMenuState(core)
         strictlyOnGivingFeedbackState()

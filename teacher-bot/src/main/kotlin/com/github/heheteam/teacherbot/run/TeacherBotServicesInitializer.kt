@@ -1,9 +1,12 @@
 package com.github.heheteam.teacherbot.run
 
+import com.github.heheteam.teacherbot.logic.JournalUpdater
 import com.github.heheteam.teacherbot.logic.NewSolutionTeacherNotifier
+import com.github.heheteam.teacherbot.logic.PrettyTechnicalMessageService
 import com.github.heheteam.teacherbot.logic.SolutionCourseResolver
 import com.github.heheteam.teacherbot.logic.SolutionCourseResolverImpl
 import com.github.heheteam.teacherbot.logic.SolutionGrader
+import com.github.heheteam.teacherbot.logic.StudentNewGradeNotifier
 import com.github.heheteam.teacherbot.logic.StudentNewGradeNotifierImpl
 import com.github.heheteam.teacherbot.logic.TechnicalMessageUpdater
 import com.github.heheteam.teacherbot.logic.TechnicalMessageUpdaterImpl
@@ -20,8 +23,9 @@ class TeacherBotServicesInitializer : KoinComponent {
   private val botControllers = TelegramBotControllersRepository()
 
   fun inject() = module {
-    single<TelegramMessagesJournalUpdater> { TelegramMessagesJournalUpdater() }
-    single<StudentNewGradeNotifierImpl> { StudentNewGradeNotifierImpl() }
+    single<PrettyTechnicalMessageService>{ PrettyTechnicalMessageService() }
+    single<JournalUpdater> { TelegramMessagesJournalUpdater() }
+    single<StudentNewGradeNotifier> { StudentNewGradeNotifierImpl() }
     single<UiController> { UiControllerTelegramSender() }
     single<SolutionGrader> { SolutionGrader() }
 

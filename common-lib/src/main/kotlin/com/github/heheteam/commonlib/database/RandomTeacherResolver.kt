@@ -28,7 +28,7 @@ class RandomTeacherResolver(
           teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
         }
         .mapError {
-          KSLog.warning(it.toString())
+          KSLog.warning("Can not resolve responsible teacher for problem $problemId: $it")
           it.toString()
         }
     return result

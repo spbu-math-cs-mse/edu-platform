@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
 import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
+import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
@@ -68,6 +69,7 @@ suspend fun studentRun(
       registerState<DeveloperStartState, StudentStorage>(studentStorage)
       registerState<MenuState, CoursesDistributor>(coursesDistributor)
       registerState<ViewState, CoursesDistributor>(coursesDistributor)
+      registerState<ConfirmSubmissionState, StudentCore>(core)
       strictlyOnSignUpState(core)
       strictlyOnSendSolutionState(core, botToken)
       strictlyOnCheckGradesState(core)

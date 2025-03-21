@@ -27,6 +27,8 @@ interface TelegramTechnicalMessagesStorage {
 
   fun resolveTeacherMenuMessage(teacherId: TeacherId): Result<List<TelegramMessageInfo>, String>
 
+  fun resolveTeacherChatId(teacherId: TeacherId): Result<RawChatId, String>
+
   /**
    * @return TelegramMessageInfo of the menu message if it exists. Otherwise, just returns the chat
    *   id.

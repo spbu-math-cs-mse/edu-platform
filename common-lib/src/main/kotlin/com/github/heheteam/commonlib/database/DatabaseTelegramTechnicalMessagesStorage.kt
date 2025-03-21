@@ -15,6 +15,7 @@ import com.github.michaelbull.result.get
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.toChatId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -131,6 +132,17 @@ class DatabaseTelegramTechnicalMessagesStorage(
             }
         }
         .ifEmpty { null }
+    return row.toResultOr { "" }
+  }
+
+  override fun resolveTeacherChatId(teacherId: TeacherId): Result<RawChatId, String> {
+    val row =
+      transaction(database) {
+        TeacherTable.selectAll()
+          .where(TeacherTable.id eq teacherId.id)
+          .map { it[TeacherTable.tgId].toChatId().chatId }
+          .firstOrNull()
+      }
     return row.toResultOr { "" }
   }
 

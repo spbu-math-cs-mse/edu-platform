@@ -2,13 +2,10 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
-import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.logic.MenuMessageUpdater
 import com.github.heheteam.teacherbot.logic.SolutionGrader
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -20,7 +17,6 @@ import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.reply
-import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.accessibleMessageOrNull
 import dev.inmo.tgbotapi.types.chat.User
@@ -35,10 +31,10 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     bot: BehaviourContext,
     teacherStorage: TeacherStorage,
     solutionGrader: SolutionGrader,
-    technicalMessageStorage: TelegramTechnicalMessagesStorage,
+    menuMessageUpdater: MenuMessageUpdater,
   ): State =
     with(bot) {
-      val state = readUserInput(this, teacherStorage, solutionGrader, technicalMessageStorage)
+      val state = readUserInput(this, teacherStorage, solutionGrader, menuMessageUpdater)
       state
     }
 
@@ -46,16 +42,13 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     bot: BehaviourContext,
     service: TeacherStorage,
     solutionGrader: SolutionGrader,
-    technicalMessageStorage: TelegramTechnicalMessagesStorage,
+    menuMessageUpdater: MenuMessageUpdater,
   ): State {
     service.updateTgId(teacherId, context.id)
     if (context.username == null) {
       return StartState(context)
     }
-    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
-    technicalMessageStorage.updateTeacherMenuMessage(
-      TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
-    )
+    menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
 
     val callbacksFlow =
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->

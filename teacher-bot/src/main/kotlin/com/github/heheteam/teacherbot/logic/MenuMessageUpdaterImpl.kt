@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -41,18 +42,23 @@ class MenuMessageUpdaterImpl(
             { KSLog.warning("No menu messages registered") },
           )
 
-        val (chatId, messageId) =
-          technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
+        val solutionMessage =
+          technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).get()
+        val chatId = solutionMessage?.chatId
+        val messageId = solutionMessage?.messageId
+
         val menuMessage =
           if (messageId != null) {
             myBot.reply(
-              chatId.toChatId(),
+              solutionMessage.chatId.toChatId(),
               messageId,
               Dialogues.menu(),
               replyMarkup = Keyboards.menu(),
             )
           } else {
-            myBot.send(chatId.toChatId(), Dialogues.menu(), replyMarkup = Keyboards.menu())
+            val teacherChatId =
+              chatId ?: technicalMessageStorage.resolveTeacherChatId(teacherId).bind()
+            myBot.send(teacherChatId.toChatId(), Dialogues.menu(), replyMarkup = Keyboards.menu())
           }
 
         technicalMessageStorage.updateTeacherMenuMessage(

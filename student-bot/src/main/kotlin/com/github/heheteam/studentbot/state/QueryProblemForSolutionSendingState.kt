@@ -5,10 +5,10 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
@@ -41,19 +41,19 @@ class QueryProblemForSolutionSendingState(
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       when (val callbackData = dataCallbackQuery.data) {
         FICTITIOUS -> {
-          null
+          Unhandled
         }
         RETURN_BACK -> {
-          UserInput(null).ok()
+          UserInput(null)
         }
         else -> {
           val parsedProblem =
             callbackData.split(" ").lastOrNull()?.toLongOrNull()
-              ?: return@addDataCallbackHandler null
+              ?: return@addDataCallbackHandler Unhandled
           val problem =
             problems.values.flatten().singleOrNull { it.id == ProblemId(parsedProblem) }
-              ?: return@addDataCallbackHandler null
-          UserInput(problem).ok()
+              ?: return@addDataCallbackHandler Unhandled
+          UserInput(problem)
         }
       }
     }

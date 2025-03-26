@@ -23,17 +23,18 @@ import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.AudioContent
 import dev.inmo.tgbotapi.types.message.content.DocumentContent
 import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
+import dev.inmo.tgbotapi.types.message.content.MessageContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.VideoContent
-import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -45,67 +46,68 @@ data class SendSolutionState(
   val problem: Problem,
 ) : State
 
-@OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(studentBotToken: String) {
   strictlyOn<SendSolutionState> { state ->
-    val studentId = state.studentId
-    val problem = state.problem
-
     var botMessage =
       bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
 
-    merge(
-        waitDataCallbackQueryWithUser(state.context.id),
-        waitTextMessageWithUser(state.context.id),
-        waitMediaMessageWithUser(state.context.id),
-        waitDocumentMessageWithUser(state.context.id),
-      )
-      .map { solutionMessage ->
-        when (solutionMessage) {
-          is DataCallbackQuery ->
-            if (solutionMessage.data == RETURN_BACK) {
-              deleteMessage(botMessage)
-              MenuState(state.context, state.studentId)
-            } else null
+    val stateFromMessage =
+      waitSupportedMessagesFromUser(state.context.id).map { solutionMessage ->
+        val attachment = extractSolutionContent(solutionMessage, studentBotToken)
+        deleteMessage(botMessage)
 
-          is CommonMessage<*> -> {
-            val attachment = extractSolutionContent(solutionMessage, studentBotToken)
-            deleteMessage(botMessage)
-
-            if (attachment == null) {
-              botMessage =
-                bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
-              return@map null
-            }
-
-            if (isDeadlineMissed(problem)) {
-              bot.reply(solutionMessage, "К сожалению, дедлайн по задаче уже истек :(")
-            } else {
-              return@map ConfirmSubmissionState(
-                state.context,
-                Solution(
-                  0L.toSolutionId(),
-                  studentId,
-                  solutionMessage.chat.id.chatId,
-                  solutionMessage.messageId,
-                  problem.id,
-                  attachment,
-                  null,
-                  java.time.LocalDateTime.now().toKotlinLocalDateTime(),
-                ),
-              )
-            }
-
-            MenuState(state.context, state.studentId)
-          }
-
-          else -> null
+        if (attachment == null) {
+          botMessage =
+            bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
+          return@map null
         }
+
+        if (isDeadlineMissed(state.problem)) {
+          bot.reply(solutionMessage, "К сожалению, дедлайн по задаче уже истек :(")
+        } else {
+          return@map confirmSubmissionState(state, solutionMessage, attachment)
+        }
+
+        MenuState(state.context, state.studentId)
       }
-      .filterNotNull()
-      .first()
+    val stateFromDataCallBacks =
+      waitDataCallbackQueryWithUser(state.context.id).map {
+        if (it.data == RETURN_BACK) {
+          deleteMessage(botMessage)
+          MenuState(state.context, state.studentId)
+        } else null
+      }
+
+    merge(stateFromMessage, stateFromDataCallBacks).filterNotNull().first()
   }
 }
+
+private fun confirmSubmissionState(
+  state: SendSolutionState,
+  solutionMessage: CommonMessage<MessageContent>,
+  attachment: SolutionContent,
+) =
+  ConfirmSubmissionState(
+    state.context,
+    Solution(
+      0L.toSolutionId(),
+      state.studentId,
+      solutionMessage.chat.id.chatId,
+      solutionMessage.messageId,
+      state.problem.id,
+      attachment,
+      null,
+      LocalDateTime.now().toKotlinLocalDateTime(),
+    ),
+  )
+
+@Suppress("SuspendFunWithFlowReturnType") // the warning is inherited from the called library
+private suspend fun BehaviourContext.waitSupportedMessagesFromUser(userId: UserId) =
+  merge(
+    waitTextMessageWithUser(userId),
+    waitMediaMessageWithUser(userId),
+    waitDocumentMessageWithUser(userId),
+  )
 
 private suspend fun BehaviourContext.makeURL(
   content: MediaContent,

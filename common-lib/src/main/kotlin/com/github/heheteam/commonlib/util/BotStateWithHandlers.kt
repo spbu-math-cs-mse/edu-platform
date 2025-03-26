@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.util
 
 import com.github.michaelbull.result.get
-import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -32,20 +31,19 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     initUpdateHandlers(updateHandlersController)
     intro(bot, service, updateHandlersController)
     while (true) {
-      val action = updateHandlersController.processNextUpdate(bot, context.id)
-      action.get()?.let {
-        when (it) {
-          is ActionWrapper<() -> Unit> -> TODO()
-          is NewState -> return it.state.also { outro(bot, service) }
-          is UserInput<In> -> {
-            val (state, response) = computeNewState(service, it.input)
-            sendResponse(bot, service, response)
-            outro(bot, service)
-            return state
-          }
+      when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
+        is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()
+        is HandlingError<Any> -> {
+          bot.send(context.id, handlerResult.toString())
+        }
+        is NewState -> return handlerResult.state.also { outro(bot, service) }
+        is UserInput<In> -> {
+          val (state, response) = computeNewState(service, handlerResult.input)
+          sendResponse(bot, service, response)
+          outro(bot, service)
+          return state
         }
       }
-      action.getError()?.let { error -> bot.send(context.id, error.toString()) }
     }
   }
 }

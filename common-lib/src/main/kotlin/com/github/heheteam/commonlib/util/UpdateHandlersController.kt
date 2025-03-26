@@ -1,37 +1,45 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.michaelbull.result.Result
-import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
 class UpdateHandlersController<ActionT, UserInputT, Err> {
   private val callBackHandlers:
     MutableList<
-      suspend (DataCallbackQuery) -> Result<HandlerResultWithUserInput<ActionT, UserInputT>, Err>?
+      suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<ActionT, UserInputT, Err>
     > =
     mutableListOf()
   private val messageHandlers:
     MutableList<
-      (CommonMessage<TextContent>) -> Result<HandlerResultWithUserInput<ActionT, UserInputT>, Err>
+      (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+          ActionT,
+          UserInputT,
+          Err,
+        >
     > =
     mutableListOf()
 
   fun addDataCallbackHandler(
     arg:
-      suspend (DataCallbackQuery) -> Result<HandlerResultWithUserInput<ActionT, UserInputT>, Err>?
+      suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<ActionT, UserInputT, Err>
   ) {
     callBackHandlers.add(arg)
   }
 
   fun addTextMessageHandler(
     arg:
-      (CommonMessage<TextContent>) -> Result<HandlerResultWithUserInput<ActionT, UserInputT>, Err>
+      (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+          ActionT,
+          UserInputT,
+          Err,
+        >
   ) {
     messageHandlers.add(arg)
   }
@@ -39,7 +47,7 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
   suspend fun processNextUpdate(
     bot: BehaviourContext,
     chatId: ChatId,
-  ): Result<HandlerResultWithUserInput<ActionT, UserInputT>, Err> {
+  ): HandlerResultWithUserInput<ActionT, UserInputT, Err> {
     return merge(
         bot.waitTextMessageWithUser(chatId).map { message ->
           messageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
@@ -48,6 +56,7 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
           callBackHandlers.firstNotNullOfOrNull { handler -> handler.invoke(data) }
         },
       )
-      .firstNotNull()
+      .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()
+      .first()
   }
 }

@@ -50,8 +50,7 @@ data class MenuState(override val context: User, val studentId: StudentId) :
 
           SEND_SOLUTION -> {
             bot.delete(stickerMessage, initialMessage)
-            val courses = service.getStudentCourses(studentId)
-            bot.queryCourse(context, courses)?.let { SendSolutionState(context, studentId, it) }
+            QueryCourseForSolutionSendingState(context, studentId)
           }
 
           CHECK_GRADES -> {

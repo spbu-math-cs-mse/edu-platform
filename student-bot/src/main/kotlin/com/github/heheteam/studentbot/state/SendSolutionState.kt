@@ -1,13 +1,10 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.AttachmentKind
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.toSolutionId
 import com.github.heheteam.commonlib.util.isDeadlineMissed
@@ -16,11 +13,8 @@ import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
 import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
-import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
-import com.github.heheteam.studentbot.StudentCore
 import com.github.heheteam.studentbot.metaData.back
-import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import dev.inmo.micro_utils.coroutines.filterNotNull
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
@@ -41,40 +35,31 @@ import dev.inmo.tgbotapi.types.message.content.VideoContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDateTime
+import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
   override val context: User,
   val studentId: StudentId,
-  var selectedCourse: Course,
+  val problem: Problem,
 ) : State
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
-  core: StudentCore,
-  studentBotToken: String,
-) {
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(studentBotToken: String) {
   strictlyOn<SendSolutionState> { state ->
     val studentId = state.studentId
-    val assignments = core.getCourseAssignments(state.selectedCourse.id)
-    val problems = assignments.associateWith { core.getProblemsFromAssignment(it) }
-    val problem =
-      queryProblem(state, problems) ?: return@strictlyOn MenuState(state.context, state.studentId)
+    val problem = state.problem
 
     var botMessage =
       bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
 
-    flowOf(
+    merge(
         waitDataCallbackQueryWithUser(state.context.id),
         waitTextMessageWithUser(state.context.id),
         waitMediaMessageWithUser(state.context.id),
         waitDocumentMessageWithUser(state.context.id),
       )
-      .flattenMerge()
       .map { solutionMessage ->
         when (solutionMessage) {
           is DataCallbackQuery ->
@@ -190,28 +175,3 @@ private suspend fun BehaviourContext.extractMultipleAttachments(
       SolutionAttachment(kind, makeURL(it.content, studentBotToken), it.content.media.fileId.fileId)
     },
   )
-
-private suspend fun BehaviourContext.queryProblem(
-  state: SendSolutionState,
-  problems: Map<Assignment, List<Problem>>,
-): Problem? {
-  val message =
-    bot.send(
-      state.context,
-      Dialogues.askProblem(),
-      replyMarkup = buildProblemSendingSelector(problems),
-    )
-
-  var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  while (callbackData == FICTITIOUS) {
-    callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  }
-  deleteMessage(message)
-
-  if (callbackData == RETURN_BACK) {
-    return null
-  }
-
-  val problemId = callbackData.split(" ").last()
-  return problems.values.flatten().single { it.id == ProblemId(problemId.toLong()) }
-}

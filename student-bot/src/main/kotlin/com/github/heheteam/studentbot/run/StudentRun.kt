@@ -11,17 +11,16 @@ import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
+import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
+import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.ViewState
 import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.heheteam.studentbot.state.strictlyOnSendSolutionState
 import com.github.heheteam.studentbot.state.strictlyOnSignUpState
-import dev.inmo.kslog.common.KSLog
-import dev.inmo.kslog.common.LogLevel
-import dev.inmo.kslog.common.defaultMessageFormatter
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
-import dev.inmo.tgbotapi.bot.ktor.telegramBot
+import dev.inmo.micro_utils.fsm.common.managers.DefaultStatesManager
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
@@ -40,12 +39,6 @@ suspend fun studentRun(
   core: StudentCore,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
-  telegramBot(botToken) {
-    logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
-      println(defaultMessageFormatter(level, tag, message, throwable))
-    }
-  }
-
   telegramBotWithBehaviourAndFSMAndStartLongPolling(
       botToken,
       CoroutineScope(Dispatchers.IO),
@@ -54,6 +47,8 @@ suspend fun studentRun(
         e.printStackTrace()
         state
       },
+      statesManager =
+        DefaultStatesManager(onStartContextsConflictResolver = { current, new -> new is MenuState }),
     ) {
       println(getMe())
 
@@ -71,10 +66,12 @@ suspend fun studentRun(
       registerState<ViewState, CoursesDistributor>(coursesDistributor)
       registerState<ConfirmSubmissionState, StudentCore>(core)
       strictlyOnSignUpState(core)
-      strictlyOnSendSolutionState(core, botToken)
+      strictlyOnSendSolutionState(botToken)
       strictlyOnCheckGradesState(core)
       strictlyOnPresetStudentState(core)
       registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
+      registerState<QueryCourseForSolutionSendingState, CoursesDistributor>(coursesDistributor, {})
+      registerState<QueryProblemForSolutionSendingState, StudentCore>(core, {})
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

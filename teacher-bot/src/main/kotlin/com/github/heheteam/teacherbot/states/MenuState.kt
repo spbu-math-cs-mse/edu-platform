@@ -109,7 +109,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
         ActionWrapper<TeacherAction>(ConfirmSending(corresponded.first, corresponded.second)).ok()
       } else null
     } else if (data.data == "no") {
-      val message = data.message!!
+      val message = data.message
       ActionWrapper<TeacherAction>(DeleteMessage(message)).ok()
     } else null
   }
@@ -164,7 +164,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
       }
 
       is DeleteMessage -> {
-        with(bot) { delete(action.message) }
+        with(bot) { action.message?.let { delete(it) } }
       }
     }
   }

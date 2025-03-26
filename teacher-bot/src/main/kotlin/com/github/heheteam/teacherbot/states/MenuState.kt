@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.TextMessageHandler
+import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -31,6 +32,7 @@ import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.User
@@ -38,6 +40,7 @@ import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDateTime
@@ -95,6 +98,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
   private fun createDataCallbackHandlers() =
     listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress)
 
+  @OptIn(RiskFeature::class)
   private fun tryHandleConfirmButtonPress(
     data: DataCallbackQuery
   ): Result<HandlerResult<TeacherAction>, Any>? {
@@ -104,6 +108,9 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
       if (corresponded != null) {
         ActionWrapper<TeacherAction>(ConfirmSending(corresponded.first, corresponded.second)).ok()
       } else null
+    } else if (data.data == "no") {
+      val message = data.message!!
+      ActionWrapper<TeacherAction>(DeleteMessage(message)).ok()
     } else null
   }
 
@@ -137,7 +144,13 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
           context.id,
           "Вы подтверждаете отправку?",
           replyMarkup =
-            InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Да", counter.toString()) } }),
+            InlineKeyboardMarkup(
+              keyboard =
+                matrix {
+                  row { dataButton("Да", counter.toString()) }
+                  row { dataButton("No", "no") }
+                }
+            ),
         )
       }
 
@@ -148,6 +161,10 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
           action.solutionAssessment,
           LocalDateTime.now(),
         )
+      }
+
+      is DeleteMessage -> {
+        with(bot) { delete(action.message) }
       }
     }
   }

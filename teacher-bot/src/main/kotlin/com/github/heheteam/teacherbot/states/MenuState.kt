@@ -9,7 +9,6 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.Keyboards
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
@@ -54,7 +53,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     if (context.username == null) {
       return StartState(context)
     }
-    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    val menuMessage = bot.send(context, Dialogues.menu())
     technicalMessageStorage.updateTeacherMenuMessage(
       TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
     )

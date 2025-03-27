@@ -78,14 +78,9 @@ class MenuMessageUpdaterImpl(
           technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
         val menuMessage =
           if (messageId != null) {
-            myBot.reply(
-              chatId.toChatId(),
-              messageId,
-              Dialogues.menu,
-              replyMarkup = Keyboards.menu(),
-            )
+            myBot.reply(chatId.toChatId(), messageId, Dialogues.menu)
           } else {
-            myBot.send(chatId.toChatId(), Dialogues.menu, replyMarkup = Keyboards.menu())
+            myBot.send(chatId.toChatId(), Dialogues.menu)
           }
 
         technicalMessageStorage.updateTeacherMenuMessage(

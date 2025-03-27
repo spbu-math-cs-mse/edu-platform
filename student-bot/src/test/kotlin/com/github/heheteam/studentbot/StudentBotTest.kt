@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot
 
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
@@ -7,7 +8,6 @@ import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
@@ -20,17 +20,21 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.MockResponsibleTeacherResolver
-import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.ui.UiController
+import com.github.heheteam.commonlib.notifications.BotEventBus
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import io.mockk.mockk
 import java.time.LocalDateTime
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 
@@ -44,17 +48,24 @@ class StudentBotTest {
   private lateinit var teacherStorage: TeacherStorage
   private lateinit var problemStorage: ProblemStorage
   private lateinit var assignmentStorage: AssignmentStorage
+  private lateinit var academicWorkflowLogic: AcademicWorkflowLogic
+  private lateinit var academicWorkflowService: AcademicWorkflowService
 
-  private fun createProblem(courseId: CourseId = coursesDistributor.createCourse("")): ProblemId {
+  private fun createAssignment(courseId: CourseId): List<Problem> {
     val assignment =
       assignmentStorage.createAssignment(
         courseId,
         "",
-        listOf(ProblemDescription(1, "1", "", 1)),
+        listOf(
+          ProblemDescription(1, "1", "", 1),
+          ProblemDescription(2, "2", "", 1),
+          ProblemDescription(3, "3", "", 1),
+          ProblemDescription(4, "4", "", 1),
+          ProblemDescription(5, "5", "", 1),
+        ),
         problemStorage,
       )
-    val problemId = problemStorage.getProblemsFromAssignment(assignment).first().id
-    return problemId
+    return problemStorage.getProblemsFromAssignment(assignment)
   }
 
   private val config = loadConfig()
@@ -69,6 +80,7 @@ class StudentBotTest {
 
   @BeforeEach
   fun setup() {
+    reset(database)
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
@@ -76,30 +88,30 @@ class StudentBotTest {
     studentStorage = DatabaseStudentStorage(database)
     teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
-    courseIds =
-      fillWithSamples(
-          coursesDistributor,
-          problemStorage,
-          assignmentStorage,
-          studentStorage,
-          teacherStorage,
-          database,
-        )
-        .courses
+
     gradeTable = DatabaseGradeTable(database)
+    academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
+
+    courseIds =
+      listOf(
+        coursesDistributor.createCourse("course 1"),
+        coursesDistributor.createCourse("course 2"),
+        coursesDistributor.createCourse("course 3"),
+        coursesDistributor.createCourse("course 4"),
+      )
+
+    val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
+    val mockUiController = mockk<UiController>(relaxed = true)
+    academicWorkflowService =
+      AcademicWorkflowService(
+        academicWorkflowLogic,
+        RandomTeacherResolver(problemStorage, assignmentStorage, coursesDistributor),
+        mockBotEventBus,
+        mockUiController,
+      )
 
     studentCore =
-      StudentApi(
-        solutionDistributor,
-        coursesDistributor,
-        problemStorage,
-        MockResponsibleTeacherResolver(null),
-      )
-  }
-
-  @AfterTest
-  fun reset() {
-    reset(database)
+      StudentApi(coursesDistributor, problemStorage, assignmentStorage, academicWorkflowService)
   }
 
   @Test
@@ -123,7 +135,7 @@ class StudentBotTest {
       listOf(courseIds[0], courseIds[3]),
       studentCourses.map { it.id }.sortedBy { it.id },
     )
-    assertEquals(listOf("Начала мат. анализа", "ТФКП"), studentCourses.map { it.name }.toList())
+    assertEquals(listOf("course 1", "course 4"), studentCourses.map { it.name }.toList())
   }
 
   @Test
@@ -131,41 +143,39 @@ class StudentBotTest {
     val solutions = mutableListOf<SolutionId>()
     val chatId = RawChatId(0)
 
-    run {
-      val courseId = courseIds.first()
-      val teacherId = teacherStorage.createTeacher()
-      val userId = studentStorage.createStudent()
-      coursesDistributor.addStudentToCourse(userId, courseId)
-      coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    val courseId = courseIds.first()
+    val teacherId = teacherStorage.createTeacher()
+    val userId = studentStorage.createStudent()
+    coursesDistributor.addStudentToCourse(userId, courseId)
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
-      (0..4).forEach {
-        studentCore.inputSolution(
-          userId,
-          chatId,
-          MessageId(it.toLong()),
-          SolutionContent(text = "sample$it"),
-          createProblem(courseId),
+    createAssignment(courseId).forEach { problem ->
+      studentCore.inputSolution(
+        userId,
+        chatId,
+        MessageId(problem.id.id),
+        SolutionContent(text = "sample${problem.number}"),
+        problem.id,
+      )
+    }
+
+    repeat(5) {
+      val solution = solutionDistributor.querySolution(teacherId).value
+      if (solution != null) {
+        solutions.add(solution.id)
+        gradeTable.recordSolutionAssessment(
+          solution.id,
+          teacherId,
+          SolutionAssessment(5, "comment"),
+          LocalDateTime.now().toKotlinLocalDateTime(),
         )
-      }
-
-      repeat(5) {
-        val solution = solutionDistributor.querySolution(teacherId).value
-        if (solution != null) {
-          solutions.add(solution.id)
-          gradeTable.recordSolutionAssessment(
-            solution.id,
-            teacherId,
-            SolutionAssessment(5, "comment"),
-            LocalDateTime.now(),
-          )
-        }
       }
     }
 
     val firstSolutionResult = solutionDistributor.resolveSolution(solutions.first())
     assertTrue(firstSolutionResult.isOk)
     val firstSolution = firstSolutionResult.value
-    assertEquals("sample0", firstSolution.content.text)
+    assertEquals("sample1", firstSolution.content.text)
 
     val lastSolutionResult = solutionDistributor.resolveSolution(solutions.last())
     assertTrue(lastSolutionResult.isOk)

@@ -2,6 +2,7 @@ package com.github.heheteam.multibot
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -66,13 +67,14 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 
 class MultiBotRunner : CliktCommand() {
-  val studentBotToken: String by option().required().help("student bot token")
-  val teacherBotToken: String by option().required().help("teacher bot token")
-  val adminBotToken: String by option().required().help("admin bot token")
-  val parentBotToken: String by option().required().help("parent bot token")
-  val presetStudentId: Long? by option().long()
-  val presetTeacherId: Long? by option().long()
-  val useRedis: Boolean by option().boolean().default(false)
+  private val studentBotToken: String by option().required().help("student bot token")
+  private val teacherBotToken: String by option().required().help("teacher bot token")
+  private val adminBotToken: String by option().required().help("admin bot token")
+  private val parentBotToken: String by option().required().help("parent bot token")
+  private val presetStudentId: Long? by option().long()
+  private val presetTeacherId: Long? by option().long()
+  private val useRedis: Boolean by option().boolean().default(false)
+  private val initDatabase: Boolean by option().flag("--noinit", default = true)
 
   override fun run() {
     val config = loadConfig()
@@ -93,8 +95,7 @@ class MultiBotRunner : CliktCommand() {
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 
-    val academicWorkflowLogic =
-      AcademicWorkflowLogic(solutionDistributor, databaseGradeTable)
+    val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, databaseGradeTable)
     val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
@@ -114,14 +115,16 @@ class MultiBotRunner : CliktCommand() {
     val solutionDistributorDecorator =
       SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
 
-    fillWithSamples(
-      coursesDistributorDecorator,
-      problemStorage,
-      assignmentStorage,
-      studentStorage,
-      teacherStorage,
-      database,
-    )
+    if (initDatabase) {
+      fillWithSamples(
+        coursesDistributorDecorator,
+        problemStorage,
+        assignmentStorage,
+        studentStorage,
+        teacherStorage,
+        database,
+      )
+    }
 
     val parentStorage = MockParentStorage()
 

@@ -15,7 +15,6 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import java.time.LocalDateTime
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +22,6 @@ import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
 
 class TeacherBotTest {
-  private val now = LocalDateTime.now()
   private lateinit var teacherId: TeacherId
   private lateinit var studentId: StudentId
   private lateinit var problemId: ProblemId
@@ -42,16 +40,6 @@ class TeacherBotTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
-
-  private fun makeSolution(timestamp: LocalDateTime) =
-    solutionDistributor.inputSolution(
-      studentId,
-      RawChatId(0L),
-      MessageId(0L),
-      SolutionContent(),
-      problemId,
-      timestamp,
-    )
 
   @BeforeTest
   fun setUp() {

@@ -8,6 +8,7 @@ application {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:1.13.17")
     implementation(project(":common-lib"))
 
     implementation(libs.tgbotapi)

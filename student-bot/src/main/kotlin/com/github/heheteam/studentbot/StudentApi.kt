@@ -2,7 +2,6 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
@@ -11,6 +10,7 @@ import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.ProblemGrade
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentId
@@ -31,7 +31,7 @@ class StudentApi(
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): Pair<List<Problem>, Map<ProblemId, Grade?>> {
+  ): List<Pair<Problem, ProblemGrade>> {
     return academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
   }
 

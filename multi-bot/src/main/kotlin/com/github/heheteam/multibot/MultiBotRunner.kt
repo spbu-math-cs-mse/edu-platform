@@ -94,7 +94,7 @@ class MultiBotRunner : CliktCommand() {
       InMemoryScheduledMessagesDistributor()
 
     val academicWorkflowLogic =
-      AcademicWorkflowLogic(solutionDistributor, databaseGradeTable, problemStorage)
+      AcademicWorkflowLogic(solutionDistributor, databaseGradeTable)
     val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
     val ratingRecorder =
       GoogleSheetsRatingRecorder(

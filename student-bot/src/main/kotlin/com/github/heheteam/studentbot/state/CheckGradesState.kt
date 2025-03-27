@@ -1,10 +1,9 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.api.ProblemGrade
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
@@ -67,7 +66,7 @@ private fun BehaviourContext.queryGradeTypeKeyboard(
 private suspend fun BehaviourContext.respondWithGrades(
   state: CheckGradesState,
   assignment: Assignment,
-  gradedProblems: Pair<List<Problem>, Map<ProblemId, Grade?>>,
+  gradedProblems: List<Pair<Problem, ProblemGrade>>,
 ) {
   val strGrades = "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
   val gradesMessage = bot.send(state.context, text = strGrades, replyMarkup = back())
@@ -75,21 +74,17 @@ private suspend fun BehaviourContext.respondWithGrades(
   deleteMessage(gradesMessage)
 }
 
-private fun Pair<List<Problem>, Map<ProblemId, Grade?>>.withGradesToText(): String {
-  val problems = first
-  val grades = second
-  return problems.joinToString(separator = "\n") { problem ->
+private fun List<Pair<Problem, ProblemGrade>>.withGradesToText(): String =
+  joinToString(separator = "\n") { (problem, grade) ->
     "№${problem.number} — " +
-      if (grades.containsKey(problem.id)) {
-        val grade = grades[problem.id]
-        when {
-          grade == null -> "🕊 не проверено"
-          grade <= 0 -> "❌ 0/${problem.maxScore}"
-          grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
-          else -> "✅ $grade/${problem.maxScore}"
-        }
-      } else {
-        "не сдано"
+      when (grade) {
+        is ProblemGrade.Unsent -> "не сдано"
+        is ProblemGrade.Unchecked -> "🕊 не проверено"
+        is ProblemGrade.Graded ->
+          when {
+            grade.grade <= 0 -> "❌ 0/${problem.maxScore}"
+            grade.grade < problem.maxScore -> "\uD83D\uDD36 $grade/${problem.maxScore}"
+            else -> "✅ $grade/${problem.maxScore}"
+          }
       }
   }
-}

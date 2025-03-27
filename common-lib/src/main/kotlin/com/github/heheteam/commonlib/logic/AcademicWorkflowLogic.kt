@@ -7,8 +7,8 @@ import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
+import com.github.heheteam.commonlib.api.ProblemGrade
 import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
@@ -19,7 +19,6 @@ import kotlinx.datetime.toJavaLocalDateTime
 class AcademicWorkflowLogic(
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
-  private val problemStorage: ProblemStorage,
 ) {
   fun inputSolution(
     solutionInputRequest: SolutionInputRequest,
@@ -48,13 +47,8 @@ class AcademicWorkflowLogic(
   fun getGradingsForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): Pair<List<Problem>, Map<ProblemId, Grade?>> {
-    val problems =
-      problemStorage.getProblemsFromAssignment(assignmentId).sortedBy { problem ->
-        problem.serialNumber
-      }
-    val grades = gradeTable.getStudentPerformance(studentId, listOf(assignmentId))
-    return problems to grades
+  ): List<Pair<Problem, ProblemGrade>> {
+    return gradeTable.getStudentPerformance(studentId, assignmentId)
   }
 
   fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =

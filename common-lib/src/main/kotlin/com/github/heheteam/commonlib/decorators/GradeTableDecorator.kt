@@ -1,11 +1,13 @@
 package com.github.heheteam.commonlib.decorators
 
 import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.GradingEntry
+import com.github.heheteam.commonlib.api.ProblemGrade
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
@@ -21,8 +23,8 @@ class GradeTableDecorator(
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    assignmentIds: List<AssignmentId>,
-  ): Map<ProblemId, Grade?> = gradeTable.getStudentPerformance(studentId)
+    assignmentId: AssignmentId,
+  ): List<Pair<Problem, ProblemGrade>> = gradeTable.getStudentPerformance(studentId, assignmentId)
 
   override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
     gradeTable.getCourseRating(courseId)

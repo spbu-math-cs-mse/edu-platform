@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.api.toTeacherId

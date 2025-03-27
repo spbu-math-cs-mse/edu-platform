@@ -2,8 +2,6 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.RedisBotEventBus
-import com.github.heheteam.commonlib.api.StudentNotificationService
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
@@ -17,6 +15,8 @@ import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.loadConfig
+import com.github.heheteam.commonlib.notifications.RedisBotEventBus
+import com.github.heheteam.commonlib.notifications.StudentNotificationService
 import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.studentbot.run.studentRun
 import dev.inmo.kslog.common.KSLog

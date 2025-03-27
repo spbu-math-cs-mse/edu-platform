@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.CreateError
 import com.github.michaelbull.result.Result
 
 interface RatingRecorder {

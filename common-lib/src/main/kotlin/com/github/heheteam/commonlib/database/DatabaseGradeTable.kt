@@ -17,7 +17,6 @@ import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
-import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -118,7 +117,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    timestamp: LocalDateTime,
+    timestamp: kotlinx.datetime.LocalDateTime,
   ) {
     transaction(database) {
       AssessmentTable.insert {

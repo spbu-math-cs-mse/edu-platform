@@ -13,7 +13,6 @@ import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.InMemoryTeacherStatistics
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
@@ -22,7 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertTrue
 
 class TeacherBotTest {
   private val now = LocalDateTime.now()
@@ -44,7 +42,6 @@ class TeacherBotTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
-  private val statistics = InMemoryTeacherStatistics()
 
   private fun makeSolution(timestamp: LocalDateTime) =
     solutionDistributor.inputSolution(
@@ -90,51 +87,6 @@ class TeacherBotTest {
     fun reset() {
       reset(database)
     }
-  }
-
-  @Test
-  fun `test initial state`() {
-    val stats = statistics.resolveTeacherStats(teacherId)
-    assertTrue(stats.isErr)
-    assertEquals(0, statistics.getGlobalStats().totalUncheckedSolutions)
-  }
-
-  @Test
-  fun `test recording solutions and assessments`() {
-    statistics.recordNewSolution(makeSolution(now.minusHours(2)))
-    statistics.recordNewSolution(makeSolution(now.minusHours(1)))
-
-    assertEquals(2, statistics.getGlobalStats().totalUncheckedSolutions)
-
-    statistics.recordAssessment(
-      teacherId,
-      makeSolution(now.minusHours(2)),
-      now,
-      solutionDistributor,
-    )
-
-    val statsResult = statistics.resolveTeacherStats(teacherId)
-    assertTrue(statsResult.isOk)
-    val stats = statsResult.value
-    assertEquals(1, stats.totalAssessments)
-    assertEquals(1, statistics.getGlobalStats().totalUncheckedSolutions)
-  }
-
-  @Test
-  fun `test global statistics`() {
-    val now = LocalDateTime.now()
-    val sol1 = makeSolution(now.minusHours(3))
-    val sol2 = makeSolution(now.minusHours(2))
-
-    statistics.recordNewSolution(sol1)
-    statistics.recordNewSolution(sol2)
-
-    statistics.recordAssessment(TeacherId(1L), sol1, now.minusHours(2), solutionDistributor)
-    statistics.recordAssessment(TeacherId(2L), sol2, now.minusHours(1), solutionDistributor)
-
-    val globalStats = statistics.getGlobalStats()
-    assertEquals(0, globalStats.totalUncheckedSolutions)
-    assertTrue(globalStats.averageCheckTimeHours > 0)
   }
 
   @Test

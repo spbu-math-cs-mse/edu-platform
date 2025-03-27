@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
 import java.time.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -43,7 +44,7 @@ interface GradeTable {
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    timestamp: LocalDateTime = LocalDateTime.now(),
+    timestamp: kotlinx.datetime.LocalDateTime = LocalDateTime.now().toKotlinLocalDateTime(),
   )
 
   fun isChecked(solutionId: SolutionId): Boolean

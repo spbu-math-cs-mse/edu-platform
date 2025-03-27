@@ -92,3 +92,7 @@ data class Assignment(
 )
 
 @Serializable data class SolutionAssessment(val grade: Grade, val comment: String = "")
+
+data class TelegramMessageInfo(val chatId: RawChatId, val messageId: MessageId)
+
+data class MenuMessageInfo(val chatId: RawChatId, val messageId: MessageId? = null)

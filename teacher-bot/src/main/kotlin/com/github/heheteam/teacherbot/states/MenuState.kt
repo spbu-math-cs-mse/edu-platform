@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser

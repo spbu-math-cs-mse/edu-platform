@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.logic
 
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards

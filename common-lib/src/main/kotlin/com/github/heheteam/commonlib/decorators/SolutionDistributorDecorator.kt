@@ -1,12 +1,12 @@
 package com.github.heheteam.commonlib.decorators
 
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionResolveError
 import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.SolutionResolveError
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder

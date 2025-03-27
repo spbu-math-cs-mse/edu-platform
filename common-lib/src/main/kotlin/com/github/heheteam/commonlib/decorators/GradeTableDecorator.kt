@@ -11,7 +11,6 @@ import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
-import java.time.LocalDateTime
 
 class GradeTableDecorator(
   private val gradeTable: GradeTable,
@@ -32,7 +31,7 @@ class GradeTableDecorator(
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    timestamp: LocalDateTime,
+    timestamp: kotlinx.datetime.LocalDateTime,
   ) =
     gradeTable.recordSolutionAssessment(solutionId, teacherId, assessment).apply {
       ratingRecorder.updateRating(solutionId)

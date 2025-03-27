@@ -1,7 +1,8 @@
-package com.github.heheteam.commonlib.api
+package com.github.heheteam.commonlib.notifications
 
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.api.StudentId
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.types.ChatId

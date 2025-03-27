@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Parent
+import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 

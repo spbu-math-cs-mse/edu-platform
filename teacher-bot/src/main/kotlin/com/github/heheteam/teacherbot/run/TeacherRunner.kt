@@ -1,10 +1,10 @@
 package com.github.heheteam.teacherbot.run
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState

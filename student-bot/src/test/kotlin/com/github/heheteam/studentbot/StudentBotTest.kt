@@ -22,8 +22,6 @@ import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.mock.MockBotEventBus
-import com.github.heheteam.commonlib.mock.MockNotificationService
 import com.github.heheteam.commonlib.mock.MockResponsibleTeacherResolver
 import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.types.MessageId
@@ -39,7 +37,7 @@ import org.junit.jupiter.api.BeforeEach
 class StudentBotTest {
   private lateinit var coursesDistributor: CoursesDistributor
   private lateinit var solutionDistributor: SolutionDistributor
-  private lateinit var studentCore: StudentCore
+  private lateinit var studentCore: StudentApi
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
   private lateinit var studentStorage: StudentStorage
@@ -91,14 +89,11 @@ class StudentBotTest {
     gradeTable = DatabaseGradeTable(database)
 
     studentCore =
-      StudentCore(
+      StudentApi(
         solutionDistributor,
         coursesDistributor,
         problemStorage,
         assignmentStorage,
-        gradeTable,
-        MockNotificationService(),
-        MockBotEventBus(),
         MockResponsibleTeacherResolver(null),
       )
   }
@@ -120,8 +115,8 @@ class StudentBotTest {
   fun `new student courses handling test`() {
     val studentId = studentStorage.createStudent()
 
-    studentCore.addRecord(studentId, courseIds[0])
-    studentCore.addRecord(studentId, courseIds[3])
+    studentCore.applyForCourse(studentId, courseIds[0])
+    studentCore.applyForCourse(studentId, courseIds[3])
 
     val studentCourses = studentCore.getStudentCourses(studentId)
 

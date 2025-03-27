@@ -1,4 +1,4 @@
-package com.github.heheteam.teacherbot.logic
+package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId

@@ -2,10 +2,10 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
-import com.github.heheteam.teacherbot.logic.SolutionGrader
-import com.github.heheteam.teacherbot.logic.TelegramSolutionSenderImpl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
@@ -20,11 +20,12 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.datetime.toKotlinLocalDateTime
 
 class ListeningForSolutionsGroupState(override val context: Chat, val courseId: CourseId) : State {
   suspend fun execute(
     bot: BehaviourContext,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
     telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
   ): State {
     with(bot) {
@@ -32,11 +33,11 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
       while (true) {
         merge(
             waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->
-              val result = tryParseGradingReply(commonMessage, solutionGrader)
+              val result = tryParseGradingReply(commonMessage, academicWorkflowService)
               result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
             },
             waitDataCallbackQueryWithUser(context.id.toChatId()).map { dataCallback ->
-              tryProcessGradingByButtonPress(dataCallback, solutionGrader)
+              tryProcessGradingByButtonPress(dataCallback, academicWorkflowService)
             },
           )
           .first()
@@ -46,12 +47,17 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
 
   private fun tryParseGradingReply(
     commonMessage: CommonMessage<TextContent>,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
   ): Result<Unit, String> = binding {
     val technicalMessageText = extractReplyText(commonMessage).bind()
     val solutionId = parseTechnicalMessageContent(technicalMessageText).bind()
     val assessment = extractAssessmentFromMessage(commonMessage).bind()
     val teacherId = TeacherId(1L)
-    solutionGrader.assessSolution(solutionId, teacherId, assessment, LocalDateTime.now())
+    academicWorkflowService.assessSolution(
+      solutionId,
+      teacherId,
+      assessment,
+      LocalDateTime.now().toKotlinLocalDateTime(),
+    )
   }
 }

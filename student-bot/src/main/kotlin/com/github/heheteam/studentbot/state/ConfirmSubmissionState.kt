@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.StudentApi
 import com.github.michaelbull.result.get
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
@@ -20,11 +20,11 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.flow.map
 
 class ConfirmSubmissionState(override val context: User, val solution: Solution) :
-  BotState<Boolean, Boolean, StudentCore> {
+  BotState<Boolean, Boolean, StudentApi> {
   lateinit var solutionMessage: AccessibleMessage
   lateinit var confirmMessage: AccessibleMessage
 
-  override suspend fun readUserInput(bot: BehaviourContext, service: StudentCore): Boolean {
+  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): Boolean {
     with(bot) {
       val confirmMessageKeyboard =
         buildColumnMenu(
@@ -44,7 +44,7 @@ class ConfirmSubmissionState(override val context: User, val solution: Solution)
     }
   }
 
-  override fun computeNewState(service: StudentCore, input: Boolean): Pair<State, Boolean> {
+  override fun computeNewState(service: StudentApi, input: Boolean): Pair<State, Boolean> {
     if (input) {
       service.inputSolution(
         solution.studentId,
@@ -57,11 +57,7 @@ class ConfirmSubmissionState(override val context: User, val solution: Solution)
     return MenuState(context, solution.studentId) to input
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: StudentCore,
-    response: Boolean,
-  ) {
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Boolean) {
     with(bot) {
       delete(solutionMessage)
       delete(confirmMessage)

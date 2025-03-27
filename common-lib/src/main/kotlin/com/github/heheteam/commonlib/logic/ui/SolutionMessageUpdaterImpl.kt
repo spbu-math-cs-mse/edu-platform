@@ -1,9 +1,8 @@
-package com.github.heheteam.teacherbot.logic
+package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
-import com.github.heheteam.teacherbot.states.createSolutionGradingKeyboard
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.edit.edit

@@ -4,9 +4,9 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
@@ -14,36 +14,22 @@ import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
-import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.notifications.BotEventBus
-import com.github.heheteam.commonlib.notifications.NotificationService
-import com.github.michaelbull.result.get
-import com.github.michaelbull.result.map
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 
 // this class represents a service given by the bot;
 // students ids are parameters in this class
-@Suppress("LongParameterList")
-class StudentCore(
-  private val solutionDistributor: SolutionDistributor,
+class StudentApi(
   private val coursesDistributor: CoursesDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val gradeTable: GradeTable,
-  private val notificationService: NotificationService,
-  private val botEventBus: BotEventBus,
-  private val responsibleTeacherResolver: ResponsibleTeacherResolver,
+  private val academicWorkflowService: AcademicWorkflowService,
 ) {
-  init {
-    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
-      notifyAboutGrade(studentId, chatId, messageId, assessment, problem)
-    }
-  }
-
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
@@ -56,27 +42,13 @@ class StudentCore(
     return problems to grades
   }
 
-  fun getTopGrades(courseId: CourseId): List<Int> {
-    val students = getStudentsFromCourse(courseId).map { it.id }
-    val assignments = getCourseAssignments(courseId).map { it.id }
-    val grades =
-      students
-        .map { studentId ->
-          gradeTable.getStudentPerformance(studentId, assignments).values.filterNotNull().sum()
-        }
-        .sortedDescending()
-        .take(5)
-        .filter { it != 0 }
-    return grades
-  }
-
   fun getStudentCourses(studentId: StudentId): List<Course> =
     coursesDistributor.getStudentCourses(studentId)
 
   fun getCourseAssignments(courseId: CourseId): List<Assignment> =
     assignmentStorage.getAssignmentsForCourse(courseId)
 
-  fun addRecord(studentId: StudentId, courseId: CourseId) =
+  fun applyForCourse(studentId: StudentId, courseId: CourseId) =
     coursesDistributor.addStudentToCourse(studentId, courseId)
 
   fun getCourses(): List<Course> = coursesDistributor.getCourses()
@@ -88,34 +60,17 @@ class StudentCore(
     solutionContent: SolutionContent,
     problemId: ProblemId,
   ) {
-    val teacher = responsibleTeacherResolver.resolveResponsibleTeacher(problemId)
-    val solutionId =
-      solutionDistributor.inputSolution(
+    academicWorkflowService.sendSolution(
+      SolutionInputRequest(
         studentId,
-        chatId,
-        messageId,
-        solutionContent,
         problemId,
-        LocalDateTime.now(),
-        teacher.get(),
+        solutionContent,
+        TelegramMessageInfo(chatId, messageId),
+        LocalDateTime.now().toKotlinLocalDateTime(),
       )
-    solutionDistributor.resolveSolution(solutionId).map { solution: Solution ->
-      botEventBus.publishNewSolutionEvent(solution)
-    }
+    )
   }
 
   fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
     problemStorage.getProblemsFromAssignment(assignment.id)
-
-  suspend fun notifyAboutGrade(
-    studentId: StudentId,
-    chatId: RawChatId,
-    messageId: MessageId,
-    assessment: SolutionAssessment,
-    problem: Problem,
-  ) {
-    notificationService.notifyStudentAboutGrade(studentId, chatId, messageId, assessment, problem)
-  }
-
-  fun getStudentsFromCourse(courseId: CourseId) = coursesDistributor.getStudents(courseId)
 }

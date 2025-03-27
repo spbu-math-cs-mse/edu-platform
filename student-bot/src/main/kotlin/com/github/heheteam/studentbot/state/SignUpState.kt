@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.Keyboards
-import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildCoursesSelector
 import dev.inmo.micro_utils.fsm.common.State
@@ -25,7 +25,7 @@ data class SignUpState(override val context: User, val studentId: StudentId) : S
 
 // TODO: rewrite or remove this state
 
-fun DefaultBehaviourContextWithFSM<State>.strictlyOnSignUpState(core: StudentCore) {
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnSignUpState(core: StudentApi) {
   strictlyOn<SignUpState> { state ->
     val studentId = state.studentId
     val courses = core.getCourses()
@@ -58,7 +58,7 @@ class SigningUpState(
   private val courses: List<Course>,
   private val studentCourses: MutableList<Course>,
   private val coursesToAvailability: MutableList<Pair<Course, Boolean>>,
-  private val core: StudentCore,
+  private val core: StudentApi,
   private val studentId: StudentId,
 ) {
   suspend fun BehaviourContext.signUp(initialMessage: ContentMessage<*>) {
@@ -159,7 +159,7 @@ class SigningUpState(
       }
 
       else -> {
-        studentCourses.forEach { core.addRecord(studentId, it.id) }
+        studentCourses.forEach { core.applyForCourse(studentId, it.id) }
 
         deleteMessage(message)
 

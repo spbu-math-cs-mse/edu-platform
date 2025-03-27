@@ -93,6 +93,8 @@ class MultiBotRunner : CliktCommand() {
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 
+    val academicWorkflowLogic =
+      AcademicWorkflowLogic(solutionDistributor, databaseGradeTable, problemStorage)
     val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
@@ -100,8 +102,8 @@ class MultiBotRunner : CliktCommand() {
         coursesDistributor,
         assignmentStorage,
         problemStorage,
-        databaseGradeTable,
         solutionDistributor,
+        academicWorkflowLogic,
       )
     val studentStorage = DatabaseStudentStorage(database)
 
@@ -162,7 +164,6 @@ class MultiBotRunner : CliktCommand() {
       )
     val teacherResolver =
       FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
-    val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
     val academicWorkflowService =
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
     val studentApi =
@@ -170,7 +171,6 @@ class MultiBotRunner : CliktCommand() {
         coursesDistributorDecorator,
         problemStorage,
         assignmentStorageDecorator,
-        gradeTable,
         academicWorkflowService,
       )
 

@@ -11,7 +11,6 @@ import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentId
@@ -27,19 +26,13 @@ class StudentApi(
   private val coursesDistributor: CoursesDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
-  private val gradeTable: GradeTable,
   private val academicWorkflowService: AcademicWorkflowService,
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
   ): Pair<List<Problem>, Map<ProblemId, Grade?>> {
-    val problems =
-      problemStorage.getProblemsFromAssignment(assignmentId).sortedBy { problem ->
-        problem.serialNumber
-      }
-    val grades = gradeTable.getStudentPerformance(studentId, listOf(assignmentId))
-    return problems to grades
+    return academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
   }
 
   fun getStudentCourses(studentId: StudentId): List<Course> =

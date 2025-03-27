@@ -93,7 +93,6 @@ class StudentBotTest {
         solutionDistributor,
         coursesDistributor,
         problemStorage,
-        assignmentStorage,
         MockResponsibleTeacherResolver(null),
       )
   }

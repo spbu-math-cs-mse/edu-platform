@@ -1,10 +1,15 @@
 package com.github.heheteam.commonlib.logic
 
+import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.api.AssignmentId
+import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.notifications.BotEventBus
@@ -43,5 +48,12 @@ class AcademicWorkflowService(
   ) {
     academicWorkflowLogic.assessSolution(solutionId, teacherId, assessment, timestamp)
     uiController.updateUiOnSolutionAssessment(solutionId, assessment)
+  }
+
+  fun getGradingsForAssignment(
+    assignmentId: AssignmentId,
+    studentId: StudentId,
+  ): Pair<List<Problem>, Map<ProblemId, Grade?>> {
+    return academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId)
   }
 }

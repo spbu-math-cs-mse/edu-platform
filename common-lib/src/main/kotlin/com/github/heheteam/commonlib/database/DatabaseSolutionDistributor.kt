@@ -27,6 +27,7 @@ import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
+import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -35,7 +36,6 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor {
   override fun inputSolution(
@@ -49,16 +49,16 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
   ): SolutionId {
     val solutionId =
       transaction(database) {
-        SolutionTable.insert {
-          it[SolutionTable.studentId] = studentId.id
-          it[SolutionTable.chatId] = chatId.toChatId().chatId.long
-          it[SolutionTable.messageId] = messageId.long
-          it[SolutionTable.problemId] = problemId.id
-          it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
-          it[SolutionTable.solutionContent] = solutionContent
-          it[SolutionTable.responsibleTeacher] = teacherId?.id
-        } get SolutionTable.id
-      }
+          SolutionTable.insert {
+            it[SolutionTable.studentId] = studentId.id
+            it[SolutionTable.chatId] = chatId.toChatId().chatId.long
+            it[SolutionTable.messageId] = messageId.long
+            it[SolutionTable.problemId] = problemId.id
+            it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
+            it[SolutionTable.solutionContent] = solutionContent
+            it[SolutionTable.responsibleTeacher] = teacherId?.id
+          } get SolutionTable.id
+        }
         .value
     return SolutionId(solutionId)
   }
@@ -75,11 +75,11 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
 
       val solution =
         SolutionTable.join(
-          AssessmentTable,
-          JoinType.LEFT,
-          onColumn = SolutionTable.id,
-          otherColumn = AssessmentTable.solutionId,
-        )
+            AssessmentTable,
+            JoinType.LEFT,
+            onColumn = SolutionTable.id,
+            otherColumn = AssessmentTable.solutionId,
+          )
           .join(
             ProblemTable,
             JoinType.INNER,
@@ -99,7 +99,11 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             otherColumn = CourseTable.id,
           )
           .selectAll()
-          .where { AssessmentTable.id.isNull() and (CourseTable.id inList courses) }
+          .where {
+            AssessmentTable.id.isNull() and
+              (CourseTable.id inList courses) and
+              (SolutionTable.responsibleTeacher eq teacherId.id)
+          }
           .orderBy(SolutionTable.timestamp)
           .firstOrNull() ?: return@transaction Ok(null)
 
@@ -121,11 +125,11 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     transaction(database) {
       val solution =
         SolutionTable.join(
-          AssessmentTable,
-          JoinType.LEFT,
-          onColumn = SolutionTable.id,
-          otherColumn = AssessmentTable.solutionId,
-        )
+            AssessmentTable,
+            JoinType.LEFT,
+            onColumn = SolutionTable.id,
+            otherColumn = AssessmentTable.solutionId,
+          )
           .join(
             ProblemTable,
             JoinType.INNER,
@@ -183,11 +187,22 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
       )
     }
 
-  override fun resolveSolutionCourse(solutionId: SolutionId): Result<CourseId, ResolveError<SolutionId>> =
+  override fun resolveSolutionCourse(
+    solutionId: SolutionId
+  ): Result<CourseId, ResolveError<SolutionId>> =
     transaction(database) {
-      SolutionTable
-        .join(ProblemTable, JoinType.INNER, onColumn = SolutionTable.problemId, otherColumn = ProblemTable.id)
-        .join(AssignmentTable, JoinType.INNER, onColumn = ProblemTable.assignmentId, otherColumn = AssignmentTable.id)
+      SolutionTable.join(
+          ProblemTable,
+          JoinType.INNER,
+          onColumn = SolutionTable.problemId,
+          otherColumn = ProblemTable.id,
+        )
+        .join(
+          AssignmentTable,
+          JoinType.INNER,
+          onColumn = ProblemTable.assignmentId,
+          otherColumn = AssignmentTable.id,
+        )
         .selectAll()
         .where { SolutionTable.id eq solutionId.id }
         .singleOrNull()
@@ -202,7 +217,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           (SolutionTable.problemId eq solution.problemId.id) and
             (SolutionTable.studentId eq solution.studentId.id)
         }
-        .map { row -> TeacherId(row[SolutionTable.id].value) }
+        .map { row -> row[SolutionTable.responsibleTeacher]?.value?.toTeacherId() }
         .firstOrNull()
     }
 

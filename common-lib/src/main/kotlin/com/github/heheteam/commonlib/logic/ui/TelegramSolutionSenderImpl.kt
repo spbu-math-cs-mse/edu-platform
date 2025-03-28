@@ -17,7 +17,6 @@ import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.matrix
@@ -69,7 +68,10 @@ class TelegramSolutionSenderImpl(
         val bot = lateInitTeacherBot.toResultOr { "uninitialized telegram bot" }.bind()
         with(bot) {
           val chat =
-            coursesDistributor.resolveCourseGroup(courseId).mapError { "no chat registered for $courseId" }.bind()
+            coursesDistributor
+              .resolveCourseGroup(courseId)
+              .mapError { "no chat registered for $courseId" }
+              .bind()
           val solutionMessage = sendSolutionContent(chat.toChatId(), solution.content)
           val technicalMessageContent =
             prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
@@ -90,8 +92,7 @@ class TelegramSolutionSenderImpl(
   }
 }
 
-@Serializable
-private data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
+@Serializable private data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
 
 internal fun createSolutionGradingKeyboard(solutionId: SolutionId) =
   InlineKeyboardMarkup(

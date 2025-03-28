@@ -23,7 +23,7 @@ class UiControllerTelegramSender(
     }
 
     val courseId = solutionDistributor.resolveSolutionCourse(solutionId).get()
-    if(courseId != null) {
+    if (courseId != null) {
       menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
     }
   }

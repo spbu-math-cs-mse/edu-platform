@@ -165,29 +165,33 @@ class DatabaseTelegramTechnicalMessagesStorage(
     return row.toResultOr { "" }
   }
 
-  override fun resolveGroupMenuMessage(courseId: CourseId): Result<List<TelegramMessageInfo>, String> {
+  override fun resolveGroupMenuMessage(
+    courseId: CourseId
+  ): Result<List<TelegramMessageInfo>, String> {
     val row =
       transaction(database) {
-        CourseTable.join(
-          TeacherMenuMessageTable,
-          joinType = JoinType.INNER,
-          onColumn = CourseTable.groupRawChatId,
-          otherColumn = TeacherMenuMessageTable.chatId,
-        )
-          .selectAll()
-          .where(CourseTable.id eq courseId.id)
-          .map {
-            TelegramMessageInfo(
-              RawChatId(it[TeacherMenuMessageTable.chatId]),
-              MessageId(it[TeacherMenuMessageTable.messageId]),
+          CourseTable.join(
+              TeacherMenuMessageTable,
+              joinType = JoinType.INNER,
+              onColumn = CourseTable.groupRawChatId,
+              otherColumn = TeacherMenuMessageTable.chatId,
             )
-          }
-      }
+            .selectAll()
+            .where(CourseTable.id eq courseId.id)
+            .map {
+              TelegramMessageInfo(
+                RawChatId(it[TeacherMenuMessageTable.chatId]),
+                MessageId(it[TeacherMenuMessageTable.messageId]),
+              )
+            }
+        }
         .ifEmpty { null }
     return row.toResultOr { "" }
   }
 
-  override fun resolveGroupFirstUncheckedSolutionMessage(courseId: CourseId): Result<MenuMessageInfo, String> {
+  override fun resolveGroupFirstUncheckedSolutionMessage(
+    courseId: CourseId
+  ): Result<MenuMessageInfo, String> {
     val row =
       transaction(database) {
         val solution = solutionDistributor.querySolution(courseId).get()

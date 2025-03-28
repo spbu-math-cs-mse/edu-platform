@@ -23,7 +23,7 @@ class NewSolutionTeacherNotifier(
       menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
     }
     val courseId = solutionCourseResolver.resolveCourse(solution.id).get()
-    if(courseId != null) {
+    if (courseId != null) {
       menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
     }
   }

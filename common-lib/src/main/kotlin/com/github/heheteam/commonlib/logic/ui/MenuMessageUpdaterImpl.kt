@@ -18,77 +18,77 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 private object Dialogues {
-    const val MENU: String = "\u2705 Главное меню"
+  const val MENU: String = "\u2705 Главное меню"
 }
 
 class MenuMessageUpdaterImpl(
-    private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage
 ) : MenuMessageUpdater, TelegramBotController {
-    private lateinit var myBot: TelegramBot
+  private lateinit var myBot: TelegramBot
 
-    override fun updateMenuMessageInPersonalChat(teacherId: TeacherId) {
-        runBlocking(Dispatchers.IO) {
-            coroutineBinding {
-                technicalMessageStorage
-                    .resolveTeacherMenuMessage(teacherId)
-                    .mapBoth(
-                        { menuMessages -> deleteMenuMessages(menuMessages) },
-                        { KSLog.warning("No menu messages registered") },
-                    )
+  override fun updateMenuMessageInPersonalChat(teacherId: TeacherId) {
+    runBlocking(Dispatchers.IO) {
+      coroutineBinding {
+        technicalMessageStorage
+          .resolveTeacherMenuMessage(teacherId)
+          .mapBoth(
+            { menuMessages -> deleteMenuMessages(menuMessages) },
+            { KSLog.warning("No menu messages registered") },
+          )
 
-                val (chatId, messageId) =
-                    technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
-                val menuMessage =
-                    if (messageId != null) {
-                        myBot.reply(chatId.toChatId(), messageId, Dialogues.MENU)
-                    } else {
-                        myBot.send(chatId.toChatId(), Dialogues.MENU)
-                    }
+        val (chatId, messageId) =
+          technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
+        val menuMessage =
+          if (messageId != null) {
+            myBot.reply(chatId.toChatId(), messageId, Dialogues.MENU)
+          } else {
+            myBot.send(chatId.toChatId(), Dialogues.MENU)
+          }
 
-                technicalMessageStorage.updateTeacherMenuMessage(
-                    TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
-                )
-            }
-        }
+        technicalMessageStorage.updateTeacherMenuMessage(
+          TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
+        )
+      }
     }
+  }
 
-    override fun updateMenuMessageInGroupChat(courseId: CourseId) {
-        runBlocking(Dispatchers.IO) {
-            coroutineBinding {
-                technicalMessageStorage
-                    .resolveGroupMenuMessage(courseId)
-                    .mapBoth(
-                        { menuMessages -> deleteMenuMessages(menuMessages) },
-                        { KSLog.warning("No menu messages registered") },
-                    )
+  override fun updateMenuMessageInGroupChat(courseId: CourseId) {
+    runBlocking(Dispatchers.IO) {
+      coroutineBinding {
+        technicalMessageStorage
+          .resolveGroupMenuMessage(courseId)
+          .mapBoth(
+            { menuMessages -> deleteMenuMessages(menuMessages) },
+            { KSLog.warning("No menu messages registered") },
+          )
 
-                val (chatId, messageId) =
-                    technicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
-                val menuMessage =
-                    if (messageId != null) {
-                        myBot.reply(chatId.toChatId(), messageId, Dialogues.MENU)
-                    } else {
-                        myBot.send(chatId.toChatId(), Dialogues.MENU)
-                    }
+        val (chatId, messageId) =
+          technicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
+        val menuMessage =
+          if (messageId != null) {
+            myBot.reply(chatId.toChatId(), messageId, Dialogues.MENU)
+          } else {
+            myBot.send(chatId.toChatId(), Dialogues.MENU)
+          }
 
-                technicalMessageStorage.updateTeacherMenuMessage(
-                    TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
-                )
-            }
-        }
+        technicalMessageStorage.updateTeacherMenuMessage(
+          TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
+        )
+      }
     }
+  }
 
-    private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {
-        menuMessages.map { menuMessage ->
-            try {
-                myBot.deleteMessage(menuMessage.chatId.toChatId(), menuMessage.messageId)
-            } catch (e: CommonRequestException) {
-                KSLog.warning("Menu message has already been deleted:\n$e")
-            }
-        }
+  private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {
+    menuMessages.map { menuMessage ->
+      try {
+        myBot.deleteMessage(menuMessage.chatId.toChatId(), menuMessage.messageId)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Menu message has already been deleted:\n$e")
+      }
     }
+  }
 
-    override fun setTelegramBot(telegramBot: TelegramBot) {
-        myBot = telegramBot
-    }
+  override fun setTelegramBot(telegramBot: TelegramBot) {
+    myBot = telegramBot
+  }
 }

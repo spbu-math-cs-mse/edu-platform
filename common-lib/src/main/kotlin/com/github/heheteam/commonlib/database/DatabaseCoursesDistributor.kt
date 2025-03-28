@@ -60,12 +60,12 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       if (!exists) {
         Ok(Unit)
         runCatching {
-          CourseStudents.insert {
-            it[CourseStudents.studentId] = studentId.id
-            it[CourseStudents.courseId] = courseId.id
+            CourseStudents.insert {
+              it[CourseStudents.studentId] = studentId.id
+              it[CourseStudents.courseId] = courseId.id
+            }
+            Unit
           }
-          Unit
-        }
           .mapError { BindError(studentId, courseId) }
       } else {
         Err(BindError(studentId, courseId))
@@ -140,11 +140,11 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
 
   override fun getStudentCourses(studentId: StudentId): List<Course> = transaction {
     CourseStudents.join(
-      CourseTable,
-      JoinType.INNER,
-      onColumn = CourseTable.id,
-      otherColumn = CourseStudents.courseId,
-    )
+        CourseTable,
+        JoinType.INNER,
+        onColumn = CourseTable.id,
+        otherColumn = CourseStudents.courseId,
+      )
       .selectAll()
       .where { CourseStudents.studentId eq studentId.id }
       .map {
@@ -154,11 +154,11 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
 
   override fun getTeacherCourses(teacherId: TeacherId): List<Course> = transaction {
     CourseTeachers.join(
-      CourseTable,
-      JoinType.INNER,
-      onColumn = CourseTable.id,
-      otherColumn = CourseTeachers.courseId,
-    )
+        CourseTable,
+        JoinType.INNER,
+        onColumn = CourseTable.id,
+        otherColumn = CourseTeachers.courseId,
+      )
       .selectAll()
       .where { CourseTeachers.teacherId eq teacherId.id }
       .map {
@@ -175,7 +175,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
     }
 
   override fun resolveCourseWithSpreadsheetId(
-    courseId: CourseId,
+    courseId: CourseId
   ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
     transaction(database) {
       val row =
@@ -187,29 +187,30 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       Ok(Pair(Course(courseId, row[CourseTable.name]), SpreadsheetId(spreadsheetId)))
     }
 
-  override fun setCourseGroup(courseId: CourseId, rawChatId: RawChatId): Result<Unit, ResolveError<CourseId>> =
+  override fun setCourseGroup(
+    courseId: CourseId,
+    rawChatId: RawChatId,
+  ): Result<Unit, ResolveError<CourseId>> =
     transaction(database) {
-      val result = CourseTable
-        .update({ CourseTable.id eq courseId.id }) {
+      val result =
+        CourseTable.update({ CourseTable.id eq courseId.id }) {
           it[CourseTable.groupRawChatId] = rawChatId.long
         }
-      if(result == 1){
+      if (result == 1) {
         Ok(Unit)
-      }
-      else {
+      } else {
         Err(ResolveError(courseId))
       }
     }
 
   override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId, ResolveError<CourseId>> =
     transaction(database) {
-      val row = CourseTable
-        .selectAll()
-        .where(CourseTable.id eq courseId.id)
-        .singleOrNull()
-        ?: return@transaction Err(ResolveError(courseId))
-      val chatId = row[CourseTable.groupRawChatId]
-        ?: return@transaction Err(ResolveError<CourseId>(courseId, "SpreadsheetId"))
+      val row =
+        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+          ?: return@transaction Err(ResolveError(courseId))
+      val chatId =
+        row[CourseTable.groupRawChatId]
+          ?: return@transaction Err(ResolveError<CourseId>(courseId, "SpreadsheetId"))
       Ok(RawChatId(chatId))
     }
 
@@ -222,22 +223,22 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
 
   override fun createCourse(description: String): CourseId =
     transaction(database) {
-      CourseTable.insert {
-        it[CourseTable.name] = description
-        it[CourseTable.spreadsheetId] = null
-      } get CourseTable.id
-    }
+        CourseTable.insert {
+          it[CourseTable.name] = description
+          it[CourseTable.spreadsheetId] = null
+        } get CourseTable.id
+      }
       .value
       .toCourseId()
 
   override fun getStudents(courseId: CourseId): List<Student> =
     transaction(database) {
       CourseStudents.join(
-        StudentTable,
-        JoinType.INNER,
-        onColumn = CourseStudents.studentId,
-        otherColumn = StudentTable.id,
-      )
+          StudentTable,
+          JoinType.INNER,
+          onColumn = CourseStudents.studentId,
+          otherColumn = StudentTable.id,
+        )
         .selectAll()
         .where(CourseStudents.courseId eq courseId.id)
         .map {
@@ -252,11 +253,11 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   override fun getTeachers(courseId: CourseId): List<Teacher> =
     transaction(database) {
       CourseTeachers.join(
-        TeacherTable,
-        JoinType.INNER,
-        onColumn = CourseTeachers.teacherId,
-        otherColumn = TeacherTable.id,
-      )
+          TeacherTable,
+          JoinType.INNER,
+          onColumn = CourseTeachers.teacherId,
+          otherColumn = TeacherTable.id,
+        )
         .selectAll()
         .where(CourseTeachers.courseId eq courseId.id)
         .map {

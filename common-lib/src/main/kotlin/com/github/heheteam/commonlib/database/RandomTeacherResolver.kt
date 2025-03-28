@@ -18,20 +18,23 @@ class RandomTeacherResolver(
   val coursesDistributor: CoursesDistributor,
   val solutionDistributor: SolutionDistributor,
 ) : ResponsibleTeacherResolver {
-  override fun resolveResponsibleTeacher(solutionInputRequest: SolutionInputRequest): Result<TeacherId, String> {
+  override fun resolveResponsibleTeacher(
+    solutionInputRequest: SolutionInputRequest
+  ): Result<TeacherId, String> {
     val result =
       binding {
-        // If teacher has already been assigned
-        val teacherId = solutionDistributor.resolveResponsibleTeacher(solutionInputRequest)
-        if (teacherId != null) return@binding teacherId
+          // If teacher has already been assigned
+          val teacherId = solutionDistributor.resolveResponsibleTeacher(solutionInputRequest)
+          println(teacherId)
+          if (teacherId != null) return@binding teacherId
 
-        // Resolve random
-        val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
-        val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-        val teachers = coursesDistributor.getTeachers(assignment.courseId).shuffled()
-        println(teachers)
-        teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
-      }
+          // Resolve random
+          val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
+          val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
+          val teachers = coursesDistributor.getTeachers(assignment.courseId).shuffled()
+          println(teachers)
+          teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
+        }
         .mapError { it.toString() }
     return result
   }

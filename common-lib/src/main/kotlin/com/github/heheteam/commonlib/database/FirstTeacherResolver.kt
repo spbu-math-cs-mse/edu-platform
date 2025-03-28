@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.api.TeacherId
@@ -17,7 +16,9 @@ class FirstTeacherResolver(
   val assignmentStorage: AssignmentStorage,
   val coursesDistributor: CoursesDistributor,
 ) : ResponsibleTeacherResolver {
-  override fun resolveResponsibleTeacher(solutionInputRequest: SolutionInputRequest): Result<TeacherId, String> {
+  override fun resolveResponsibleTeacher(
+    solutionInputRequest: SolutionInputRequest
+  ): Result<TeacherId, String> {
     val result =
       binding {
           val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()

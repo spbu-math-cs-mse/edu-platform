@@ -167,7 +167,13 @@ class MultiBotRunner : CliktCommand() {
         solutionDistributor,
       )
     val teacherResolver: ResponsibleTeacherResolver =
-      RandomTeacherResolver(problemStorage, assignmentStorage, coursesDistributor, solutionDistributor)
+      //      FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
+      RandomTeacherResolver(
+        problemStorage,
+        assignmentStorage,
+        coursesDistributor,
+        solutionDistributor,
+      )
     val academicWorkflowService =
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
     val studentApi =

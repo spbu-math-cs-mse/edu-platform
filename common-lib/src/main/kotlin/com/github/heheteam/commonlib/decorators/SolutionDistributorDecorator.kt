@@ -43,7 +43,9 @@ class SolutionDistributorDecorator(
   override fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>> =
     solutionDistributor.resolveSolution(solutionId)
 
-  override fun resolveSolutionCourse(solutionId: SolutionId): Result<CourseId, ResolveError<SolutionId>> =
+  override fun resolveSolutionCourse(
+    solutionId: SolutionId
+  ): Result<CourseId, ResolveError<SolutionId>> =
     solutionDistributor.resolveSolutionCourse(solutionId)
 
   override fun resolveResponsibleTeacher(solution: SolutionInputRequest): TeacherId? =

@@ -11,105 +11,120 @@ import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.adminbot.processStringIds
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.delete
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.combine
+import com.github.michaelbull.result.mapError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import kotlinx.coroutines.flow.first
 
 class AddStudentState(override val context: User, val course: Course, val courseName: String) :
-  State
+  BotStateWithHandlers<String, List<String>, AdminCore> {
 
-fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddStudentState(core: AdminCore) {
-  strictlyOn<AddStudentState> { state ->
-    send(
-      state.context,
-      "Введите ID учеников (через запятую), которых хотите добавить на курс ${state.course.name}" +
-        ", или отправьте /stop, чтобы отменить операцию.",
-    )
-    val ids: List<Long>
-    while (true) {
-      val message = waitTextMessageWithUser(state.context.id).first()
-      val input = message.content.text
-      if (input == "/stop") {
-        return@strictlyOn MenuState(state.context)
-      }
-      val splitIds = input.split(",").map { it.trim() }
-      if (splitIds.isEmpty()) {
-        send(state.context, noIdInInput())
-        continue
-      }
-      val processedIds = processStringIds(splitIds)
-      if (processedIds.isErr) {
-        send(state.context, processedIds.error)
-        continue
-      }
-      ids = processedIds.value
-      break
+  val sentMessages = mutableListOf<AccessibleMessage>()
+
+  override suspend fun outro(bot: BehaviourContext, service: AdminCore) {
+    // No special cleanup needed
+  }
+
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: AdminCore,
+    updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
+  ) {
+    val message =
+      bot.send(
+        context,
+        "Введите ID учеников (через запятую), которых хотите добавить на курс ${course.name}" +
+          ", или отправьте /stop, чтобы отменить операцию.",
+      )
+    sentMessages.add(message)
+
+    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
+  }
+
+  override fun computeNewState(service: AdminCore, input: String): Pair<State, List<String>> {
+    if (input == "/stop") {
+      return Pair(MenuState(context), emptyList())
     }
-    processIds(state, core, ids)
-    MenuState(state.context)
+
+    val splitIds = input.split(",").map { it.trim() }
+    if (splitIds.isEmpty()) {
+      return Pair(this, listOf(noIdInInput()))
+    }
+
+    val processedIds = processStringIds(splitIds)
+    if (processedIds.isErr) {
+      return Pair(this, listOf(processedIds.error))
+    }
+
+    val ids = processedIds.value
+    val messages = mutableListOf<String>()
+
+    // Process invalid IDs
+    val badIds = mutableListOf<Long>()
+    val goodIds = mutableListOf<Long>()
+
+    val idsThatDoNotExist = ids.filter { !service.studentExists(StudentId(it)) }
+    if (idsThatDoNotExist.isNotEmpty()) {
+      messages.add(
+        when (idsThatDoNotExist.size) {
+          1 -> oneStudentIdDoesNotExist(idsThatDoNotExist.first())
+          else -> manyStudentIdsDoNotExist(idsThatDoNotExist)
+        }
+      )
+      badIds.addAll(idsThatDoNotExist)
+    }
+
+    val idsThatAlreadyExist =
+      ids.filter { !idsThatDoNotExist.contains(it) && service.studiesIn(StudentId(it), course) }
+    if (idsThatAlreadyExist.isNotEmpty()) {
+      messages.add(
+        when (idsThatAlreadyExist.size) {
+          1 -> oneIdAlreadyExistsForStudentAddition(idsThatAlreadyExist.first(), courseName)
+          else -> manyIdsAlreadyExistForStudentAddition(idsThatAlreadyExist, courseName)
+        }
+      )
+      badIds.addAll(idsThatAlreadyExist)
+    }
+
+    // Process valid IDs
+    goodIds.addAll(ids - badIds.toSet())
+    if (goodIds.isNotEmpty()) {
+      messages.add(
+        when (goodIds.size) {
+          1 -> oneIdIsGoodForStudentAddition(goodIds.first(), courseName)
+          else -> manyIdsAreGoodForStudentAddition(goodIds, courseName)
+        }
+      )
+      goodIds.forEach { service.registerStudentForCourse(StudentId(it), course.id) }
+    }
+
+    return Pair(MenuState(context), messages)
   }
-}
 
-private suspend fun BehaviourContext.processIdsThatDoNotExist(
-  state: AddStudentState,
-  core: AdminCore,
-  ids: List<Long>,
-): List<Long> {
-  val idsThatDoNotExist =
-    ids.asSequence().filter { id -> !core.studentExists(StudentId(id)) }.toList()
-
-  if (idsThatDoNotExist.size == 1) {
-    send(state.context, oneStudentIdDoesNotExist(idsThatDoNotExist.first()))
-  } else if (idsThatDoNotExist.size > 1) {
-    send(state.context, manyStudentIdsDoNotExist(idsThatDoNotExist))
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminCore,
+    response: List<String>,
+  ) {
+    sentMessages.forEach { bot.delete(it) }
+    response.forEach { msg -> bot.send(context, msg) }
   }
 
-  return idsThatDoNotExist
-}
-
-private suspend fun BehaviourContext.processBadIds(
-  state: AddStudentState,
-  core: AdminCore,
-  ids: List<Long>,
-): List<Long> {
-  val idsThatDoNotExist = processIdsThatDoNotExist(state, core, ids).toSet()
-  val idsThatAlreadyExist =
-    ids
-      .asSequence()
-      .filter { id -> id !in idsThatDoNotExist && core.studiesIn(StudentId(id), state.course) }
-      .toList()
-
-  if (idsThatAlreadyExist.size == 1) {
-    send(
-      state.context,
-      oneIdAlreadyExistsForStudentAddition(idsThatAlreadyExist.first(), state.courseName),
-    )
-  } else if (idsThatAlreadyExist.size > 1) {
-    send(
-      state.context,
-      manyIdsAlreadyExistForStudentAddition(idsThatAlreadyExist, state.courseName),
-    )
+  private fun processStringIds(
+    ids: List<String>
+  ): com.github.michaelbull.result.Result<List<Long>, String> {
+    val extractedIds =
+      ids.map { idStr -> idStr.toLongOrNull()?.let { Ok(it) } ?: Err("Некорректный ID: $idStr") }
+    return extractedIds.combine().mapError { errors -> errors }
   }
-
-  return idsThatDoNotExist.toList() + idsThatAlreadyExist
-}
-
-private suspend fun BehaviourContext.processIds(
-  state: AddStudentState,
-  core: AdminCore,
-  ids: List<Long>,
-) {
-  val badIds = processBadIds(state, core, ids).toSet()
-  val goodIds = ids.asSequence().filter { id -> id !in badIds }.toList()
-
-  if (goodIds.size == 1) {
-    send(state.context, oneIdIsGoodForStudentAddition(goodIds.first(), state.courseName))
-  } else if (goodIds.size > 1) {
-    send(state.context, manyIdsAreGoodForStudentAddition(goodIds, state.courseName))
-  }
-  goodIds.forEach { id -> core.registerStudentForCourse(StudentId(id), state.course.id) }
 }

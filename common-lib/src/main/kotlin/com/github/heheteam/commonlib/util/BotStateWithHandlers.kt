@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.michaelbull.result.get
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext

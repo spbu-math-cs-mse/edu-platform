@@ -29,15 +29,11 @@ class MenuState(override val context: User) : BotState<State, Unit, CoursesDistr
             CREATE_COURSE -> CreateCourseState(context)
 
             EDIT_COURSE -> {
-              val courses = service.getCourses()
-              bot.queryCourse(context, courses)?.let { course -> EditCourseState(context, course) }
+              QueryCourseForEditing(context)
             }
 
             CREATE_ASSIGNMENT -> {
-              val courses = service.getCourses()
-              bot.queryCourse(context, courses)?.let { course ->
-                CreateAssignmentState(context, course)
-              }
+              QueryCourseForAssignmentCreation(context)
             }
 
             COURSE_INFO -> {

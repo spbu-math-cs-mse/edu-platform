@@ -23,7 +23,7 @@ class AcademicWorkflowService(
 ) {
   fun sendSolution(solutionInputRequest: SolutionInputRequest) = binding {
     val teacher =
-      responsibleTeacherResolver.resolveResponsibleTeacher(solutionInputRequest.problemId).bind()
+      responsibleTeacherResolver.resolveResponsibleTeacher(solutionInputRequest).bind()
     val solutionId = academicWorkflowLogic.inputSolution(solutionInputRequest, teacher)
     val solution =
       Solution(

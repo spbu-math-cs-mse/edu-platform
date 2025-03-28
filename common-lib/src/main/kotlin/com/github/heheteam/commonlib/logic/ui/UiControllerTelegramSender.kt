@@ -21,5 +21,10 @@ class UiControllerTelegramSender(
     if (teacherId != null) {
       menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
     }
+
+    val courseId = solutionDistributor.resolveSolutionCourse(solutionId).get()
+    if(courseId != null) {
+      menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
+    }
   }
 }

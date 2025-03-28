@@ -13,6 +13,7 @@ import com.github.heheteam.adminbot.run.adminRun
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.TeacherStorage
@@ -26,7 +27,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseTelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.database.FirstTeacherResolver
+import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
@@ -165,8 +166,8 @@ class MultiBotRunner : CliktCommand() {
         menuMessageUpdaterService,
         solutionDistributor,
       )
-    val teacherResolver =
-      FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
+    val teacherResolver: ResponsibleTeacherResolver =
+      RandomTeacherResolver(problemStorage, assignmentStorage, coursesDistributor, solutionDistributor)
     val academicWorkflowService =
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
     val studentApi =
@@ -191,7 +192,7 @@ class MultiBotRunner : CliktCommand() {
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
 
     val telegramSolutionSender =
-      TelegramSolutionSenderImpl(teacherStorage, prettyTechnicalMessageService)
+      TelegramSolutionSenderImpl(teacherStorage, prettyTechnicalMessageService, coursesDistributor)
     val solutionCourseResolver =
       SolutionCourseResolverImpl(solutionDistributor, problemStorage, assignmentStorageDecorator)
     val newSolutionTeacherNotifier =
@@ -210,7 +211,6 @@ class MultiBotRunner : CliktCommand() {
           StateRegister(
             teacherStorage,
             coursesDistributorDecorator,
-            telegramSolutionSender,
             academicWorkflowService,
             tgTechnicalMessagesStorage,
           )

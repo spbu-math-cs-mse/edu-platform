@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
 import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.RawChatId
 
 interface CoursesDistributor {
   fun addStudentToCourse(
@@ -40,6 +41,15 @@ interface CoursesDistributor {
   fun resolveCourseWithSpreadsheetId(
     courseId: CourseId
   ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>>
+
+  fun setCourseGroup(
+    courseId: CourseId,
+    rawChatId: RawChatId,
+  ): Result<Unit, ResolveError<CourseId>>
+
+  fun resolveCourseGroup(
+    courseId: CourseId
+  ): Result<RawChatId, ResolveError<CourseId>>
 
   fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId)
 

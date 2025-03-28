@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
@@ -21,7 +22,6 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -31,6 +31,7 @@ import kotlinx.serialization.json.Json
 class TelegramSolutionSenderImpl(
   private val teacherStorage: TeacherStorage,
   private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
+  private val coursesDistributor: CoursesDistributor,
 ) : TelegramSolutionSender, TelegramBotController {
   private var lateInitTeacherBot: TelegramBot? = null
 
@@ -68,7 +69,7 @@ class TelegramSolutionSenderImpl(
         val bot = lateInitTeacherBot.toResultOr { "uninitialized telegram bot" }.bind()
         with(bot) {
           val chat =
-            registeredGroups[courseId].toResultOr { "no chat registered for $courseId" }.bind()
+            coursesDistributor.resolveCourseGroup(courseId).mapError { "no chat registered for $courseId" }.bind()
           val solutionMessage = sendSolutionContent(chat.toChatId(), solution.content)
           val technicalMessageContent =
             prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
@@ -84,18 +85,13 @@ class TelegramSolutionSenderImpl(
       }
     }
 
-  private val registeredGroups = ConcurrentHashMap<CourseId, RawChatId>()
-
-  fun registerGroupForSolution(courseId: CourseId, chatId: RawChatId) {
-    registeredGroups[courseId] = chatId
-  }
-
   override fun setTelegramBot(telegramBot: TelegramBot) {
     lateInitTeacherBot = telegramBot
   }
 }
 
-@Serializable private data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
+@Serializable
+private data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
 
 internal fun createSolutionGradingKeyboard(solutionId: SolutionId) =
   InlineKeyboardMarkup(

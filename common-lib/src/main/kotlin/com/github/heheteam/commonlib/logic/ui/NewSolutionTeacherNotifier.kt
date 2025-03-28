@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
 
@@ -16,9 +17,14 @@ class NewSolutionTeacherNotifier(
   fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> = binding {
     sendSolutionToTeacherPersonally(solution)
     sendSolutionToGroup(solution)
+
     val teacherId = solution.responsibleTeacherId
     if (teacherId != null) {
       menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
+    }
+    val courseId = solutionCourseResolver.resolveCourse(solution.id).get()
+    if(courseId != null) {
+      menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
     }
   }
 

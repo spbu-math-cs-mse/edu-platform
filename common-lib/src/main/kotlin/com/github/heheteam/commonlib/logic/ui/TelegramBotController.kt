@@ -1,4 +1,4 @@
-package com.github.heheteam.teacherbot.logic
+package com.github.heheteam.commonlib.logic.ui
 
 import dev.inmo.tgbotapi.bot.TelegramBot
 

@@ -2,16 +2,12 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ForbiddenComment:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$// TODO: this needs to be fixed properly</ID>
-    <ID>FunctionOnlyReturningConstant:CoursesStatisticsResolver.kt$CoursesStatisticsResolver$fun getMaxGrade(): Grade</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noSolutionsToCheck(): String</ID>
-    <ID>InjectDispatcher:TeacherRun.kt$IO</ID>
-    <ID>LongMethod:Main.kt$suspend fun main(vararg args: String)</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val badSolution = "Неправильное решение"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val checkGrades = "checkGrades"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val getSolution = "Получить решение"</ID>

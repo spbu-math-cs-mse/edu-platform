@@ -1,8 +1,11 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.api.ProblemGrade.Graded
 import java.time.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,6 +14,16 @@ data class GradingEntry(
   val assessment: SolutionAssessment,
   val timestamp: kotlinx.datetime.LocalDateTime,
 )
+
+sealed class ProblemGrade(open val grade: Grade?) {
+  data object Unsent : ProblemGrade(null)
+
+  data object Unchecked : ProblemGrade(null)
+
+  data class Graded(override val grade: Grade) : ProblemGrade(grade)
+}
+
+fun Int.toGraded() = Graded(this)
 
 // bound to a course
 interface GradeTable {
@@ -21,14 +34,14 @@ interface GradeTable {
    * Retrieves the grades of a student for the specified assignments.
    *
    * @param studentId The unique identifier of the student.
-   * @param assignmentIds A list of assignment identifiers to fetch grades for.
+   * @param assignmentId An identifier of the assignment to fetch grades for.
    * @return A map where each problem ID is associated with its corresponding grade. A grade is
    *   `null` if the solution has not been checked.
    */
   fun getStudentPerformance(
     studentId: StudentId,
-    assignmentIds: List<AssignmentId>,
-  ): Map<ProblemId, Grade?>
+    assignmentId: AssignmentId,
+  ): List<Pair<Problem, ProblemGrade>>
 
   /**
    * Retrieves the grades for all students in the specified course.
@@ -43,7 +56,7 @@ interface GradeTable {
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    timestamp: LocalDateTime = LocalDateTime.now(),
+    timestamp: kotlinx.datetime.LocalDateTime = LocalDateTime.now().toKotlinLocalDateTime(),
   )
 
   fun isChecked(solutionId: SolutionId): Boolean

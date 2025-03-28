@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
 import kotlinx.datetime.LocalDateTime
 

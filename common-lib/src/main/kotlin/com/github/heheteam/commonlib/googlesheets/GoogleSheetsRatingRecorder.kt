@@ -1,16 +1,16 @@
 package com.github.heheteam.commonlib.googlesheets
 
+import com.github.heheteam.commonlib.CreateError
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.CreateError
-import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RatingRecorder
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.SpreadsheetId
+import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -33,8 +33,8 @@ class GoogleSheetsRatingRecorder(
   private val coursesDistributor: CoursesDistributor,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
-  private val gradeTable: GradeTable,
   private val solutionDistributor: SolutionDistributor,
+  private val academicWorkflowLogic: AcademicWorkflowLogic,
 ) : RatingRecorder {
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
@@ -72,7 +72,7 @@ class GoogleSheetsRatingRecorder(
                 assignmentStorage.getAssignmentsForCourse(courseId),
                 problemStorage.getProblemsFromCourse(courseId),
                 coursesDistributor.getStudents(courseId),
-                gradeTable.getCourseRating(courseId),
+                academicWorkflowLogic.getCourseRating(courseId),
               )
             }
           }

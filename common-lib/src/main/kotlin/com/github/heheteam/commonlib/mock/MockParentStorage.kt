@@ -1,9 +1,9 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.Parent
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.api.ParentId
 import com.github.heheteam.commonlib.api.ParentStorage
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId

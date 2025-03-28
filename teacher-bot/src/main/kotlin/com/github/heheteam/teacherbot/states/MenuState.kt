@@ -1,15 +1,14 @@
 package com.github.heheteam.teacherbot.states
 
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.api.toTeacherId
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.Keyboards
-import com.github.heheteam.teacherbot.logic.SolutionGrader
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
@@ -29,42 +28,44 @@ import dev.inmo.tgbotapi.types.message.content.TextContent
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.datetime.toKotlinLocalDateTime
 
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
   suspend fun handle(
     bot: BehaviourContext,
     teacherStorage: TeacherStorage,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
     technicalMessageStorage: TelegramTechnicalMessagesStorage,
   ): State =
     with(bot) {
-      val state = readUserInput(this, teacherStorage, solutionGrader, technicalMessageStorage)
+      val state =
+        readUserInput(this, teacherStorage, academicWorkflowService, technicalMessageStorage)
       state
     }
 
   private suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherStorage,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
     technicalMessageStorage: TelegramTechnicalMessagesStorage,
   ): State {
     service.updateTgId(teacherId, context.id)
     if (context.username == null) {
       return StartState(context)
     }
-    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    val menuMessage = bot.send(context, Dialogues.menu())
     technicalMessageStorage.updateTeacherMenuMessage(
       TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
     )
 
     val callbacksFlow =
       bot.waitDataCallbackQueryWithUser(context.id).map { callback ->
-        tryProcessGradingByButtonPress(callback, solutionGrader, teacherId).get()
+        tryProcessGradingByButtonPress(callback, academicWorkflowService, teacherId).get()
         null
       }
     val messagesFlow =
       bot.waitTextMessageWithUser(context.id).map { message ->
-        val maybeAssessed = tryParseGradingReply(message, solutionGrader)
+        val maybeAssessed = tryParseGradingReply(message, academicWorkflowService)
         maybeAssessed
           .mapBoth(
             success = { Pair(null, "Решение успешно проверено") },
@@ -111,7 +112,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
 
   private fun tryParseGradingReply(
     commonMessage: CommonMessage<TextContent>,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
   ): Result<Unit, MessageError> = binding {
     val technicalMessageText = extractReplyText(commonMessage).mapError { NotReply }.bind()
     val solutionId =
@@ -119,7 +120,12 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     val assessment =
       extractAssessmentFromMessage(commonMessage).mapError { BadAssessment(it) }.bind()
     val teacherId = TeacherId(1L)
-    solutionGrader.assessSolution(solutionId, teacherId, assessment, LocalDateTime.now())
+    academicWorkflowService.assessSolution(
+      solutionId,
+      teacherId,
+      assessment,
+      LocalDateTime.now().toKotlinLocalDateTime(),
+    )
   }
 }
 

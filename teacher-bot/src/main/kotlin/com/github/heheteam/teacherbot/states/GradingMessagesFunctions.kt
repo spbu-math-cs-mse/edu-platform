@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.teacherbot.logic.SolutionGrader
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -24,6 +24,7 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -69,16 +70,16 @@ data class SolutionGradings(
 
 fun tryProcessGradingByButtonPress(
   dataCallback: DataCallbackQuery,
-  solutionGrader: SolutionGrader,
+  academicWorkflowService: AcademicWorkflowService,
   teacherId: TeacherId = TeacherId(1L),
 ) = binding {
   val gradingButtonContent =
     runCatching { Json.decodeFromString<GradingButtonContent>(dataCallback.data) }.bind()
-  solutionGrader.assessSolution(
+  academicWorkflowService.assessSolution(
     gradingButtonContent.solutionId,
     teacherId,
     SolutionAssessment(gradingButtonContent.grade),
-    java.time.LocalDateTime.now(),
+    java.time.LocalDateTime.now().toKotlinLocalDateTime(),
   )
 }
 

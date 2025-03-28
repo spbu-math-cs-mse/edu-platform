@@ -4,7 +4,9 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.logic.ui.UiController
 import java.time.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 
 /*
 Grading entry consists of:
@@ -35,7 +37,12 @@ class SolutionGrader(val gradeTable: GradeTable, val uiController: UiController)
     assessment: SolutionAssessment,
     timestamp: LocalDateTime,
   ) {
-    gradeTable.recordSolutionAssessment(solutionId, teacherId, assessment, timestamp)
+    gradeTable.recordSolutionAssessment(
+      solutionId,
+      teacherId,
+      assessment,
+      timestamp.toKotlinLocalDateTime(),
+    )
     uiController.updateUiOnSolutionAssessment(solutionId, assessment)
   }
 }

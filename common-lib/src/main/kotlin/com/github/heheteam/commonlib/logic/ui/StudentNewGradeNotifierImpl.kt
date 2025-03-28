@@ -1,10 +1,10 @@
-package com.github.heheteam.teacherbot.logic
+package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.michaelbull.result.binding
 
 class StudentNewGradeNotifierImpl(

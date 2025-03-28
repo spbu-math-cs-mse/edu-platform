@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.exposed.spring.boot.starter)
     implementation(libs.h2database)
     implementation(libs.kotlin.result)
+    implementation(libs.kotlin.result.coroutines)
     implementation(libs.google.api.services.sheets)
     implementation(libs.google.api.services.drive)
     implementation(libs.hoplite.json)

@@ -1,10 +1,10 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.api.MenuMessageInfo
+import com.github.heheteam.commonlib.MenuMessageInfo
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable

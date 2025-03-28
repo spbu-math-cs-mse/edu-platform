@@ -18,7 +18,7 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
-import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.back
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import dev.inmo.micro_utils.coroutines.filterNotNull
@@ -44,7 +44,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
@@ -53,9 +52,10 @@ data class SendSolutionState(
   var selectedCourse: Course,
 ) : State
 
+@Suppress("LongMethod") // should be fixed in "commands-from-anywhere"
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
-  core: StudentCore,
+  core: StudentApi,
   studentBotToken: String,
 ) {
   strictlyOn<SendSolutionState> { state ->

@@ -1,4 +1,4 @@
-package com.github.heheteam.teacherbot.logic
+package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId

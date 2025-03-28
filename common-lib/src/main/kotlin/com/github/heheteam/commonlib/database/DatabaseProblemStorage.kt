@@ -3,11 +3,11 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.toAssignmentId
 import com.github.heheteam.commonlib.api.toCourseId
 import com.github.heheteam.commonlib.api.toProblemId

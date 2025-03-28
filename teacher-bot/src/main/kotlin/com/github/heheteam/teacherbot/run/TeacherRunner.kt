@@ -1,17 +1,17 @@
 package com.github.heheteam.teacherbot.run
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.api.BotEventBus
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
+import com.github.heheteam.commonlib.logic.ui.TelegramBotController
+import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
+import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.util.BotState
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
-import com.github.heheteam.teacherbot.logic.NewSolutionTeacherNotifier
-import com.github.heheteam.teacherbot.logic.SolutionGrader
-import com.github.heheteam.teacherbot.logic.TelegramBotController
-import com.github.heheteam.teacherbot.logic.TelegramSolutionSenderImpl
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
 import com.github.heheteam.teacherbot.states.ListeningForSolutionsGroupState
@@ -100,18 +100,18 @@ class StateRegister(
   private val teacherStorage: TeacherStorage,
   private val coursesDistributor: CoursesDistributor,
   private val telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
-  private val solutionGrader: SolutionGrader,
+  private val academicWorkflowService: AcademicWorkflowService,
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
 ) {
   fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>) {
     with(context) {
       strictlyOn<ListeningForSolutionsGroupState>({ state ->
-        state.execute(this, solutionGrader, telegramSolutionSenderImpl)
+        state.execute(this, academicWorkflowService, telegramSolutionSenderImpl)
       })
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
       strictlyOn<MenuState> { state ->
-        state.handle(this, teacherStorage, solutionGrader, technicalMessageStorage)
+        state.handle(this, teacherStorage, academicWorkflowService, technicalMessageStorage)
       }
       registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
       registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)

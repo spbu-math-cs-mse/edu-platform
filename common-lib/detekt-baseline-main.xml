@@ -2,15 +2,11 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>InjectDispatcher:GoogleSheetsRatingRecorder.kt$GoogleSheetsRatingRecorder$Default</ID>
-    <ID>InjectDispatcher:RedisBotEventBus.kt$RedisBotEventBus$IO</ID>
+    <ID>LongMethod:DatabaseGradeTable.kt$DatabaseGradeTable$override fun getStudentPerformance( studentId: StudentId, assignmentId: AssignmentId, ): List&lt;Pair&lt;Problem, ProblemGrade&gt;&gt;</ID>
     <ID>LongMethod:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$override fun querySolution(teacherId: TeacherId): Result&lt;Solution?, SolutionResolveError&gt;</ID>
-    <ID>LongMethod:SampleFill.kt$fun fillWithSamples( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, ): List&lt;CourseId&gt;</ID>
     <ID>LongParameterList:GoogleSheetsService.kt$GoogleSheetsService$( courseSpreadsheetId: String, course: Course, assignments: List&lt;Assignment&gt;, problems: List&lt;Problem&gt;, students: List&lt;Student&gt;, performance: Map&lt;StudentId, Map&lt;ProblemId, Grade?&gt;&gt;, )</ID>
     <ID>LongParameterList:ProblemStorage.kt$ProblemStorage$( assignmentId: AssignmentId, serialNumber: Int, number: String, maxScore: Grade, description: String, deadline: LocalDateTime? = null, )</ID>
-    <ID>LongParameterList:SampleFill.kt$( coursesDistributor: CoursesDistributor, problemStorage: ProblemStorage, assignmentStorage: AssignmentStorage, studentStorage: StudentStorage, teacherStorage: TeacherStorage, database: Database, )</ID>
     <ID>LongParameterList:SampleFill.kt$( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, )</ID>
-    <ID>LongParameterList:SolutionDistributor.kt$SolutionDistributor$( studentId: StudentId, chatId: RawChatId, messageId: MessageId, solutionContent: SolutionContent, problemId: ProblemId, timestamp: LocalDateTime = LocalDateTime.now(), )</ID>
     <ID>MagicNumber:AdminTable.kt$AdminTable$255</ID>
     <ID>MagicNumber:AssignmentTable.kt$AssignmentTable$100</ID>
     <ID>MagicNumber:CourseTable.kt$CourseTable$255</ID>

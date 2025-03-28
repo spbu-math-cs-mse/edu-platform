@@ -1,15 +1,18 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.GradingEntry
+import com.github.heheteam.commonlib.api.ProblemGrade
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.api.toAssignmentId
 import com.github.heheteam.commonlib.api.toProblemId
 import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.api.toTeacherId
@@ -17,8 +20,6 @@ import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
-import java.time.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -26,6 +27,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -59,8 +61,8 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
 
   override fun getStudentPerformance(
     studentId: StudentId,
-    assignmentIds: List<AssignmentId>,
-  ): Map<ProblemId, Grade?> =
+    assignmentId: AssignmentId,
+  ): List<Pair<Problem, ProblemGrade>> =
     transaction(database) {
       SolutionTable.join(
           AssessmentTable,
@@ -70,20 +72,40 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         )
         .join(
           ProblemTable,
-          JoinType.INNER,
+          JoinType.RIGHT,
           onColumn = SolutionTable.problemId,
           otherColumn = ProblemTable.id,
         )
         .selectAll()
         .where {
-          (SolutionTable.studentId eq studentId.id) and
-            (ProblemTable.assignmentId inList assignmentIds.map { it.id })
+          ((SolutionTable.studentId eq studentId.id) or (SolutionTable.id eq null)) and
+            (ProblemTable.assignmentId eq assignmentId.id)
         }
         .orderBy(
-          AssessmentTable.timestamp,
-          SortOrder.ASC,
-        ) // associate takes the latter entry with the same key
-        .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
+          SolutionTable.timestamp to SortOrder.ASC,
+          AssessmentTable.timestamp to SortOrder.ASC,
+        )
+        .associate {
+          Problem(
+            it[ProblemTable.id].value.toProblemId(),
+            it[ProblemTable.serialNumber],
+            it[ProblemTable.number],
+            it[ProblemTable.description],
+            it[ProblemTable.maxScore],
+            it[ProblemTable.assignmentId].value.toAssignmentId(),
+            it[ProblemTable.deadline],
+          ) to
+            if (it.getOrNull(AssessmentTable.grade) != null) {
+              ProblemGrade.Graded(it[AssessmentTable.grade])
+            } else if (it.getOrNull(SolutionTable.id) != null) {
+              ProblemGrade.Unchecked
+            } else {
+              ProblemGrade.Unsent
+            }
+        }
+        .toList()
+        .sortedBy { it.first.serialNumber }
+        .map { it.first to it.second }
     }
 
   override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
@@ -118,7 +140,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     solutionId: SolutionId,
     teacherId: TeacherId,
     assessment: SolutionAssessment,
-    timestamp: LocalDateTime,
+    timestamp: kotlinx.datetime.LocalDateTime,
   ) {
     transaction(database) {
       AssessmentTable.insert {
@@ -126,7 +148,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         it[AssessmentTable.teacherId] = teacherId.id
         it[AssessmentTable.grade] = assessment.grade
         it[AssessmentTable.comment] = assessment.comment
-        it[AssessmentTable.timestamp] = timestamp.toKotlinLocalDateTime()
+        it[AssessmentTable.timestamp] = timestamp
       }
     }
   }

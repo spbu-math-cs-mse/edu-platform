@@ -2,103 +2,96 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.toStudentId
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
+import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.commonlib.util.queryCourse
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
-import com.github.heheteam.studentbot.Keyboards.SIGN_UP
-import com.github.heheteam.studentbot.Keyboards.VIEW
 import com.github.heheteam.studentbot.StudentApi
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.merge
+import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 data class MenuState(override val context: User, val studentId: StudentId) :
-  BotState<State, Unit, StudentApi> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): State {
+  BotStateWithHandlers<State, Unit, StudentApi> {
+  private val sentMessages = mutableListOf<AccessibleMessage>()
+
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: StudentApi,
+    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+  ) {
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
     val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
+    sentMessages.add(stickerMessage)
+    sentMessages.add(initialMessage)
 
-    val dataCallbacks =
-      bot.waitDataCallbackQueryWithUser(context.id).mapNotNull { callback ->
-        when (callback.data) {
-          SIGN_UP -> {
-            bot.delete(stickerMessage, initialMessage)
-            SignUpState(context, studentId)
-          }
+    updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
+    updateHandlersController.addTextMessageHandler { t -> bot.handleTextMessage(t, context) }
+  }
 
-          VIEW -> {
-            bot.delete(stickerMessage, initialMessage)
-            ViewState(context, studentId)
-          }
-
-          SEND_SOLUTION -> {
-            bot.delete(stickerMessage, initialMessage)
-            QueryCourseForSolutionSendingState(context, studentId)
-          }
-
-          CHECK_GRADES -> {
-            bot.delete(stickerMessage, initialMessage)
-            CheckGradesState(context, studentId)
-          }
-
-          CHECK_DEADLINES -> {
-            bot.delete(stickerMessage, initialMessage)
-            val courses = service.getStudentCourses(studentId)
-            bot.queryCourse(context, courses)?.let { CheckDeadlinesState(context, studentId, it) }
-          }
-
-          else -> null
-        }
+  private fun processKeyboardButtonPresses(
+    callback: DataCallbackQuery
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, Nothing, Nothing> {
+    val state =
+      when (callback.data) {
+        SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, studentId)
+        CHECK_GRADES -> CheckGradesState(context, studentId)
+        CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, studentId)
+        else -> null
       }
-
-    val texts =
-      bot.waitTextMessageWithUser(context.id).mapNotNull { t -> bot.handleTextMessage(t, context) }
-    val newState = merge(dataCallbacks, texts).first()
-    return newState
+    return if (state != null) {
+      NewState(state)
+    } else {
+      Unhandled
+    }
   }
 
   override fun computeNewState(service: StudentApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
-    Unit
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) {
+    for (message in sentMessages) {
+      bot.delete(message)
+    }
+  }
 
-  private suspend fun BehaviourContext.handleTextMessage(
+  private fun BehaviourContext.handleTextMessage(
     t: CommonMessage<TextContent>,
     user: User,
-  ): PresetStudentState? {
+  ): HandlerResultWithUserInput<Nothing, Nothing, String> {
     val re = Regex("/setid ([0-9]+)")
     val match = re.matchEntire(t.content.text)
     return if (match != null) {
-      val newIdStr = match.groups[1]?.value ?: return null
+      val newIdStr = match.groups[1]?.value ?: return HandlingError("bad regex (blame programmers)")
       val newId =
         newIdStr.toLongOrNull()
           ?: run {
             logger.error("input id $newIdStr is not long!")
-            return null
+            return HandlingError("Input id is not long")
           }
-      PresetStudentState(user, newId.toStudentId())
+      NewState(PresetStudentState(user, newId.toStudentId()))
     } else {
-      bot.sendMessage(user.id, "Unrecognized command")
-      null
+      HandlingError("Unrecognized command")
     }
   }
+
+  override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

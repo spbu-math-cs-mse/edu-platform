@@ -2,28 +2,25 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.toSolutionId
-import com.github.heheteam.commonlib.util.isDeadlineMissed
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
-import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
+import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
+import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.back
-import dev.inmo.micro_utils.coroutines.filterNotNull
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
-import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.AudioContent
@@ -35,79 +32,79 @@ import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.VideoContent
 import java.time.LocalDateTime
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
   override val context: User,
   val studentId: StudentId,
   val problem: Problem,
-) : State
+) : BotStateWithHandlers<SolutionInputRequest?, SolutionInputRequest?, StudentApi> {
+  lateinit var studentBotToken: String
 
-fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(studentBotToken: String) {
-  strictlyOn<SendSolutionState> { state ->
-    var botMessage =
-      bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: StudentApi,
+    updateHandlersController: UpdateHandlersController<() -> Unit, SolutionInputRequest?, Any>,
+  ) {
+    bot.send(context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
 
-    val stateFromMessage =
-      waitSupportedMessagesFromUser(state.context.id).map { solutionMessage ->
-        val attachment = extractSolutionContent(solutionMessage, studentBotToken)
-        deleteMessage(botMessage)
-
-        if (attachment == null) {
-          botMessage =
-            bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
-          return@map null
-        }
-
-        if (isDeadlineMissed(state.problem)) {
-          bot.reply(solutionMessage, "К сожалению, дедлайн по задаче уже истек :(")
-        } else {
-          return@map confirmSubmissionState(state, solutionMessage, attachment)
-        }
-
-        MenuState(state.context, state.studentId)
+    updateHandlersController.addTextMessageHandler { message ->
+      bot.parseSentSolution(message, studentBotToken)
+    }
+    updateHandlersController.addMediaMessageHandler { message ->
+      bot.parseSentSolution(message, studentBotToken)
+    }
+    updateHandlersController.addDocumentMessageHandler { message ->
+      bot.parseSentSolution(message, studentBotToken)
+    }
+    updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
+      if (dataCallbackQuery.data == RETURN_BACK) {
+        UserInput(null)
+      } else {
+        Unhandled
       }
-    val stateFromDataCallBacks =
-      waitDataCallbackQueryWithUser(state.context.id).map {
-        if (it.data == RETURN_BACK) {
-          deleteMessage(botMessage)
-          MenuState(state.context, state.studentId)
-        } else null
-      }
-
-    merge(stateFromMessage, stateFromDataCallBacks).filterNotNull().first()
+    }
   }
+
+  override fun computeNewState(
+    service: StudentApi,
+    input: SolutionInputRequest?,
+  ): Pair<State, SolutionInputRequest?> {
+    return if (input == null) {
+      MenuState(context, studentId) to input
+    } else {
+      ConfirmSubmissionState(context, input) to input
+    }
+  }
+
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: StudentApi,
+    response: SolutionInputRequest?,
+  ) = Unit
+
+  private suspend fun BehaviourContext.parseSentSolution(
+    solutionMessage: CommonMessage<MessageContent>,
+    studentBotToken: String,
+  ): HandlerResultWithUserInput<Nothing, SolutionInputRequest, String> {
+    val attachment = extractSolutionContent(solutionMessage, studentBotToken)
+    return if (attachment == null) {
+      HandlingError(Dialogues.tellSolutionTypeIsInvalid())
+    } else {
+      UserInput(
+        SolutionInputRequest(
+          studentId,
+          problem.id,
+          attachment,
+          TelegramMessageInfo(solutionMessage.chat.id.chatId, solutionMessage.messageId),
+          LocalDateTime.now().toKotlinLocalDateTime(),
+        )
+      )
+    }
+  }
+
+  override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }
-
-private fun confirmSubmissionState(
-  state: SendSolutionState,
-  solutionMessage: CommonMessage<MessageContent>,
-  attachment: SolutionContent,
-) =
-  ConfirmSubmissionState(
-    state.context,
-    Solution(
-      0L.toSolutionId(),
-      state.studentId,
-      solutionMessage.chat.id.chatId,
-      solutionMessage.messageId,
-      state.problem.id,
-      attachment,
-      null,
-      LocalDateTime.now().toKotlinLocalDateTime(),
-    ),
-  )
-
-@Suppress("SuspendFunWithFlowReturnType") // the warning is inherited from the called library
-private suspend fun BehaviourContext.waitSupportedMessagesFromUser(userId: UserId) =
-  merge(
-    waitTextMessageWithUser(userId),
-    waitMediaMessageWithUser(userId),
-    waitDocumentMessageWithUser(userId),
-  )
 
 private suspend fun BehaviourContext.makeURL(
   content: MediaContent,

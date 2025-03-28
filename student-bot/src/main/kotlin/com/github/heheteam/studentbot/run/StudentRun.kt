@@ -12,12 +12,10 @@ import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
+import com.github.heheteam.studentbot.state.SendSolutionState
 import com.github.heheteam.studentbot.state.StartState
-import com.github.heheteam.studentbot.state.ViewState
 import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
-import com.github.heheteam.studentbot.state.strictlyOnSendSolutionState
-import com.github.heheteam.studentbot.state.strictlyOnSignUpState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.managers.DefaultStatesManager
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
@@ -49,7 +47,6 @@ suspend fun studentRun(
         DefaultStatesManager(onStartContextsConflictResolver = { current, new -> new is MenuState }),
     ) {
       println(getMe())
-
       command("start") {
         val user = it.from
         if (user != null) {
@@ -61,15 +58,16 @@ suspend fun studentRun(
       registerState<StartState, StudentStorage>(studentStorage)
       registerState<DeveloperStartState, StudentStorage>(studentStorage)
       registerState<MenuState, StudentApi>(studentApi)
-      registerState<ViewState, StudentApi>(studentApi)
       registerState<ConfirmSubmissionState, StudentApi>(studentApi)
-      strictlyOnSignUpState(studentApi)
-      strictlyOnSendSolutionState(botToken)
+      strictlyOn<SendSolutionState> { state ->
+        state.studentBotToken = botToken
+        state.handle(this, studentApi) {}
+      }
       strictlyOnCheckGradesState(studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
-      registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi, {})
-      registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi, {})
+      registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi) {}
+      registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi) {}
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

@@ -1,14 +1,15 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.util.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.ButtonData
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendSolutionContent
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.studentbot.StudentApi
-import com.github.michaelbull.result.get
-import dev.inmo.micro_utils.coroutines.firstNotNull
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -17,44 +18,43 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import kotlinx.coroutines.flow.map
 
-class ConfirmSubmissionState(override val context: User, val solution: Solution) :
-  BotState<Boolean, Boolean, StudentApi> {
+class ConfirmSubmissionState(
+  override val context: User,
+  val solutionInputRequest: SolutionInputRequest,
+) : BotStateWithHandlers<Boolean, Boolean, StudentApi> {
   lateinit var solutionMessage: AccessibleMessage
   lateinit var confirmMessage: AccessibleMessage
 
-  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): Boolean {
-    with(bot) {
-      val confirmMessageKeyboard =
-        buildColumnMenu(
-          ButtonData("Да", "yes", { true }),
-          ButtonData("Нет (отменить отправку)", "no", { false }),
-        )
-      solutionMessage = sendSolutionContent(context.id, solution.content)
-      confirmMessage =
-        sendMessage(
-          context,
-          "Вы уверены, что хотите отправить это решение?",
-          replyMarkup = confirmMessageKeyboard.keyboard,
-        )
-      return waitDataCallbackQueryWithUser(context.id)
-        .map { value: DataCallbackQuery -> confirmMessageKeyboard.handler.invoke(value.data).get() }
-        .firstNotNull()
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: StudentApi,
+    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, Any>,
+  ) {
+
+    val confirmMessageKeyboard =
+      buildColumnMenu(
+        ButtonData("Да", "yes") { true },
+        ButtonData("Нет (отменить отправку)", "no") { false },
+      )
+    solutionMessage = bot.sendSolutionContent(context.id, solutionInputRequest.solutionContent)
+    confirmMessage =
+      bot.sendMessage(
+        context,
+        "Вы уверены, что хотите отправить это решение?",
+        replyMarkup = confirmMessageKeyboard.keyboard,
+      )
+    updateHandlersController.addDataCallbackHandler { value: DataCallbackQuery ->
+      val result = confirmMessageKeyboard.handler.invoke(value.data)
+      result.mapBoth(success = { UserInput(it) }, failure = { Unhandled })
     }
   }
 
   override fun computeNewState(service: StudentApi, input: Boolean): Pair<State, Boolean> {
     if (input) {
-      service.inputSolution(
-        solution.studentId,
-        solution.chatId,
-        solution.messageId,
-        solution.content,
-        solution.problemId,
-      )
+      service.inputSolution(solutionInputRequest)
     }
-    return MenuState(context, solution.studentId) to input
+    return MenuState(context, solutionInputRequest.studentId) to input
   }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Boolean) {
@@ -66,4 +66,6 @@ class ConfirmSubmissionState(override val context: User, val solution: Solution)
       bot.send(context.id, "Решение успешно отправлено на проверку!")
     }
   }
+
+  override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

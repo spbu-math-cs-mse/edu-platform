@@ -3,6 +3,8 @@ package com.github.heheteam.commonlib.util
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.types.message.content.DocumentContent
+import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import kotlinx.coroutines.flow.filterIsInstance
@@ -16,9 +18,29 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
       suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<ActionT, UserInputT, Err>
     > =
     mutableListOf()
-  private val messageHandlers:
+  private val textMessageHandlers:
     MutableList<
-      (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+      suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+          ActionT,
+          UserInputT,
+          Err,
+        >
+    > =
+    mutableListOf()
+
+  private val mediaMessagesHandler:
+    MutableList<
+      suspend (CommonMessage<MediaContent>) -> HandlerResultWithUserInputOrUnhandled<
+          ActionT,
+          UserInputT,
+          Err,
+        >
+    > =
+    mutableListOf()
+
+  private val documentMessagesHandler:
+    MutableList<
+      suspend (CommonMessage<DocumentContent>) -> HandlerResultWithUserInputOrUnhandled<
           ActionT,
           UserInputT,
           Err,
@@ -35,13 +57,35 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
 
   fun addTextMessageHandler(
     arg:
-      (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+      suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
           ActionT,
           UserInputT,
           Err,
         >
   ) {
-    messageHandlers.add(arg)
+    textMessageHandlers.add(arg)
+  }
+
+  fun addMediaMessageHandler(
+    arg:
+      suspend (CommonMessage<MediaContent>) -> HandlerResultWithUserInputOrUnhandled<
+          ActionT,
+          UserInputT,
+          Err,
+        >
+  ) {
+    mediaMessagesHandler.add(arg)
+  }
+
+  fun addDocumentMessageHandler(
+    arg:
+      suspend (CommonMessage<MediaContent>) -> HandlerResultWithUserInputOrUnhandled<
+          ActionT,
+          UserInputT,
+          Err,
+        >
+  ) {
+    mediaMessagesHandler.add(arg)
   }
 
   suspend fun processNextUpdate(
@@ -50,10 +94,16 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
   ): HandlerResultWithUserInput<ActionT, UserInputT, Err> {
     return merge(
         bot.waitTextMessageWithUser(chatId).map { message ->
-          messageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
+          textMessageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
         },
         bot.waitDataCallbackQueryWithUser(chatId).map { data ->
           callBackHandlers.firstNotNullOfOrNull { handler -> handler.invoke(data) }
+        },
+        bot.waitMediaMessageWithUser(chatId).map { data ->
+          mediaMessagesHandler.firstNotNullOfOrNull { it.invoke(data) }
+        },
+        bot.waitDocumentMessageWithUser(chatId).map { data ->
+          documentMessagesHandler.firstNotNullOfOrNull { it.invoke(data) }
         },
       )
       .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()

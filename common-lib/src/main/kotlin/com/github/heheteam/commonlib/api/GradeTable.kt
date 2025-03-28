@@ -16,9 +16,9 @@ data class GradingEntry(
 )
 
 sealed class ProblemGrade(open val grade: Grade?) {
-  class Unsent : ProblemGrade(null)
+  data object Unsent : ProblemGrade(null)
 
-  class Unchecked : ProblemGrade(null)
+  data object Unchecked : ProblemGrade(null)
 
   data class Graded(override val grade: Grade) : ProblemGrade(grade)
 }

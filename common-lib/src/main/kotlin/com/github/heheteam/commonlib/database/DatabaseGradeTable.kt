@@ -98,9 +98,9 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
             if (it.getOrNull(AssessmentTable.grade) != null) {
               ProblemGrade.Graded(it[AssessmentTable.grade])
             } else if (it.getOrNull(SolutionTable.id) != null) {
-              ProblemGrade.Unchecked()
+              ProblemGrade.Unchecked
             } else {
-              ProblemGrade.Unsent()
+              ProblemGrade.Unsent
             }
         }
         .toList()

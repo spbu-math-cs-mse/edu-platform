@@ -29,7 +29,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -63,6 +62,9 @@ class AcademicWorkflowLogicTest {
   private lateinit var assignmentId: AssignmentId
   private lateinit var timestamp: Instant
 
+  val good = SolutionAssessment(1, "comment")
+  val bad = SolutionAssessment(0, "comment")
+
   fun monotoneTime(): LocalDateTime {
     timestamp += Duration.fromMinutes(1.0)
     return timestamp.toLocalDateTime(TimeZone.UTC)
@@ -93,7 +95,10 @@ class AcademicWorkflowLogicTest {
       problemStorage,
     )
 
-  private fun inputSolution(problemId: ProblemId): SolutionId =
+  private fun inputSolution(
+    academicWorkflowLogic: AcademicWorkflowLogic,
+    problemId: ProblemId,
+  ): SolutionId =
     academicWorkflowLogic.inputSolution(
       SolutionInputRequest(
         studentId,
@@ -105,69 +110,58 @@ class AcademicWorkflowLogicTest {
       TeacherId(1L),
     )
 
+  private fun assessSolutionWithDefaultTeacher(
+    academicWorkflowLogic: AcademicWorkflowLogic,
+    solutionId: SolutionId,
+    assessment: SolutionAssessment,
+  ) {
+    academicWorkflowLogic.assessSolution(solutionId, teacherId, assessment, monotoneTime())
+  }
+
   @Test
   fun `get gradings for assignment Unsent-Unchecked-Graded`() {
-    val solution1Id = inputSolution(ProblemId(1))
-    academicWorkflowLogic.assessSolution(
-      solution1Id,
-      teacherId,
-      SolutionAssessment(1, "comment"),
-      monotoneTime(),
-    )
-    inputSolution(ProblemId(2))
+    val solution1Id = inputSolution(academicWorkflowLogic, ProblemId(1))
+    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution1Id, good)
+    inputSolution(academicWorkflowLogic, ProblemId(2))
     val performance =
       academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
         it.first.id to it.second
       }
-
-    assertEquals(ProblemId(1) to 1.toGraded(), performance[0])
-    assertEquals(ProblemId(2), performance[1].first)
-    assertTrue(performance[1].second is ProblemGrade.Unchecked)
-    assertEquals(ProblemId(3), performance[2].first)
-    assertTrue(performance[2].second is ProblemGrade.Unsent)
-    assertTrue(performance.size == 3)
+    val expected =
+      listOf(
+        ProblemId(1) to 1.toGraded(),
+        ProblemId(2) to ProblemGrade.Unchecked,
+        ProblemId(3) to ProblemGrade.Unsent,
+      )
+    assertEquals(expected, performance)
   }
 
   @Test
   fun `get gradings for assignment two solutions for one problem`() {
-    val solution1Id = inputSolution(ProblemId(1))
-    academicWorkflowLogic.assessSolution(
-      solution1Id,
-      teacherId,
-      SolutionAssessment(1, "comment"),
-      monotoneTime(),
-    )
-    val solution2Id = inputSolution(ProblemId(1))
-    academicWorkflowLogic.assessSolution(
-      solution2Id,
-      teacherId,
-      SolutionAssessment(0, "comment"),
-      monotoneTime(),
-    )
+    val solution1Id = inputSolution(academicWorkflowLogic, ProblemId(1))
+    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution1Id, good)
+    val solution2Id = inputSolution(academicWorkflowLogic, ProblemId(1))
+    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution2Id, bad)
 
     val performance =
       academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
         it.first.id to it.second
       }
 
-    assertEquals(ProblemId(1) to 0.toGraded(), performance[0])
+    val expected =
+      listOf(
+        ProblemId(1) to 0.toGraded(),
+        ProblemId(2) to ProblemGrade.Unsent,
+        ProblemId(3) to ProblemGrade.Unsent,
+      )
+    assertEquals(expected, performance)
   }
 
   @Test
   fun `get gradings for assignment two gradings of one solution`() {
-    val solution1Id = inputSolution(ProblemId(1))
-    academicWorkflowLogic.assessSolution(
-      solution1Id,
-      teacherId,
-      SolutionAssessment(1, "comment"),
-      monotoneTime(),
-    )
-    academicWorkflowLogic.assessSolution(
-      solution1Id,
-      teacherId,
-      SolutionAssessment(0, "comment"),
-      monotoneTime(),
-    )
+    val solution1Id = inputSolution(academicWorkflowLogic, ProblemId(1))
+    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution1Id, good)
+    academicWorkflowLogic.assessSolution(solution1Id, teacherId, bad, monotoneTime())
 
     val performance =
       gradeTable.getStudentPerformance(studentId, assignmentId).map { it.first.id to it.second }

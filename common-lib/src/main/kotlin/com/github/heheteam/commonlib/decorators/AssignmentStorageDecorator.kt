@@ -2,12 +2,12 @@ package com.github.heheteam.commonlib.decorators
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.ProblemDescription
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.RatingRecorder
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.michaelbull.result.Result
 
 class AssignmentStorageDecorator(

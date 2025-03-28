@@ -1,7 +1,9 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionResolveError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId

@@ -4,11 +4,11 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
-import com.github.heheteam.teacherbot.logic.SolutionGrader
-import com.github.heheteam.teacherbot.logic.TelegramSolutionSenderImpl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -31,12 +31,13 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.datetime.toKotlinLocalDateTime
 
 class ListeningForSolutionsGroupState(override val context: Chat, val courseId: CourseId) : State {
   @OptIn(RiskFeature::class)
   suspend fun execute(
     bot: BehaviourContext,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
     telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
   ): State {
     with(bot) {
@@ -52,11 +53,11 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               if (maybeCounter != null) {
                 val data = storedInfo[maybeCounter]
                 if (data != null) {
-                  solutionGrader.assessSolution(
+                  academicWorkflowService.assessSolution(
                     data.first,
                     TeacherId(1L),
                     data.second,
-                    LocalDateTime.now(),
+                    LocalDateTime.now().toKotlinLocalDateTime(),
                   )
                 } else {
                   KSLog.info("nuill")
@@ -64,7 +65,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               } else if (dataCallback.data == "no") {
                 with(bot) { dataCallback.message?.let { delete(it) } }
               }
-              tryProcessGradingByButtonPress(dataCallback, solutionGrader)
+              tryProcessGradingByButtonPress(dataCallback, academicWorkflowService)
             },
           )
           .first()

@@ -12,7 +12,7 @@ import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
-import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -24,12 +24,12 @@ class QueryProblemForSolutionSendingState(
   override val context: User,
   val studentId: StudentId,
   val selectedCourseId: CourseId,
-) : BotStateWithHandlers<Problem?, Unit, StudentCore> { // null means user chose back button
+) : BotStateWithHandlers<Problem?, Unit, StudentApi> { // null means user chose back button
   val sentMessage = mutableListOf<AccessibleMessage>()
 
   override suspend fun intro(
     bot: BehaviourContext,
-    service: StudentCore,
+    service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ) {
 
@@ -59,18 +59,18 @@ class QueryProblemForSolutionSendingState(
     }
   }
 
-  override fun computeNewState(service: StudentCore, input: Problem?): Pair<State, Unit> {
+  override fun computeNewState(service: StudentApi, input: Problem?): Pair<State, Unit> {
     return if (input != null) SendSolutionState(context, studentId, input) to Unit
     else {
       MenuState(context, studentId) to Unit
     }
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentCore, response: Unit) {
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) {
     for (message in sentMessage) {
       bot.delete(message)
     }
   }
 
-  override suspend fun outro(bot: BehaviourContext, service: StudentCore) = Unit
+  override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

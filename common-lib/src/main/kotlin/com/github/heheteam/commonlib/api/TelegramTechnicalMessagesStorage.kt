@@ -1,12 +1,8 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.MenuMessageInfo
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.michaelbull.result.Result
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
-
-data class TelegramMessageInfo(val chatId: RawChatId, val messageId: MessageId)
-
-data class MenuMessageInfo(val chatId: RawChatId, val messageId: MessageId? = null)
 
 interface TelegramTechnicalMessagesStorage {
   fun registerGroupSolutionPublication(

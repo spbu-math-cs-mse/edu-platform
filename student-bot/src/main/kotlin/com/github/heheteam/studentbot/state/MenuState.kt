@@ -1,6 +1,5 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.util.BotState
@@ -15,6 +14,7 @@ import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
 import com.github.heheteam.studentbot.Keyboards.SIGN_UP
 import com.github.heheteam.studentbot.Keyboards.VIEW
+import com.github.heheteam.studentbot.StudentApi
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
@@ -30,8 +30,8 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 
 data class MenuState(override val context: User, val studentId: StudentId) :
-  BotState<State, Unit, CoursesDistributor> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: CoursesDistributor): State {
+  BotState<State, Unit, StudentApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): State {
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
     val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
 
@@ -74,15 +74,12 @@ data class MenuState(override val context: User, val studentId: StudentId) :
     return newState
   }
 
-  override fun computeNewState(service: CoursesDistributor, input: State): Pair<State, Unit> {
+  override fun computeNewState(service: StudentApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: CoursesDistributor,
-    response: Unit,
-  ) = Unit
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
+    Unit
 
   private suspend fun BehaviourContext.handleTextMessage(
     t: CommonMessage<TextContent>,

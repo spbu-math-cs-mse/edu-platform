@@ -1,12 +1,13 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.api.toTeacherId
+import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
@@ -16,7 +17,6 @@ import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
-import com.github.heheteam.teacherbot.logic.SolutionGrader
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
@@ -46,6 +46,7 @@ import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
@@ -54,7 +55,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
   suspend fun handle(
     bot: BehaviourContext,
     teacherStorage: TeacherStorage,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
     technicalMessageStorage: TelegramTechnicalMessagesStorage,
   ): State {
     teacherStorage.updateTgId(teacherId, context.id)
@@ -81,7 +82,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
           .firstNotNull()
       action.get()?.let {
         when (it) {
-          is ActionWrapper<TeacherAction> -> executeAction(it.action, solutionGrader, bot)
+          is ActionWrapper<TeacherAction> -> executeAction(it.action, academicWorkflowService, bot)
           is NewState -> return it.state
         }
       }
@@ -127,16 +128,16 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
 
   private suspend fun executeAction(
     action: TeacherAction,
-    solutionGrader: SolutionGrader,
+    academicWorkflowService: AcademicWorkflowService,
     bot: BehaviourContext,
   ) {
     when (action) {
       is GradingFromButton ->
-        solutionGrader.assessSolution(
+        academicWorkflowService.assessSolution(
           action.solutionId,
           teacherId,
           SolutionAssessment(action.grade, ""),
-          LocalDateTime.now(),
+          LocalDateTime.now().toKotlinLocalDateTime(),
         )
       is GradingFromReply -> {
         storedInfo[++counter] = action.solutionId to action.solutionAssessment
@@ -155,11 +156,11 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
       }
 
       is ConfirmSending -> {
-        solutionGrader.assessSolution(
+        academicWorkflowService.assessSolution(
           action.solutionId,
           teacherId,
           action.solutionAssessment,
-          LocalDateTime.now(),
+          LocalDateTime.now().toKotlinLocalDateTime(),
         )
       }
 

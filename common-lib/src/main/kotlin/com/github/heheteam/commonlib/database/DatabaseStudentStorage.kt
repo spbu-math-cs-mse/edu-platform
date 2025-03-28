@@ -1,9 +1,9 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.BindError
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.BindError
 import com.github.heheteam.commonlib.api.ParentId
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.api.toStudentId

@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.ProblemDescription
+import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
 
 interface AssignmentStorage {

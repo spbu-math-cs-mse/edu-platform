@@ -1,11 +1,10 @@
 package com.github.heheteam.studentbot.run
 
-import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.registerState
-import com.github.heheteam.studentbot.StudentCore
+import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
@@ -34,9 +33,8 @@ import kotlinx.coroutines.Dispatchers
 suspend fun studentRun(
   botToken: String,
   studentStorage: StudentStorage,
-  coursesDistributor: CoursesDistributor,
   problemStorage: ProblemStorage,
-  core: StudentCore,
+  studentApi: StudentApi,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
   telegramBotWithBehaviourAndFSMAndStartLongPolling(
@@ -62,16 +60,16 @@ suspend fun studentRun(
 
       registerState<StartState, StudentStorage>(studentStorage)
       registerState<DeveloperStartState, StudentStorage>(studentStorage)
-      registerState<MenuState, CoursesDistributor>(coursesDistributor)
-      registerState<ViewState, CoursesDistributor>(coursesDistributor)
-      registerState<ConfirmSubmissionState, StudentCore>(core)
-      strictlyOnSignUpState(core)
+      registerState<MenuState, StudentApi>(studentApi)
+      registerState<ViewState, StudentApi>(studentApi)
+      registerState<ConfirmSubmissionState, StudentApi>(studentApi)
+      strictlyOnSignUpState(studentApi)
       strictlyOnSendSolutionState(botToken)
-      strictlyOnCheckGradesState(core)
-      strictlyOnPresetStudentState(core)
+      strictlyOnCheckGradesState(studentApi)
+      strictlyOnPresetStudentState(studentApi)
       registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
-      registerState<QueryCourseForSolutionSendingState, CoursesDistributor>(coursesDistributor, {})
-      registerState<QueryProblemForSolutionSendingState, StudentCore>(core, {})
+      registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi, {})
+      registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi, {})
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

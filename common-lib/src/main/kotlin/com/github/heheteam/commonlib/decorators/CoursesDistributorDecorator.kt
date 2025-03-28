@@ -1,14 +1,14 @@
 package com.github.heheteam.commonlib.decorators
 
+import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.DeleteError
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.api.BindError
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.DeleteError
 import com.github.heheteam.commonlib.api.RatingRecorder
-import com.github.heheteam.commonlib.api.ResolveError
 import com.github.heheteam.commonlib.api.SpreadsheetId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId

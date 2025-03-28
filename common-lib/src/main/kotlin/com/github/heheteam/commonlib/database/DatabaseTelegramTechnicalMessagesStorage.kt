@@ -2,10 +2,12 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
@@ -156,6 +158,59 @@ class DatabaseTelegramTechnicalMessagesStorage(
             MenuMessageInfo(
               RawChatId(it[SolutionPersonalMessagesTable.chatId]),
               MessageId(it[SolutionPersonalMessagesTable.messageId]),
+            )
+          }
+          .firstOrNull()
+      }
+    return row.toResultOr { "" }
+  }
+
+  override fun resolveGroupMenuMessage(
+    courseId: CourseId
+  ): Result<List<TelegramMessageInfo>, String> {
+    val row =
+      transaction(database) {
+          CourseTable.join(
+              TeacherMenuMessageTable,
+              joinType = JoinType.INNER,
+              onColumn = CourseTable.groupRawChatId,
+              otherColumn = TeacherMenuMessageTable.chatId,
+            )
+            .selectAll()
+            .where(CourseTable.id eq courseId.id)
+            .map {
+              TelegramMessageInfo(
+                RawChatId(it[TeacherMenuMessageTable.chatId]),
+                MessageId(it[TeacherMenuMessageTable.messageId]),
+              )
+            }
+        }
+        .ifEmpty { null }
+    return row.toResultOr { "" }
+  }
+
+  override fun resolveGroupFirstUncheckedSolutionMessage(
+    courseId: CourseId
+  ): Result<MenuMessageInfo, String> {
+    val row =
+      transaction(database) {
+        val solution = solutionDistributor.querySolution(courseId).get()
+
+        if (solution == null) {
+          val chatId =
+            CourseTable.selectAll()
+              .where(CourseTable.id eq courseId.id)
+              .map { it[CourseTable.groupRawChatId] }
+              .firstOrNull() ?: return@transaction null
+          return@transaction MenuMessageInfo(RawChatId(chatId))
+        }
+
+        return@transaction SolutionGroupMessagesTable.selectAll()
+          .where(SolutionGroupMessagesTable.solutionId eq solution.id.id)
+          .map {
+            MenuMessageInfo(
+              RawChatId(it[SolutionGroupMessagesTable.chatId]),
+              MessageId(it[SolutionGroupMessagesTable.messageId]),
             )
           }
           .firstOrNull()

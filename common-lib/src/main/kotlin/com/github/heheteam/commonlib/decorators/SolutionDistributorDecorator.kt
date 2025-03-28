@@ -3,7 +3,9 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.SolutionResolveError
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
@@ -35,8 +37,19 @@ class SolutionDistributorDecorator(
   override fun querySolution(teacherId: TeacherId): Result<Solution?, SolutionResolveError> =
     solutionDistributor.querySolution(teacherId)
 
+  override fun querySolution(courseId: CourseId): Result<Solution?, SolutionResolveError> =
+    solutionDistributor.querySolution(courseId)
+
   override fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>> =
     solutionDistributor.resolveSolution(solutionId)
+
+  override fun resolveSolutionCourse(
+    solutionId: SolutionId
+  ): Result<CourseId, ResolveError<SolutionId>> =
+    solutionDistributor.resolveSolutionCourse(solutionId)
+
+  override fun resolveResponsibleTeacher(solution: SolutionInputRequest): TeacherId? =
+    solutionDistributor.resolveResponsibleTeacher(solution)
 
   override fun getSolutionsForProblem(problemId: ProblemId): List<SolutionId> =
     solutionDistributor.getSolutionsForProblem(problemId)

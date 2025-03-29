@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
 import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -18,16 +19,18 @@ import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.AudioContent
 import dev.inmo.tgbotapi.types.message.content.DocumentContent
 import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
-import dev.inmo.tgbotapi.types.message.content.MessageContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.VideoContent
@@ -47,11 +50,19 @@ data class SendSolutionState(
     updateHandlersController: UpdateHandlersController<() -> Unit, SolutionInputRequest?, Any>,
   ) {
     bot.send(context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
-
+    bot.setMyCommands(BotCommand("menu", "main menu"))
+    updateHandlersController.addTextMessageHandler { message ->
+      if (message.content.text == "/menu") {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    }
     updateHandlersController.addTextMessageHandler { message ->
       bot.parseSentSolution(message, studentBotToken)
     }
     updateHandlersController.addMediaMessageHandler { message ->
+      bot.setMessageReaction(message, "\uD83E\uDD23")
       bot.parseSentSolution(message, studentBotToken)
     }
     updateHandlersController.addDocumentMessageHandler { message ->
@@ -84,7 +95,7 @@ data class SendSolutionState(
   ) = Unit
 
   private suspend fun BehaviourContext.parseSentSolution(
-    solutionMessage: CommonMessage<MessageContent>,
+    solutionMessage: CommonMessage<*>,
     studentBotToken: String,
   ): HandlerResultWithUserInput<Nothing, SolutionInputRequest, String> {
     val attachment = extractSolutionContent(solutionMessage, studentBotToken)

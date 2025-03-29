@@ -16,6 +16,8 @@ sealed interface HandlerResult<out ActionT>
 data class ActionWrapper<ActionT>(val action: ActionT) :
   HandlerResult<ActionT>, HandlerResultWithUserInput<ActionT, Nothing, Nothing>
 
+// unless you want extreme quit, return state via UserInput, as it would allow the respond method to
+// be called
 data class NewState(val state: State) :
   HandlerResult<Nothing>, HandlerResultWithUserInput<Nothing, Nothing, Nothing>
 

@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -11,8 +12,10 @@ import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.StudentApi
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
@@ -31,6 +34,15 @@ data class QueryCourseForCheckingDeadlinesState(
     val coursesPicker = createCoursePicker(courses)
     val message = bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
     sentMessages.add(message)
+
+    bot.setMyCommands(BotCommand("menu", "main menu"))
+    updateHandlersController.addTextMessageHandler { message ->
+      if (message.content.text == "/menu") {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    }
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       coursesPicker
         .handler(dataCallbackQuery.data)

@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -15,8 +16,10 @@ import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
@@ -33,6 +36,14 @@ class QueryProblemForSolutionSendingState(
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ) {
 
+    bot.setMyCommands(BotCommand("menu", "main menu"))
+    updateHandlersController.addTextMessageHandler { message ->
+      if (message.content.text == "/menu") {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    }
     val assignments = service.getCourseAssignments(selectedCourseId)
     val problems = assignments.associateWith { service.getProblemsFromAssignment(it) }
     val message =

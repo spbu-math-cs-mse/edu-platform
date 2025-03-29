@@ -60,7 +60,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
   ): State {
     teacherStorage.updateTgId(teacherId, context.id)
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
-    val menuMessage = bot.send(context, Dialogues.menu())
+    val menuMessage = bot.send(context, Dialogues.menu)
     technicalMessageStorage.updateTeacherMenuMessage(
       TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
     )

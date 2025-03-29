@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.util
 
+import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
@@ -7,8 +8,6 @@ import dev.inmo.tgbotapi.types.message.content.DocumentContent
 import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 
@@ -94,19 +93,30 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
   ): HandlerResultWithUserInput<ActionT, UserInputT, Err> {
     return merge(
         bot.waitTextMessageWithUser(chatId).map { message ->
-          textMessageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
+          textMessageHandlers
+            .map { handler -> handler.invoke(message) }
+            .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()
+            .firstOrNull()
         },
         bot.waitDataCallbackQueryWithUser(chatId).map { data ->
-          callBackHandlers.firstNotNullOfOrNull { handler -> handler.invoke(data) }
+          callBackHandlers
+            .map { handler -> handler.invoke(data) }
+            .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()
+            .firstOrNull()
         },
         bot.waitMediaMessageWithUser(chatId).map { data ->
-          mediaMessagesHandler.firstNotNullOfOrNull { it.invoke(data) }
+          mediaMessagesHandler
+            .map { handler -> handler.invoke(data) }
+            .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()
+            .firstOrNull()
         },
         bot.waitDocumentMessageWithUser(chatId).map { data ->
-          documentMessagesHandler.firstNotNullOfOrNull { it.invoke(data) }
+          documentMessagesHandler
+            .map { handler -> handler.invoke(data) }
+            .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()
+            .firstOrNull()
         },
       )
-      .filterIsInstance<HandlerResultWithUserInput<ActionT, UserInputT, Err>>()
-      .first()
+      .firstNotNull()
   }
 }

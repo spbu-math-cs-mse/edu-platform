@@ -10,11 +10,12 @@ import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
+import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
+import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
 import com.github.heheteam.studentbot.state.SendSolutionState
 import com.github.heheteam.studentbot.state.StartState
-import com.github.heheteam.studentbot.state.strictlyOnCheckGradesState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.managers.DefaultStatesManager
@@ -63,7 +64,8 @@ suspend fun studentRun(
         state.studentBotToken = botToken
         state.handle(this, studentApi) {}
       }
-      strictlyOnCheckGradesState(studentApi)
+      registerState<QueryCourseForCheckingGradesState, StudentApi>(studentApi)
+      registerState<QueryAssignmentForCheckingGradesState, StudentApi>(studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
       registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi) {}

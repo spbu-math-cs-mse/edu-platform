@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
@@ -19,9 +20,11 @@ import com.github.heheteam.studentbot.StudentApi
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
@@ -41,23 +44,34 @@ data class MenuState(override val context: User, val studentId: StudentId) :
     val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
-
+    bot.setMyCommands(BotCommand("menu", "main menu"))
+    updateHandlersController.addTextMessageHandler { message ->
+      if (message.content.text == "/menu") {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    }
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
     updateHandlersController.addTextMessageHandler { t -> bot.handleTextMessage(t, context) }
   }
 
   private fun processKeyboardButtonPresses(
     callback: DataCallbackQuery
-  ): HandlerResultWithUserInputOrUnhandled<Nothing, Nothing, Nothing> {
+  ): HandlerResultWithUserInputOrUnhandled<
+    Nothing,
+    BotStateWithHandlers<out Any?, Unit, StudentApi>,
+    Nothing,
+  > {
     val state =
       when (callback.data) {
         SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, studentId)
-        CHECK_GRADES -> CheckGradesState(context, studentId)
+        CHECK_GRADES -> QueryCourseForCheckingGradesState(context, studentId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, studentId)
         else -> null
       }
     return if (state != null) {
-      NewState(state)
+      UserInput(state)
     } else {
       Unhandled
     }

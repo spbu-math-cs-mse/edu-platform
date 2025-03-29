@@ -57,6 +57,9 @@ suspend fun BehaviourContext.queryCourse(user: User, courses: List<Course>): Cou
 fun createCoursePicker(courses: List<Course>): MenuKeyboardData<Course?> =
   createPickerWithBackButtonFromList(courses) { it.name }
 
+fun createAssignmentPicker(assignments: List<Assignment>): MenuKeyboardData<Assignment?> =
+  createPickerWithBackButtonFromList(assignments) { it.description }
+
 suspend fun BehaviourContext.queryAssignment(
   user: User,
   assignments: List<Assignment>,

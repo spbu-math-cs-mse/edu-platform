@@ -30,12 +30,13 @@ data class QueryCourseForCheckingGradesState(override val context: User, val stu
   ) {
     val courses = service.getStudentCourses(studentId)
     val coursesPicker = createCoursePicker(courses)
-    val message = bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
-    sentMessages.add(message)
+    val selectCourseMessage =
+      bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
+    sentMessages.add(selectCourseMessage)
 
     bot.setMyCommands(BotCommand("menu", "main menu"))
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
+    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
+      if (maybeCommandMessage.content.text == "/menu") {
         NewState(MenuState(context, studentId))
       } else {
         Unhandled

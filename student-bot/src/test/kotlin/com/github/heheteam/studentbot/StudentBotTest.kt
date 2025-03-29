@@ -33,10 +33,15 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import io.mockk.mockk
 import java.time.LocalDateTime
+import korlibs.time.fromMinutes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 
@@ -151,6 +156,7 @@ class StudentBotTest {
     coursesDistributor.addStudentToCourse(userId, courseId)
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
+    var time = kotlinx.datetime.LocalDateTime(2000, 12, 1, 12, 0, 0)
     createAssignment(courseId).forEach { problem ->
       studentApi.inputSolution(
         SolutionInputRequest(
@@ -158,9 +164,11 @@ class StudentBotTest {
           problem.id,
           SolutionContent(text = "sample${problem.number}"),
           TelegramMessageInfo(chatId, MessageId(problem.id.id)),
-          kotlinx.datetime.LocalDateTime(2000, 12, 1, 12, 0, 0),
+          time,
         )
       )
+      time =
+        (time.toInstant(TimeZone.UTC) + Duration.fromMinutes(1.0)).toLocalDateTime(TimeZone.UTC)
     }
 
     repeat(5) {

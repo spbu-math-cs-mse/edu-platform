@@ -36,8 +36,29 @@ suspend fun <T> BehaviourContext.queryPickerWithBackFromList(
   return result
 }
 
+fun <T> createPickerWithBackButtonFromList(
+  objects: List<T>,
+  objToButtonText: (T) -> String,
+): MenuKeyboardData<T?> {
+  val buttonData = "button"
+  val backData = "back"
+  val objectSelector =
+    buildColumnMenu(
+      objects.mapIndexed { index, obj ->
+        ButtonData(objToButtonText(obj), "$buttonData $index") { obj as T? }
+      } + ButtonData("Назад", backData) { null }
+    )
+  return objectSelector
+}
+
 suspend fun BehaviourContext.queryCourse(user: User, courses: List<Course>): Course? =
   queryPickerWithBackFromList(user, courses, "Выберите курс") { it.name }
+
+fun createCoursePicker(courses: List<Course>): MenuKeyboardData<Course?> =
+  createPickerWithBackButtonFromList(courses) { it.name }
+
+fun createAssignmentPicker(assignments: List<Assignment>): MenuKeyboardData<Assignment?> =
+  createPickerWithBackButtonFromList(assignments) { it.description }
 
 suspend fun BehaviourContext.queryAssignment(
   user: User,

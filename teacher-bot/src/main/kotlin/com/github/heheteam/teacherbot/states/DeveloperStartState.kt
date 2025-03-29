@@ -20,7 +20,7 @@ class DeveloperStartState(override val context: User) :
   BotState<TeacherId?, String, TeacherStorage> {
   override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStorage): TeacherId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
-    bot.send(context, Dialogues.devAskForId())
+    bot.send(context, Dialogues.devAskForId)
     val teacherIdFromText =
       bot.waitTextMessageWithUser(context.id).first().content.text.toLongOrNull()?.let {
         TeacherId(it)
@@ -30,8 +30,8 @@ class DeveloperStartState(override val context: User) :
 
   override fun computeNewState(service: TeacherStorage, input: TeacherId?): Pair<State, String> =
     binding {
-        val teacherId = input.toResultOr { Dialogues.devIdIsNotLong() }.bind()
-        service.resolveTeacher(teacherId).mapError { Dialogues.devIdNotFound() }.bind()
+        val teacherId = input.toResultOr { Dialogues.devIdIsNotLong }.bind()
+        service.resolveTeacher(teacherId).mapError { Dialogues.devIdNotFound }.bind()
         Pair(MenuState(context, teacherId), Dialogues.greetings())
       }
       .getOrElse { Pair(DeveloperStartState(context), it) }

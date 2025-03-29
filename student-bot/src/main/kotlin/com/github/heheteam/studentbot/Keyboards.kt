@@ -23,8 +23,6 @@ object Keyboards {
     InlineKeyboardMarkup(
       keyboard =
         matrix {
-          row { dataButton("Записаться на курсы", SIGN_UP) }
-          row { dataButton("Посмотреть мои курсы", VIEW) }
           row { dataButton("Отправить решение", SEND_SOLUTION) }
           row { dataButton("Проверить успеваемость", CHECK_GRADES) }
           row { dataButton("Посмотреть дедлайны", CHECK_DEADLINES) }

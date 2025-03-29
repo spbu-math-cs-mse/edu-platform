@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
@@ -94,6 +95,9 @@ data class Assignment(
 @Serializable data class SolutionAssessment(val grade: Grade, val comment: String = "")
 
 @Serializable data class TelegramMessageInfo(val chatId: RawChatId, val messageId: MessageId)
+
+fun AccessibleMessage.toTelegramMessageInfo(): TelegramMessageInfo =
+  TelegramMessageInfo(this.chat.id.chatId, this.messageId)
 
 data class MenuMessageInfo(val chatId: RawChatId, val messageId: MessageId? = null)
 

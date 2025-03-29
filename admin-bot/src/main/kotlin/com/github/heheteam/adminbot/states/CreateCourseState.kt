@@ -11,7 +11,6 @@ import com.github.michaelbull.result.get
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
@@ -30,12 +29,12 @@ class CreateCourseState(override val context: User) :
     updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
   ) {
     // Send initial message and store it for later cleanup
-    val message =
+    val introMessage =
       bot.send(
         context,
         "Введите название курса, который хотите создать, или отправьте /stop, чтобы отменить операцию",
       )
-    sentMessages.add(message)
+    sentMessages.add(introMessage)
 
     // Set up text message handler
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }

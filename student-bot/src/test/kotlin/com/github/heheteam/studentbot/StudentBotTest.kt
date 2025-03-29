@@ -4,6 +4,8 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
@@ -41,7 +43,7 @@ import org.junit.jupiter.api.BeforeEach
 class StudentBotTest {
   private lateinit var coursesDistributor: CoursesDistributor
   private lateinit var solutionDistributor: SolutionDistributor
-  private lateinit var studentCore: StudentApi
+  private lateinit var studentApi: StudentApi
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
   private lateinit var studentStorage: StudentStorage
@@ -110,7 +112,7 @@ class StudentBotTest {
         mockUiController,
       )
 
-    studentCore =
+    studentApi =
       StudentApi(coursesDistributor, problemStorage, assignmentStorage, academicWorkflowService)
   }
 
@@ -118,7 +120,7 @@ class StudentBotTest {
   fun `new student courses assignment test`() {
     val studentId = studentStorage.createStudent()
 
-    val studentCourses = studentCore.getStudentCourses(studentId)
+    val studentCourses = studentApi.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.id })
   }
 
@@ -126,10 +128,10 @@ class StudentBotTest {
   fun `new student courses handling test`() {
     val studentId = studentStorage.createStudent()
 
-    studentCore.applyForCourse(studentId, courseIds[0])
-    studentCore.applyForCourse(studentId, courseIds[3])
+    studentApi.applyForCourse(studentId, courseIds[0])
+    studentApi.applyForCourse(studentId, courseIds[3])
 
-    val studentCourses = studentCore.getStudentCourses(studentId)
+    val studentCourses = studentApi.getStudentCourses(studentId)
 
     assertEquals(
       listOf(courseIds[0], courseIds[3]),
@@ -150,17 +152,20 @@ class StudentBotTest {
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
     createAssignment(courseId).forEach { problem ->
-      studentCore.inputSolution(
-        userId,
-        chatId,
-        MessageId(problem.id.id),
-        SolutionContent(text = "sample${problem.number}"),
-        problem.id,
+      studentApi.inputSolution(
+        SolutionInputRequest(
+          userId,
+          problem.id,
+          SolutionContent(text = "sample${problem.number}"),
+          TelegramMessageInfo(chatId, MessageId(problem.id.id)),
+          kotlinx.datetime.LocalDateTime(2000, 12, 1, 12, 0, 0),
+        )
       )
     }
 
     repeat(5) {
       val solution = solutionDistributor.querySolution(teacherId).value
+      println(solution)
       if (solution != null) {
         solutions.add(solution.id)
         gradeTable.recordSolutionAssessment(

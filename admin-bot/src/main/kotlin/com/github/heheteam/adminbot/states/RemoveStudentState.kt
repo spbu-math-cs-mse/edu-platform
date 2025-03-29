@@ -45,9 +45,12 @@ class RemoveStudentState(override val context: User, val course: Course, val cou
       }
     sentMessages.add(message)
 
-    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
+    updateHandlersController.addTextMessageHandler { introMessage ->
+      UserInput(introMessage.content.text)
+    }
   }
 
+  @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override fun computeNewState(service: AdminCore, input: String): Pair<State, List<String>> {
     if (input == "/stop") {
       return Pair(MenuState(context), emptyList())

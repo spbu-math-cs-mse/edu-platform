@@ -38,16 +38,17 @@ class RemoveTeacherState(override val context: User, val course: Course, val cou
     service: AdminCore,
     updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
   ) {
-    val message =
+    val introMessage =
       bot.send(context) {
         +"Введите ID преподавателей (через запятую), которых хотите убрать с курса $courseName, " +
           "или отправьте /stop, чтобы отменить операцию."
       }
-    sentMessages.add(message)
+    sentMessages.add(introMessage)
 
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
+  @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override fun computeNewState(service: AdminCore, input: String): Pair<State, List<String>> {
     if (input == "/stop") {
       return Pair(MenuState(context), emptyList())

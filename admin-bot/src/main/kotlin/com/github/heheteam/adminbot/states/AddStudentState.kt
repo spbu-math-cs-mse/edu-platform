@@ -8,7 +8,6 @@ import com.github.heheteam.adminbot.Dialogues.noIdInInput
 import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
-import com.github.heheteam.adminbot.processStringIds
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.BotStateWithHandlers
@@ -24,7 +23,6 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
-import kotlinx.coroutines.flow.first
 
 class AddStudentState(override val context: User, val course: Course, val courseName: String) :
   BotStateWithHandlers<String, List<String>, AdminCore> {
@@ -40,17 +38,18 @@ class AddStudentState(override val context: User, val course: Course, val course
     service: AdminCore,
     updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
   ) {
-    val message =
+    val introMessage =
       bot.send(
         context,
         "Введите ID учеников (через запятую), которых хотите добавить на курс ${course.name}" +
           ", или отправьте /stop, чтобы отменить операцию.",
       )
-    sentMessages.add(message)
+    sentMessages.add(introMessage)
 
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
+  @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override fun computeNewState(service: AdminCore, input: String): Pair<State, List<String>> {
     if (input == "/stop") {
       return Pair(MenuState(context), emptyList())

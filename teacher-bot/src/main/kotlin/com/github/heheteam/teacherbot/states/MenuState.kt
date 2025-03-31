@@ -49,6 +49,8 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 
+private const val NOT_CONFIRM_ASSESSING = "no"
+
 class MenuState(override val context: User, val teacherId: TeacherId) : State {
   private val messages = mutableListOf<ContentMessage<*>>()
 
@@ -109,7 +111,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
       if (corresponded != null) {
         ActionWrapper<TeacherAction>(ConfirmSending(corresponded.first, corresponded.second)).ok()
       } else null
-    } else if (data.data == "no") {
+    } else if (data.data == NOT_CONFIRM_ASSESSING) {
       val message = data.message
       ActionWrapper<TeacherAction>(DeleteMessage(message)).ok()
     } else null
@@ -149,7 +151,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
               keyboard =
                 matrix {
                   row { dataButton("Да", counter.toString()) }
-                  row { dataButton("No", "no") }
+                  row { dataButton("Нет", NOT_CONFIRM_ASSESSING) }
                 }
             ),
         )

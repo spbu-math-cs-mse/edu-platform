@@ -95,17 +95,10 @@ class StudentBotTest {
     studentStorage = DatabaseStudentStorage(database)
     teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
-
     gradeTable = DatabaseGradeTable(database)
     academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
 
-    courseIds =
-      listOf(
-        coursesDistributor.createCourse("course 1"),
-        coursesDistributor.createCourse("course 2"),
-        coursesDistributor.createCourse("course 3"),
-        coursesDistributor.createCourse("course 4"),
-      )
+    courseIds = (1..4).map { coursesDistributor.createCourse("course $it") }
 
     val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
     val mockUiController = mockk<UiController>(relaxed = true)

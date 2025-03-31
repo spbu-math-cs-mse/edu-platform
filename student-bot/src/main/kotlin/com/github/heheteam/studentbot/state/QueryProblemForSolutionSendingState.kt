@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController

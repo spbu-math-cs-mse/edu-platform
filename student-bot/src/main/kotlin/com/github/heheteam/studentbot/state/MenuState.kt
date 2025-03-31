@@ -2,7 +2,7 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.toStudentId
-import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.HandlingError
@@ -66,7 +66,7 @@ data class MenuState(override val context: User, val studentId: StudentId) :
     val state =
       when (callback.data) {
         SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, studentId)
-        CHECK_GRADES -> QueryCourseForCheckingGradesState(context, studentId)
+        CHECK_GRADES -> QueryCourseForSolutionSendingState(context, studentId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, studentId)
         else -> null
       }

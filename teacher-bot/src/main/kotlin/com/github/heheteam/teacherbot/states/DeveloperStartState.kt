@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.binding

@@ -7,7 +7,7 @@ import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.micro_utils.fsm.common.State

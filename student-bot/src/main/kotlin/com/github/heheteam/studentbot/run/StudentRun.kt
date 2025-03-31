@@ -2,8 +2,8 @@ package com.github.heheteam.studentbot.run
 
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentStorage
+import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
-import com.github.heheteam.commonlib.util.registerState
 import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
@@ -11,15 +11,16 @@ import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
-import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
+import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
 import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
 import com.github.heheteam.studentbot.state.SendSolutionState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
-import dev.inmo.micro_utils.fsm.common.managers.DefaultStatesManager
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
+import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
@@ -44,8 +45,6 @@ suspend fun studentRun(
         e.printStackTrace()
         state
       },
-      statesManager =
-        DefaultStatesManager(onStartContextsConflictResolver = { current, new -> new is MenuState }),
     ) {
       println(getMe())
       command("start") {
@@ -60,11 +59,9 @@ suspend fun studentRun(
       registerState<DeveloperStartState, StudentStorage>(studentStorage)
       registerState<MenuState, StudentApi>(studentApi)
       registerState<ConfirmSubmissionState, StudentApi>(studentApi)
-      strictlyOn<SendSolutionState> { state ->
-        state.studentBotToken = botToken
-        state.handle(this, studentApi) {}
-      }
-      registerState<QueryCourseForCheckingGradesState, StudentApi>(studentApi)
+      registerSendSolutionState(botToken, studentApi)
+      registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi)
+      registerState<QueryCourseForCheckingDeadlinesState, StudentApi>(studentApi)
       registerState<QueryAssignmentForCheckingGradesState, StudentApi>(studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
@@ -75,6 +72,16 @@ suspend fun studentRun(
     }
     .second
     .join()
+}
+
+private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(
+  botToken: String,
+  studentApi: StudentApi,
+) {
+  strictlyOn<SendSolutionState> { state ->
+    state.studentBotToken = botToken
+    state.handle(this, studentApi) {}
+  }
 }
 
 private fun findStartState(developerOptions: DeveloperOptions?, user: User) =

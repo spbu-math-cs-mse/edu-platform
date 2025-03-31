@@ -2,7 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput

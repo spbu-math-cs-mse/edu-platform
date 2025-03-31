@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.util.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete

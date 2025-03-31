@@ -3,7 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage

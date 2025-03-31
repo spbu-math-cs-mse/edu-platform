@@ -1,10 +1,12 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -51,23 +53,22 @@ class QueryProblemForSolutionSendingState(
     sentMessage.add(message)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       when (val callbackData = dataCallbackQuery.data) {
-        FICTITIOUS -> {
-          Unhandled
-        }
-        RETURN_BACK -> {
-          UserInput(null)
-        }
-        else -> {
-          val parsedProblem =
-            callbackData.split(" ").lastOrNull()?.toLongOrNull()
-              ?: return@addDataCallbackHandler Unhandled
-          val problem =
-            problems.values.flatten().singleOrNull { it.id == ProblemId(parsedProblem) }
-              ?: return@addDataCallbackHandler Unhandled
-          UserInput(problem)
-        }
+        FICTITIOUS -> Unhandled
+        RETURN_BACK -> UserInput(null)
+        else -> parseProblemFromDataCallbackQuery(callbackData, problems)
       }
     }
+  }
+
+  private fun parseProblemFromDataCallbackQuery(
+    callbackData: String,
+    problems: Map<Assignment, List<Problem>>,
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, Problem, Nothing> {
+    val maybeParsedProblem =
+      callbackData.split(" ").lastOrNull()?.toLongOrNull()?.let { ProblemId(it) }
+    val problem =
+      problems.values.flatten().singleOrNull { it.id == maybeParsedProblem } ?: return Unhandled
+    return UserInput(problem)
   }
 
   override fun computeNewState(service: StudentApi, input: Problem?): Pair<State, Unit> {

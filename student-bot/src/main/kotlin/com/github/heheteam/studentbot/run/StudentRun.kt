@@ -36,15 +36,11 @@ suspend fun studentRun(
   problemStorage: ProblemStorage,
   studentApi: StudentApi,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
-) {
+) =
   telegramBotWithBehaviourAndFSMAndStartLongPolling(
       botToken,
       CoroutineScope(Dispatchers.IO),
-      onStateHandlingErrorHandler = { state, e ->
-        println("Thrown error on $state")
-        e.printStackTrace()
-        state
-      },
+      onStateHandlingErrorHandler = ::reportExceptionAndPreserveState,
     ) {
       println(getMe())
       command("start") {
@@ -55,23 +51,37 @@ suspend fun studentRun(
         }
       }
 
-      registerState<StartState, StudentStorage>(studentStorage)
-      registerState<DeveloperStartState, StudentStorage>(studentStorage)
-      registerState<MenuState, StudentApi>(studentApi)
-      registerState<ConfirmSubmissionState, StudentApi>(studentApi)
-      registerSendSolutionState(botToken, studentApi)
-      registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi)
-      registerState<QueryCourseForCheckingDeadlinesState, StudentApi>(studentApi)
-      registerState<QueryAssignmentForCheckingGradesState, StudentApi>(studentApi)
-      strictlyOnPresetStudentState(studentApi)
-      registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
-      registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi) {}
-      registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi) {}
+      registerStates(studentStorage, studentApi, botToken, problemStorage)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
     .second
     .join()
+
+private fun reportExceptionAndPreserveState(state: State, e: Throwable): State {
+  println("Thrown error on $state")
+  e.printStackTrace()
+  return state
+}
+
+private fun DefaultBehaviourContextWithFSM<State>.registerStates(
+  studentStorage: StudentStorage,
+  studentApi: StudentApi,
+  botToken: String,
+  problemStorage: ProblemStorage,
+) {
+  registerState<StartState, StudentStorage>(studentStorage)
+  registerState<DeveloperStartState, StudentStorage>(studentStorage)
+  registerState<MenuState, StudentApi>(studentApi)
+  registerState<ConfirmSubmissionState, StudentApi>(studentApi)
+  registerSendSolutionState(botToken, studentApi)
+  registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi)
+  registerState<QueryCourseForCheckingDeadlinesState, StudentApi>(studentApi)
+  registerState<QueryAssignmentForCheckingGradesState, StudentApi>(studentApi)
+  strictlyOnPresetStudentState(studentApi)
+  registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
+  registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi) {}
+  registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi) {}
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(

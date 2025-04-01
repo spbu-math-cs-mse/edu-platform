@@ -51,7 +51,7 @@ import kotlinx.serialization.json.Json
 
 private const val NOT_CONFIRM_ASSESSING = "no"
 
-class MenuState(override val context: User, val teacherId: TeacherId) : State {
+class MenuState(override val context: User, private val teacherId: TeacherId) : State {
   private val messages = mutableListOf<ContentMessage<*>>()
 
   suspend fun handle(
@@ -70,7 +70,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
     messages.add(menuMessage)
 
     val messageHandlers = createTextMessageHandlers()
-    val datacallbackQueryHandlers = createDataCallbackHandlers()
+    val dataCallbackQueryHandlers = createDataCallbackHandlers()
     while (true) {
       val action =
         merge(
@@ -78,7 +78,7 @@ class MenuState(override val context: User, val teacherId: TeacherId) : State {
               messageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
             },
             bot.waitDataCallbackQueryWithUser(context.id).map { data ->
-              datacallbackQueryHandlers.firstNotNullOfOrNull { handler -> handler.invoke(data) }
+              dataCallbackQueryHandlers.firstNotNullOfOrNull { handler -> handler.invoke(data) }
             },
           )
           .firstNotNull()

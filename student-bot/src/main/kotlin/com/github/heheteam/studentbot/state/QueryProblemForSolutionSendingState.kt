@@ -28,9 +28,9 @@ import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 class QueryProblemForSolutionSendingState(
   override val context: User,
   val studentId: StudentId,
-  val selectedCourseId: CourseId,
+  private val selectedCourseId: CourseId,
 ) : BotStateWithHandlers<Problem?, Unit, StudentApi> { // null means user chose back button
-  val sentMessage = mutableListOf<AccessibleMessage>()
+  private val sentMessage = mutableListOf<AccessibleMessage>()
 
   override suspend fun intro(
     bot: BehaviourContext,

@@ -60,7 +60,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
                     LocalDateTime.now().toKotlinLocalDateTime(),
                   )
                 } else {
-                  KSLog.info("nuill")
+                  KSLog.info("null")
                 }
               } else if (dataCallback.data == "no") {
                 with(bot) { dataCallback.message?.let { delete(it) } }

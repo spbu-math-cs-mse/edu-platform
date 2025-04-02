@@ -2,7 +2,6 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
@@ -54,17 +53,6 @@ fun parseTechnicalMessageContent(text: String): Result<SolutionId, String> = bin
       .bind()
   SolutionId(solutionId)
 }
-
-val prettyJson = Json {
-  prettyPrint = true
-  explicitNulls = true
-}
-
-@Serializable
-data class SolutionGradings(
-  val solutionId: SolutionId,
-  val gradingEntries: List<GradingEntry> = listOf(),
-)
 
 @Serializable data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
 

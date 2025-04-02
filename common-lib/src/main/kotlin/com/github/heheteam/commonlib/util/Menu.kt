@@ -16,6 +16,11 @@ data class MenuKeyboardData<T>(
   val handler: suspend (String) -> Result<T, Unit>,
 )
 
+fun <T, U> MenuKeyboardData<T>.map(function: (T) -> U): MenuKeyboardData<U> {
+  val newHandler: suspend (String) -> Result<U, Unit> = { data -> handler(data).map(function) }
+  return MenuKeyboardData(keyboard, newHandler)
+}
+
 fun <T> buildMenu(content: Matrix<ButtonData<T>>): MenuKeyboardData<T> {
   val inlineKeyboard =
     content.map { row ->

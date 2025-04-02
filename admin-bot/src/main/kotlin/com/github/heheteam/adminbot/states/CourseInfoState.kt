@@ -5,7 +5,7 @@ import com.github.heheteam.adminbot.CourseStatisticsComposer
 import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.deleteMessage

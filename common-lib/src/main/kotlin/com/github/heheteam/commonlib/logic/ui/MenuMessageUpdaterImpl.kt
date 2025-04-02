@@ -12,43 +12,12 @@ import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
-import dev.inmo.tgbotapi.utils.matrix
-import dev.inmo.tgbotapi.utils.row
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 private object Dialogues {
   const val menu: String = "\u2705 Главное меню"
-}
-
-private object Keyboards {
-  const val SIGN_UP = "signUpForCourses"
-  const val VIEW = "viewMyCourses"
-  const val SEND_SOLUTION = "sendSolution"
-  const val RETURN_BACK = "back"
-  const val APPLY = "apply"
-  const val COURSE_ID = "courseId"
-  const val PROBLEM_ID = "problemId"
-  const val CHECK_GRADES = "checkGrades"
-  const val STUDENT_GRADES = "viewStudentGrades"
-  const val TOP_GRADES = "viewTopGrades"
-  const val FICTITIOUS = "fictitious"
-  const val CHECK_DEADLINES = "deadlines"
-
-  fun menu() =
-    InlineKeyboardMarkup(
-      keyboard =
-        matrix {
-          row { dataButton("Записаться на курсы", SIGN_UP) }
-          row { dataButton("Посмотреть мои курсы", VIEW) }
-          row { dataButton("Отправить решение", SEND_SOLUTION) }
-          row { dataButton("Проверить успеваемость", CHECK_GRADES) }
-          row { dataButton("Посмотреть дедлайны", CHECK_DEADLINES) }
-        }
-    )
 }
 
 class MenuMessageUpdaterImpl(

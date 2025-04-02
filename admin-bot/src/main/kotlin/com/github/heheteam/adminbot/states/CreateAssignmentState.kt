@@ -13,7 +13,7 @@ import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.Keyboards.RETURN_BACK
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Err

@@ -3,22 +3,23 @@ package com.github.heheteam.adminbot.run
 import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.AssignmentCreator
 import com.github.heheteam.adminbot.CourseStatisticsComposer
+import com.github.heheteam.adminbot.states.AddStudentState
+import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
 import com.github.heheteam.adminbot.states.EditDescriptionState
 import com.github.heheteam.adminbot.states.MenuState
+import com.github.heheteam.adminbot.states.QueryCourseForEditing
+import com.github.heheteam.adminbot.states.RemoveStudentState
+import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
-import com.github.heheteam.adminbot.states.strictlyOnAddStudentState
-import com.github.heheteam.adminbot.states.strictlyOnAddTeacherState
-import com.github.heheteam.adminbot.states.strictlyOnRemoveStudentState
-import com.github.heheteam.adminbot.states.strictlyOnRemoveTeacherState
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.util.registerState
+import com.github.heheteam.commonlib.state.registerState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -75,10 +76,11 @@ suspend fun adminRun(
       registerState<CreateAssignmentState, AssignmentCreator>(
         AssignmentCreator(assignmentStorage, problemStorage)
       )
-      strictlyOnAddStudentState(core)
-      strictlyOnRemoveStudentState(core)
-      strictlyOnAddTeacherState(core)
-      strictlyOnRemoveTeacherState(core)
+      registerState<AddStudentState, AdminCore>(core)
+      registerState<RemoveStudentState, AdminCore>(core)
+      registerState<AddTeacherState, AdminCore>(core)
+      registerState<RemoveTeacherState, AdminCore>(core)
+      registerState<QueryCourseForEditing, AdminCore>(core)
       strictlyOnAddScheduledMessageState(core)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }

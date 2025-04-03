@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.michaelbull.result.Result
 
@@ -24,11 +23,10 @@ internal constructor(
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-    problemStorage: ProblemStorage,
   ): AssignmentId =
-    assignmentStorage
-      .createAssignment(courseId, description, problemsDescriptions, problemStorage)
-      .also { ratingRecorder.updateRating(courseId) }
+    assignmentStorage.createAssignment(courseId, description, problemsDescriptions).also {
+      ratingRecorder.updateRating(courseId)
+    }
 
   override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> =
     assignmentStorage.getAssignmentsForCourse(courseId)

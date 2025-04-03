@@ -21,7 +21,10 @@ import org.jetbrains.exposed.sql.max
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
+class DatabaseAssignmentStorage(
+  val database: Database,
+  private val problemStorage: ProblemStorage,
+) : AssignmentStorage {
   init {
     transaction(database) { SchemaUtils.create(AssignmentTable) }
   }
@@ -47,7 +50,6 @@ class DatabaseAssignmentStorage(val database: Database) : AssignmentStorage {
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-    problemStorage: ProblemStorage,
   ): AssignmentId {
     val assignId =
       transaction(database) {

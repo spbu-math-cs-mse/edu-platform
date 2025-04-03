@@ -30,17 +30,21 @@ class AdminBotTest {
       config.databaseConfig.login,
       config.databaseConfig.password,
     )
+  private val core: AdminApi
 
-  private val core =
-    AdminApi(
-      InMemoryScheduledMessagesDistributor(),
-      DatabaseCoursesDistributor(database),
-      DatabaseStudentStorage(database),
-      DatabaseTeacherStorage(database),
-      DatabaseAssignmentStorage(database),
-      DatabaseProblemStorage(database),
-      DatabaseSolutionDistributor(database),
-    )
+  init {
+    val problemStorage = DatabaseProblemStorage(database)
+    core =
+      AdminApi(
+        InMemoryScheduledMessagesDistributor(),
+        DatabaseCoursesDistributor(database),
+        DatabaseStudentStorage(database),
+        DatabaseTeacherStorage(database),
+        DatabaseAssignmentStorage(database, problemStorage),
+        problemStorage,
+        DatabaseSolutionDistributor(database),
+      )
+  }
 
   private val course = Course(CourseId(1L), "")
 

@@ -52,8 +52,8 @@ class AcademicWorkflowLogicTest {
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val solutionDistributor = DatabaseSolutionDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
 
   private lateinit var courseId: CourseId
@@ -92,7 +92,6 @@ class AcademicWorkflowLogicTest {
         ProblemDescription(3, "p2", "", 1),
         ProblemDescription(2, "p3", "", 1),
       ),
-      problemStorage,
     )
 
   private fun inputSolution(

@@ -12,7 +12,6 @@ internal interface AssignmentStorage {
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-    problemStorage: ProblemStorage,
   ): AssignmentId
 
   fun getAssignmentsForCourse(courseId: CourseId): List<Assignment>

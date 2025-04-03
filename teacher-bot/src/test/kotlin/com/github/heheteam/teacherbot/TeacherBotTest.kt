@@ -37,8 +37,8 @@ class TeacherBotTest {
     )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val coursesDistributor = DatabaseCoursesDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
 
@@ -55,7 +55,6 @@ class TeacherBotTest {
         courseId,
         "test assignment",
         listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
-        DatabaseProblemStorage(database),
       )
     problemId = problemStorage.createProblem(assignmentId, 1, "test problem 1", 1, "test problem")
   }

@@ -5,7 +5,6 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
-import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -20,7 +19,6 @@ internal fun generateCourse(
   name: String,
   coursesDistributor: CoursesDistributor,
   assignmentStorage: AssignmentStorage,
-  problemStorage: ProblemStorage,
   assignmentsPerCourse: Int = 2,
   problemsPerAssignment: Int = 5,
 ): CourseId {
@@ -36,7 +34,6 @@ internal fun generateCourse(
         val number = "${it / 2 + 1}" + ('a' + it % 2)
         ProblemDescription(it, number, "", 1, deadline)
       },
-      problemStorage,
     )
   }
   return courseId
@@ -51,20 +48,16 @@ data class FillContent(
 @Suppress("LongParameterList")
 internal fun fillWithSamples(
   coursesDistributor: CoursesDistributor,
-  problemStorage: ProblemStorage,
   assignmentStorage: AssignmentStorage,
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
   database: Database,
 ): FillContent {
   reset(database)
-  val realAnalysis =
-    generateCourse("Начала мат. анализа", coursesDistributor, assignmentStorage, problemStorage)
-  val probTheory =
-    generateCourse("Теория вероятностей", coursesDistributor, assignmentStorage, problemStorage)
-  val linAlgebra =
-    generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage, problemStorage)
-  val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage, problemStorage)
+  val realAnalysis = generateCourse("Начала мат. анализа", coursesDistributor, assignmentStorage)
+  val probTheory = generateCourse("Теория вероятностей", coursesDistributor, assignmentStorage)
+  val linAlgebra = generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage)
+  val complAnalysis = generateCourse("ТФКП", coursesDistributor, assignmentStorage)
   val students = createStudent(studentStorage)
   students.slice(0..<5).map { studentId ->
     coursesDistributor.addStudentToCourse(studentId, realAnalysis)

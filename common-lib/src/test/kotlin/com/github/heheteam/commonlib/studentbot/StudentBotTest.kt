@@ -1,7 +1,5 @@
 package com.github.heheteam.commonlib.studentbot
 
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
@@ -44,23 +42,6 @@ class StudentBotTest {
   private lateinit var academicWorkflowLogic: AcademicWorkflowLogic
   private lateinit var academicWorkflowService: AcademicWorkflowService
 
-  private fun createAssignment(courseId: CourseId): List<Problem> {
-    val assignment =
-      assignmentStorage.createAssignment(
-        courseId,
-        "",
-        listOf(
-          ProblemDescription(1, "1", "", 1),
-          ProblemDescription(2, "2", "", 1),
-          ProblemDescription(3, "3", "", 1),
-          ProblemDescription(4, "4", "", 1),
-          ProblemDescription(5, "5", "", 1),
-        ),
-        problemStorage,
-      )
-    return problemStorage.getProblemsFromAssignment(assignment)
-  }
-
   private val config = loadConfig()
 
   private val database =
@@ -77,10 +58,10 @@ class StudentBotTest {
     coursesDistributor = DatabaseCoursesDistributor(database)
     solutionDistributor = DatabaseSolutionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
-    assignmentStorage = DatabaseAssignmentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
     teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
+    assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
     gradeTable = DatabaseGradeTable(database)
     academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
 

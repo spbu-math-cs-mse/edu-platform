@@ -43,17 +43,16 @@ class DatabaseStartupTest {
           config.databaseConfig.password,
         )
 
-      assignmentStorage = DatabaseAssignmentStorage(database)
+      problemStorage = DatabaseProblemStorage(database)
+      assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
       coursesDistributor = DatabaseCoursesDistributor(database)
       gradeTable = DatabaseGradeTable(database)
-      problemStorage = DatabaseProblemStorage(database)
       solutionDistributor = DatabaseSolutionDistributor(database)
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
       fillWithSamples(
         coursesDistributor,
-        problemStorage,
         assignmentStorage,
         studentStorage,
         teacherStorage,

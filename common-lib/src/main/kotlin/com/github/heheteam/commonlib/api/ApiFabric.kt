@@ -70,7 +70,7 @@ class ApiFabric(
   fun createApis(initDatabase: Boolean, useRedis: Boolean): ApiCollection {
     val coursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database)
+    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
     val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
@@ -99,7 +99,6 @@ class ApiFabric(
     if (initDatabase) {
       fillWithSamples(
         coursesDistributorDecorator,
-        problemStorage,
         assignmentStorage,
         studentStorage,
         teacherStorage,

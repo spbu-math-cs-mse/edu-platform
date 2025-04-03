@@ -79,8 +79,7 @@ internal constructor(
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-  ) =
-    assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
+  ) = assignmentStorage.createAssignment(courseId, description, problemsDescriptions)
 
   fun createCourse(input: String): CourseId = coursesDistributor.createCourse(input)
 

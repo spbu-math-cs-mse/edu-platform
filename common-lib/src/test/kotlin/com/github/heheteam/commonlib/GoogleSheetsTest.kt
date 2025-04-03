@@ -37,8 +37,8 @@ class GoogleSheetsTest {
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val solutionDistributor = DatabaseSolutionDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val googleSheetsService =
     GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
 
@@ -70,19 +70,16 @@ class GoogleSheetsTest {
       course1Id,
       "assignment 1",
       listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
-      problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 2",
       listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
-      problemStorage,
     )
     assignmentStorage.createAssignment(
       course1Id,
       "assignment 3",
       listOf(ProblemDescription(1, "p1"), ProblemDescription(2, "p2"), ProblemDescription(3, "p3")),
-      problemStorage,
     )
     assignmentStorage.createAssignment(
       course2Id,
@@ -93,7 +90,6 @@ class GoogleSheetsTest {
         ProblemDescription(3, "p3"),
         ProblemDescription(4, "p4"),
       ),
-      problemStorage,
     )
 
     for (problemId in 1..11) {

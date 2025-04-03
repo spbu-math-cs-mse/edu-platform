@@ -40,8 +40,8 @@ class DatabaseTest {
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val solutionDistributor = DatabaseSolutionDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
 
   private val emptyContent = SolutionContent()
   private val good = SolutionAssessment(1)
@@ -53,7 +53,6 @@ class DatabaseTest {
         courseId,
         "",
         (1..5).map { ProblemDescription(it, it.toString()) },
-        problemStorage,
       )
     return problemStorage.getProblemsFromAssignment(assignment)
   }
@@ -172,7 +171,6 @@ class DatabaseTest {
     val content =
       fillWithSamples(
         coursesDistributor,
-        problemStorage,
         assignmentStorage,
         studentStorage,
         teacherStorage,

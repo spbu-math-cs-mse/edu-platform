@@ -1,10 +1,7 @@
-package com.github.heheteam.studentbot.run
+package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
-import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
@@ -32,8 +29,6 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(RiskFeature::class)
 suspend fun studentRun(
   botToken: String,
-  studentStorage: StudentStorage,
-  problemStorage: ProblemStorage,
   studentApi: StudentApi,
   developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) =
@@ -51,7 +46,7 @@ suspend fun studentRun(
         }
       }
 
-      registerStates(studentStorage, studentApi, botToken, problemStorage)
+      registerStates(studentApi, botToken)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
@@ -65,13 +60,11 @@ private fun reportExceptionAndPreserveState(state: State, e: Throwable): State {
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerStates(
-  studentStorage: StudentStorage,
   studentApi: StudentApi,
   botToken: String,
-  problemStorage: ProblemStorage,
 ) {
-  registerState<StartState, StudentStorage>(studentStorage)
-  registerState<DeveloperStartState, StudentStorage>(studentStorage)
+  registerState<StartState, StudentApi>(studentApi)
+  registerState<DeveloperStartState, StudentApi>(studentApi)
   registerState<MenuState, StudentApi>(studentApi)
   registerState<ConfirmSubmissionState, StudentApi>(studentApi)
   registerSendSolutionState(botToken, studentApi)
@@ -79,7 +72,7 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
   registerState<QueryCourseForCheckingDeadlinesState, StudentApi>(studentApi)
   registerState<QueryAssignmentForCheckingGradesState, StudentApi>(studentApi)
   strictlyOnPresetStudentState(studentApi)
-  registerState<CheckDeadlinesState, ProblemStorage>(problemStorage)
+  registerState<CheckDeadlinesState, StudentApi>(studentApi)
   registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi) {}
   registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi) {}
 }

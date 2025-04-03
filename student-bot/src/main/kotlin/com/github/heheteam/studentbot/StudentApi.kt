@@ -3,7 +3,9 @@ package com.github.heheteam.studentbot
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.AssignmentId
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
@@ -11,15 +13,17 @@ import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.ProblemGrade
 import com.github.heheteam.commonlib.api.ProblemStorage
 import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.StudentStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.UserId
 
-// this class represents a service given by the bot;
-// students ids are parameters in this class
 class StudentApi(
   private val coursesDistributor: CoursesDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val academicWorkflowService: AcademicWorkflowService,
+  private val studentStorage: StudentStorage,
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
@@ -43,4 +47,17 @@ class StudentApi(
 
   fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
     problemStorage.getProblemsFromAssignment(assignment.id)
+
+  fun loginByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> =
+    studentStorage.resolveByTgId(tgId)
+
+  fun loginById(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
+    studentStorage.resolveStudent(studentId)
+
+  fun createStudent(name: String, surname: String, tgId: Long): StudentId {
+    return studentStorage.createStudent(name, surname, tgId)
+  }
+
+  fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>> =
+    problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
 }

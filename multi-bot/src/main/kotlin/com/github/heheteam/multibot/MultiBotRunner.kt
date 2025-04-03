@@ -56,7 +56,7 @@ import com.github.heheteam.commonlib.util.fillWithSamples
 import com.github.heheteam.parentbot.ParentApi
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentApi
-import com.github.heheteam.studentbot.run.studentRun
+import com.github.heheteam.studentbot.studentRun
 import com.github.heheteam.teacherbot.StateRegister
 import com.github.heheteam.teacherbot.TeacherApi
 import com.github.heheteam.teacherbot.TeacherRunner
@@ -183,6 +183,7 @@ class MultiBotRunner : CliktCommand() {
         problemStorage,
         assignmentStorageDecorator,
         academicWorkflowService,
+        studentStorage,
       )
 
     val adminApi =
@@ -193,7 +194,7 @@ class MultiBotRunner : CliktCommand() {
         teacherStorage,
         assignmentStorage,
         problemStorage,
-        solutionDistributor
+        solutionDistributor,
       )
 
     val parentApi =
@@ -222,9 +223,7 @@ class MultiBotRunner : CliktCommand() {
         tgTechnicalMessagesStorage,
       )
     runBlocking {
-      launch {
-        studentRun(studentBotToken, studentStorage, problemStorage, studentApi, developerOptions)
-      }
+      launch { studentRun(studentBotToken, studentApi, developerOptions) }
       launch {
         val stateRegister = StateRegister(teacherApi)
         val teacherRunner =

@@ -8,8 +8,8 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.long
-import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.adminbot.run.adminRun
+import com.github.heheteam.adminbot.AdminApi
+import com.github.heheteam.adminbot.adminRun
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.GradeTable
 import com.github.heheteam.commonlib.api.ProblemStorage
@@ -185,12 +185,15 @@ class MultiBotRunner : CliktCommand() {
         academicWorkflowService,
       )
 
-    val adminCore =
-      AdminCore(
+    val adminApi =
+      AdminApi(
         inMemoryScheduledMessagesDistributor,
         coursesDistributorDecorator,
         studentStorage,
         teacherStorage,
+        assignmentStorage,
+        problemStorage,
+        solutionDistributor
       )
 
     val parentApi =
@@ -231,16 +234,7 @@ class MultiBotRunner : CliktCommand() {
           listOf(solutionMessageService, menuMessageUpdaterService, telegramSolutionSender),
         )
       }
-      launch {
-        adminRun(
-          adminBotToken,
-          coursesDistributorDecorator,
-          assignmentStorageDecorator,
-          problemStorage,
-          solutionDistributor,
-          adminCore,
-        )
-      }
+      launch { adminRun(adminBotToken, adminApi) }
       launch { parentRun(parentBotToken, parentApi) }
     }
   }

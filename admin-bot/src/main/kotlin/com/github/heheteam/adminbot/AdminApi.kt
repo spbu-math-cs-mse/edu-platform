@@ -1,0 +1,130 @@
+package com.github.heheteam.adminbot
+
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.ProblemDescription
+import com.github.heheteam.commonlib.ResolveError
+import com.github.heheteam.commonlib.api.AssignmentStorage
+import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.ProblemStorage
+import com.github.heheteam.commonlib.api.ScheduledMessage
+import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
+import com.github.heheteam.commonlib.api.SolutionDistributor
+import com.github.heheteam.commonlib.api.SpreadsheetId
+import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.StudentStorage
+import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.util.toUrl
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.get
+import java.time.LocalDateTime
+
+@Suppress(
+  "LongParameterList",
+  "TooManyFunctions",
+) // shortcut to make this not to long; should be fixed later
+class AdminApi(
+  private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
+  private val coursesDistributor: CoursesDistributor,
+  private val studentStorage: StudentStorage,
+  private val teacherStorage: TeacherStorage,
+  private val assignmentStorage: AssignmentStorage,
+  private val problemStorage: ProblemStorage,
+  private val solutionDistributor: SolutionDistributor,
+) {
+  fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
+
+  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
+    scheduledMessagesDistributor.getMessagesUpToDate(date)
+
+  fun markMessagesUpToDateAsSent(date: LocalDateTime) =
+    scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
+
+  fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
+
+  fun addCourse(courseName: String) = coursesDistributor.createCourse(courseName)
+
+  fun getCourse(courseName: String): Course? =
+    coursesDistributor.getCourses().find { it.name == courseName }
+
+  fun getCourses(): Map<String, Course> =
+    coursesDistributor.getCourses().groupBy { it.name }.mapValues { it.value.first() }
+
+  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
+
+  fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
+
+  fun studiesIn(id: StudentId, course: Course): Boolean =
+    coursesDistributor.getStudentCourses(id).any { it.id == course.id }
+
+  fun teachesIn(id: TeacherId, course: Course): Boolean =
+    coursesDistributor.getTeacherCourses(id).any { it.id == course.id }
+
+  fun registerStudentForCourse(studentId: StudentId, courseId: CourseId) =
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+
+  fun registerTeacherForCourse(teacherId: TeacherId, courseId: CourseId) {
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+  }
+
+  fun removeTeacher(teacherId: TeacherId, courseId: CourseId): Boolean =
+    coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
+
+  fun removeStudent(studentId: StudentId, courseId: CourseId): Boolean =
+    coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
+
+  fun createAssignment(
+    courseId: CourseId,
+    description: String,
+    problemsDescriptions: List<ProblemDescription>,
+  ) {
+    assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
+  }
+
+  fun createCourse(input: String): CourseId = coursesDistributor.createCourse(input)
+
+  fun resolveCourseWithSpreadsheetId(
+    courseId: CourseId
+  ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
+    coursesDistributor.resolveCourseWithSpreadsheetId(courseId)
+
+  fun getCourseStatistics(courseId: CourseId): CourseStatistics {
+    val students = coursesDistributor.getStudents(courseId)
+    val teachers = coursesDistributor.getTeachers(courseId)
+    val assignments = assignmentStorage.getAssignmentsForCourse(courseId)
+
+    var totalProblems = 0
+    var totalMaxScore = 0
+    var totalSolutions = 0
+    var checkedSolutions = 0
+    assignments.forEach { assignment ->
+      val problems = problemStorage.getProblemsFromAssignment(assignment.id)
+      totalProblems += problems.size
+      totalMaxScore += problems.sumOf { it.maxScore }
+      problems.forEach { problem ->
+        val solutions = solutionDistributor.getSolutionsForProblem(problem.id)
+        totalSolutions += solutions.size
+        checkedSolutions +=
+          solutions.count { solutionId -> solutionDistributor.isSolutionAssessed(solutionId) }
+      }
+    }
+
+    return CourseStatistics(
+      studentsCount = students.size,
+      teachersCount = teachers.size,
+      assignmentsCount = assignments.size,
+      totalProblems = totalProblems,
+      totalMaxScore = totalMaxScore,
+      totalSolutions = totalSolutions,
+      checkedSolutions = checkedSolutions,
+      uncheckedSolutions = totalSolutions - checkedSolutions,
+      students = students,
+      teachers = teachers,
+      assignments = assignments,
+    )
+  }
+
+  fun getRatingLink(courseId: CourseId): String? =
+    coursesDistributor.resolveCourseWithSpreadsheetId(courseId).get()?.second?.toUrl()
+}

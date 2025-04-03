@@ -1,8 +1,5 @@
-package com.github.heheteam.adminbot.run
+package com.github.heheteam.adminbot
 
-import com.github.heheteam.adminbot.AdminCore
-import com.github.heheteam.adminbot.AssignmentCreator
-import com.github.heheteam.adminbot.CourseStatisticsComposer
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.CourseInfoState
@@ -15,10 +12,6 @@ import com.github.heheteam.adminbot.states.QueryCourseForEditing
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.state.registerState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -34,14 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun adminRun(
-  botToken: String,
-  coursesDistributor: CoursesDistributor,
-  assignmentStorage: AssignmentStorage,
-  problemStorage: ProblemStorage,
-  solutionDistributor: SolutionDistributor,
-  core: AdminCore,
-) {
+suspend fun adminRun(botToken: String, adminApi: AdminApi) {
   telegramBot(botToken) {
     logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
       println(defaultMessageFormatter(level, tag, message, throwable))
@@ -59,29 +45,23 @@ suspend fun adminRun(
     ) {
       println(getMe())
 
-      command("start") { startChain(MenuState(it.from!!)) }
+      command("start") {
+        val user = it.from
+        if (user != null) startChain(MenuState(user))
+      }
 
-      registerState<MenuState, CoursesDistributor>(coursesDistributor)
-      registerState<CreateCourseState, CoursesDistributor>(coursesDistributor)
-      registerState<CourseInfoState, CourseStatisticsComposer>(
-        CourseStatisticsComposer(
-          coursesDistributor,
-          assignmentStorage,
-          problemStorage,
-          solutionDistributor,
-        )
-      )
+      registerState<MenuState, AdminApi>(adminApi)
+      registerState<CreateCourseState, AdminApi>(adminApi)
+      registerState<CourseInfoState, AdminApi>(adminApi)
       registerState<EditCourseState, Unit>(Unit)
       registerState<EditDescriptionState, Unit>(Unit)
-      registerState<CreateAssignmentState, AssignmentCreator>(
-        AssignmentCreator(assignmentStorage, problemStorage)
-      )
-      registerState<AddStudentState, AdminCore>(core)
-      registerState<RemoveStudentState, AdminCore>(core)
-      registerState<AddTeacherState, AdminCore>(core)
-      registerState<RemoveTeacherState, AdminCore>(core)
-      registerState<QueryCourseForEditing, AdminCore>(core)
-      strictlyOnAddScheduledMessageState(core)
+      registerState<CreateAssignmentState, AdminApi>(adminApi)
+      registerState<AddStudentState, AdminApi>(adminApi)
+      registerState<RemoveStudentState, AdminApi>(adminApi)
+      registerState<AddTeacherState, AdminApi>(adminApi)
+      registerState<RemoveTeacherState, AdminApi>(adminApi)
+      registerState<QueryCourseForEditing, AdminApi>(adminApi)
+      strictlyOnAddScheduledMessageState(adminApi)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

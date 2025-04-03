@@ -31,7 +31,7 @@ class AdminBotTest {
     )
 
   private val core =
-    AdminCore(
+    AdminApi(
       InMemoryScheduledMessagesDistributor(),
       DatabaseCoursesDistributor(database),
       DatabaseStudentStorage(database),

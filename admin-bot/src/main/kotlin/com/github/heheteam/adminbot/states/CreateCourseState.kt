@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.adminbot.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -15,20 +15,17 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 class CreateCourseState(override val context: User) :
-  BotStateWithHandlers<String, String?, CoursesDistributor> {
+  BotStateWithHandlers<String, String?, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
-  override suspend fun outro(bot: BehaviourContext, service: CoursesDistributor) {
-    // No special cleanup needed
-  }
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 
   override suspend fun intro(
     bot: BehaviourContext,
-    service: CoursesDistributor,
+    service: AdminApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
   ) {
-    // Send initial message and store it for later cleanup
     val introMessage =
       bot.send(
         context,
@@ -36,15 +33,15 @@ class CreateCourseState(override val context: User) :
       )
     sentMessages.add(introMessage)
 
-    // Set up text message handler
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
-  override fun computeNewState(service: CoursesDistributor, input: String): Pair<State, String?> {
+  override fun computeNewState(service: AdminApi, input: String): Pair<State, String?> {
     val response =
       when {
         input == "/stop" -> null
-        service.getCourses().any { it.name == input } -> "Курс с таким названием уже существует"
+        service.getCourses().map { it.value }.any { it.name == input } ->
+          "Курс с таким названием уже существует"
         else -> {
           val courseId = service.createCourse(input)
           binding {
@@ -57,11 +54,7 @@ class CreateCourseState(override val context: User) :
     return Pair(MenuState(context), response)
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: CoursesDistributor,
-    response: String?,
-  ) {
+  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String?) {
     // Clean up our initial messages
     sentMessages.forEach { bot.delete(it) }
 

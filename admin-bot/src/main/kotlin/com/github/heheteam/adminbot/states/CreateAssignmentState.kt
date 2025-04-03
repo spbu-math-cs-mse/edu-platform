@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AssignmentCreator
+import com.github.heheteam.adminbot.AdminApi
 import com.github.heheteam.adminbot.Dialogues.askAssignmentDescription
 import com.github.heheteam.adminbot.Dialogues.askProblemsDescriptions
 import com.github.heheteam.adminbot.Dialogues.assignmentDescriptionIsNotText
@@ -41,8 +41,8 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.LocalDateTime
 
 class CreateAssignmentState(override val context: User, private val course: Course) :
-  BotState<State, Unit, AssignmentCreator> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: AssignmentCreator): State {
+  BotState<State, Unit, AdminApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: AdminApi): State {
     val description = queryAssignmentDescription(bot, this) ?: return MenuState(context)
     val problemsDescriptions = queryProblemsDescriptions(bot, this) ?: return MenuState(context)
 
@@ -55,15 +55,11 @@ class CreateAssignmentState(override val context: User, private val course: Cour
     return MenuState(context)
   }
 
-  override fun computeNewState(service: AssignmentCreator, input: State): Pair<State, Unit> {
+  override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: AssignmentCreator,
-    response: Unit,
-  ) = Unit
+  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
 
   @OptIn(ExperimentalCoroutinesApi::class)
   private suspend fun queryAssignmentDescription(

@@ -66,9 +66,8 @@ internal constructor(
   fun registerStudentForCourse(studentId: StudentId, courseId: CourseId) =
     coursesDistributor.addStudentToCourse(studentId, courseId)
 
-  fun registerTeacherForCourse(teacherId: TeacherId, courseId: CourseId) {
+  fun registerTeacherForCourse(teacherId: TeacherId, courseId: CourseId) =
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
-  }
 
   fun removeTeacher(teacherId: TeacherId, courseId: CourseId): Boolean =
     coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
@@ -80,9 +79,8 @@ internal constructor(
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-  ) {
+  ) =
     assignmentStorage.createAssignment(courseId, description, problemsDescriptions, problemStorage)
-  }
 
   fun createCourse(input: String): CourseId = coursesDistributor.createCourse(input)
 

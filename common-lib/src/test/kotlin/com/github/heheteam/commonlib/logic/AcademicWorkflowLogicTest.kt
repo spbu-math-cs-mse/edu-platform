@@ -62,10 +62,10 @@ class AcademicWorkflowLogicTest {
   private lateinit var assignmentId: AssignmentId
   private lateinit var timestamp: Instant
 
-  val good = SolutionAssessment(1, "comment")
-  val bad = SolutionAssessment(0, "comment")
+  private val good = SolutionAssessment(1, "comment")
+  private val bad = SolutionAssessment(0, "comment")
 
-  fun monotoneTime(): LocalDateTime {
+  private fun monotoneTime(): LocalDateTime {
     timestamp += Duration.fromMinutes(1.0)
     return timestamp.toLocalDateTime(TimeZone.UTC)
   }

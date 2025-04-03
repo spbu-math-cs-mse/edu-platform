@@ -29,9 +29,8 @@ internal constructor(
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): List<Pair<Problem, ProblemGrade>> {
-    return academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
-  }
+  ): List<Pair<Problem, ProblemGrade>> =
+    academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
 
   fun getStudentCourses(studentId: StudentId): List<Course> =
     coursesDistributor.getStudentCourses(studentId)
@@ -42,9 +41,8 @@ internal constructor(
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =
     coursesDistributor.addStudentToCourse(studentId, courseId)
 
-  fun inputSolution(solutionInputRequest: SolutionInputRequest) {
+  fun inputSolution(solutionInputRequest: SolutionInputRequest) =
     academicWorkflowService.sendSolution(solutionInputRequest)
-  }
 
   fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
     problemStorage.getProblemsFromAssignment(assignment.id)
@@ -55,9 +53,8 @@ internal constructor(
   fun loginById(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
     studentStorage.resolveStudent(studentId)
 
-  fun createStudent(name: String, surname: String, tgId: Long): StudentId {
-    return studentStorage.createStudent(name, surname, tgId)
-  }
+  fun createStudent(name: String, surname: String, tgId: Long): StudentId =
+    studentStorage.createStudent(name, surname, tgId)
 
   fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)

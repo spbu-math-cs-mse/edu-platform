@@ -14,9 +14,7 @@ private const val YEAR: Int = 2024
 
 private val timeZone = TimeZone.of("Europe/Moscow")
 
-/**
- * For test usage only
- */
+/** For test usage only */
 class MonotoneDummyClock(
   private var startTime: Instant =
     LocalDateTime(YEAR, JANUARY, 1, MIDDAY, 0, 0, 0).toInstant(timeZone)

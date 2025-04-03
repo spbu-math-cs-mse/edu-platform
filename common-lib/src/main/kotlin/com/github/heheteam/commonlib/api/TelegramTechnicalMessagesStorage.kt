@@ -30,4 +30,12 @@ interface TelegramTechnicalMessagesStorage {
   fun resolveTeacherFirstUncheckedSolutionMessage(
     teacherId: TeacherId
   ): Result<MenuMessageInfo, String>
+
+  fun resolveGroupMenuMessage(courseId: CourseId): Result<List<TelegramMessageInfo>, String>
+
+  /**
+   * @return TelegramMessageInfo of the menu message if it exists. Otherwise, just returns the chat
+   *   id.
+   */
+  fun resolveGroupFirstUncheckedSolutionMessage(courseId: CourseId): Result<MenuMessageInfo, String>
 }

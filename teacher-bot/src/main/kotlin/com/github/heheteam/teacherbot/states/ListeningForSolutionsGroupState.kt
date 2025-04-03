@@ -2,10 +2,10 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.CourseId
+import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
-import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -38,10 +38,10 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   suspend fun execute(
     bot: BehaviourContext,
     academicWorkflowService: AcademicWorkflowService,
-    telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
+    coursesDistributor: CoursesDistributor,
   ): State {
     with(bot) {
-      telegramSolutionSenderImpl.registerGroupForSolution(courseId, context.id.chatId)
+      coursesDistributor.setCourseGroup(courseId, context.id.chatId)
       while (true) {
         merge(
             waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->

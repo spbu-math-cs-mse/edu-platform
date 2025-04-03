@@ -1,7 +1,10 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.michaelbull.result.Result
 
 interface ResponsibleTeacherResolver {
-  fun resolveResponsibleTeacher(problemId: ProblemId): Result<TeacherId, String>
+  fun resolveResponsibleTeacher(
+    solutionInputRequest: SolutionInputRequest
+  ): Result<TeacherId, String>
 }

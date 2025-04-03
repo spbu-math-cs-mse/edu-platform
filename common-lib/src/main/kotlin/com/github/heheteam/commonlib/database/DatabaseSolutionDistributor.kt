@@ -3,8 +3,10 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.SolutionResolveError
 import com.github.heheteam.commonlib.TeacherDoesNotExist
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.ProblemId
 import com.github.heheteam.commonlib.api.SolutionDistributor
 import com.github.heheteam.commonlib.api.SolutionId
@@ -97,7 +99,58 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             otherColumn = CourseTable.id,
           )
           .selectAll()
-          .where { AssessmentTable.id.isNull() and (CourseTable.id inList courses) }
+          .where {
+            AssessmentTable.id.isNull() and
+              (CourseTable.id inList courses) and
+              (SolutionTable.responsibleTeacher eq teacherId.id)
+          }
+          .orderBy(SolutionTable.timestamp)
+          .firstOrNull() ?: return@transaction Ok(null)
+
+      Ok(
+        Solution(
+          solution[SolutionTable.id].value.toSolutionId(),
+          StudentId(solution[SolutionTable.studentId].value),
+          solution[SolutionTable.chatId].toChatId().chatId,
+          MessageId(solution[SolutionTable.messageId]),
+          ProblemId(solution[SolutionTable.problemId].value),
+          solution[SolutionTable.solutionContent],
+          solution[SolutionTable.responsibleTeacher]?.value?.toTeacherId(),
+          solution[SolutionTable.timestamp],
+        )
+      )
+    }
+
+  @Suppress("LongMethod") // a long database query
+  override fun querySolution(courseId: CourseId): Result<Solution?, SolutionResolveError> =
+    transaction(database) {
+      val solution =
+        SolutionTable.join(
+            AssessmentTable,
+            JoinType.LEFT,
+            onColumn = SolutionTable.id,
+            otherColumn = AssessmentTable.solutionId,
+          )
+          .join(
+            ProblemTable,
+            JoinType.INNER,
+            onColumn = SolutionTable.problemId,
+            otherColumn = ProblemTable.id,
+          )
+          .join(
+            AssignmentTable,
+            JoinType.INNER,
+            onColumn = ProblemTable.assignmentId,
+            otherColumn = AssignmentTable.id,
+          )
+          .join(
+            CourseTable,
+            JoinType.INNER,
+            onColumn = AssignmentTable.courseId,
+            otherColumn = CourseTable.id,
+          )
+          .selectAll()
+          .where { AssessmentTable.id.isNull() and (CourseTable.id eq courseId.id) }
           .orderBy(SolutionTable.timestamp)
           .firstOrNull() ?: return@transaction Ok(null)
 
@@ -133,6 +186,40 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           solution[SolutionTable.timestamp],
         )
       )
+    }
+
+  override fun resolveSolutionCourse(
+    solutionId: SolutionId
+  ): Result<CourseId, ResolveError<SolutionId>> =
+    transaction(database) {
+      SolutionTable.join(
+          ProblemTable,
+          JoinType.INNER,
+          onColumn = SolutionTable.problemId,
+          otherColumn = ProblemTable.id,
+        )
+        .join(
+          AssignmentTable,
+          JoinType.INNER,
+          onColumn = ProblemTable.assignmentId,
+          otherColumn = AssignmentTable.id,
+        )
+        .selectAll()
+        .where { SolutionTable.id eq solutionId.id }
+        .singleOrNull()
+        ?.let { Ok(CourseId(it[AssignmentTable.courseId].value)) }
+        ?: return@transaction Err(ResolveError(solutionId))
+    }
+
+  override fun resolveResponsibleTeacher(solution: SolutionInputRequest): TeacherId? =
+    transaction(database) {
+      SolutionTable.selectAll()
+        .where {
+          (SolutionTable.problemId eq solution.problemId.id) and
+            (SolutionTable.studentId eq solution.studentId.id)
+        }
+        .map { row -> row[SolutionTable.responsibleTeacher]?.value?.toTeacherId() }
+        .firstOrNull()
     }
 
   override fun getSolutionsForProblem(problemId: ProblemId): List<SolutionId> =

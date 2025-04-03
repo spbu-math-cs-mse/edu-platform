@@ -187,6 +187,33 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       Ok(Pair(Course(courseId, row[CourseTable.name]), SpreadsheetId(spreadsheetId)))
     }
 
+  override fun setCourseGroup(
+    courseId: CourseId,
+    rawChatId: RawChatId,
+  ): Result<Unit, ResolveError<CourseId>> =
+    transaction(database) {
+      val result =
+        CourseTable.update({ CourseTable.id eq courseId.id }) {
+          it[CourseTable.groupRawChatId] = rawChatId.long
+        }
+      if (result == 1) {
+        Ok(Unit)
+      } else {
+        Err(ResolveError(courseId))
+      }
+    }
+
+  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
+    transaction(database) {
+      val row =
+        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+          ?: return@transaction Ok(null)
+      val chatId =
+        row[CourseTable.groupRawChatId]
+          ?: return@transaction Err(ResolveError<CourseId>(courseId, "RawChatId"))
+      Ok(RawChatId(chatId))
+    }
+
   override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId): Unit =
     transaction(database) {
       CourseTable.update({ CourseTable.id eq courseId.id }) {

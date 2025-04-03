@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.loadConfig
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import java.time.LocalDateTime
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -85,6 +86,8 @@ class TeacherBotTest {
       MessageId(0),
       SolutionContent(text = "text"),
       problemId,
+      LocalDateTime.now(),
+      teacherId,
     )
     val solution = solutionDistributor.querySolution(teacherId).value!!
 

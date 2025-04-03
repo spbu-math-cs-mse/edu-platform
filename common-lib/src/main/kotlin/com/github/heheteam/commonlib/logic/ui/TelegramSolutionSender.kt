@@ -15,5 +15,5 @@ interface TelegramSolutionSender {
   fun sendGroupSolutionNotification(
     courseId: CourseId,
     solution: Solution,
-  ): Result<TelegramMessageInfo, String>
+  ): Result<TelegramMessageInfo?, String>
 }

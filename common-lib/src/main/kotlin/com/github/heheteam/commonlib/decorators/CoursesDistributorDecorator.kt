@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getError
+import dev.inmo.tgbotapi.types.RawChatId
 
 class CoursesDistributorDecorator(
   private val coursesDistributor: CoursesDistributor,
@@ -62,6 +63,14 @@ class CoursesDistributorDecorator(
     courseId: CourseId
   ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
     coursesDistributor.resolveCourseWithSpreadsheetId(courseId)
+
+  override fun setCourseGroup(
+    courseId: CourseId,
+    rawChatId: RawChatId,
+  ): Result<Unit, ResolveError<CourseId>> = coursesDistributor.setCourseGroup(courseId, rawChatId)
+
+  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
+    coursesDistributor.resolveCourseGroup(courseId)
 
   override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId) =
     coursesDistributor.updateCourseSpreadsheetId(courseId, spreadsheetId)

@@ -7,7 +7,6 @@ import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.TelegramBotController
-import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.state.registerState
@@ -99,14 +98,13 @@ class TeacherRunner(
 class StateRegister(
   private val teacherStorage: TeacherStorage,
   private val coursesDistributor: CoursesDistributor,
-  private val telegramSolutionSenderImpl: TelegramSolutionSenderImpl,
   private val academicWorkflowService: AcademicWorkflowService,
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
 ) {
   fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>) {
     with(context) {
       strictlyOn<ListeningForSolutionsGroupState>({ state ->
-        state.execute(this, academicWorkflowService, telegramSolutionSenderImpl)
+        state.execute(this, academicWorkflowService, coursesDistributor)
       })
       registerState<StartState, TeacherStorage>(teacherStorage)
       registerState<DeveloperStartState, TeacherStorage>(teacherStorage)

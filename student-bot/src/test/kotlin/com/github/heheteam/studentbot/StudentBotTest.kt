@@ -105,7 +105,12 @@ class StudentBotTest {
     academicWorkflowService =
       AcademicWorkflowService(
         academicWorkflowLogic,
-        RandomTeacherResolver(problemStorage, assignmentStorage, coursesDistributor),
+        RandomTeacherResolver(
+          problemStorage,
+          assignmentStorage,
+          coursesDistributor,
+          solutionDistributor,
+        ),
         mockBotEventBus,
         mockUiController,
       )

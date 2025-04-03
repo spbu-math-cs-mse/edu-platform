@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -12,7 +13,6 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createAssignmentPicker
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands

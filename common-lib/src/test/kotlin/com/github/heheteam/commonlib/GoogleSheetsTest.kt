@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -9,7 +8,8 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
+import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -39,7 +39,8 @@ class GoogleSheetsTest {
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
-  private val googleSheetsService = GoogleSheetsService(config.googleSheetsConfig.serviceAccountKey)
+  private val googleSheetsService =
+    GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
 
   @BeforeTest
   @AfterTest

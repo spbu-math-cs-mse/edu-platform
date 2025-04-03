@@ -4,6 +4,8 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ResolveError
+import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
@@ -11,8 +13,6 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toProblemId
-import com.github.heheteam.commonlib.database.table.AssignmentTable
-import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result

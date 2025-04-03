@@ -1,12 +1,5 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.interfaces.AssignmentStorage
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
-import com.github.heheteam.commonlib.interfaces.GradeTable
-import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
-import com.github.heheteam.commonlib.interfaces.StudentStorage
-import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -14,6 +7,13 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.util.fillWithSamples
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test

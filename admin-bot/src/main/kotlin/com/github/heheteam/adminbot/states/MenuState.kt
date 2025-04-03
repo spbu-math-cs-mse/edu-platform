@@ -1,12 +1,12 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.Keyboards.COURSE_INFO
 import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser

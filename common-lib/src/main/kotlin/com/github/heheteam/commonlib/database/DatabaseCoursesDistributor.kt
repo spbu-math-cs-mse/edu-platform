@@ -6,6 +6,11 @@ import com.github.heheteam.commonlib.DeleteError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.database.table.CourseStudents
+import com.github.heheteam.commonlib.database.table.CourseTable
+import com.github.heheteam.commonlib.database.table.CourseTeachers
+import com.github.heheteam.commonlib.database.table.StudentTable
+import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
@@ -14,11 +19,6 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
-import com.github.heheteam.commonlib.database.table.CourseStudents
-import com.github.heheteam.commonlib.database.table.CourseTable
-import com.github.heheteam.commonlib.database.table.CourseTeachers
-import com.github.heheteam.commonlib.database.table.StudentTable
-import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result

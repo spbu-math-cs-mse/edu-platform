@@ -1,10 +1,7 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.TelegramBotController
-import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
@@ -33,14 +30,10 @@ import kotlinx.coroutines.Dispatchers
 
 class TeacherRunner(
   private val botToken: String,
-  private val botEventBus: BotEventBus,
   private val stateRegister: StateRegister,
   private val developerOptions: DeveloperOptions = DeveloperOptions(),
 ) {
-  suspend fun execute(
-    solutionTeacherNotifier: NewSolutionTeacherNotifier,
-    telegramBotControllers: List<TelegramBotController>,
-  ) {
+  suspend fun execute(telegramBotControllers: List<TelegramBotController>) {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
         CoroutineScope(Dispatchers.IO),
@@ -51,9 +44,6 @@ class TeacherRunner(
         },
       ) {
         telegramBotControllers.forEach { it.setTelegramBot(this) }
-        botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
-          solutionTeacherNotifier.notifyNewSolution(solution)
-        }
         println(getMe())
         setMyCommands(listOf(BotCommand("start", "start"), BotCommand("end", "endCommand")))
         command("start") { startFsm(it) }

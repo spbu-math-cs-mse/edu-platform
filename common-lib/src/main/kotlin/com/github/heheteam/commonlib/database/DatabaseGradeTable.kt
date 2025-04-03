@@ -3,6 +3,10 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.database.table.AssessmentTable
+import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.database.table.ProblemTable
+import com.github.heheteam.commonlib.database.table.SolutionTable
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.GradeTable
@@ -16,10 +20,6 @@ import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toProblemId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
-import com.github.heheteam.commonlib.database.table.AssessmentTable
-import com.github.heheteam.commonlib.database.table.AssignmentTable
-import com.github.heheteam.commonlib.database.table.ProblemTable
-import com.github.heheteam.commonlib.database.table.SolutionTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils

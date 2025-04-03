@@ -2,12 +2,12 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.interfaces.TeacherId
-import com.github.heheteam.commonlib.interfaces.TeacherStorage
-import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherStorage
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result

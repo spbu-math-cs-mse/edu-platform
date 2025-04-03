@@ -6,6 +6,13 @@ import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.SolutionResolveError
 import com.github.heheteam.commonlib.TeacherDoesNotExist
+import com.github.heheteam.commonlib.database.table.AssessmentTable
+import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.database.table.CourseTable
+import com.github.heheteam.commonlib.database.table.CourseTeachers
+import com.github.heheteam.commonlib.database.table.ProblemTable
+import com.github.heheteam.commonlib.database.table.SolutionTable
+import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SolutionDistributor
@@ -14,13 +21,6 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toSolutionId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
-import com.github.heheteam.commonlib.database.table.AssessmentTable
-import com.github.heheteam.commonlib.database.table.AssignmentTable
-import com.github.heheteam.commonlib.database.table.CourseTable
-import com.github.heheteam.commonlib.database.table.CourseTeachers
-import com.github.heheteam.commonlib.database.table.ProblemTable
-import com.github.heheteam.commonlib.database.table.SolutionTable
-import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result

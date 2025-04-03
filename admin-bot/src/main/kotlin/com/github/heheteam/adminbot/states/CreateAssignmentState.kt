@@ -1,6 +1,5 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.adminbot.Dialogues.askAssignmentDescription
 import com.github.heheteam.adminbot.Dialogues.askProblemsDescriptions
 import com.github.heheteam.adminbot.Dialogues.assignmentDescriptionIsNotText
@@ -13,6 +12,7 @@ import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.Keyboards.RETURN_BACK
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser

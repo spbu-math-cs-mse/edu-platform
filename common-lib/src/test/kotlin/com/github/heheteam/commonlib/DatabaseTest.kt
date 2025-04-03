@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
@@ -12,15 +13,15 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.util.MonotoneDummyClock
 import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 class DatabaseTest {
@@ -42,6 +43,47 @@ class DatabaseTest {
   private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
 
+  private val emptyContent = SolutionContent()
+  private val good = SolutionAssessment(1)
+  private val bad = SolutionAssessment(0)
+
+  private fun createAssignment(courseId: CourseId): List<Problem> {
+    val assignment =
+      assignmentStorage.createAssignment(
+        courseId,
+        "",
+        (1..5).map { ProblemDescription(it, it.toString()) },
+        problemStorage,
+      )
+    return problemStorage.getProblemsFromAssignment(assignment)
+  }
+
+  private fun inputSampleSolution(
+    studentId: StudentId,
+    chatId: RawChatId,
+    problem: Problem,
+    clock: MonotoneDummyClock,
+    teacherId: TeacherId,
+  ) =
+    solutionDistributor.inputSolution(
+      studentId,
+      chatId,
+      MessageId(problem.id.id),
+      SolutionContent(text = "sample${problem.number}"),
+      problem.id,
+      clock.next().toJavaLocalDateTime(),
+      teacherId,
+    )
+
+  private fun createCourseWithTeacherAndStudent(): Triple<CourseId, TeacherId, StudentId> {
+    val courseId = coursesDistributor.createCourse("sample course")
+    val teacherId = teacherStorage.createTeacher()
+    val studentId = studentStorage.createStudent()
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    return Triple(courseId, teacherId, studentId)
+  }
+
   @BeforeTest
   @AfterTest
   fun setup() {
@@ -59,44 +101,15 @@ class DatabaseTest {
     assertEquals(sampleDescription, resolvedCourse.value.name)
   }
 
-  private fun createAssignment(courseId: CourseId): List<Problem> {
-    val assignment =
-      assignmentStorage.createAssignment(
-        courseId,
-        "",
-        listOf(
-          ProblemDescription(1, "1", "", 1),
-          ProblemDescription(2, "2", "", 1),
-          ProblemDescription(3, "3", "", 1),
-          ProblemDescription(4, "4", "", 1),
-          ProblemDescription(5, "5", "", 1),
-        ),
-        problemStorage,
-      )
-    return problemStorage.getProblemsFromAssignment(assignment)
-  }
-
   @Test
   fun `query solution returns last unchecked solution`() {
     val chatId = RawChatId(0)
-
-    val courseId = coursesDistributor.createCourse("sample course")
-    val teacherId = teacherStorage.createTeacher()
-    val studentId = studentStorage.createStudent()
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-    coursesDistributor.addTeacherToCourse(teacherId, courseId)
-
+    val clock = MonotoneDummyClock()
+    val (courseId, teacherId, studentId) = createCourseWithTeacherAndStudent()
+    val problemsInCourse = createAssignment(courseId)
     val solutions =
-      createAssignment(courseId).map { problem ->
-        solutionDistributor.inputSolution(
-          studentId,
-          chatId,
-          MessageId(problem.id.id),
-          SolutionContent(text = "sample${problem.number}"),
-          problem.id,
-          LocalDateTime.now(),
-          teacherId,
-        )
+      problemsInCourse.map { problem ->
+        inputSampleSolution(studentId, chatId, problem, clock, teacherId)
       }
 
     gradeTable.recordSolutionAssessment(solutions[0], teacherId, SolutionAssessment(0))
@@ -117,60 +130,39 @@ class DatabaseTest {
   @Test
   fun `query solution from course returns last unchecked solution`() {
     val chatId = RawChatId(0)
-
-    val courseId = coursesDistributor.createCourse("sample course")
-    val teacherId = teacherStorage.createTeacher()
-    val studentId = studentStorage.createStudent()
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    val clock = MonotoneDummyClock()
+    val (courseId, teacherId, studentId) = createCourseWithTeacherAndStudent()
 
     val solutions =
       createAssignment(courseId).map { problem ->
-        solutionDistributor.inputSolution(
-          studentId,
-          chatId,
-          MessageId(problem.id.id),
-          SolutionContent(text = "sample${problem.number}"),
-          problem.id,
-          LocalDateTime.now(),
-        )
+        inputSampleSolution(studentId, chatId, problem, clock, teacherId)
       }
 
-    gradeTable.recordSolutionAssessment(solutions[0], teacherId, SolutionAssessment(0))
-    gradeTable.recordSolutionAssessment(solutions[2], teacherId, SolutionAssessment(0))
-    gradeTable.recordSolutionAssessment(solutions[3], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[0], teacherId, bad)
+    gradeTable.recordSolutionAssessment(solutions[2], teacherId, bad)
+    gradeTable.recordSolutionAssessment(solutions[3], teacherId, bad)
 
     val solutionId1 = solutionDistributor.querySolution(courseId)
     assertEquals(solutions[1], solutionId1.value!!.id)
-    gradeTable.recordSolutionAssessment(solutions[1], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[1], teacherId, bad)
 
     val solutionId2 = solutionDistributor.querySolution(courseId)
     assertEquals(solutions[4], solutionId2.value!!.id)
-    gradeTable.recordSolutionAssessment(solutions[4], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[4], teacherId, bad)
 
     assertEquals(null, solutionDistributor.querySolution(courseId).value)
   }
 
-  private val emptyContent = SolutionContent()
-  private val defaultTimestamp = LocalDateTime.of(2000, 1, 1, 12, 0)
-
-  private val good = SolutionAssessment(1)
-  private val bad = SolutionAssessment(0)
-
   @Test
   fun `grade table properly returns all gradings`() {
+    val clock = MonotoneDummyClock()
     val (teachers, solution) = generateSampleTeachersAndSolution()
     val expected = mutableSetOf<GradingEntry>()
     for ((i, teacher) in teachers.withIndex()) {
       val assessment = if (i % 2 == 0) good else bad
-      val timestamp = defaultTimestamp.plusMinutes(i.toLong())
-      gradeTable.recordSolutionAssessment(
-        solution,
-        teacher,
-        assessment,
-        timestamp.toKotlinLocalDateTime(),
-      )
-      expected.add(GradingEntry(teacher, assessment, timestamp.toKotlinLocalDateTime()))
+      val timestamp = clock.next()
+      gradeTable.recordSolutionAssessment(solution, teacher, assessment, timestamp)
+      expected.add(GradingEntry(teacher, assessment, timestamp))
     }
     val gradingEntries = gradeTable.getGradingsForSolution(solution)
     assertEquals(expected, gradingEntries.toSet())

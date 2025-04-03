@@ -1,10 +1,10 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
+import com.github.heheteam.teacherbot.TeacherApi
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.mapError
@@ -16,9 +16,8 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-class DeveloperStartState(override val context: User) :
-  BotState<TeacherId?, String, TeacherStorage> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherStorage): TeacherId? {
+class DeveloperStartState(override val context: User) : BotState<TeacherId?, String, TeacherApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherApi): TeacherId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
     bot.send(context, Dialogues.devAskForId)
     val teacherIdFromText =
@@ -28,19 +27,15 @@ class DeveloperStartState(override val context: User) :
     return teacherIdFromText
   }
 
-  override fun computeNewState(service: TeacherStorage, input: TeacherId?): Pair<State, String> =
+  override fun computeNewState(service: TeacherApi, input: TeacherId?): Pair<State, String> =
     binding {
         val teacherId = input.toResultOr { Dialogues.devIdIsNotLong }.bind()
-        service.resolveTeacher(teacherId).mapError { Dialogues.devIdNotFound }.bind()
+        service.loginById(teacherId).mapError { Dialogues.devIdNotFound }.bind()
         Pair(MenuState(context, teacherId), Dialogues.greetings())
       }
       .getOrElse { Pair(DeveloperStartState(context), it) }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: TeacherStorage,
-    response: String,
-  ) {
+  override suspend fun sendResponse(bot: BehaviourContext, service: TeacherApi, response: String) {
     bot.send(context, response)
   }
 }

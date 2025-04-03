@@ -2,13 +2,12 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.teacherbot.TeacherApi
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -35,13 +34,9 @@ import kotlinx.datetime.toKotlinLocalDateTime
 
 class ListeningForSolutionsGroupState(override val context: Chat, val courseId: CourseId) : State {
   @OptIn(RiskFeature::class)
-  suspend fun execute(
-    bot: BehaviourContext,
-    academicWorkflowService: AcademicWorkflowService,
-    coursesDistributor: CoursesDistributor,
-  ): State {
+  suspend fun execute(bot: BehaviourContext, teacherApi: TeacherApi): State {
     with(bot) {
-      coursesDistributor.setCourseGroup(courseId, context.id.chatId)
+      teacherApi.setCourseGroup(courseId, context.id.chatId)
       while (true) {
         merge(
             waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->
@@ -53,7 +48,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               if (maybeCounter != null) {
                 val data = storedInfo[maybeCounter]
                 if (data != null) {
-                  academicWorkflowService.assessSolution(
+                  teacherApi.assessSolution(
                     data.first,
                     TeacherId(1L),
                     data.second,
@@ -65,7 +60,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
               } else if (dataCallback.data == "no") {
                 with(bot) { dataCallback.message?.let { delete(it) } }
               }
-              tryProcessGradingByButtonPress(dataCallback, academicWorkflowService)
+              tryProcessGradingByButtonPress(dataCallback, teacherApi)
             },
           )
           .first()

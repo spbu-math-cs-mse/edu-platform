@@ -1,10 +1,6 @@
-package com.github.heheteam.teacherbot.run
+package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.TelegramBotController
 import com.github.heheteam.commonlib.notifications.BotEventBus
@@ -27,6 +23,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAn
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.extensions.utils.groupContentMessageOrNull
+import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
@@ -57,12 +54,7 @@ class TeacherRunner(
           solutionTeacherNotifier.notifyNewSolution(solution)
         }
         println(getMe())
-        setMyCommands(
-          listOf(
-            dev.inmo.tgbotapi.types.BotCommand("start", "start"),
-            dev.inmo.tgbotapi.types.BotCommand("end", "endCommand"),
-          )
-        )
+        setMyCommands(listOf(BotCommand("start", "start"), BotCommand("end", "endCommand")))
         command("start") { startFsm(it) }
         stateRegister.registerTeacherStates(this)
 
@@ -95,24 +87,15 @@ class TeacherRunner(
   }
 }
 
-class StateRegister(
-  private val teacherStorage: TeacherStorage,
-  private val coursesDistributor: CoursesDistributor,
-  private val academicWorkflowService: AcademicWorkflowService,
-  private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
-) {
+class StateRegister(private val teacherApi: TeacherApi) {
   fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>) {
     with(context) {
-      strictlyOn<ListeningForSolutionsGroupState>({ state ->
-        state.execute(this, academicWorkflowService, coursesDistributor)
-      })
-      registerState<StartState, TeacherStorage>(teacherStorage)
-      registerState<DeveloperStartState, TeacherStorage>(teacherStorage)
-      strictlyOn<MenuState> { state ->
-        state.handle(this, teacherStorage, academicWorkflowService, technicalMessageStorage)
-      }
-      registerState<PresetTeacherState, CoursesDistributor>(coursesDistributor)
-      registerState<ChooseGroupCourseState, CoursesDistributor>(coursesDistributor)
+      strictlyOn<ListeningForSolutionsGroupState>({ state -> state.execute(this, teacherApi) })
+      registerState<StartState, TeacherApi>(teacherApi)
+      registerState<DeveloperStartState, TeacherApi>(teacherApi)
+      strictlyOn<MenuState> { state -> state.handle(this, teacherApi) }
+      registerState<PresetTeacherState, TeacherApi>(teacherApi)
+      registerState<ChooseGroupCourseState, TeacherApi>(teacherApi)
     }
   }
 }

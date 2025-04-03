@@ -57,8 +57,9 @@ import com.github.heheteam.parentbot.ParentApi
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.run.studentRun
-import com.github.heheteam.teacherbot.run.StateRegister
-import com.github.heheteam.teacherbot.run.TeacherRunner
+import com.github.heheteam.teacherbot.StateRegister
+import com.github.heheteam.teacherbot.TeacherApi
+import com.github.heheteam.teacherbot.TeacherRunner
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
@@ -209,18 +210,20 @@ class MultiBotRunner : CliktCommand() {
         solutionCourseResolver,
         menuMessageUpdaterService,
       )
+
+    val teacherApi =
+      TeacherApi(
+        coursesDistributor,
+        academicWorkflowService,
+        teacherStorage,
+        tgTechnicalMessagesStorage,
+      )
     runBlocking {
       launch {
         studentRun(studentBotToken, studentStorage, problemStorage, studentApi, developerOptions)
       }
       launch {
-        val stateRegister =
-          StateRegister(
-            teacherStorage,
-            coursesDistributorDecorator,
-            academicWorkflowService,
-            tgTechnicalMessagesStorage,
-          )
+        val stateRegister = StateRegister(teacherApi)
         val teacherRunner =
           TeacherRunner(teacherBotToken, botEventBus, stateRegister, developerOptions)
         teacherRunner.execute(

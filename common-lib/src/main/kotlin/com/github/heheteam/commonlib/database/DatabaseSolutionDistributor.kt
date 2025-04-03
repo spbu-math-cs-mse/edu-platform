@@ -121,6 +121,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
       )
     }
 
+  @Suppress("LongMethod") // a long database query
   override fun querySolution(courseId: CourseId): Result<Solution?, SolutionResolveError> =
     transaction(database) {
       val solution =

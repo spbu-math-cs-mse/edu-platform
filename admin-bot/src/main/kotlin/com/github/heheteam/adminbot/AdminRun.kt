@@ -12,6 +12,7 @@ import com.github.heheteam.adminbot.states.QueryCourseForEditing
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.registerState
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel

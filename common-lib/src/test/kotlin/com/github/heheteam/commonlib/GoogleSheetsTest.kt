@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable

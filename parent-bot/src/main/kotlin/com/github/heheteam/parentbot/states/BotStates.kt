@@ -1,7 +1,7 @@
 package com.github.heheteam.parentbot.states
 
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.ParentId
+import com.github.heheteam.commonlib.interfaces.ParentId
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 

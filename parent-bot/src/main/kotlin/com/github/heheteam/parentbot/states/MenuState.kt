@@ -1,11 +1,11 @@
 package com.github.heheteam.parentbot.states
 
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.parentbot.Dialogues
 import com.github.heheteam.parentbot.Keyboards
-import com.github.heheteam.parentbot.ParentApi
+import com.github.heheteam.commonlib.api.ParentApi
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send

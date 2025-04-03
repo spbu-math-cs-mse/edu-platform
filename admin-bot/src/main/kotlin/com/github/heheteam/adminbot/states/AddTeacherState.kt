@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminApi
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.adminbot.Dialogues.manyIdsAlreadyExistForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.manyIdsAreGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.manyTeacherIdsDoNotExist
@@ -9,7 +9,7 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForTeacherAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -35,9 +35,9 @@ class AddTeacherState(override val context: User, val course: Course, val course
   }
 
   override suspend fun intro(
-    bot: BehaviourContext,
-    service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
+      bot: BehaviourContext,
+      service: AdminApi,
+      updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
   ) {
     val introMessage =
       bot.send(context) {
@@ -113,9 +113,9 @@ class AddTeacherState(override val context: User, val course: Course, val course
   }
 
   override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: AdminApi,
-    response: List<String>,
+      bot: BehaviourContext,
+      service: AdminApi,
+      response: List<String>,
   ) {
     sentMessages.forEach { bot.delete(it) }
     response.forEach { msg -> bot.send(context, msg) }

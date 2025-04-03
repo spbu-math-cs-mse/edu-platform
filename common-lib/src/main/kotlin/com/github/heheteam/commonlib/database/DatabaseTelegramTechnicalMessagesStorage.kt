@@ -2,11 +2,11 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable

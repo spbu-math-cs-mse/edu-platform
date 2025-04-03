@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib.api
+package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.CreateError
 import com.github.michaelbull.result.Result

@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminApi
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput

@@ -1,11 +1,11 @@
 package com.github.heheteam.parentbot.states
 
-import com.github.heheteam.commonlib.api.ParentId
+import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.parentbot.Dialogues
 import com.github.heheteam.parentbot.Keyboards
-import com.github.heheteam.parentbot.ParentApi
+import com.github.heheteam.commonlib.api.ParentApi
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker

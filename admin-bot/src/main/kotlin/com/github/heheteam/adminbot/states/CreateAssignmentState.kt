@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminApi
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.adminbot.Dialogues.askAssignmentDescription
 import com.github.heheteam.adminbot.Dialogues.askProblemsDescriptions
 import com.github.heheteam.adminbot.Dialogues.assignmentDescriptionIsNotText

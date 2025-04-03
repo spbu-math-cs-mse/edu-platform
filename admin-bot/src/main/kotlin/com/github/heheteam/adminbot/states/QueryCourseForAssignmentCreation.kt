@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminApi
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.Unhandled
@@ -20,9 +20,9 @@ data class QueryCourseForAssignmentCreation(override val context: User) :
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
   override suspend fun intro(
-    bot: BehaviourContext,
-    service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Course?, Any>,
+      bot: BehaviourContext,
+      service: AdminApi,
+      updateHandlersController: UpdateHandlersController<() -> Unit, Course?, Any>,
   ) {
     val courses = service.getCourses().map { it.value }
     val coursesPicker = createCoursePicker(courses)

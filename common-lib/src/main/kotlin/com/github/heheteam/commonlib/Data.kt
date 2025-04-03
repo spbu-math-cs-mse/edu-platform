@@ -1,12 +1,12 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.ParentId
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage

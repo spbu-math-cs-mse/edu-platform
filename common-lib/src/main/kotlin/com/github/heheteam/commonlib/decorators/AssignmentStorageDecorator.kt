@@ -3,11 +3,11 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.RatingRecorder
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.michaelbull.result.Result
 
 class AssignmentStorageDecorator(

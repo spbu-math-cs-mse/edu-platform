@@ -1,6 +1,7 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.api.ParentApi
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {

@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 
 data class DeveloperOptions(
   val presetStudentId: StudentId? = null,

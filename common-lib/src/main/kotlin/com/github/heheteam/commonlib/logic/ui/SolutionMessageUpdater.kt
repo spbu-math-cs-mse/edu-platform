@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.api.GradingEntry
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.interfaces.GradingEntry
+import com.github.heheteam.commonlib.interfaces.SolutionId
 
 interface SolutionMessageUpdater {
   fun updateSolutionMessageInGroup(solutionId: SolutionId, gradings: List<GradingEntry>)

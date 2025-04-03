@@ -5,9 +5,9 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SpreadsheetId
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.SpreadsheetId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.Permission

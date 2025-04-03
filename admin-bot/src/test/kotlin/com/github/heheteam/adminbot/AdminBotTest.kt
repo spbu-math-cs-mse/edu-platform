@@ -3,8 +3,9 @@ package com.github.heheteam.adminbot
 import com.github.heheteam.adminbot.states.parseProblemsDescriptions
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.ScheduledMessage
+import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage

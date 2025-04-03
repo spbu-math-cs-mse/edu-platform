@@ -2,9 +2,9 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage

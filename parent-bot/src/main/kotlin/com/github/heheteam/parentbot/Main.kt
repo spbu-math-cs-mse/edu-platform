@@ -1,5 +1,6 @@
 package com.github.heheteam.parentbot
 
+import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.loadConfig

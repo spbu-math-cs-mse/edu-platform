@@ -1,8 +1,4 @@
-package com.github.heheteam.adminbot
-
-import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.Teacher
+package com.github.heheteam.commonlib
 
 data class CourseStatistics(
   val studentsCount: Int,

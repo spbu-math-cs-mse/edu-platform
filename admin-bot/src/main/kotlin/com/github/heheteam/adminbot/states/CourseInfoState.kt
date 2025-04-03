@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminApi
-import com.github.heheteam.adminbot.CourseStatistics
+import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.CourseStatistics
 import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.Course

@@ -5,9 +5,9 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.StudentId
 
 private const val ID_COLUMN_WIDTH: Int = 30
 private const val RATING_COLUMN_WIDTH: Int = 40

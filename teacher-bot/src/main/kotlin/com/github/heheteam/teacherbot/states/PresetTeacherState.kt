@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotState
-import com.github.heheteam.teacherbot.TeacherApi
+import com.github.heheteam.commonlib.api.TeacherApi
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext

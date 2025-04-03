@@ -3,15 +3,15 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.GradingEntry
-import com.github.heheteam.commonlib.api.ProblemGrade
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.GradingEntry
+import com.github.heheteam.commonlib.interfaces.ProblemGrade
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 
 class GradeTableDecorator(

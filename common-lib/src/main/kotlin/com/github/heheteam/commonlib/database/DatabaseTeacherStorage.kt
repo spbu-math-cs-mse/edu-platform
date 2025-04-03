@@ -2,9 +2,9 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.toTeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherStorage
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable

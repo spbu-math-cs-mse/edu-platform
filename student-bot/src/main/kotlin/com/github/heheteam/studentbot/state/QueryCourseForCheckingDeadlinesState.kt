@@ -1,11 +1,11 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlers
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.createCoursePicker
 import com.github.heheteam.commonlib.util.map
-import com.github.heheteam.studentbot.StudentApi
+import com.github.heheteam.commonlib.api.StudentApi
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList

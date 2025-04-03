@@ -3,10 +3,10 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.ParentId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.StudentStorage
-import com.github.heheteam.commonlib.api.toStudentId
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.michaelbull.result.Err

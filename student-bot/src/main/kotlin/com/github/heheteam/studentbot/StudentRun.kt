@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot
 
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
@@ -28,9 +29,9 @@ import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
 suspend fun studentRun(
-  botToken: String,
-  studentApi: StudentApi,
-  developerOptions: DeveloperOptions? = DeveloperOptions(),
+    botToken: String,
+    studentApi: StudentApi,
+    developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) =
   telegramBotWithBehaviourAndFSMAndStartLongPolling(
       botToken,
@@ -60,8 +61,8 @@ private fun reportExceptionAndPreserveState(state: State, e: Throwable): State {
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerStates(
-  studentApi: StudentApi,
-  botToken: String,
+    studentApi: StudentApi,
+    botToken: String,
 ) {
   registerState<StartState, StudentApi>(studentApi)
   registerState<DeveloperStartState, StudentApi>(studentApi)
@@ -78,8 +79,8 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(
-  botToken: String,
-  studentApi: StudentApi,
+    botToken: String,
+    studentApi: StudentApi,
 ) {
   strictlyOn<SendSolutionState> { state ->
     state.studentBotToken = botToken

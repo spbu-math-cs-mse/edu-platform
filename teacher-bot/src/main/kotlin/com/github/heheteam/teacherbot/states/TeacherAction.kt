@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.interfaces.SolutionId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 sealed interface TeacherAction

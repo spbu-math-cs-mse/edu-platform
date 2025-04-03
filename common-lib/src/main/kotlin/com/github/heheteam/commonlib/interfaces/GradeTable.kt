@@ -1,9 +1,9 @@
-package com.github.heheteam.commonlib.api
+package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.ProblemGrade.Graded
+import com.github.heheteam.commonlib.interfaces.ProblemGrade.Graded
 import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable

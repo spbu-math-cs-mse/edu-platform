@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminApi
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.adminbot.Dialogues.manyIdsAlreadyExistForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.manyIdsAreGoodForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.manyStudentIdsDoNotExist
@@ -9,7 +9,7 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForStudentAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentAddition
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput

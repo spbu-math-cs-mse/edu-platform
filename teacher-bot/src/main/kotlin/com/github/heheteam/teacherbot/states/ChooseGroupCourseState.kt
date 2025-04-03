@@ -1,11 +1,11 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.toCourseId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
-import com.github.heheteam.teacherbot.TeacherApi
+import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.mapBoth

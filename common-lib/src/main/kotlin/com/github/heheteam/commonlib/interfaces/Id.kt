@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib.api
+package com.github.heheteam.commonlib.interfaces
 
 import kotlinx.serialization.Serializable
 

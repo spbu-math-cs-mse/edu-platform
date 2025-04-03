@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot.logic
 
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.logic.ui.UiController
 import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime

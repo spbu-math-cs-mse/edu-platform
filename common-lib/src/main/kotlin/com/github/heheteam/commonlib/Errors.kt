@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.TeacherId
 
 data class ResolveError<T : Any>(val id: T, val objectClassName: String? = id::class.simpleName) {
@@ -25,9 +24,5 @@ sealed interface SolutionResolveError {
 }
 
 class TeacherDoesNotExist(val id: TeacherId) : SolutionResolveError {
-  override fun toUserMessage(): String = "Учитель id=$id не существует"
-}
-
-class CourseDoesNotExist(val id: CourseId) : SolutionResolveError {
   override fun toUserMessage(): String = "Учитель id=$id не существует"
 }

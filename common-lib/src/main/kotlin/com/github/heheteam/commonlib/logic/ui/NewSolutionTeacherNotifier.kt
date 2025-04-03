@@ -6,7 +6,10 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
 
 class NewSolutionTeacherNotifier(
   private val telegramSolutionSender: TelegramSolutionSender,
@@ -20,11 +23,11 @@ class NewSolutionTeacherNotifier(
 
     val teacherId = solution.responsibleTeacherId
     if (teacherId != null) {
-      menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
+      menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId).onFailure { KSLog.error(it) }
     }
     val courseId = solutionCourseResolver.resolveCourse(solution.id).get()
     if (courseId != null) {
-      menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
+      menuMessageUpdater.updateMenuMessageInGroupChat(courseId).onFailure { KSLog.error(it) }
     }
   }
 
@@ -39,7 +42,7 @@ class NewSolutionTeacherNotifier(
         telegramSolutionSender
           .sendGroupSolutionNotification(courseOfSolution, solution)
           .mapError { SendToGroupSolutionError(courseOfSolution) }
-          .bind()
+          .bind() ?: return@binding
       telegramTechnicalMessageStorage.registerGroupSolutionPublication(
         solution.id,
         groupTechnicalMessage,

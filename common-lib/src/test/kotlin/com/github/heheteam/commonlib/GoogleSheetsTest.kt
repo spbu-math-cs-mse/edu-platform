@@ -13,6 +13,7 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -101,6 +102,8 @@ class GoogleSheetsTest {
         MessageId(0),
         SolutionContent(),
         ProblemId(problemId.toLong()),
+        LocalDateTime.now(),
+        teacher1Id,
       )
     }
     for (problemId in 1..6) {
@@ -110,6 +113,8 @@ class GoogleSheetsTest {
         MessageId(0),
         SolutionContent(),
         ProblemId(problemId.toLong() * 2),
+        LocalDateTime.now(),
+        teacher1Id,
       )
     }
 

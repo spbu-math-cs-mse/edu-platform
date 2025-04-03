@@ -4,8 +4,8 @@ import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -26,15 +26,11 @@ class MenuMessageUpdaterImpl(
 ) : MenuMessageUpdater, TelegramBotController {
   private lateinit var myBot: TelegramBot
 
-  override fun updateMenuMessageInPersonalChat(teacherId: TeacherId) {
+  override fun updateMenuMessageInPersonalChat(teacherId: TeacherId): Result<Unit, String> =
     runBlocking(Dispatchers.IO) {
-      coroutineBinding {
-        technicalMessageStorage
-          .resolveTeacherMenuMessage(teacherId)
-          .mapBoth(
-            { menuMessages -> deleteMenuMessages(menuMessages) },
-            { KSLog.warning("No menu messages registered") },
-          )
+      return@runBlocking coroutineBinding {
+        val menuMessages = technicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
+        deleteMenuMessages(menuMessages)
 
         val (chatId, messageId) =
           technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
@@ -50,17 +46,12 @@ class MenuMessageUpdaterImpl(
         )
       }
     }
-  }
 
-  override fun updateMenuMessageInGroupChat(courseId: CourseId) {
+  override fun updateMenuMessageInGroupChat(courseId: CourseId): Result<Unit, String> =
     runBlocking(Dispatchers.IO) {
-      coroutineBinding {
-        technicalMessageStorage
-          .resolveGroupMenuMessage(courseId)
-          .mapBoth(
-            { menuMessages -> deleteMenuMessages(menuMessages) },
-            { KSLog.warning("No menu messages registered") },
-          )
+      return@runBlocking coroutineBinding {
+        val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
+        deleteMenuMessages(menuMessages)
 
         val (chatId, messageId) =
           technicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
@@ -76,7 +67,6 @@ class MenuMessageUpdaterImpl(
         )
       }
     }
-  }
 
   private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {
     menuMessages.map { menuMessage ->

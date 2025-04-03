@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.GradingEntry
 import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
@@ -56,6 +57,98 @@ class DatabaseTest {
     val resolvedCourse = coursesDistributor.resolveCourse(requiredId)
     assertEquals(true, resolvedCourse.isOk)
     assertEquals(sampleDescription, resolvedCourse.value.name)
+  }
+
+  private fun createAssignment(courseId: CourseId): List<Problem> {
+    val assignment =
+      assignmentStorage.createAssignment(
+        courseId,
+        "",
+        listOf(
+          ProblemDescription(1, "1", "", 1),
+          ProblemDescription(2, "2", "", 1),
+          ProblemDescription(3, "3", "", 1),
+          ProblemDescription(4, "4", "", 1),
+          ProblemDescription(5, "5", "", 1),
+        ),
+        problemStorage,
+      )
+    return problemStorage.getProblemsFromAssignment(assignment)
+  }
+
+  @Test
+  fun `query solution returns last unchecked solution`() {
+    val chatId = RawChatId(0)
+
+    val courseId = coursesDistributor.createCourse("sample course")
+    val teacherId = teacherStorage.createTeacher()
+    val studentId = studentStorage.createStudent()
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+
+    val solutions =
+      createAssignment(courseId).map { problem ->
+        solutionDistributor.inputSolution(
+          studentId,
+          chatId,
+          MessageId(problem.id.id),
+          SolutionContent(text = "sample${problem.number}"),
+          problem.id,
+          LocalDateTime.now(),
+          teacherId,
+        )
+      }
+
+    gradeTable.recordSolutionAssessment(solutions[0], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[2], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[3], teacherId, SolutionAssessment(0))
+
+    val solutionId1 = solutionDistributor.querySolution(teacherId)
+    assertEquals(solutions[1], solutionId1.value!!.id)
+    gradeTable.recordSolutionAssessment(solutions[1], teacherId, SolutionAssessment(0))
+
+    val solutionId2 = solutionDistributor.querySolution(teacherId)
+    assertEquals(solutions[4], solutionId2.value!!.id)
+    gradeTable.recordSolutionAssessment(solutions[4], teacherId, SolutionAssessment(0))
+
+    assertEquals(null, solutionDistributor.querySolution(teacherId).value)
+  }
+
+  @Test
+  fun `query solution from course returns last unchecked solution`() {
+    val chatId = RawChatId(0)
+
+    val courseId = coursesDistributor.createCourse("sample course")
+    val teacherId = teacherStorage.createTeacher()
+    val studentId = studentStorage.createStudent()
+    coursesDistributor.addStudentToCourse(studentId, courseId)
+    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+
+    val solutions =
+      createAssignment(courseId).map { problem ->
+        solutionDistributor.inputSolution(
+          studentId,
+          chatId,
+          MessageId(problem.id.id),
+          SolutionContent(text = "sample${problem.number}"),
+          problem.id,
+          LocalDateTime.now(),
+        )
+      }
+
+    gradeTable.recordSolutionAssessment(solutions[0], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[2], teacherId, SolutionAssessment(0))
+    gradeTable.recordSolutionAssessment(solutions[3], teacherId, SolutionAssessment(0))
+
+    val solutionId1 = solutionDistributor.querySolution(courseId)
+    assertEquals(solutions[1], solutionId1.value!!.id)
+    gradeTable.recordSolutionAssessment(solutions[1], teacherId, SolutionAssessment(0))
+
+    val solutionId2 = solutionDistributor.querySolution(courseId)
+    assertEquals(solutions[4], solutionId2.value!!.id)
+    gradeTable.recordSolutionAssessment(solutions[4], teacherId, SolutionAssessment(0))
+
+    assertEquals(null, solutionDistributor.querySolution(courseId).value)
   }
 
   private val emptyContent = SolutionContent()

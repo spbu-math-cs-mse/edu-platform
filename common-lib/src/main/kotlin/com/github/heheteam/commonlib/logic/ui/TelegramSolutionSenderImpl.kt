@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -62,16 +63,13 @@ class TelegramSolutionSenderImpl(
   override fun sendGroupSolutionNotification(
     courseId: CourseId,
     solution: Solution,
-  ): Result<TelegramMessageInfo, String> =
+  ): Result<TelegramMessageInfo?, String> =
     runBlocking(Dispatchers.IO) {
       coroutineBinding {
         val bot = lateInitTeacherBot.toResultOr { "uninitialized telegram bot" }.bind()
         with(bot) {
           val chat =
-            coursesDistributor
-              .resolveCourseGroup(courseId)
-              .mapError { "no chat registered for $courseId" }
-              .bind()
+            coursesDistributor.resolveCourseGroup(courseId).get() ?: return@coroutineBinding null
           val solutionMessage = sendSolutionContent(chat.toChatId(), solution.content)
           val technicalMessageContent =
             prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(

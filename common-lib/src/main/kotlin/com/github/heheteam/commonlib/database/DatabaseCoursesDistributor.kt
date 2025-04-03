@@ -210,7 +210,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           ?: return@transaction Err(ResolveError(courseId))
       val chatId =
         row[CourseTable.groupRawChatId]
-          ?: return@transaction Err(ResolveError<CourseId>(courseId, "SpreadsheetId"))
+          ?: return@transaction Err(ResolveError<CourseId>(courseId, "RawChatId"))
       Ok(RawChatId(chatId))
     }
 

@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send

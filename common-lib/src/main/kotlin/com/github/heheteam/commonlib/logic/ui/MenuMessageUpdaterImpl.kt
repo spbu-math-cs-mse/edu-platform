@@ -17,9 +17,9 @@ import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-private object Dialogues {
-  const val MENU: String = "\u2705 Главное меню"
-}
+
+const val MENU: String = "\u2705 Главное меню"
+
 
 class MenuMessageUpdaterImpl(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage

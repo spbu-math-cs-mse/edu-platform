@@ -1,34 +1,30 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.AttachmentKind
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAttachment
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.api.ProblemId
+import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.toSolutionId
-import com.github.heheteam.commonlib.util.isDeadlineMissed
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
-import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
+import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.studentbot.Dialogues
-import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.metaData.back
-import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
-import dev.inmo.micro_utils.coroutines.filterNotNull
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
+import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
-import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.AudioContent
@@ -38,88 +34,87 @@ import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.VideoContent
-import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
   override val context: User,
   val studentId: StudentId,
-  var selectedCourse: Course,
-) : State
+  val problem: Problem,
+) : BotStateWithHandlers<SolutionInputRequest?, SolutionInputRequest?, StudentApi> {
+  lateinit var studentBotToken: String
 
-@Suppress("LongMethod") // should be fixed in "commands-from-anywhere"
-@OptIn(ExperimentalCoroutinesApi::class)
-fun DefaultBehaviourContextWithFSM<State>.strictlyOnSendSolutionState(
-  core: StudentApi,
-  studentBotToken: String,
-) {
-  strictlyOn<SendSolutionState> { state ->
-    val studentId = state.studentId
-    val assignments = core.getCourseAssignments(state.selectedCourse.id)
-    val problems = assignments.associateWith { core.getProblemsFromAssignment(it) }
-    val problem =
-      queryProblem(state, problems) ?: return@strictlyOn MenuState(state.context, state.studentId)
-
-    var botMessage =
-      bot.send(state.context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
-
-    flowOf(
-        waitDataCallbackQueryWithUser(state.context.id),
-        waitTextMessageWithUser(state.context.id),
-        waitMediaMessageWithUser(state.context.id),
-        waitDocumentMessageWithUser(state.context.id),
-      )
-      .flattenMerge()
-      .map { solutionMessage ->
-        when (solutionMessage) {
-          is DataCallbackQuery ->
-            if (solutionMessage.data == RETURN_BACK) {
-              deleteMessage(botMessage)
-              MenuState(state.context, state.studentId)
-            } else null
-
-          is CommonMessage<*> -> {
-            val attachment = extractSolutionContent(solutionMessage, studentBotToken)
-            deleteMessage(botMessage)
-
-            if (attachment == null) {
-              botMessage =
-                bot.send(state.context, Dialogues.tellSolutionTypeIsInvalid(), replyMarkup = back())
-              return@map null
-            }
-
-            if (isDeadlineMissed(problem)) {
-              bot.reply(solutionMessage, "К сожалению, дедлайн по задаче уже истек :(")
-            } else {
-              return@map ConfirmSubmissionState(
-                state.context,
-                Solution(
-                  0L.toSolutionId(),
-                  studentId,
-                  solutionMessage.chat.id.chatId,
-                  solutionMessage.messageId,
-                  problem.id,
-                  attachment,
-                  null,
-                  java.time.LocalDateTime.now().toKotlinLocalDateTime(),
-                ),
-              )
-            }
-
-            MenuState(state.context, state.studentId)
-          }
-
-          else -> null
-        }
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: StudentApi,
+    updateHandlersController: UpdateHandlersController<() -> Unit, SolutionInputRequest?, Any>,
+  ) {
+    bot.send(context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
+    bot.setMyCommands(BotCommand("menu", "main menu"))
+    updateHandlersController.addTextMessageHandler { message ->
+      if (message.content.text == "/menu") {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
       }
-      .filterNotNull()
-      .first()
+    }
+    updateHandlersController.addTextMessageHandler { message ->
+      bot.parseSentSolution(message, studentBotToken)
+    }
+    updateHandlersController.addMediaMessageHandler { message ->
+      bot.setMessageReaction(message, "\uD83E\uDD23")
+      bot.parseSentSolution(message, studentBotToken)
+    }
+    updateHandlersController.addDocumentMessageHandler { message ->
+      bot.parseSentSolution(message, studentBotToken)
+    }
+    updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
+      if (dataCallbackQuery.data == RETURN_BACK) {
+        UserInput(null)
+      } else {
+        Unhandled
+      }
+    }
   }
+
+  override fun computeNewState(
+    service: StudentApi,
+    input: SolutionInputRequest?,
+  ): Pair<State, SolutionInputRequest?> {
+    return if (input == null) {
+      MenuState(context, studentId) to input
+    } else {
+      ConfirmSubmissionState(context, input) to input
+    }
+  }
+
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: StudentApi,
+    response: SolutionInputRequest?,
+  ) = Unit
+
+  private suspend fun BehaviourContext.parseSentSolution(
+    solutionMessage: CommonMessage<*>,
+    studentBotToken: String,
+  ): HandlerResultWithUserInput<Nothing, SolutionInputRequest, String> {
+    val attachment = extractSolutionContent(solutionMessage, studentBotToken)
+    return if (attachment == null) {
+      HandlingError(Dialogues.tellSolutionTypeIsInvalid())
+    } else {
+      UserInput(
+        SolutionInputRequest(
+          studentId,
+          problem.id,
+          attachment,
+          TelegramMessageInfo(solutionMessage.chat.id.chatId, solutionMessage.messageId),
+          LocalDateTime.now().toKotlinLocalDateTime(),
+        )
+      )
+    }
+  }
+
+  override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }
 
 private suspend fun BehaviourContext.makeURL(
@@ -190,28 +185,3 @@ private suspend fun BehaviourContext.extractMultipleAttachments(
       SolutionAttachment(kind, makeURL(it.content, studentBotToken), it.content.media.fileId.fileId)
     },
   )
-
-private suspend fun BehaviourContext.queryProblem(
-  state: SendSolutionState,
-  problems: Map<Assignment, List<Problem>>,
-): Problem? {
-  val message =
-    bot.send(
-      state.context,
-      Dialogues.askProblem(),
-      replyMarkup = buildProblemSendingSelector(problems),
-    )
-
-  var callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  while (callbackData == FICTITIOUS) {
-    callbackData = waitDataCallbackQueryWithUser(state.context.id).first().data
-  }
-  deleteMessage(message)
-
-  if (callbackData == RETURN_BACK) {
-    return null
-  }
-
-  val problemId = callbackData.split(" ").last()
-  return problems.values.flatten().single { it.id == ProblemId(problemId.toLong()) }
-}

@@ -8,9 +8,9 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.TelegramBotController
 import com.github.heheteam.commonlib.notifications.BotEventBus
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
+import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
-import com.github.heheteam.commonlib.util.registerState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
 import com.github.heheteam.teacherbot.states.ListeningForSolutionsGroupState

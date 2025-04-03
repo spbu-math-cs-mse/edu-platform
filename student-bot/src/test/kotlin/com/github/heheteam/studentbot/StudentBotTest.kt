@@ -4,6 +4,8 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.AssignmentStorage
 import com.github.heheteam.commonlib.api.CourseId
 import com.github.heheteam.commonlib.api.CoursesDistributor
@@ -31,17 +33,22 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import io.mockk.mockk
 import java.time.LocalDateTime
+import korlibs.time.fromMinutes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 
 class StudentBotTest {
   private lateinit var coursesDistributor: CoursesDistributor
   private lateinit var solutionDistributor: SolutionDistributor
-  private lateinit var studentCore: StudentApi
+  private lateinit var studentApi: StudentApi
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
   private lateinit var studentStorage: StudentStorage
@@ -88,17 +95,10 @@ class StudentBotTest {
     studentStorage = DatabaseStudentStorage(database)
     teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
-
     gradeTable = DatabaseGradeTable(database)
     academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
 
-    courseIds =
-      listOf(
-        coursesDistributor.createCourse("course 1"),
-        coursesDistributor.createCourse("course 2"),
-        coursesDistributor.createCourse("course 3"),
-        coursesDistributor.createCourse("course 4"),
-      )
+    courseIds = (1..4).map { coursesDistributor.createCourse("course $it") }
 
     val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
     val mockUiController = mockk<UiController>(relaxed = true)
@@ -115,7 +115,7 @@ class StudentBotTest {
         mockUiController,
       )
 
-    studentCore =
+    studentApi =
       StudentApi(coursesDistributor, problemStorage, assignmentStorage, academicWorkflowService)
   }
 
@@ -123,7 +123,7 @@ class StudentBotTest {
   fun `new student courses assignment test`() {
     val studentId = studentStorage.createStudent()
 
-    val studentCourses = studentCore.getStudentCourses(studentId)
+    val studentCourses = studentApi.getStudentCourses(studentId)
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.id })
   }
 
@@ -131,10 +131,10 @@ class StudentBotTest {
   fun `new student courses handling test`() {
     val studentId = studentStorage.createStudent()
 
-    studentCore.applyForCourse(studentId, courseIds[0])
-    studentCore.applyForCourse(studentId, courseIds[3])
+    studentApi.applyForCourse(studentId, courseIds[0])
+    studentApi.applyForCourse(studentId, courseIds[3])
 
-    val studentCourses = studentCore.getStudentCourses(studentId)
+    val studentCourses = studentApi.getStudentCourses(studentId)
 
     assertEquals(
       listOf(courseIds[0], courseIds[3]),
@@ -154,18 +154,24 @@ class StudentBotTest {
     coursesDistributor.addStudentToCourse(userId, courseId)
     coursesDistributor.addTeacherToCourse(teacherId, courseId)
 
+    var time = kotlinx.datetime.LocalDateTime(2000, 12, 1, 12, 0, 0)
     createAssignment(courseId).forEach { problem ->
-      studentCore.inputSolution(
-        userId,
-        chatId,
-        MessageId(problem.id.id),
-        SolutionContent(text = "sample${problem.number}"),
-        problem.id,
+      studentApi.inputSolution(
+        SolutionInputRequest(
+          userId,
+          problem.id,
+          SolutionContent(text = "sample${problem.number}"),
+          TelegramMessageInfo(chatId, MessageId(problem.id.id)),
+          time,
+        )
       )
+      time =
+        (time.toInstant(TimeZone.UTC) + Duration.fromMinutes(1.0)).toLocalDateTime(TimeZone.UTC)
     }
 
     repeat(5) {
       val solution = solutionDistributor.querySolution(teacherId).value
+      println(solution)
       if (solution != null) {
         solutions.add(solution.id)
         gradeTable.recordSolutionAssessment(

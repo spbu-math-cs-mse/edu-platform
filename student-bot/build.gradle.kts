@@ -6,6 +6,14 @@ application {
     mainClass.set("com.github.heheteam.studentbot.MainKt")
 }
 
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(files("$projectDir/config/detekt/detekt.yml"))
+    parallel = false
+    ignoreFailures = false
+}
+
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.17")

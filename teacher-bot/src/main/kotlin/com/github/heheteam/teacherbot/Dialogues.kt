@@ -1,8 +1,5 @@
 package com.github.heheteam.teacherbot
 
-import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Student
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {
@@ -18,23 +15,16 @@ object Dialogues {
       "• Отправлять обратную связь\n" +
       "• Выставлять оценки\n"
 
-  fun devAskForId(): String = "Введите свой id:"
+  const val devAskForId: String = "Введите свой id:"
 
-  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  const val devIdNotFound: String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
 
-  fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
+  const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 
-  fun askFirstName(): String = "Как я могу к вам обращаться? Напишите ваше имя."
+  const val askFirstName: String = "Как я могу к вам обращаться? Напишите ваше имя."
 
   fun askLastName(firstName: String): String =
     "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"
 
-  fun solutionInfo(student: Student, assignment: Assignment, problem: Problem): String =
-    "Ученик: ${student.surname} ${student.name}\n" +
-      "Серия: ${assignment.description}\n" +
-      "Задача: ${problem.number}"
-
-  fun menu(): String = "\u2705 Главное меню"
-
-  fun noSolutionsToCheck(): String = "Задач для проверки нет!"
+  const val menu: String = "\u2705 Главное меню"
 }

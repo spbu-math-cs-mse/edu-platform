@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.util.BotState
+import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.get
@@ -21,7 +21,7 @@ class StartState(override val context: User) : BotState<TeacherId?, String, Teac
     if (teacherId != null) {
       return teacherId
     }
-    bot.send(context, Dialogues.greetings() + Dialogues.askFirstName())
+    bot.send(context, Dialogues.greetings() + Dialogues.askFirstName)
     val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
     bot.send(context, Dialogues.askLastName(firstName))
     val lastName = bot.waitTextMessageWithUser(context.id).first().content.text
@@ -29,7 +29,7 @@ class StartState(override val context: User) : BotState<TeacherId?, String, Teac
   }
 
   override fun computeNewState(service: TeacherStorage, input: TeacherId?): Pair<State, String> {
-    val teacherId = input ?: return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong())
+    val teacherId = input ?: return Pair(DeveloperStartState(context), Dialogues.devIdIsNotLong)
     return Pair(MenuState(context, teacherId), Dialogues.greetings())
   }
 

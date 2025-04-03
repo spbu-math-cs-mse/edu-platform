@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib.util
+package com.github.heheteam.commonlib.state
 
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext

@@ -1,7 +1,5 @@
-package com.github.heheteam.parentbot.run
+package com.github.heheteam.parentbot
 
-import com.github.heheteam.commonlib.api.ParentStorage
-import com.github.heheteam.parentbot.ParentCore
 import com.github.heheteam.parentbot.states.StartState
 import com.github.heheteam.parentbot.states.strictlyOnChildPerformanceState
 import com.github.heheteam.parentbot.states.strictlyOnGivingFeedbackState
@@ -21,7 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(RiskFeature::class)
-suspend fun parentRun(botToken: String, parentStorage: ParentStorage, core: ParentCore) {
+suspend fun parentRun(botToken: String, parentApi: ParentApi) {
   telegramBot(botToken) {
     logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
       println(defaultMessageFormatter(level, tag, message, throwable))
@@ -46,10 +44,10 @@ suspend fun parentRun(botToken: String, parentStorage: ParentStorage, core: Pare
         }
       }
 
-      strictlyOnStartState(parentStorage, isDeveloperRun = true)
-      strictlyOnMenuState(core)
+      strictlyOnStartState(parentApi, isDeveloperRun = true)
+      strictlyOnMenuState(parentApi)
       strictlyOnGivingFeedbackState()
-      strictlyOnChildPerformanceState(core)
+      strictlyOnChildPerformanceState(parentApi)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }

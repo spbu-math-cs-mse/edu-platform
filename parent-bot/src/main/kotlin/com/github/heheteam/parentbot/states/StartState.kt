@@ -1,11 +1,11 @@
 package com.github.heheteam.parentbot.states
 
 import com.github.heheteam.commonlib.api.ParentId
-import com.github.heheteam.commonlib.api.ParentStorage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.parentbot.Dialogues
 import com.github.heheteam.parentbot.Keyboards
+import com.github.heheteam.parentbot.ParentApi
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -13,8 +13,9 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import kotlinx.coroutines.flow.first
 
+@Suppress("LongMethod", "CyclomaticComplexMethod") // legacy; fix later
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
-  parentStorage: ParentStorage,
+  parentApi: ParentApi,
   isDeveloperRun: Boolean = false,
 ) {
   strictlyOn<StartState> { state ->
@@ -23,7 +24,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       return@strictlyOn null
     }
 
-    var parentId = parentStorage.resolveByTgId(state.context.id).get()?.id
+    var parentId = parentApi.tryLoginByTelegramId(state.context.id).get()?.id
     if (!isDeveloperRun && parentId == null) {
       bot.send(state.context, Dialogues.greetings())
 
@@ -42,7 +43,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
 
       // discard student class data
       waitDataCallbackQueryWithUser(state.context.id).first().data
-      parentId = parentStorage.createParent()
+      parentId = parentApi.createParent()
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId())
@@ -55,7 +56,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
           bot.send(state.context, Dialogues.devIdIsNotLong())
           continue
         }
-        val parent = parentStorage.resolveParent(parentIdFromText)
+        val parent = parentApi.tryLoginByParentId(parentIdFromText)
         if (parent.isErr) {
           bot.send(state.context, Dialogues.devIdNotFound())
           continue

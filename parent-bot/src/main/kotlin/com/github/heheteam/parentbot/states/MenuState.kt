@@ -5,14 +5,14 @@ import com.github.heheteam.commonlib.api.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.parentbot.Dialogues
 import com.github.heheteam.parentbot.Keyboards
-import com.github.heheteam.parentbot.ParentCore
+import com.github.heheteam.parentbot.ParentApi
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import kotlinx.coroutines.flow.first
 
-fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: ParentCore) {
+fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(parentApi: ParentApi) {
   strictlyOn<MenuState> { state ->
     val parentId = state.parentId
 
@@ -22,7 +22,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(core: ParentCor
       bot.send(
         state.context,
         Dialogues.menu(),
-        replyMarkup = Keyboards.menu(core.getChildren(parentId)),
+        replyMarkup = Keyboards.menu(parentApi.getChildren(parentId)),
       )
 
     when (val command = waitDataCallbackQueryWithUser(state.context.id).first().data) {

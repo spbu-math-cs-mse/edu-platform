@@ -51,7 +51,7 @@ object Dialogues {
 
   fun acceptFeedback(): String = "Отлично, я уже побежал передавать твой ответ администратору"
 
-  fun childPerformance(child: Student, core: ParentCore) =
+  fun childPerformance(child: Student, core: ParentApi) =
     "Успеваемость ребенка $child:\n\n" +
       (core
         .getStudentPerformance(child.id)

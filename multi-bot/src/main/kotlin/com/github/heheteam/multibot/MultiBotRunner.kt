@@ -53,8 +53,8 @@ import com.github.heheteam.commonlib.notifications.RedisBotEventBus
 import com.github.heheteam.commonlib.notifications.StudentNotificationService
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.fillWithSamples
-import com.github.heheteam.parentbot.ParentCore
-import com.github.heheteam.parentbot.run.parentRun
+import com.github.heheteam.parentbot.ParentApi
+import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentApi
 import com.github.heheteam.studentbot.run.studentRun
 import com.github.heheteam.teacherbot.run.StateRegister
@@ -192,7 +192,8 @@ class MultiBotRunner : CliktCommand() {
         teacherStorage,
       )
 
-    val parentCore = ParentCore(DatabaseStudentStorage(database), DatabaseGradeTable(database))
+    val parentApi =
+      ParentApi(DatabaseStudentStorage(database), DatabaseGradeTable(database), parentStorage)
     val presetStudent = presetStudentId?.toStudentId()
     val presetTeacher = presetTeacherId?.toTeacherId()
     val developerOptions = DeveloperOptions(presetStudent, presetTeacher)
@@ -237,7 +238,7 @@ class MultiBotRunner : CliktCommand() {
           adminCore,
         )
       }
-      launch { parentRun(parentBotToken, parentStorage, parentCore) }
+      launch { parentRun(parentBotToken, parentApi) }
     }
   }
 }

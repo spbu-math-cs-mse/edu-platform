@@ -15,7 +15,7 @@ import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.michaelbull.result.binding
 import kotlinx.datetime.LocalDateTime
 
-class AcademicWorkflowService(
+internal class AcademicWorkflowService(
   private val academicWorkflowLogic: AcademicWorkflowLogic,
   private val responsibleTeacherResolver: ResponsibleTeacherResolver,
   private val botEventBus: BotEventBus,

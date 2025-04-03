@@ -18,7 +18,8 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-class StudentApi(
+class StudentApi
+internal constructor(
   private val coursesDistributor: CoursesDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,

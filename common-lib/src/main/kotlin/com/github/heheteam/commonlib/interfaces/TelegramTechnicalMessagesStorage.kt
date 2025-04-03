@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.michaelbull.result.Result
 
-interface TelegramTechnicalMessagesStorage {
+internal interface TelegramTechnicalMessagesStorage {
   fun registerGroupSolutionPublication(
     solutionId: SolutionId,
     telegramMessageInfo: TelegramMessageInfo,

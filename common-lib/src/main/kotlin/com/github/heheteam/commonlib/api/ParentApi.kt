@@ -14,7 +14,8 @@ import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.utils.mapNotNullValues
 
-class ParentApi(
+class ParentApi
+internal constructor(
   private val studentStorage: StudentStorage,
   private val gradeTable: GradeTable,
   private val parentStorage: ParentStorage,

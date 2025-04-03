@@ -7,7 +7,7 @@ import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.michaelbull.result.binding
 
-class StudentNewGradeNotifierImpl(
+internal class StudentNewGradeNotifierImpl(
   private val botEventBus: BotEventBus,
   private val problemStorage: ProblemStorage,
   private val solutionDistributor: SolutionDistributor,

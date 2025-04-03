@@ -11,7 +11,7 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
 
-class FirstTeacherResolver(
+internal class FirstTeacherResolver(
   val problemStorage: ProblemStorage,
   val assignmentStorage: AssignmentStorage,
   val coursesDistributor: CoursesDistributor,

@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.Student
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-interface StudentStorage {
+internal interface StudentStorage {
   fun bindStudentToParent(
     studentId: StudentId,
     parentId: ParentId,

@@ -26,7 +26,7 @@ sealed class ProblemGrade(open val grade: Grade?) {
 fun Int.toGraded() = Graded(this)
 
 // bound to a course
-interface GradeTable {
+internal interface GradeTable {
   // maps student problem ids to grades
   fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?>
 

@@ -26,7 +26,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-class DatabaseTelegramTechnicalMessagesStorage(
+internal class DatabaseTelegramTechnicalMessagesStorage(
   val database: Database,
   val solutionDistributor: SolutionDistributor,
 ) : TelegramTechnicalMessagesStorage {

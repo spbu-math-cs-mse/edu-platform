@@ -17,7 +17,8 @@ import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
 
-class TeacherApi(
+class TeacherApi
+internal constructor(
   private val coursesDistributor: CoursesDistributor,
   private val academicWorkflowService: AcademicWorkflowService,
   private val teacherStorage: TeacherStorage,

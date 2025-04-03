@@ -9,7 +9,7 @@ import com.github.heheteam.commonlib.Teacher
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
 
-interface CoursesDistributor {
+internal interface CoursesDistributor {
   fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,

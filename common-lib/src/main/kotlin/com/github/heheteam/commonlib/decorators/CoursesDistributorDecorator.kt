@@ -16,7 +16,7 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getError
 import dev.inmo.tgbotapi.types.RawChatId
 
-class CoursesDistributorDecorator(
+internal class CoursesDistributorDecorator(
   private val coursesDistributor: CoursesDistributor,
   private val ratingRecorder: RatingRecorder,
 ) : CoursesDistributor {

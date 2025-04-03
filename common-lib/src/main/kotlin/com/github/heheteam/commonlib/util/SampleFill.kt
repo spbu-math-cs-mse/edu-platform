@@ -16,7 +16,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
-fun generateCourse(
+internal fun generateCourse(
   name: String,
   coursesDistributor: CoursesDistributor,
   assignmentStorage: AssignmentStorage,
@@ -49,7 +49,7 @@ data class FillContent(
 )
 
 @Suppress("LongParameterList")
-fun fillWithSamples(
+internal fun fillWithSamples(
   coursesDistributor: CoursesDistributor,
   problemStorage: ProblemStorage,
   assignmentStorage: AssignmentStorage,

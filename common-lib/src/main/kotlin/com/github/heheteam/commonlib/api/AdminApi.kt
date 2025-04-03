@@ -25,7 +25,8 @@ import java.time.LocalDateTime
   "LongParameterList",
   "TooManyFunctions",
 ) // shortcut to make this not to long; should be fixed later
-class AdminApi(
+class AdminApi
+internal constructor(
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
   private val coursesDistributor: CoursesDistributor,
   private val studentStorage: StudentStorage,

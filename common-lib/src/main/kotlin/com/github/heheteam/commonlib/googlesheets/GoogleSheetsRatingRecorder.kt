@@ -28,7 +28,8 @@ import kotlinx.coroutines.sync.withLock
 
 private const val DELAY_IN_MILLISECONDS: Long = 1000
 
-class GoogleSheetsRatingRecorder(
+class GoogleSheetsRatingRecorder
+internal constructor(
   private val googleSheetsService: GoogleSheetsService,
   private val coursesDistributor: CoursesDistributor,
   private val assignmentStorage: AssignmentStorage,

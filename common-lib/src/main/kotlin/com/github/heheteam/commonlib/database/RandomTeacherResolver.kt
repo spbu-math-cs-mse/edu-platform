@@ -12,7 +12,7 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
 
-class RandomTeacherResolver(
+internal class RandomTeacherResolver(
   val problemStorage: ProblemStorage,
   val assignmentStorage: AssignmentStorage,
   val coursesDistributor: CoursesDistributor,

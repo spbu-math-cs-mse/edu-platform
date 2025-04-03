@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
 
-interface AssignmentStorage {
+internal interface AssignmentStorage {
   fun resolveAssignment(assignmentId: AssignmentId): Result<Assignment, ResolveError<AssignmentId>>
 
   fun createAssignment(

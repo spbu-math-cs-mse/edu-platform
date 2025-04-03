@@ -17,7 +17,7 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 
-class SolutionDistributorDecorator(
+internal class SolutionDistributorDecorator(
   private val solutionDistributor: SolutionDistributor,
   private val ratingRecorder: GoogleSheetsRatingRecorder,
 ) : SolutionDistributor {

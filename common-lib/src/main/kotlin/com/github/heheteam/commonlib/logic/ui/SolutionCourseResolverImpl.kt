@@ -8,7 +8,8 @@ import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 
-class SolutionCourseResolverImpl(
+class SolutionCourseResolverImpl
+internal constructor(
   private val solutionStorage: SolutionDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,

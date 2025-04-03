@@ -11,7 +11,8 @@ import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-class SolutionMessageUpdaterImpl(
+class SolutionMessageUpdaterImpl
+internal constructor(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
 ) : SolutionMessageUpdater, TelegramBotController {

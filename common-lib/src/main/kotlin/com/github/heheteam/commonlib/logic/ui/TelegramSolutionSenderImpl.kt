@@ -28,7 +28,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class TelegramSolutionSenderImpl(
+class TelegramSolutionSenderImpl
+internal constructor(
   private val teacherStorage: TeacherStorage,
   private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
   private val coursesDistributor: CoursesDistributor,

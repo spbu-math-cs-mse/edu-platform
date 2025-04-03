@@ -4,6 +4,6 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-interface AdminIdRegistry {
+internal interface AdminIdRegistry {
   fun getUserId(tgId: UserId): Result<AdminId, ResolveError<UserId>>
 }

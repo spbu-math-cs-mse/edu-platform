@@ -10,7 +10,7 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 
-interface SolutionDistributor {
+internal interface SolutionDistributor {
   @Suppress("LongParameterList")
   fun inputSolution(
     studentId: StudentId,

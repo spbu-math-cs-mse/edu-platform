@@ -21,9 +21,9 @@ private object Dialogues {
   const val MENU: String = "\u2705 Главное меню"
 }
 
-class MenuMessageUpdaterImpl(
-  private val technicalMessageStorage: TelegramTechnicalMessagesStorage
-) : MenuMessageUpdater, TelegramBotController {
+class MenuMessageUpdaterImpl
+internal constructor(private val technicalMessageStorage: TelegramTechnicalMessagesStorage) :
+  MenuMessageUpdater, TelegramBotController {
   private lateinit var myBot: TelegramBot
 
   override fun updateMenuMessageInPersonalChat(teacherId: TeacherId): Result<Unit, String> =

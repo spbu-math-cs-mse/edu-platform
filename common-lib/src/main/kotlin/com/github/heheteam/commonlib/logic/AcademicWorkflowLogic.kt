@@ -16,7 +16,8 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 
-class AcademicWorkflowLogic(
+class AcademicWorkflowLogic
+internal constructor(
   private val solutionDistributor: SolutionDistributor,
   private val gradeTable: GradeTable,
 ) {

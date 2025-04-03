@@ -8,7 +8,7 @@ import com.github.michaelbull.result.onFailure
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 
-class UiControllerTelegramSender(
+internal class UiControllerTelegramSender(
   private val studentNotifier: StudentNewGradeNotifier,
   private val journalUpdater: JournalUpdater,
   private val menuMessageUpdater: MenuMessageUpdater,

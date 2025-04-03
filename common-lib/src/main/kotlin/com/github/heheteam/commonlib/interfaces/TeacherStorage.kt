@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.Teacher
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-interface TeacherStorage {
+internal interface TeacherStorage {
   fun createTeacher(
     name: String = "defaultName",
     surname: String = "defaultSurname",

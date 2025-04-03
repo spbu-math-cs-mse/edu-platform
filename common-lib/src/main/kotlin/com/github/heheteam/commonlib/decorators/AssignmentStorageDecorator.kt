@@ -10,7 +10,8 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.michaelbull.result.Result
 
-class AssignmentStorageDecorator(
+class AssignmentStorageDecorator
+internal constructor(
   private val assignmentStorage: AssignmentStorage,
   private val ratingRecorder: RatingRecorder,
 ) : AssignmentStorage {

@@ -14,7 +14,7 @@ import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 
-class GradeTableDecorator(
+internal class GradeTableDecorator(
   private val gradeTable: GradeTable,
   private val ratingRecorder: GoogleSheetsRatingRecorder,
 ) : GradeTable {

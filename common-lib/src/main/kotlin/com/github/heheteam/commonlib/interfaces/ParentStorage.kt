@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-interface ParentStorage {
+internal interface ParentStorage {
   fun createParent(): ParentId
 
   fun resolveParent(parentId: ParentId): Result<Parent, ResolveError<ParentId>>

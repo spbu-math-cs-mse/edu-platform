@@ -11,7 +11,7 @@ import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 
-class NewSolutionTeacherNotifier(
+internal class NewSolutionTeacherNotifier(
   private val telegramSolutionSender: TelegramSolutionSender,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val solutionCourseResolver: SolutionCourseResolver,

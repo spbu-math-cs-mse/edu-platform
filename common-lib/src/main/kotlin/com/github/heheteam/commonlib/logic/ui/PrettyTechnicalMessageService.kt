@@ -13,7 +13,8 @@ import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapBoth
 
-class PrettyTechnicalMessageService(
+class PrettyTechnicalMessageService
+internal constructor(
   private val solutionDistributor: SolutionDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,

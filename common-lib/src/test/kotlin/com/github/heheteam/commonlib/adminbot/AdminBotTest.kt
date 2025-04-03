@@ -1,10 +1,11 @@
-package com.github.heheteam.adminbot
+package com.github.heheteam.commonlib.adminbot
 
-import com.github.heheteam.adminbot.states.parseProblemsDescriptions
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
@@ -17,7 +18,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.Database
 
 class AdminBotTest {
@@ -37,6 +37,9 @@ class AdminBotTest {
       DatabaseCoursesDistributor(database),
       DatabaseStudentStorage(database),
       DatabaseTeacherStorage(database),
+      DatabaseAssignmentStorage(database),
+      DatabaseProblemStorage(database),
+      DatabaseSolutionDistributor(database),
     )
 
   private val course = Course(CourseId(1L), "")
@@ -76,32 +79,5 @@ class AdminBotTest {
     assertEquals(true, core.courseExists(courseName))
     assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName))
     assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses())
-  }
-
-  @Test
-  fun parsingProblemsDescriptionsTest() {
-    var problemsDescriptions =
-      "1\n" + "2 \"\" 5\n" + "3a \"Лёгкая задача\"\n" + "3b \"Сложная задача\" 10"
-    val parsedProblemsDescriptions = parseProblemsDescriptions(problemsDescriptions)
-    assertTrue(parsedProblemsDescriptions.isOk)
-    val expectedProblemsDescriptions =
-      listOf(
-        ProblemDescription(1, "1"),
-        ProblemDescription(2, "2", maxScore = 5),
-        ProblemDescription(3, "3a", "Лёгкая задача"),
-        ProblemDescription(4, "3b", "Сложная задача", 10),
-      )
-    assertEquals(expectedProblemsDescriptions, parsedProblemsDescriptions.value)
-
-    problemsDescriptions =
-      "1 2 3 4\n" + "2 \"\" 5\n" + "3a \"Лёгкая задача\"\n" + "3b \"Сложная задача\" 10"
-    assertTrue(parseProblemsDescriptions(problemsDescriptions).isErr)
-
-    problemsDescriptions = "1\n" + "\n" + "3a \"Лёгкая задача\"\n" + "3b \"Сложная задача\" 10"
-    assertTrue(parseProblemsDescriptions(problemsDescriptions).isErr)
-
-    problemsDescriptions =
-      "1\n" + "2 \"\" b\n" + "3a \"Лёгкая задача\"\n" + "3b \"Сложная задача\" 10"
-    assertTrue(parseProblemsDescriptions(problemsDescriptions).isErr)
   }
 }

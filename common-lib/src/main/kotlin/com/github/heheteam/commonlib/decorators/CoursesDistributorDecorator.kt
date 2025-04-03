@@ -69,7 +69,7 @@ class CoursesDistributorDecorator(
     rawChatId: RawChatId,
   ): Result<Unit, ResolveError<CourseId>> = coursesDistributor.setCourseGroup(courseId, rawChatId)
 
-  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId, ResolveError<CourseId>> =
+  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
     coursesDistributor.resolveCourseGroup(courseId)
 
   override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId) =

@@ -44,7 +44,7 @@ interface CoursesDistributor {
 
   fun setCourseGroup(courseId: CourseId, rawChatId: RawChatId): Result<Unit, ResolveError<CourseId>>
 
-  fun resolveCourseGroup(courseId: CourseId): Result<RawChatId, ResolveError<CourseId>>
+  fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>>
 
   fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId)
 

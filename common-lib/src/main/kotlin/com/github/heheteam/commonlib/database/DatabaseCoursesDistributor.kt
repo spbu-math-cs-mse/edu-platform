@@ -203,11 +203,11 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       }
     }
 
-  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId, ResolveError<CourseId>> =
+  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
     transaction(database) {
       val row =
         CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
-          ?: return@transaction Err(ResolveError(courseId))
+          ?: return@transaction Ok(null)
       val chatId =
         row[CourseTable.groupRawChatId]
           ?: return@transaction Err(ResolveError<CourseId>(courseId, "RawChatId"))

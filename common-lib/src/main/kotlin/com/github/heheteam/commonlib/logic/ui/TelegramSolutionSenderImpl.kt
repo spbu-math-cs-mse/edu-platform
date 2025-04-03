@@ -9,9 +9,9 @@ import com.github.heheteam.commonlib.api.SolutionId
 import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.util.sendSolutionContent
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -67,21 +67,25 @@ class TelegramSolutionSenderImpl(
     runBlocking(Dispatchers.IO) {
       coroutineBinding {
         val bot = lateInitTeacherBot.toResultOr { "uninitialized telegram bot" }.bind()
-        with(bot) {
-          val chat =
-            coursesDistributor.resolveCourseGroup(courseId).get() ?: return@coroutineBinding null
-          val solutionMessage = sendSolutionContent(chat.toChatId(), solution.content)
-          val technicalMessageContent =
-            prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
-              solution.id
-            )
-          val technicalMessage = reply(solutionMessage, technicalMessageContent)
-          editMessageReplyMarkup(
-            technicalMessage,
-            replyMarkup = createSolutionGradingKeyboard(solution.id),
-          )
-          TelegramMessageInfo(technicalMessage.chat.id.chatId, technicalMessage.messageId)
+        val chat =
+          coursesDistributor
+            .resolveCourseGroup(courseId)
+            .mapError { "Failed database query to get course group" }
+            .bind()
+        if (chat == null) {
+          Err("No chat registered for group").bind<Nothing>()
         }
+        val solutionMessage = bot.sendSolutionContent(chat.toChatId(), solution.content)
+        val technicalMessageContent =
+          prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
+            solution.id
+          )
+        val technicalMessage = bot.reply(solutionMessage, technicalMessageContent)
+        bot.editMessageReplyMarkup(
+          technicalMessage,
+          replyMarkup = createSolutionGradingKeyboard(solution.id),
+        )
+        TelegramMessageInfo(technicalMessage.chat.id.chatId, technicalMessage.messageId)
       }
     }
 

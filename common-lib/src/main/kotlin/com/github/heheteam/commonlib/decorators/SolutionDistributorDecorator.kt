@@ -2,9 +2,9 @@ package com.github.heheteam.commonlib.decorators
 
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.SolutionResolveError
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
@@ -25,7 +25,7 @@ internal class SolutionDistributorDecorator(
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    solutionContent: SolutionContent,
+    solutionContent: TextWithMediaAttachments,
     problemId: ProblemId,
     timestamp: LocalDateTime,
     teacherId: TeacherId?,

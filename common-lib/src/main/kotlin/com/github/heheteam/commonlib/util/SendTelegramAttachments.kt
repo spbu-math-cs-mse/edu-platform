@@ -1,21 +1,34 @@
 package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.AttachmentKind
-import com.github.heheteam.commonlib.SolutionAttachment
-import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.MediaAttachment
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import dev.inmo.tgbotapi.bot.TelegramBot
+import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
 import dev.inmo.tgbotapi.extensions.api.send.media.sendMediaGroup
 import dev.inmo.tgbotapi.extensions.api.send.media.sendPhoto
+import dev.inmo.tgbotapi.extensions.api.send.reply
+import dev.inmo.tgbotapi.extensions.api.send.replyWithDocument
+import dev.inmo.tgbotapi.extensions.api.send.replyWithMediaGroup
+import dev.inmo.tgbotapi.extensions.api.send.replyWithPhoto
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.ChatId
+import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
 import dev.inmo.tgbotapi.types.media.TelegramMediaPhoto
+import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
+import dev.inmo.tgbotapi.types.message.content.AudioContent
+import dev.inmo.tgbotapi.types.message.content.DocumentContent
+import dev.inmo.tgbotapi.types.message.content.MediaContent
 import dev.inmo.tgbotapi.types.message.content.MediaGroupContent
 import dev.inmo.tgbotapi.types.message.content.MediaGroupPartContent
+import dev.inmo.tgbotapi.types.message.content.PhotoContent
+import dev.inmo.tgbotapi.types.message.content.TextContent
+import dev.inmo.tgbotapi.types.message.content.VideoContent
 import dev.inmo.tgbotapi.utils.RiskFeature
 import java.io.File
 import java.io.FileOutputStream
@@ -35,35 +48,49 @@ fun downloadFile(fileURL: String, outputFileName: String): File {
   return file
 }
 
-suspend fun TelegramBot.sendSolutionContent(
+suspend fun TelegramBot.sendTextWithMediaAttachments(
   chatId: ChatId,
-  solutionContent: SolutionContent,
+  content: TextWithMediaAttachments,
   replyMarkup: InlineKeyboardMarkup? = null,
+  replyTo: MessageId? = null,
 ): ContentMessage<*> {
-  val attachments = solutionContent.attachments
-  val text = solutionContent.text
+  val attachments = content.attachments
+  val text = content.text
   val singleAttachment = attachments.singleOrNull()
   return if (attachments.isEmpty()) {
-    sendMessage(chatId, text, replyMarkup = replyMarkup)
+    if (replyTo == null) {
+      sendMessage(chatId, text, replyMarkup = replyMarkup)
+    } else {
+      reply(chatId, replyTo, text, replyMarkup = replyMarkup)
+    }
   } else if (singleAttachment != null) {
-    sendSingleMedia(singleAttachment, chatId, solutionContent)
+    sendSingleMedia(singleAttachment, chatId, content, replyTo)
   } else {
-    sendSolutionAsGroupMedia(attachments, text, chatId)
+    sendSolutionAsGroupMedia(attachments, text, chatId, replyTo)
   }
 }
 
 private suspend fun TelegramBot.sendSingleMedia(
-  singleAttachment: SolutionAttachment,
+  singleAttachment: MediaAttachment,
   chatId: ChatId,
-  solutionContent: SolutionContent,
+  solutionContent: TextWithMediaAttachments,
+  replyTo: MessageId? = null,
 ): ContentMessage<MediaGroupPartContent> {
   val file = downloadFile(singleAttachment.downloadUrl, singleAttachment.uniqueString)
   return when (singleAttachment.kind) {
     AttachmentKind.PHOTO -> {
-      sendPhoto(chatId, file.asMultipartFile(), text = solutionContent.text)
+      if (replyTo == null) {
+        sendPhoto(chatId, file.asMultipartFile(), text = solutionContent.text)
+      } else {
+        replyWithPhoto(chatId, replyTo, file.asMultipartFile(), text = solutionContent.text)
+      }
     }
     AttachmentKind.DOCUMENT -> {
-      sendDocument(chatId, file.asMultipartFile(), text = solutionContent.text)
+      if (replyTo == null) {
+        sendDocument(chatId, file.asMultipartFile(), text = solutionContent.text)
+      } else {
+        replyWithDocument(chatId, replyTo, file.asMultipartFile(), text = solutionContent.text)
+      }
     }
   }.also {
     try {
@@ -74,9 +101,10 @@ private suspend fun TelegramBot.sendSingleMedia(
 
 @OptIn(RiskFeature::class)
 private suspend fun TelegramBot.sendSolutionAsGroupMedia(
-  attachments: List<SolutionAttachment>,
+  attachments: List<MediaAttachment>,
   text: String,
   chatId: ChatId,
+  replyTo: MessageId? = null,
 ): ContentMessage<MediaGroupContent<MediaGroupPartContent>> {
   val (telegramMediaGroup, files) =
     attachments
@@ -94,7 +122,10 @@ private suspend fun TelegramBot.sendSolutionAsGroupMedia(
         } to file
       }
       .unzip()
-  return sendMediaGroup(chatId, telegramMediaGroup).also {
+  val message =
+    if (replyTo == null) sendMediaGroup(chatId, telegramMediaGroup)
+    else replyWithMediaGroup(chatId, replyTo, telegramMediaGroup)
+  return message.also {
     files.forEach { file ->
       try {
         file.delete()
@@ -102,3 +133,64 @@ private suspend fun TelegramBot.sendSolutionAsGroupMedia(
     }
   }
 }
+
+private suspend fun makeURL(content: MediaContent, botToken: String, bot: TelegramBot): String {
+  val contentInfo = bot.getFileAdditionalInfo(content)
+  return "https://api.telegram.org/file/bot$botToken/${contentInfo.filePath}"
+}
+
+suspend fun extractTextWithMediaAttachments(
+  message: CommonMessage<*>,
+  botToken: String,
+  bot: TelegramBot,
+): TextWithMediaAttachments? =
+  when (val content = message.content) {
+    is TextContent -> TextWithMediaAttachments(content.text)
+    is PhotoContent ->
+      extractSingleAttachment(content.text.orEmpty(), AttachmentKind.PHOTO, content, botToken, bot)
+
+    is DocumentContent ->
+      extractSingleAttachment(
+        content.text.orEmpty(),
+        AttachmentKind.DOCUMENT,
+        content,
+        botToken,
+        bot,
+      )
+
+    is MediaGroupContent<*> -> extractMultipleAttachments(content, botToken, bot)
+    else -> null
+  }
+
+private suspend fun extractSingleAttachment(
+  text: String,
+  attachmentKind: AttachmentKind,
+  content: MediaContent,
+  botToken: String,
+  bot: TelegramBot,
+) =
+  TextWithMediaAttachments(
+    text,
+    listOf(
+      MediaAttachment(attachmentKind, makeURL(content, botToken, bot), content.media.fileId.fileId)
+    ),
+  )
+
+private suspend fun extractMultipleAttachments(
+  content: MediaGroupContent<*>,
+  botToken: String,
+  bot: TelegramBot,
+): TextWithMediaAttachments? =
+  TextWithMediaAttachments(
+    content.text.orEmpty(),
+    content.group.map {
+      val kind =
+        when (it.content) {
+          is DocumentContent -> AttachmentKind.DOCUMENT
+          is PhotoContent -> AttachmentKind.PHOTO
+          is AudioContent -> return null
+          is VideoContent -> return null
+        }
+      MediaAttachment(kind, makeURL(it.content, botToken, bot), it.content.media.fileId.fileId)
+    },
+  )

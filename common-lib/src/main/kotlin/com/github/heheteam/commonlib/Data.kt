@@ -59,16 +59,16 @@ enum class AttachmentKind {
 }
 
 @Serializable
-data class SolutionAttachment(
+data class MediaAttachment(
   val kind: AttachmentKind,
   val downloadUrl: String,
-  val uniqueString: String,
+  val uniqueString: String, // used do form a download file name
 )
 
 @Serializable
-data class SolutionContent(
+data class TextWithMediaAttachments(
   val text: String = "",
-  val attachments: List<SolutionAttachment> = listOf(),
+  val attachments: List<MediaAttachment> = listOf(),
 )
 
 @Serializable
@@ -78,7 +78,7 @@ data class Solution(
   val chatId: RawChatId,
   val messageId: MessageId,
   val problemId: ProblemId,
-  val content: SolutionContent,
+  val content: TextWithMediaAttachments,
   val responsibleTeacherId: TeacherId?,
   val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
 )
@@ -92,7 +92,11 @@ data class Assignment(
   val courseId: CourseId,
 )
 
-@Serializable data class SolutionAssessment(val grade: Grade, val comment: String = "")
+@Serializable
+data class SolutionAssessment(
+  val grade: Grade,
+  val comment: TextWithMediaAttachments = TextWithMediaAttachments(),
+)
 
 @Serializable data class TelegramMessageInfo(val chatId: RawChatId, val messageId: MessageId)
 
@@ -105,7 +109,7 @@ data class MenuMessageInfo(val chatId: RawChatId, val messageId: MessageId? = nu
 data class SolutionInputRequest(
   val studentId: StudentId,
   val problemId: ProblemId,
-  val solutionContent: SolutionContent,
+  val solutionContent: TextWithMediaAttachments,
   val telegramMessageInfo: TelegramMessageInfo,
   val timestamp: LocalDateTime,
 )

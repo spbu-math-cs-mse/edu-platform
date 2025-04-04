@@ -2,9 +2,9 @@ package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.SolutionResolveError
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -16,7 +16,7 @@ internal interface SolutionDistributor {
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    solutionContent: SolutionContent,
+    solutionContent: TextWithMediaAttachments,
     problemId: ProblemId,
     timestamp: LocalDateTime = LocalDateTime.now(),
     teacherId: TeacherId? = null,

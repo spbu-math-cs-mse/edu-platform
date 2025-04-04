@@ -5,20 +5,21 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.utils.contentMessageOrNull
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -66,16 +67,21 @@ fun tryProcessGradingByButtonPress(
   )
 }
 
-@OptIn(RiskFeature::class)
-internal fun extractAssessmentFromMessage(
-  commonMessage: CommonMessage<TextContent>
-): Result<SolutionAssessment, String> = binding {
-  val comment = commonMessage.text.orEmpty()
+internal suspend fun extractAssessmentFromMessage(
+  commonMessage: CommonMessage<*>,
+  teacherBotToken: String,
+  telegramBot: TelegramBot,
+): Result<SolutionAssessment, String> = coroutineBinding {
+  val content =
+    extractTextWithMediaAttachments(commonMessage, teacherBotToken, telegramBot)
+      .toResultOr { "Unsupported attachment type" }
+      .bind()
+  val comment = content.text
   val grade =
     when {
       comment.contains("[+]") -> Ok(1)
       comment.contains("[-]") -> Ok(0)
       else -> Err("message must contain [+] or [-] to be graded")
     }.bind()
-  SolutionAssessment(grade, commonMessage.text.orEmpty())
+  SolutionAssessment(grade, content)
 }

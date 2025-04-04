@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.long
 import com.github.heheteam.adminbot.adminRun
 import com.github.heheteam.commonlib.api.ApiFabric
+import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
@@ -57,7 +58,7 @@ class MultiBotRunner : CliktCommand() {
 
     val studentNotificationService = StudentNotificationService(bot)
     val apiFabric = ApiFabric(database, config, googleSheetsService, studentNotificationService)
-    val apis = apiFabric.createApis(initDatabase, useRedis)
+    val apis = apiFabric.createApis(initDatabase, useRedis, TeacherResolverKind.FIRST)
 
     val developerOptions = run {
       val presetStudent = presetStudentId?.toStudentId()

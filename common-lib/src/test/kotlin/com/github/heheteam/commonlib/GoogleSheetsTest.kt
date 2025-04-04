@@ -98,7 +98,7 @@ class GoogleSheetsTest {
         student1Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(),
+        TextWithMediaAttachments(),
         ProblemId(problemId.toLong()),
         LocalDateTime.now(),
         teacher1Id,
@@ -109,7 +109,7 @@ class GoogleSheetsTest {
         student2Id,
         RawChatId(0),
         MessageId(0),
-        SolutionContent(),
+        TextWithMediaAttachments(),
         ProblemId(problemId.toLong() * 2),
         LocalDateTime.now(),
         teacher1Id,
@@ -122,7 +122,7 @@ class GoogleSheetsTest {
       gradeTable.recordSolutionAssessment(
         solution.id,
         teacher1Id,
-        SolutionAssessment(solutionId % 2, "comment"),
+        SolutionAssessment(solutionId % 2, TextWithMediaAttachments("comment")),
       )
     }
 

@@ -8,7 +8,7 @@ import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
-import com.github.heheteam.commonlib.util.sendSolutionContent
+import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -46,7 +46,8 @@ internal constructor(
         with(bot) {
           val teacher =
             teacherStorage.resolveTeacher(teacherId).mapError { "Failed to resolve teacher" }.bind()
-          val solutionMessage = sendSolutionContent(teacher.tgId.toChatId(), solution.content)
+          val solutionMessage =
+            sendTextWithMediaAttachments(teacher.tgId.toChatId(), solution.content)
           val technicalMessageContent =
             prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
               solution.id
@@ -76,7 +77,7 @@ internal constructor(
         if (chat == null) {
           Err("No chat registered for group").bind<Nothing>()
         }
-        val solutionMessage = bot.sendSolutionContent(chat.toChatId(), solution.content)
+        val solutionMessage = bot.sendTextWithMediaAttachments(chat.toChatId(), solution.content)
         val technicalMessageContent =
           prettyTechnicalMessageService.createPrettyDisplayForTechnicalForTechnicalMessage(
             solution.id

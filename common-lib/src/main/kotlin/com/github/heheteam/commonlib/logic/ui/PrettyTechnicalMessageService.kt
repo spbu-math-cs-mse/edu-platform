@@ -47,7 +47,7 @@ internal constructor(
               appendLine("Проверил ${teacher.name} ${teacher.surname} (id=${teacher.id}")
               appendLine("Дата: ${entry.timestamp}")
               appendLine("Оценка: ${entry.assessment.grade}")
-              appendLine("Комментарий: \"${entry.assessment.comment}\"")
+              appendLine("Комментарий: \"${entry.assessment.comment.text}\"")
               appendLine("---")
             }
           }

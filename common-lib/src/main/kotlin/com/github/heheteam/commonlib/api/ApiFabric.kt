@@ -10,7 +10,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseTelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.database.RandomTeacherResolver
+import com.github.heheteam.commonlib.database.FirstTeacherResolver
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
@@ -139,13 +139,13 @@ class ApiFabric(
         solutionDistributor,
       )
     val teacherResolver: ResponsibleTeacherResolver =
-      //      FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
-      RandomTeacherResolver(
-        problemStorage,
-        assignmentStorage,
-        coursesDistributor,
-        solutionDistributor,
-      )
+      FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
+    //      RandomTeacherResolver(
+    //        problemStorage,
+    //        assignmentStorage,
+    //        coursesDistributor,
+    //        solutionDistributor,
+    //      )
     val academicWorkflowService =
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
     val studentApi =

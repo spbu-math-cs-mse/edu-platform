@@ -49,10 +49,9 @@ internal constructor(private val technicalMessageStorage: TelegramTechnicalMessa
 
   override fun updateMenuMessageInGroupChat(courseId: CourseId): Result<Unit, String> =
     runBlocking(Dispatchers.IO) {
-      return@runBlocking coroutineBinding {
+      coroutineBinding {
         val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
         deleteMenuMessages(menuMessages)
-
         val (chatId, messageId) =
           technicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
         val menuMessage =

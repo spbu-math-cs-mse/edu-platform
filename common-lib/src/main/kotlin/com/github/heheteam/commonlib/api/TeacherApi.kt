@@ -53,4 +53,7 @@ internal constructor(
 
   fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, String> =
     menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
+
+  fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, String> =
+    menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
 }

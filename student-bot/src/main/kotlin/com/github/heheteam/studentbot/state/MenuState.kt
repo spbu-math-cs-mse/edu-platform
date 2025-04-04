@@ -20,11 +20,9 @@ import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
@@ -44,7 +42,6 @@ data class MenuState(override val context: User, val studentId: StudentId) :
     val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
-    bot.setMyCommands(BotCommand("menu", "main menu"))
     updateHandlersController.addTextMessageHandler { message ->
       if (message.content.text == "/menu") {
         NewState(MenuState(context, studentId))

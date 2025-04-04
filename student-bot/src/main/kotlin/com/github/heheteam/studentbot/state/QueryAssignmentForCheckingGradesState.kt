@@ -15,11 +15,9 @@ import com.github.heheteam.commonlib.util.createAssignmentPicker
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.mapBoth
-import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
@@ -45,7 +43,6 @@ data class QueryAssignmentForCheckingGradesState(
     val selectCourseMessage =
       bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
     sentMessages.add(selectCourseMessage)
-    bot.setMyCommands(BotCommand("menu", "main menu"))
     updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
       if (maybeCommandMessage.content.text == "/menu") {
         NewState(MenuState(context, studentId))

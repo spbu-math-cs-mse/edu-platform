@@ -117,22 +117,21 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   ): Result<List<TelegramMessageInfo>, String> {
     val row =
       transaction(database) {
-          TeacherTable.join(
-              TeacherMenuMessageTable,
-              joinType = JoinType.INNER,
-              onColumn = TeacherTable.tgId,
-              otherColumn = TeacherMenuMessageTable.chatId,
+        TeacherTable.join(
+            TeacherMenuMessageTable,
+            joinType = JoinType.INNER,
+            onColumn = TeacherTable.tgId,
+            otherColumn = TeacherMenuMessageTable.chatId,
+          )
+          .selectAll()
+          .where(TeacherTable.id eq teacherId.long)
+          .map {
+            TelegramMessageInfo(
+              RawChatId(it[TeacherMenuMessageTable.chatId]),
+              MessageId(it[TeacherMenuMessageTable.messageId]),
             )
-            .selectAll()
-            .where(TeacherTable.id eq teacherId.long)
-            .map {
-              TelegramMessageInfo(
-                RawChatId(it[TeacherMenuMessageTable.chatId]),
-                MessageId(it[TeacherMenuMessageTable.messageId]),
-              )
-            }
-        }
-        .ifEmpty { null }
+          }
+      }
     return row.toResultOr { "" }
   }
 
@@ -170,23 +169,22 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   ): Result<List<TelegramMessageInfo>, String> {
     val row =
       transaction(database) {
-          CourseTable.join(
-              TeacherMenuMessageTable,
-              joinType = JoinType.INNER,
-              onColumn = CourseTable.groupRawChatId,
-              otherColumn = TeacherMenuMessageTable.chatId,
+        CourseTable.join(
+            TeacherMenuMessageTable,
+            joinType = JoinType.INNER,
+            onColumn = CourseTable.groupRawChatId,
+            otherColumn = TeacherMenuMessageTable.chatId,
+          )
+          .selectAll()
+          .where(CourseTable.id eq courseId.long)
+          .map {
+            TelegramMessageInfo(
+              RawChatId(it[TeacherMenuMessageTable.chatId]),
+              MessageId(it[TeacherMenuMessageTable.messageId]),
             )
-            .selectAll()
-            .where(CourseTable.id eq courseId.long)
-            .map {
-              TelegramMessageInfo(
-                RawChatId(it[TeacherMenuMessageTable.chatId]),
-                MessageId(it[TeacherMenuMessageTable.messageId]),
-              )
-            }
-        }
-        .ifEmpty { null }
-    return row.toResultOr { "" }
+          }
+      }
+    return row.toResultOr { "failed to resolve group menu message" }
   }
 
   override fun resolveGroupFirstUncheckedSolutionMessage(
@@ -195,7 +193,6 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     val row =
       transaction(database) {
         val solution = solutionDistributor.querySolution(courseId).get()
-
         if (solution == null) {
           val chatId =
             CourseTable.selectAll()

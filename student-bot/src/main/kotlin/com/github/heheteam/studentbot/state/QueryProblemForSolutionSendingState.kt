@@ -18,10 +18,8 @@ import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
@@ -37,8 +35,6 @@ class QueryProblemForSolutionSendingState(
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ) {
-
-    bot.setMyCommands(BotCommand("menu", "main menu"))
     updateHandlersController.addTextMessageHandler { message ->
       if (message.content.text == "/menu") {
         NewState(MenuState(context, studentId))

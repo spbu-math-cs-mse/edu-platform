@@ -32,14 +32,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.toKotlinLocalDateTime
 
-class ListeningForSolutionsGroupState(override val context: Chat, val courseId: CourseId) : State {
+class ListeningForSolutionsGroupState(override val context: Chat, private val courseId: CourseId) :
+  State {
   @OptIn(RiskFeature::class)
   suspend fun execute(bot: BehaviourContext, teacherApi: TeacherApi): State {
     with(bot) {
       teacherApi.setCourseGroup(courseId, context.id.chatId)
+      teacherApi.updateGroupMenuMessage(courseId)
       while (true) {
         merge(
             waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->
+              if (commonMessage.content.text == "/menu") {
+                teacherApi.updateGroupMenuMessage(courseId)
+                return@map
+              }
               val result = tryParseGradingReply(commonMessage, bot)
               result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
             },

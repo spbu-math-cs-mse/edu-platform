@@ -12,12 +12,10 @@ import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
@@ -47,7 +45,6 @@ class ConfirmSubmissionState(
         "Вы уверены, что хотите отправить это решение?",
         replyMarkup = confirmMessageKeyboard.keyboard,
       )
-    bot.setMyCommands(BotCommand("menu", "main menu"))
     updateHandlersController.addTextMessageHandler { message ->
       if (message.content.text == "/menu") {
         NewState(MenuState(context, solutionInputRequest.studentId))

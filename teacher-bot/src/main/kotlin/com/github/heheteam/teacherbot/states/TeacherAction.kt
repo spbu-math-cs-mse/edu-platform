@@ -18,3 +18,5 @@ data class ConfirmSending(val solutionId: SolutionId, val solutionAssessment: So
   TeacherAction
 
 data class DeleteMessage(val message: AccessibleMessage?) : TeacherAction
+
+data object UpdateMenuMessage : TeacherAction

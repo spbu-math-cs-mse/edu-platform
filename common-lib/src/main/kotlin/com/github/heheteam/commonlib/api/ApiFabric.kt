@@ -68,37 +68,36 @@ class ApiFabric(
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(initDatabase: Boolean, useRedis: Boolean): ApiCollection {
-    val coursesDistributor = DatabaseCoursesDistributor(database)
+    val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
-    val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
-    val solutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
+    val databaseAssignmentStorage: AssignmentStorage =
+      DatabaseAssignmentStorage(database, problemStorage)
+    val databaseSolutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
 
-    val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, databaseGradeTable)
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
         googleSheetsService,
-        coursesDistributor,
-        assignmentStorage,
+        databaseCoursesDistributor,
+        databaseAssignmentStorage,
         problemStorage,
-        solutionDistributor,
-        academicWorkflowLogic,
+        databaseSolutionDistributor,
+        AcademicWorkflowLogic(databaseSolutionDistributor, databaseGradeTable),
       )
     val studentStorage = DatabaseStudentStorage(database)
 
-    val coursesDistributorDecorator =
-      CoursesDistributorDecorator(coursesDistributor, ratingRecorder)
+    val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
-    val assignmentStorageDecorator = AssignmentStorageDecorator(assignmentStorage, ratingRecorder)
-    val solutionDistributorDecorator =
-      SolutionDistributorDecorator(solutionDistributor, ratingRecorder)
-
+    val assignmentStorage = AssignmentStorageDecorator(databaseAssignmentStorage, ratingRecorder)
+    val solutionDistributor =
+      SolutionDistributorDecorator(databaseSolutionDistributor, ratingRecorder)
+    val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
     if (initDatabase) {
       fillWithSamples(
-        coursesDistributorDecorator,
+        coursesDistributor,
         assignmentStorage,
         studentStorage,
         teacherStorage,
@@ -121,11 +120,11 @@ class ApiFabric(
       DatabaseTelegramTechnicalMessagesStorage(database, solutionDistributor)
     val prettyTechnicalMessageService =
       PrettyTechnicalMessageService(
-        solutionDistributorDecorator,
+        solutionDistributor,
         problemStorage,
         assignmentStorage,
         studentStorage,
-        databaseGradeTable,
+        gradeTable,
         teacherStorage,
       )
     val solutionMessageService =
@@ -150,9 +149,9 @@ class ApiFabric(
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
     val studentApi =
       StudentApi(
-        coursesDistributorDecorator,
+        coursesDistributor,
         problemStorage,
-        assignmentStorageDecorator,
+        assignmentStorage,
         academicWorkflowService,
         studentStorage,
       )
@@ -160,7 +159,7 @@ class ApiFabric(
     val adminApi =
       AdminApi(
         inMemoryScheduledMessagesDistributor,
-        coursesDistributorDecorator,
+        coursesDistributor,
         studentStorage,
         teacherStorage,
         assignmentStorage,
@@ -168,12 +167,11 @@ class ApiFabric(
         solutionDistributor,
       )
 
-    val parentApi =
-      ParentApi(DatabaseStudentStorage(database), DatabaseGradeTable(database), parentStorage)
+    val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
     val telegramSolutionSender =
       TelegramSolutionSenderImpl(teacherStorage, prettyTechnicalMessageService, coursesDistributor)
     val solutionCourseResolver =
-      SolutionCourseResolverImpl(solutionDistributor, problemStorage, assignmentStorageDecorator)
+      SolutionCourseResolverImpl(solutionDistributor, problemStorage, assignmentStorage)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         telegramSolutionSender,

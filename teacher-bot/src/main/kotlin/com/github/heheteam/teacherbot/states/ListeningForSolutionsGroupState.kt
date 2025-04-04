@@ -7,26 +7,30 @@ import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.info
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDocumentMessage
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitMediaMessage
+import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.Chat
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.content.TextContent
+import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDateTime
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -42,31 +46,21 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
       teacherApi.setCourseGroup(courseId, context.id.chatId)
       while (true) {
         merge(
-            waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->
-              val teacherBotToken =
-                lateinitTeacherBotToken
-                  ?: return@map run { sendMessage(context.id, "Uninitialized teacher bot token") }
-              val result = tryParseGradingReply(commonMessage, bot, teacherBotToken)
-              result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
-            },
+            merge(waitTextMessage(), waitMediaMessage(), waitDocumentMessage())
+              .filter { it.chat.id.chatId == context.id.chatId }
+              .map { message ->
+                val result = tryParseGradingReply(message, bot)
+                result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
+              },
             waitDataCallbackQueryWithUser(context.id.toChatId()).map { dataCallback ->
               val maybeCounter = dataCallback.data.toIntOrNull()
               if (maybeCounter != null) {
-                val data = storedInfo[maybeCounter]
-                if (data != null) {
-                  teacherApi.assessSolution(
-                    data.first,
-                    TeacherId(1L),
-                    data.second,
-                    LocalDateTime.now().toKotlinLocalDateTime(),
-                  )
-                } else {
-                  KSLog.info("null")
-                }
+                tryProcessConfirmingAssessment(maybeCounter, teacherApi, dataCallback)
               } else if (dataCallback.data == "no") {
                 with(bot) { dataCallback.message?.let { delete(it) } }
+              } else {
+                tryProcessGradingByButtonPress(dataCallback, teacherApi)
               }
-              tryProcessGradingByButtonPress(dataCallback, teacherApi)
             },
           )
           .first()
@@ -74,14 +68,37 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
     }
   }
 
+  @OptIn(RiskFeature::class)
+  private suspend fun BehaviourContext.tryProcessConfirmingAssessment(
+    maybeCounter: Int?,
+    teacherApi: TeacherApi,
+    dataCallback: DataCallbackQuery,
+  ): Unit? {
+    val data = storedInfo[maybeCounter]
+    return if (data != null) {
+      teacherApi.assessSolution(
+        data.first,
+        TeacherId(1L),
+        data.second,
+        LocalDateTime.now().toKotlinLocalDateTime(),
+      )
+      dataCallback.message?.let { delete(it) }
+    } else {
+      KSLog.info("null")
+    }
+  }
+
   private var counter = 0
   private val storedInfo = mutableMapOf<Int, Pair<SolutionId, SolutionAssessment>>()
 
   private suspend fun tryParseGradingReply(
-    commonMessage: CommonMessage<TextContent>,
+    commonMessage: CommonMessage<*>,
     bot: BehaviourContext,
-    teacherBotToken: String,
   ): Result<Unit, String> = coroutineBinding {
+    val teacherBotToken =
+      lateinitTeacherBotToken
+        .toResultOr { "Uninitialized teacher bot token in ListeningForSolutionGradeState" }
+        .bind()
     val technicalMessageText = extractReplyText(commonMessage).bind()
     val solutionId = parseTechnicalMessageContent(technicalMessageText).bind()
     val assessment = extractAssessmentFromMessage(commonMessage, teacherBotToken, bot).bind()

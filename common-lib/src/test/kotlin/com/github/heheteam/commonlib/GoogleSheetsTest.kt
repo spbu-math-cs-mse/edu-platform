@@ -16,11 +16,12 @@ import dev.inmo.tgbotapi.types.RawChatId
 import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import org.jetbrains.exposed.sql.Database
 
-// @Ignore
+@Ignore
 class GoogleSheetsTest {
   private val config = loadConfig()
 

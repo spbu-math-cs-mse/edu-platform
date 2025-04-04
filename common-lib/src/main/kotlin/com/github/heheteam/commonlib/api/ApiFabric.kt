@@ -190,7 +190,7 @@ class ApiFabric(
         coursesDistributor,
         academicWorkflowService,
         teacherStorage,
-        tgTechnicalMessagesStorage,
+        menuMessageUpdaterService,
       )
     val hack = Hack(solutionMessageService, menuMessageUpdaterService, telegramSolutionSender)
     return ApiCollection(studentApi, teacherApi, adminApi, parentApi, hack)

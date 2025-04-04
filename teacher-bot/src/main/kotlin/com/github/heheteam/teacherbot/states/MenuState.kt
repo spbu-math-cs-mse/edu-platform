@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -55,12 +54,8 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
   suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
     teacherApi.updateTgId(teacherId, context.id)
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
-    val menuMessage = bot.send(context, Dialogues.menu)
-    teacherApi.updateTeacherMenuMessage(
-      TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
-    )
+    teacherApi.updateTeacherMenuMessage(teacherId)
     messages.add(stickerMessage)
-    messages.add(menuMessage)
 
     val messageHandlers = createTextMessageHandlers()
     val dataCallbackQueryHandlers = createDataCallbackHandlers()
@@ -86,10 +81,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
   }
 
   private fun createTextMessageHandlers(): List<TextMessageHandler<TeacherAction, MessageError>> =
-    listOf(
-      ::tryParseGradingReplyWithoutChecking,
-      { message -> NewState(handleCommands(message.content.text).first).ok() },
-    )
+    listOf(::tryHandleSetIdCommand, ::tryHandleMenuCommand, ::tryParseGradingReplyWithoutChecking)
 
   private fun createDataCallbackHandlers() =
     listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress)
@@ -134,6 +126,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
           SolutionAssessment(action.grade, ""),
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
+
       is GradingFromReply -> {
         storedInfo[++counter] = action.solutionId to action.solutionAssessment
         bot.sendMessage(
@@ -150,35 +143,41 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
         )
       }
 
-      is ConfirmSending -> {
+      is ConfirmSending ->
         teacherApi.assessSolution(
           action.solutionId,
           teacherId,
           action.solutionAssessment,
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
-      }
 
-      is DeleteMessage -> {
-        with(bot) { action.message?.let { delete(it) } }
-      }
+      is DeleteMessage -> with(bot) { action.message?.let { delete(it) } }
+
+      is UpdateMenuMessage -> teacherApi.updateTeacherMenuMessage(teacherId)
     }
   }
 
-  private fun handleCommands(message: String): Pair<State, String?> {
+  private fun tryHandleMenuCommand(
+    message: CommonMessage<TextContent>
+  ): Result<ActionWrapper<TeacherAction>, Nothing>? =
+    if (message.content.text == "/menu") {
+      ActionWrapper<TeacherAction>(UpdateMenuMessage).ok()
+    } else null
+
+  private fun tryHandleSetIdCommand(
+    message: CommonMessage<TextContent>
+  ): Result<NewState, Nothing>? {
     val re = Regex("/setid ([0-9]+)")
-    val match = re.matchEntire(message)
+    val match = re.matchEntire(message.content.text)
     return if (match != null) {
       val newId =
         match.groups[1]?.value?.toLongOrNull()
           ?: run {
             logger.error("input id ${match.groups[1]} is not long!")
-            return Pair(MenuState(context, teacherId), null)
+            return NewState(MenuState(context, teacherId)).ok()
           }
-      Pair(PresetTeacherState(context, newId.toTeacherId()), null)
-    } else {
-      Pair(MenuState(context, teacherId), "Unrecognized command")
-    }
+      NewState(PresetTeacherState(context, newId.toTeacherId())).ok()
+    } else null
   }
 
   fun tryParseGradingReplyWithoutChecking(

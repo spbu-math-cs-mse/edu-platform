@@ -3,11 +3,11 @@ package com.github.heheteam.commonlib.logic.ui
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.util.sendSolutionContent
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
@@ -28,7 +28,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class TelegramSolutionSenderImpl(
+class TelegramSolutionSenderImpl
+internal constructor(
   private val teacherStorage: TeacherStorage,
   private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
   private val coursesDistributor: CoursesDistributor,

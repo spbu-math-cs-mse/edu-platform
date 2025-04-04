@@ -4,18 +4,18 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionInputRequest
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.ProblemGrade
-import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.ProblemGrade
+import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.michaelbull.result.binding
 import kotlinx.datetime.LocalDateTime
 
-class AcademicWorkflowService(
+internal class AcademicWorkflowService(
   private val academicWorkflowLogic: AcademicWorkflowLogic,
   private val responsibleTeacherResolver: ResponsibleTeacherResolver,
   private val botEventBus: BotEventBus,

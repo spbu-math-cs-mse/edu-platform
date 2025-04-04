@@ -1,12 +1,5 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.StudentStorage
-import com.github.heheteam.commonlib.api.TeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -14,6 +7,13 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.util.fillWithSamples
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test
@@ -43,17 +43,16 @@ class DatabaseStartupTest {
           config.databaseConfig.password,
         )
 
-      assignmentStorage = DatabaseAssignmentStorage(database)
+      problemStorage = DatabaseProblemStorage(database)
+      assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
       coursesDistributor = DatabaseCoursesDistributor(database)
       gradeTable = DatabaseGradeTable(database)
-      problemStorage = DatabaseProblemStorage(database)
       solutionDistributor = DatabaseSolutionDistributor(database)
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
       fillWithSamples(
         coursesDistributor,
-        problemStorage,
         assignmentStorage,
         studentStorage,
         teacherStorage,

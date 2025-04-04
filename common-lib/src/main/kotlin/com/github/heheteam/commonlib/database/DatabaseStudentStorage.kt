@@ -3,12 +3,12 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.ParentId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.StudentStorage
-import com.github.heheteam.commonlib.api.toStudentId
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -37,8 +37,8 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
     try {
       transaction(database) {
         ParentStudents.insert {
-          it[ParentStudents.studentId] = studentId.id
-          it[ParentStudents.parentId] = parentId.id
+          it[ParentStudents.studentId] = studentId.long
+          it[ParentStudents.parentId] = parentId.long
         }
       }
       Ok(Unit)
@@ -49,7 +49,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
   override fun getChildren(parentId: ParentId): List<Student> {
     val ids =
       transaction(database) {
-          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.id)
+          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long)
         }
         .map { it[ParentStudents.studentId].value }
     return transaction(database) {
@@ -76,7 +76,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
   override fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
     transaction(database) {
       val row =
-        StudentTable.selectAll().where(StudentTable.id eq studentId.id).singleOrNull()
+        StudentTable.selectAll().where(StudentTable.id eq studentId.long).singleOrNull()
           ?: return@transaction Err(ResolveError(studentId))
       Ok(Student(studentId, row[StudentTable.name], row[StudentTable.surname]))
     }

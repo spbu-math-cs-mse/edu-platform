@@ -5,9 +5,9 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.StudentId
 
 private const val ID_COLUMN_WIDTH: Int = 30
 private const val RATING_COLUMN_WIDTH: Int = 40
@@ -21,7 +21,7 @@ internal class TableComposer {
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ): ComposedTable {
     val sortedProblems =
-      problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.serialNumber })
+      problems.sortedWith(compareBy<Problem> { it.assignmentId.long }.thenBy { it.serialNumber })
     val assignmentSizes = mutableMapOf<AssignmentId, Int>()
 
     for (problem in sortedProblems) {
@@ -66,7 +66,7 @@ internal class TableComposer {
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ) =
     students.map { student ->
-      listOf(student.id.id, student.surname, student.name).map {
+      listOf(student.id.long, student.surname, student.name).map {
         FormattedCell(it.toString(), DataType.STRING).borders()
       } +
         sortedProblems

@@ -6,17 +6,17 @@ import com.github.heheteam.commonlib.DeleteError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.RatingRecorder
-import com.github.heheteam.commonlib.api.SpreadsheetId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.RatingRecorder
+import com.github.heheteam.commonlib.interfaces.SpreadsheetId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getError
 import dev.inmo.tgbotapi.types.RawChatId
 
-class CoursesDistributorDecorator(
+internal class CoursesDistributorDecorator(
   private val coursesDistributor: CoursesDistributor,
   private val ratingRecorder: RatingRecorder,
 ) : CoursesDistributor {

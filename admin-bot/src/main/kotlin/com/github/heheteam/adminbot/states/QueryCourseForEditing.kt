@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -16,12 +16,12 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 data class QueryCourseForEditing(override val context: User) :
-  BotStateWithHandlers<Course?, Unit, AdminCore> {
+  BotStateWithHandlers<Course?, Unit, AdminApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
   override suspend fun intro(
     bot: BehaviourContext,
-    service: AdminCore,
+    service: AdminApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Course?, Any>,
   ) {
     val courses = service.getCourses().map { it.value }
@@ -35,17 +35,17 @@ data class QueryCourseForEditing(override val context: User) :
     }
   }
 
-  override fun computeNewState(service: AdminCore, input: Course?): Pair<State, Unit> =
+  override fun computeNewState(service: AdminApi, input: Course?): Pair<State, Unit> =
     if (input != null) EditCourseState(context, input) to Unit
     else {
       MenuState(context) to Unit
     }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminCore, response: Unit) {
+  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) {
     for (message in sentMessages) {
       bot.delete(message)
     }
   }
 
-  override suspend fun outro(bot: BehaviourContext, service: AdminCore) = Unit
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

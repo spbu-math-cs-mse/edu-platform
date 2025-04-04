@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
@@ -11,7 +11,7 @@ import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 
-class NewSolutionTeacherNotifier(
+internal class NewSolutionTeacherNotifier(
   private val telegramSolutionSender: TelegramSolutionSender,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val solutionCourseResolver: SolutionCourseResolver,

@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.notifications
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +33,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
   ) {
     val simpleEvent =
       SimpleGradeEvent(
-        studentId = studentId.id,
+        studentId = studentId.long,
         chatId = chatId.long,
         messageId = messageId.long,
         grade = assessment.grade,

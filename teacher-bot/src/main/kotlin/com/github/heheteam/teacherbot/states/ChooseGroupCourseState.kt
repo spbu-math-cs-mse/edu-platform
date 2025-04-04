@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.toCourseId
+import com.github.heheteam.commonlib.api.TeacherApi
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Result
@@ -25,11 +25,8 @@ sealed interface CourseIdError {
 }
 
 class ChooseGroupCourseState(override val context: Chat) :
-  BotState<CourseId?, Result<Course, CourseIdError>, CoursesDistributor> {
-  override suspend fun readUserInput(
-    bot: BehaviourContext,
-    service: CoursesDistributor,
-  ): CourseId? {
+  BotState<CourseId?, Result<Course, CourseIdError>, TeacherApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: TeacherApi): CourseId? {
     with(bot) {
       sendMessage(context, "Введите id курса")
       val idText = waitTextMessageWithUser(context.id.toChatId()).first().content.text
@@ -38,7 +35,7 @@ class ChooseGroupCourseState(override val context: Chat) :
   }
 
   override fun computeNewState(
-    service: CoursesDistributor,
+    service: TeacherApi,
     input: CourseId?,
   ): Pair<State, Result<Course, CourseIdError>> {
     val courseOrError =
@@ -53,7 +50,7 @@ class ChooseGroupCourseState(override val context: Chat) :
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
-    service: CoursesDistributor,
+    service: TeacherApi,
     response: Result<Course, CourseIdError>,
   ) {
     with(bot) {

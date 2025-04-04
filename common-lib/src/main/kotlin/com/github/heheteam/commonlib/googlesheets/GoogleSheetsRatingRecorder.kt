@@ -1,15 +1,15 @@
 package com.github.heheteam.commonlib.googlesheets
 
 import com.github.heheteam.commonlib.CreateError
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.RatingRecorder
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.SpreadsheetId
+import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.RatingRecorder
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Err
@@ -28,7 +28,8 @@ import kotlinx.coroutines.sync.withLock
 
 private const val DELAY_IN_MILLISECONDS: Long = 1000
 
-class GoogleSheetsRatingRecorder(
+class GoogleSheetsRatingRecorder
+internal constructor(
   private val googleSheetsService: GoogleSheetsService,
   private val coursesDistributor: CoursesDistributor,
   private val assignmentStorage: AssignmentStorage,
@@ -67,7 +68,7 @@ class GoogleSheetsRatingRecorder(
             coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map {
               (course, spreadsheetId) ->
               googleSheetsService.updateRating(
-                spreadsheetId.id,
+                spreadsheetId.long,
                 course,
                 assignmentStorage.getAssignmentsForCourse(courseId),
                 problemStorage.getProblemsFromCourse(courseId),

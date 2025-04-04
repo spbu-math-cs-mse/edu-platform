@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.mock
 
-import com.github.heheteam.commonlib.api.ScheduledMessage
-import com.github.heheteam.commonlib.api.ScheduledMessagesDistributor
+import com.github.heheteam.commonlib.interfaces.ScheduledMessage
+import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
 import java.time.LocalDateTime
 
 class InMemoryScheduledMessagesDistributor(

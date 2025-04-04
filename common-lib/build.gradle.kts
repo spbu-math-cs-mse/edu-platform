@@ -6,6 +6,8 @@ val exposedVersion: String by project
 val postgresDriverVersion: String by project
 
 dependencies {
+
+    testImplementation("io.mockk:mockk:1.13.17")
     testImplementation(kotlin("test"))
     implementation(libs.tgbotapi)
     implementation(libs.exposed.core)

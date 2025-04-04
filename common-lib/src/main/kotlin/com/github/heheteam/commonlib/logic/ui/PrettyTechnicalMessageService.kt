@@ -1,19 +1,20 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.GradingEntry
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentStorage
-import com.github.heheteam.commonlib.api.TeacherStorage
+import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.GradingEntry
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapBoth
 
-class PrettyTechnicalMessageService(
+class PrettyTechnicalMessageService
+internal constructor(
   private val solutionDistributor: SolutionDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
@@ -32,7 +33,7 @@ class PrettyTechnicalMessageService(
           solution.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).get() }
         buildString {
           appendLine("(Ответьте на это сообщение или нажмите на кнопки внизу для проверки)")
-          appendLine("Отправка #${solutionId.id}")
+          appendLine("Отправка #${solutionId.long}")
           appendLine("Задача ${assignment.description}:${problem.number}")
           appendLine("Решение отправил ${student.name} ${student.surname} (id=${student.id})")
           if (responsibleTeacher != null)

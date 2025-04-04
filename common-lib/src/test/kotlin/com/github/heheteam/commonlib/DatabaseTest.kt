@@ -1,10 +1,5 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.GradingEntry
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -13,6 +8,11 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.GradingEntry
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.MonotoneDummyClock
 import com.github.heheteam.commonlib.util.fillWithSamples
 import dev.inmo.tgbotapi.types.MessageId
@@ -40,8 +40,8 @@ class DatabaseTest {
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val solutionDistributor = DatabaseSolutionDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
 
   private val emptyContent = SolutionContent()
   private val good = SolutionAssessment(1)
@@ -53,7 +53,6 @@ class DatabaseTest {
         courseId,
         "",
         (1..5).map { ProblemDescription(it, it.toString()) },
-        problemStorage,
       )
     return problemStorage.getProblemsFromAssignment(assignment)
   }
@@ -68,7 +67,7 @@ class DatabaseTest {
     solutionDistributor.inputSolution(
       studentId,
       chatId,
-      MessageId(problem.id.id),
+      MessageId(problem.id.long),
       SolutionContent(text = "sample${problem.number}"),
       problem.id,
       clock.next().toJavaLocalDateTime(),
@@ -172,7 +171,6 @@ class DatabaseTest {
     val content =
       fillWithSamples(
         coursesDistributor,
-        problemStorage,
         assignmentStorage,
         studentStorage,
         teacherStorage,

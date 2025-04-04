@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.StudentStorage
+import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.studentbot.Dialogues
@@ -16,9 +16,8 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-class DeveloperStartState(override val context: User) :
-  BotState<StudentId?, String, StudentStorage> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: StudentStorage): StudentId? {
+class DeveloperStartState(override val context: User) : BotState<StudentId?, String, StudentApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): StudentId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
     bot.send(context, Dialogues.devAskForId())
     val studentIdFromText =
@@ -28,19 +27,15 @@ class DeveloperStartState(override val context: User) :
     return studentIdFromText
   }
 
-  override fun computeNewState(service: StudentStorage, input: StudentId?): Pair<State, String> =
+  override fun computeNewState(service: StudentApi, input: StudentId?): Pair<State, String> =
     binding {
         val studentId = input.toResultOr { Dialogues.devIdIsNotLong() }.bind()
-        service.resolveStudent(studentId).mapError { Dialogues.devIdNotFound() }.bind()
+        service.loginById(studentId).mapError { Dialogues.devIdNotFound() }.bind()
         Pair(MenuState(context, studentId), Dialogues.greetings())
       }
       .getOrElse { Pair(DeveloperStartState(context), it) }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: StudentStorage,
-    response: String,
-  ) {
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: String) {
     bot.send(context, response)
   }
 }

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 
 data class ResolveError<T : Any>(val id: T, val objectClassName: String? = id::class.simpleName) {
   override fun toString(): String = "Error: can not resolve $objectClassName with id=$id"

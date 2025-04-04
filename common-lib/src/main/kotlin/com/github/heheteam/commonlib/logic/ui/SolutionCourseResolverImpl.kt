@@ -1,14 +1,15 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.api.AssignmentStorage
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 
-class SolutionCourseResolverImpl(
+class SolutionCourseResolverImpl
+internal constructor(
   private val solutionStorage: SolutionDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,

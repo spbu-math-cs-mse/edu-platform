@@ -3,23 +3,23 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.GradeTable
-import com.github.heheteam.commonlib.api.GradingEntry
-import com.github.heheteam.commonlib.api.ProblemGrade
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.toAssignmentId
-import com.github.heheteam.commonlib.api.toProblemId
-import com.github.heheteam.commonlib.api.toStudentId
-import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SolutionTable
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.GradingEntry
+import com.github.heheteam.commonlib.interfaces.ProblemGrade
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.toAssignmentId
+import com.github.heheteam.commonlib.interfaces.toProblemId
+import com.github.heheteam.commonlib.interfaces.toStudentId
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -51,7 +51,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = ProblemTable.id,
         )
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id }
+        .where { SolutionTable.studentId eq studentId.long }
         .orderBy(
           AssessmentTable.timestamp,
           SortOrder.ASC,
@@ -78,8 +78,8 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         )
         .selectAll()
         .where {
-          ((SolutionTable.studentId eq studentId.id) or (SolutionTable.id eq null)) and
-            (ProblemTable.assignmentId eq assignmentId.id)
+          ((SolutionTable.studentId eq studentId.long) or (SolutionTable.id eq null)) and
+            (ProblemTable.assignmentId eq assignmentId.long)
         }
         .orderBy(
           SolutionTable.timestamp to SortOrder.ASC,
@@ -129,7 +129,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where { AssignmentTable.courseId eq courseId.id }
+        .where { AssignmentTable.courseId eq courseId.long }
         .groupBy { it[SolutionTable.studentId].value.toStudentId() }
         .mapValues { (_, trios) -> // Transform each group into a Map
           trios.associate { it[ProblemTable.id].value.toProblemId() to it[AssessmentTable.grade] }
@@ -144,8 +144,8 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solutionId.id
-        it[AssessmentTable.teacherId] = teacherId.id
+        it[AssessmentTable.solutionId] = solutionId.long
+        it[AssessmentTable.teacherId] = teacherId.long
         it[AssessmentTable.grade] = assessment.grade
         it[AssessmentTable.comment] = assessment.comment
         it[AssessmentTable.timestamp] = timestamp
@@ -155,12 +155,12 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
 
   override fun isChecked(solutionId: SolutionId): Boolean =
     !transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.id).empty()
+      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.long).empty()
     }
 
   override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
     transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.id).map {
+      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.long).map {
         GradingEntry(
           it[AssessmentTable.teacherId].value.toTeacherId(),
           SolutionAssessment(it[AssessmentTable.grade], it[AssessmentTable.comment]),

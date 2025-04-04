@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.api.GradingEntry
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.interfaces.GradingEntry
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.edit.edit
@@ -11,7 +11,8 @@ import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-class SolutionMessageUpdaterImpl(
+class SolutionMessageUpdaterImpl
+internal constructor(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val prettyTechnicalMessageService: PrettyTechnicalMessageService,
 ) : SolutionMessageUpdater, TelegramBotController {

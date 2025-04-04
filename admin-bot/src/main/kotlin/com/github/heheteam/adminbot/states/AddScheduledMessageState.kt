@@ -1,11 +1,11 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.ScheduledMessage
+import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.micro_utils.fsm.common.State
@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.first
 
 class AddScheduledMessageState(override val context: User, val course: Course) : State
 
-fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(core: AdminCore) {
+fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(core: AdminApi) {
   strictlyOn<AddScheduledMessageState> { state ->
     send(state.context) { +"Введите сообщение" }
     val message = waitTextMessageWithUser(state.context.id).first()

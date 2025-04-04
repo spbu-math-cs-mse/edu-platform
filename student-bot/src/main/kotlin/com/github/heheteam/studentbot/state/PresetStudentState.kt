@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.studentbot.StudentApi
+import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.interfaces.StudentId
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM

@@ -6,7 +6,7 @@ import com.github.heheteam.adminbot.Keyboards.COURSE_INFO
 import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
-import com.github.heheteam.commonlib.api.CoursesDistributor
+import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.queryCourse
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -18,8 +18,8 @@ import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 
-class MenuState(override val context: User) : BotState<State, Unit, CoursesDistributor> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: CoursesDistributor): State {
+class MenuState(override val context: User) : BotState<State, Unit, AdminApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: AdminApi): State {
     val initialMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
     val newState =
       bot
@@ -37,7 +37,7 @@ class MenuState(override val context: User) : BotState<State, Unit, CoursesDistr
             }
 
             COURSE_INFO -> {
-              val courses = service.getCourses()
+              val courses = service.getCourses().map { it.value }
               bot.queryCourse(context, courses)?.let { course -> CourseInfoState(context, course) }
             }
 
@@ -50,13 +50,9 @@ class MenuState(override val context: User) : BotState<State, Unit, CoursesDistr
     return newState
   }
 
-  override fun computeNewState(service: CoursesDistributor, input: State): Pair<State, Unit> {
+  override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: CoursesDistributor,
-    response: Unit,
-  ) = Unit
+  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
 }

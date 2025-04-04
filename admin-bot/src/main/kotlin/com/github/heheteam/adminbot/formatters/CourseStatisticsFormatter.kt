@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.formatters
 
-import com.github.heheteam.adminbot.CourseStatistics
+import com.github.heheteam.commonlib.CourseStatistics
 import dev.inmo.tgbotapi.types.message.textsources.RegularTextSource
 import dev.inmo.tgbotapi.types.message.textsources.TextSource
 import dev.inmo.tgbotapi.types.message.textsources.bold

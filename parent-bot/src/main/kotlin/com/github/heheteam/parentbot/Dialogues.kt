@@ -1,6 +1,7 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.api.ParentApi
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {
@@ -51,7 +52,7 @@ object Dialogues {
 
   fun acceptFeedback(): String = "Отлично, я уже побежал передавать твой ответ администратору"
 
-  fun childPerformance(child: Student, core: ParentCore) =
+  fun childPerformance(child: Student, core: ParentApi) =
     "Успеваемость ребенка $child:\n\n" +
       (core
         .getStudentPerformance(child.id)

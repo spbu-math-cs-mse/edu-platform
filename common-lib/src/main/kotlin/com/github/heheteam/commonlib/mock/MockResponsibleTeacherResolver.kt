@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.SolutionInputRequest
-import com.github.heheteam.commonlib.api.ResponsibleTeacherResolver
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.toResultOr
 

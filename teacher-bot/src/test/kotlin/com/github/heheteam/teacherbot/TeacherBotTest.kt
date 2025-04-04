@@ -2,9 +2,6 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionContent
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -12,6 +9,9 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.loadConfig
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -37,8 +37,8 @@ class TeacherBotTest {
     )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
   private val coursesDistributor = DatabaseCoursesDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
 
@@ -55,7 +55,6 @@ class TeacherBotTest {
         courseId,
         "test assignment",
         listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
-        DatabaseProblemStorage(database),
       )
     problemId = problemStorage.createProblem(assignmentId, 1, "test problem 1", 1, "test problem")
   }

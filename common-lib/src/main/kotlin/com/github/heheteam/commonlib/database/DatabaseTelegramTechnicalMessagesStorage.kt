@@ -2,16 +2,16 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.toResultOr
@@ -26,7 +26,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-class DatabaseTelegramTechnicalMessagesStorage(
+internal class DatabaseTelegramTechnicalMessagesStorage(
   val database: Database,
   val solutionDistributor: SolutionDistributor,
 ) : TelegramTechnicalMessagesStorage {
@@ -44,7 +44,7 @@ class DatabaseTelegramTechnicalMessagesStorage(
   ) {
     transaction(database) {
       SolutionGroupMessagesTable.insert {
-        it[SolutionGroupMessagesTable.solutionId] = solutionId.id
+        it[SolutionGroupMessagesTable.solutionId] = solutionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
@@ -57,7 +57,7 @@ class DatabaseTelegramTechnicalMessagesStorage(
   ) {
     transaction(database) {
       SolutionPersonalMessagesTable.insert {
-        it[SolutionPersonalMessagesTable.solutionId] = solutionId.id
+        it[SolutionPersonalMessagesTable.solutionId] = solutionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
@@ -68,7 +68,7 @@ class DatabaseTelegramTechnicalMessagesStorage(
     val row =
       transaction(database) {
         SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solutionId.id)
+          .where(SolutionGroupMessagesTable.solutionId eq solutionId.long)
           .map {
             TelegramMessageInfo(
               RawChatId(it[SolutionGroupMessagesTable.chatId]),
@@ -83,7 +83,7 @@ class DatabaseTelegramTechnicalMessagesStorage(
     val row =
       transaction(database) {
         SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solutionId.id)
+          .where(SolutionPersonalMessagesTable.solutionId eq solutionId.long)
           .map {
             TelegramMessageInfo(
               RawChatId(it[SolutionPersonalMessagesTable.chatId]),
@@ -124,7 +124,7 @@ class DatabaseTelegramTechnicalMessagesStorage(
               otherColumn = TeacherMenuMessageTable.chatId,
             )
             .selectAll()
-            .where(TeacherTable.id eq teacherId.id)
+            .where(TeacherTable.id eq teacherId.long)
             .map {
               TelegramMessageInfo(
                 RawChatId(it[TeacherMenuMessageTable.chatId]),
@@ -146,14 +146,14 @@ class DatabaseTelegramTechnicalMessagesStorage(
         if (solution == null) {
           val chatId =
             TeacherTable.selectAll()
-              .where(TeacherTable.id eq teacherId.id)
+              .where(TeacherTable.id eq teacherId.long)
               .map { it[TeacherTable.tgId] }
               .firstOrNull() ?: return@transaction null
           return@transaction MenuMessageInfo(RawChatId(chatId))
         }
 
         return@transaction SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solution.id.id)
+          .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
           .map {
             MenuMessageInfo(
               RawChatId(it[SolutionPersonalMessagesTable.chatId]),
@@ -177,7 +177,7 @@ class DatabaseTelegramTechnicalMessagesStorage(
               otherColumn = TeacherMenuMessageTable.chatId,
             )
             .selectAll()
-            .where(CourseTable.id eq courseId.id)
+            .where(CourseTable.id eq courseId.long)
             .map {
               TelegramMessageInfo(
                 RawChatId(it[TeacherMenuMessageTable.chatId]),
@@ -199,14 +199,14 @@ class DatabaseTelegramTechnicalMessagesStorage(
         if (solution == null) {
           val chatId =
             CourseTable.selectAll()
-              .where(CourseTable.id eq courseId.id)
+              .where(CourseTable.id eq courseId.long)
               .map { it[CourseTable.groupRawChatId] }
               .firstOrNull() ?: return@transaction null
           return@transaction MenuMessageInfo(RawChatId(chatId))
         }
 
         return@transaction SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solution.id.id)
+          .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
           .map {
             MenuMessageInfo(
               RawChatId(it[SolutionGroupMessagesTable.chatId]),

@@ -2,12 +2,10 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TeacherStorage
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.api.toTeacherId
-import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.api.TeacherApi
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
@@ -54,16 +52,11 @@ private const val NOT_CONFIRM_ASSESSING = "no"
 class MenuState(override val context: User, private val teacherId: TeacherId) : State {
   private val messages = mutableListOf<ContentMessage<*>>()
 
-  suspend fun handle(
-    bot: BehaviourContext,
-    teacherStorage: TeacherStorage,
-    academicWorkflowService: AcademicWorkflowService,
-    technicalMessageStorage: TelegramTechnicalMessagesStorage,
-  ): State {
-    teacherStorage.updateTgId(teacherId, context.id)
+  suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
+    teacherApi.updateTgId(teacherId, context.id)
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
     val menuMessage = bot.send(context, Dialogues.menu)
-    technicalMessageStorage.updateTeacherMenuMessage(
+    teacherApi.updateTeacherMenuMessage(
       TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
     )
     messages.add(stickerMessage)
@@ -84,7 +77,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
           .firstNotNull()
       action.get()?.let {
         when (it) {
-          is ActionWrapper<TeacherAction> -> executeAction(it.action, academicWorkflowService, bot)
+          is ActionWrapper<TeacherAction> -> executeAction(it.action, teacherApi, bot)
           is NewState -> return it.state
         }
       }
@@ -130,12 +123,12 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
 
   private suspend fun executeAction(
     action: TeacherAction,
-    academicWorkflowService: AcademicWorkflowService,
+    teacherApi: TeacherApi,
     bot: BehaviourContext,
   ) {
     when (action) {
       is GradingFromButton ->
-        academicWorkflowService.assessSolution(
+        teacherApi.assessSolution(
           action.solutionId,
           teacherId,
           SolutionAssessment(action.grade, ""),
@@ -158,7 +151,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
       }
 
       is ConfirmSending -> {
-        academicWorkflowService.assessSolution(
+        teacherApi.assessSolution(
           action.solutionId,
           teacherId,
           action.solutionAssessment,

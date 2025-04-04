@@ -5,14 +5,6 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.AssignmentId
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.ProblemGrade
-import com.github.heheteam.commonlib.api.ProblemId
-import com.github.heheteam.commonlib.api.SolutionId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.toGraded
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -21,6 +13,14 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.ProblemGrade
+import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.toGraded
 import com.github.heheteam.commonlib.loadConfig
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -52,8 +52,8 @@ class AcademicWorkflowLogicTest {
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val solutionDistributor = DatabaseSolutionDistributor(database)
-  private val assignmentStorage = DatabaseAssignmentStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
+  private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
 
   private lateinit var courseId: CourseId
@@ -62,10 +62,10 @@ class AcademicWorkflowLogicTest {
   private lateinit var assignmentId: AssignmentId
   private lateinit var timestamp: Instant
 
-  val good = SolutionAssessment(1, "comment")
-  val bad = SolutionAssessment(0, "comment")
+  private val good = SolutionAssessment(1, "comment")
+  private val bad = SolutionAssessment(0, "comment")
 
-  fun monotoneTime(): LocalDateTime {
+  private fun monotoneTime(): LocalDateTime {
     timestamp += Duration.fromMinutes(1.0)
     return timestamp.toLocalDateTime(TimeZone.UTC)
   }
@@ -92,7 +92,6 @@ class AcademicWorkflowLogicTest {
         ProblemDescription(3, "p2", "", 1),
         ProblemDescription(2, "p3", "", 1),
       ),
-      problemStorage,
     )
 
   private fun inputSolution(

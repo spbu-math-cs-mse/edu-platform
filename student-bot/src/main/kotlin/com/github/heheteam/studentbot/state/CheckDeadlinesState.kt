@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.ProblemStorage
-import com.github.heheteam.commonlib.api.StudentId
+import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
 import dev.inmo.micro_utils.fsm.common.State
@@ -24,14 +24,14 @@ class CheckDeadlinesState(
   override val context: User,
   private val studentId: StudentId,
   private val course: Course,
-) : BotState<Unit, Unit, ProblemStorage> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: ProblemStorage) {
+) : BotState<Unit, Unit, StudentApi> {
+  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi) {
     val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id)
     val messageText =
       buildEntities(" ") {
         problemsByAssignments
           .filterByDeadlineAndSort()
-          .sortedBy { it.first.id.id }
+          .sortedBy { it.first.id.long }
           .forEach { (assignment, problems) ->
             +bold(assignment.description) + regular("\n")
             problems.forEach { problem ->
@@ -63,13 +63,10 @@ class CheckDeadlinesState(
       )
     }
 
-  override fun computeNewState(service: ProblemStorage, input: Unit): Pair<State, Unit> {
+  override fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> {
     return MenuState(context, studentId) to Unit
   }
 
-  override suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: ProblemStorage,
-    response: Unit,
-  ) = Unit
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
+    Unit
 }

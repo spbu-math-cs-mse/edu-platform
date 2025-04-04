@@ -1,14 +1,14 @@
 package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.api.SolutionDistributor
-import com.github.heheteam.commonlib.api.SolutionId
+import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.onFailure
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 
-class UiControllerTelegramSender(
+internal class UiControllerTelegramSender(
   private val studentNotifier: StudentNewGradeNotifier,
   private val journalUpdater: JournalUpdater,
   private val menuMessageUpdater: MenuMessageUpdater,

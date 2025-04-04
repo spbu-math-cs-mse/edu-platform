@@ -1,5 +1,5 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.heheteam.commonlib.api.SpreadsheetId
+import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 
-fun SpreadsheetId.toUrl(): String = "https://docs.google.com/spreadsheets/d/$id/"
+fun SpreadsheetId.toUrl(): String = "https://docs.google.com/spreadsheets/d/$long/"

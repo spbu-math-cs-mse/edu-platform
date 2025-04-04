@@ -1,9 +1,9 @@
 package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
@@ -21,9 +21,9 @@ private object Dialogues {
   const val MENU: String = "\u2705 Главное меню"
 }
 
-class MenuMessageUpdaterImpl(
-  private val technicalMessageStorage: TelegramTechnicalMessagesStorage
-) : MenuMessageUpdater, TelegramBotController {
+class MenuMessageUpdaterImpl
+internal constructor(private val technicalMessageStorage: TelegramTechnicalMessagesStorage) :
+  MenuMessageUpdater, TelegramBotController {
   private lateinit var myBot: TelegramBot
 
   override fun updateMenuMessageInPersonalChat(teacherId: TeacherId): Result<Unit, String> =

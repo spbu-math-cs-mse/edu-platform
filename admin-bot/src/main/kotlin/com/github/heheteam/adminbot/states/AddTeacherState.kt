@@ -1,6 +1,5 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.AdminCore
 import com.github.heheteam.adminbot.Dialogues.manyIdsAlreadyExistForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.manyIdsAreGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.manyTeacherIdsDoNotExist
@@ -9,7 +8,8 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForTeacherAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.api.TeacherId
+import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -26,17 +26,17 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 class AddTeacherState(override val context: User, val course: Course, val courseName: String) :
-  BotStateWithHandlers<String, List<String>, AdminCore> {
+  BotStateWithHandlers<String, List<String>, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
-  override suspend fun outro(bot: BehaviourContext, service: AdminCore) {
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     // No special cleanup needed
   }
 
   override suspend fun intro(
     bot: BehaviourContext,
-    service: AdminCore,
+    service: AdminApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
   ) {
     val introMessage =
@@ -50,7 +50,7 @@ class AddTeacherState(override val context: User, val course: Course, val course
   }
 
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
-  override fun computeNewState(service: AdminCore, input: String): Pair<State, List<String>> {
+  override fun computeNewState(service: AdminApi, input: String): Pair<State, List<String>> {
     if (input == "/stop") {
       return Pair(MenuState(context), emptyList())
     }
@@ -114,7 +114,7 @@ class AddTeacherState(override val context: User, val course: Course, val course
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
-    service: AdminCore,
+    service: AdminApi,
     response: List<String>,
   ) {
     sentMessages.forEach { bot.delete(it) }

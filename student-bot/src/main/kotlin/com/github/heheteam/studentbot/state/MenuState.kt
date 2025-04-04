@@ -1,7 +1,8 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.toStudentId
+import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
@@ -16,7 +17,6 @@ import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
-import com.github.heheteam.studentbot.StudentApi
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State

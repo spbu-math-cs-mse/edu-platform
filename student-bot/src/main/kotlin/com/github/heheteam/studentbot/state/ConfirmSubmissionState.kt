@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.NewState
@@ -9,7 +10,6 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendSolutionContent
-import com.github.heheteam.studentbot.StudentApi
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands

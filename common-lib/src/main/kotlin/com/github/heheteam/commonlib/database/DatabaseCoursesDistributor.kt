@@ -6,19 +6,19 @@ import com.github.heheteam.commonlib.DeleteError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.api.CourseId
-import com.github.heheteam.commonlib.api.CoursesDistributor
-import com.github.heheteam.commonlib.api.SpreadsheetId
-import com.github.heheteam.commonlib.api.StudentId
-import com.github.heheteam.commonlib.api.TeacherId
-import com.github.heheteam.commonlib.api.toCourseId
-import com.github.heheteam.commonlib.api.toStudentId
-import com.github.heheteam.commonlib.api.toTeacherId
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.CourseTeachers
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.SpreadsheetId
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.toCourseId
+import com.github.heheteam.commonlib.interfaces.toStudentId
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -53,7 +53,8 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       val exists =
         CourseStudents.selectAll()
           .where(
-            (CourseStudents.courseId eq courseId.id) and (CourseStudents.studentId eq studentId.id)
+            (CourseStudents.courseId eq courseId.long) and
+              (CourseStudents.studentId eq studentId.long)
           )
           .map { 0L }
           .isNotEmpty()
@@ -61,8 +62,8 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
         Ok(Unit)
         runCatching {
             CourseStudents.insert {
-              it[CourseStudents.studentId] = studentId.id
-              it[CourseStudents.courseId] = courseId.id
+              it[CourseStudents.studentId] = studentId.long
+              it[CourseStudents.courseId] = courseId.long
             }
             Unit
           }
@@ -80,15 +81,16 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
       val exists =
         CourseTeachers.selectAll()
           .where(
-            (CourseTeachers.courseId eq courseId.id) and (CourseTeachers.teacherId eq teacherId.id)
+            (CourseTeachers.courseId eq courseId.long) and
+              (CourseTeachers.teacherId eq teacherId.long)
           )
           .map { 0L }
           .isNotEmpty()
       if (!exists) {
         try {
           CourseTeachers.insert {
-            it[CourseTeachers.teacherId] = teacherId.id
-            it[CourseTeachers.courseId] = courseId.id
+            it[CourseTeachers.teacherId] = teacherId.long
+            it[CourseTeachers.courseId] = courseId.long
           }
           Ok(Unit)
         } catch (_: Throwable) {
@@ -106,7 +108,8 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
     transaction(database) {
       val deletedRows =
         CourseStudents.deleteWhere {
-          (CourseStudents.studentId eq studentId.id) and (CourseStudents.courseId eq courseId.id)
+          (CourseStudents.studentId eq studentId.long) and
+            (CourseStudents.courseId eq courseId.long)
         }
       if (deletedRows == 1) {
         Ok(Unit)
@@ -122,7 +125,8 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
     transaction(database) {
       val deletedRows =
         CourseTeachers.deleteWhere {
-          (CourseTeachers.teacherId eq teacherId.id) and (CourseTeachers.courseId eq courseId.id)
+          (CourseTeachers.teacherId eq teacherId.long) and
+            (CourseTeachers.courseId eq courseId.long)
         }
       if (deletedRows == 1) {
         Ok(Unit)
@@ -146,7 +150,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
         otherColumn = CourseStudents.courseId,
       )
       .selectAll()
-      .where { CourseStudents.studentId eq studentId.id }
+      .where { CourseStudents.studentId eq studentId.long }
       .map {
         Course(it[CourseStudents.courseId].value.toCourseId(), it[CourseTable.name].toString())
       }
@@ -160,7 +164,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
         otherColumn = CourseTeachers.courseId,
       )
       .selectAll()
-      .where { CourseTeachers.teacherId eq teacherId.id }
+      .where { CourseTeachers.teacherId eq teacherId.long }
       .map {
         Course(it[CourseTeachers.courseId].value.toCourseId(), it[CourseTable.name].toString())
       }
@@ -169,7 +173,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   override fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>> =
     transaction(database) {
       val row =
-        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+        CourseTable.selectAll().where(CourseTable.id eq courseId.long).singleOrNull()
           ?: return@transaction Err(ResolveError(courseId))
       Ok(Course(courseId, row[CourseTable.name]))
     }
@@ -179,7 +183,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
     transaction(database) {
       val row =
-        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+        CourseTable.selectAll().where(CourseTable.id eq courseId.long).singleOrNull()
           ?: return@transaction Err(ResolveError(courseId))
       val spreadsheetId =
         row[CourseTable.spreadsheetId]
@@ -193,7 +197,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   ): Result<Unit, ResolveError<CourseId>> =
     transaction(database) {
       val result =
-        CourseTable.update({ CourseTable.id eq courseId.id }) {
+        CourseTable.update({ CourseTable.id eq courseId.long }) {
           it[CourseTable.groupRawChatId] = rawChatId.long
         }
       if (result == 1) {
@@ -206,7 +210,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
   override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
     transaction(database) {
       val row =
-        CourseTable.selectAll().where(CourseTable.id eq courseId.id).singleOrNull()
+        CourseTable.selectAll().where(CourseTable.id eq courseId.long).singleOrNull()
           ?: return@transaction Ok(null)
       val chatId =
         row[CourseTable.groupRawChatId]
@@ -216,8 +220,8 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
 
   override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId): Unit =
     transaction(database) {
-      CourseTable.update({ CourseTable.id eq courseId.id }) {
-        it[CourseTable.spreadsheetId] = spreadsheetId.id
+      CourseTable.update({ CourseTable.id eq courseId.long }) {
+        it[CourseTable.spreadsheetId] = spreadsheetId.long
       }
     }
 
@@ -240,7 +244,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           otherColumn = StudentTable.id,
         )
         .selectAll()
-        .where(CourseStudents.courseId eq courseId.id)
+        .where(CourseStudents.courseId eq courseId.long)
         .map {
           Student(
             it[CourseStudents.studentId].value.toStudentId(),
@@ -259,7 +263,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
           otherColumn = TeacherTable.id,
         )
         .selectAll()
-        .where(CourseTeachers.courseId eq courseId.id)
+        .where(CourseTeachers.courseId eq courseId.long)
         .map {
           Teacher(
             it[CourseTeachers.teacherId].value.toTeacherId(),

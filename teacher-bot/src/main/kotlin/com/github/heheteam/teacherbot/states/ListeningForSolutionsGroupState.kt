@@ -33,14 +33,20 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.toKotlinLocalDateTime
 
 class ListeningForSolutionsGroupState(override val context: Chat, val courseId: CourseId) : State {
+
+  var lateinitTeacherBotToken: String? = null
+
   @OptIn(RiskFeature::class)
-  suspend fun execute(bot: BehaviourContext, teacherApi: TeacherApi): State {
+  suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
     with(bot) {
       teacherApi.setCourseGroup(courseId, context.id.chatId)
       while (true) {
         merge(
             waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->
-              val result = tryParseGradingReply(commonMessage, bot)
+              val teacherBotToken =
+                lateinitTeacherBotToken
+                  ?: return@map run { sendMessage(context.id, "Uninitialized teacher bot token") }
+              val result = tryParseGradingReply(commonMessage, bot, teacherBotToken)
               result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
             },
             waitDataCallbackQueryWithUser(context.id.toChatId()).map { dataCallback ->
@@ -74,10 +80,11 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   private suspend fun tryParseGradingReply(
     commonMessage: CommonMessage<TextContent>,
     bot: BehaviourContext,
+    teacherBotToken: String,
   ): Result<Unit, String> = coroutineBinding {
     val technicalMessageText = extractReplyText(commonMessage).bind()
     val solutionId = parseTechnicalMessageContent(technicalMessageText).bind()
-    val assessment = extractAssessmentFromMessage(commonMessage).bind()
+    val assessment = extractAssessmentFromMessage(commonMessage, teacherBotToken, bot).bind()
     storedInfo[++counter] = solutionId to assessment
     bot.sendMessage(
       context.id,

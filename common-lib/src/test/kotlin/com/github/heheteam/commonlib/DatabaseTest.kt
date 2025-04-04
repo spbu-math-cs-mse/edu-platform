@@ -43,7 +43,7 @@ class DatabaseTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
 
-  private val emptyContent = SolutionContent()
+  private val emptyContent = TextWithMediaAttachments()
   private val good = SolutionAssessment(1)
   private val bad = SolutionAssessment(0)
 
@@ -68,7 +68,7 @@ class DatabaseTest {
       studentId,
       chatId,
       MessageId(problem.id.long),
-      SolutionContent(text = "sample${problem.number}"),
+      TextWithMediaAttachments(text = "sample${problem.number}"),
       problem.id,
       clock.next().toJavaLocalDateTime(),
       teacherId,

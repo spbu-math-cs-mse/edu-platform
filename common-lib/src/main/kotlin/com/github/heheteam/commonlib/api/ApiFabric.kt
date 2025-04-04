@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseTelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.database.FirstTeacherResolver
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
@@ -60,6 +61,11 @@ data class ApiCollection(
   val hack: Hack,
 )
 
+enum class TeacherResolverKind {
+  FIRST,
+  RANDOM,
+}
+
 class ApiFabric(
   private val database: Database,
   private val config: Config,
@@ -67,7 +73,11 @@ class ApiFabric(
   private val studentNotificationService: StudentNotificationService,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
-  fun createApis(initDatabase: Boolean, useRedis: Boolean): ApiCollection {
+  fun createApis(
+    initDatabase: Boolean,
+    useRedis: Boolean,
+    teacherResolverKind: TeacherResolverKind,
+  ): ApiCollection {
     val coursesDistributor = DatabaseCoursesDistributor(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val assignmentStorage: AssignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
@@ -139,13 +149,17 @@ class ApiFabric(
         solutionDistributor,
       )
     val teacherResolver: ResponsibleTeacherResolver =
-      //      FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
-      RandomTeacherResolver(
-        problemStorage,
-        assignmentStorage,
-        coursesDistributor,
-        solutionDistributor,
-      )
+      when (teacherResolverKind) {
+        TeacherResolverKind.FIRST ->
+          FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
+        TeacherResolverKind.RANDOM ->
+          RandomTeacherResolver(
+            problemStorage,
+            assignmentStorage,
+            coursesDistributor,
+            solutionDistributor,
+          )
+      }
     val academicWorkflowService =
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
     val studentApi =

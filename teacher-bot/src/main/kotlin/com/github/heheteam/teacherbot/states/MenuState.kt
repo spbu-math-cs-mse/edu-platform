@@ -7,16 +7,18 @@ import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
+import com.github.heheteam.commonlib.util.AnyMessageHandler
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
-import com.github.heheteam.commonlib.util.TextMessageHandler
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
+import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.map
@@ -26,17 +28,18 @@ import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
+import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
-import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
@@ -44,6 +47,7 @@ import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 
@@ -51,6 +55,8 @@ private const val NOT_CONFIRM_ASSESSING = "no"
 
 class MenuState(override val context: User, private val teacherId: TeacherId) : State {
   private val messages = mutableListOf<ContentMessage<*>>()
+
+  lateinit var teacherBotToken: String
 
   suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
     teacherApi.updateTgId(teacherId, context.id)
@@ -62,12 +68,18 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     messages.add(stickerMessage)
     messages.add(menuMessage)
 
-    val messageHandlers = createTextMessageHandlers()
+    val messageHandlers = createMessagesHandlers(bot)
     val dataCallbackQueryHandlers = createDataCallbackHandlers()
     while (true) {
       val action =
         merge(
             bot.waitTextMessageWithUser(context.id).map { message ->
+              messageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
+            },
+            bot.waitMediaMessageWithUser(context.id).map { message ->
+              messageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
+            },
+            bot.waitDocumentMessageWithUser(context.id).map { message ->
               messageHandlers.firstNotNullOfOrNull { handler -> handler.invoke(message) }
             },
             bot.waitDataCallbackQueryWithUser(context.id).map { data ->
@@ -85,10 +97,14 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     }
   }
 
-  private fun createTextMessageHandlers(): List<TextMessageHandler<TeacherAction, MessageError>> =
+  private fun createMessagesHandlers(
+    bot: TelegramBot
+  ): List<AnyMessageHandler<TeacherAction, MessageError>> =
     listOf(
-      ::tryParseGradingReplyWithoutChecking,
-      { message -> NewState(handleCommands(message.content.text).first).ok() },
+      { tryParseGradingReplyWithoutChecking(it, teacherBotToken, bot) },
+      { message ->
+        NewState(handleCommands(message.content.textedContentOrNull()?.text.orEmpty()).first).ok()
+      },
     )
 
   private fun createDataCallbackHandlers() =
@@ -131,7 +147,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
         teacherApi.assessSolution(
           action.solutionId,
           teacherId,
-          SolutionAssessment(action.grade, ""),
+          SolutionAssessment(action.grade),
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
       is GradingFromReply -> {
@@ -181,21 +197,28 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     }
   }
 
-  fun tryParseGradingReplyWithoutChecking(
-    commonMessage: CommonMessage<TextContent>
-  ): Result<HandlerResult<TeacherAction>, MessageError> = binding {
-    val technicalMessageText = extractReplyText(commonMessage).mapError { NotReply }.bind()
-    val solutionId =
-      parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSolution }.bind()
-    val assessment =
-      extractAssessmentFromMessage(commonMessage).mapError { BadAssessment(it) }.bind()
-    ActionWrapper(GradingFromReply(solutionId, assessment))
+  private fun tryParseGradingReplyWithoutChecking(
+    commonMessage: CommonMessage<*>,
+    teacherBotToken: String,
+    telegramBot: TelegramBot,
+  ): Result<HandlerResult<TeacherAction>, MessageError> = runBlocking {
+    coroutineBinding {
+      val technicalMessageText =
+        extractReplyText(commonMessage).mapError { NotReplyOrReplyNotToTextMessage }.bind()
+      val solutionId =
+        parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSolution }.bind()
+      val assessment =
+        extractAssessmentFromMessage(commonMessage, teacherBotToken, telegramBot)
+          .mapError { BadAssessment(it) }
+          .bind()
+      ActionWrapper(GradingFromReply(solutionId, assessment))
+    }
   }
 }
 
 sealed interface MessageError
 
-data object NotReply : MessageError
+data object NotReplyOrReplyNotToTextMessage : MessageError
 
 data object ReplyNotToSolution : MessageError
 

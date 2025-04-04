@@ -2,9 +2,9 @@ package com.github.heheteam.commonlib.logic
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -62,8 +62,8 @@ class AcademicWorkflowLogicTest {
   private lateinit var assignmentId: AssignmentId
   private lateinit var timestamp: Instant
 
-  private val good = SolutionAssessment(1, "comment")
-  private val bad = SolutionAssessment(0, "comment")
+  private val good = SolutionAssessment(1, TextWithMediaAttachments("comment"))
+  private val bad = SolutionAssessment(0, TextWithMediaAttachments("comment"))
 
   private fun monotoneTime(): LocalDateTime {
     timestamp += Duration.fromMinutes(1.0)
@@ -102,7 +102,7 @@ class AcademicWorkflowLogicTest {
       SolutionInputRequest(
         studentId,
         problemId,
-        SolutionContent(),
+        TextWithMediaAttachments(),
         TelegramMessageInfo(RawChatId(0), MessageId(0)),
         monotoneTime(),
       ),

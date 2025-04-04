@@ -44,7 +44,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   ) {
     transaction(database) {
       SolutionGroupMessagesTable.insert {
-        it[SolutionGroupMessagesTable.solutionId] = solutionId.id
+        it[SolutionGroupMessagesTable.solutionId] = solutionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
@@ -57,7 +57,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   ) {
     transaction(database) {
       SolutionPersonalMessagesTable.insert {
-        it[SolutionPersonalMessagesTable.solutionId] = solutionId.id
+        it[SolutionPersonalMessagesTable.solutionId] = solutionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
@@ -68,7 +68,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     val row =
       transaction(database) {
         SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solutionId.id)
+          .where(SolutionGroupMessagesTable.solutionId eq solutionId.long)
           .map {
             TelegramMessageInfo(
               RawChatId(it[SolutionGroupMessagesTable.chatId]),
@@ -83,7 +83,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     val row =
       transaction(database) {
         SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solutionId.id)
+          .where(SolutionPersonalMessagesTable.solutionId eq solutionId.long)
           .map {
             TelegramMessageInfo(
               RawChatId(it[SolutionPersonalMessagesTable.chatId]),
@@ -124,7 +124,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
               otherColumn = TeacherMenuMessageTable.chatId,
             )
             .selectAll()
-            .where(TeacherTable.id eq teacherId.id)
+            .where(TeacherTable.id eq teacherId.long)
             .map {
               TelegramMessageInfo(
                 RawChatId(it[TeacherMenuMessageTable.chatId]),
@@ -146,14 +146,14 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
         if (solution == null) {
           val chatId =
             TeacherTable.selectAll()
-              .where(TeacherTable.id eq teacherId.id)
+              .where(TeacherTable.id eq teacherId.long)
               .map { it[TeacherTable.tgId] }
               .firstOrNull() ?: return@transaction null
           return@transaction MenuMessageInfo(RawChatId(chatId))
         }
 
         return@transaction SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solution.id.id)
+          .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
           .map {
             MenuMessageInfo(
               RawChatId(it[SolutionPersonalMessagesTable.chatId]),
@@ -177,7 +177,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
               otherColumn = TeacherMenuMessageTable.chatId,
             )
             .selectAll()
-            .where(CourseTable.id eq courseId.id)
+            .where(CourseTable.id eq courseId.long)
             .map {
               TelegramMessageInfo(
                 RawChatId(it[TeacherMenuMessageTable.chatId]),
@@ -199,14 +199,14 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
         if (solution == null) {
           val chatId =
             CourseTable.selectAll()
-              .where(CourseTable.id eq courseId.id)
+              .where(CourseTable.id eq courseId.long)
               .map { it[CourseTable.groupRawChatId] }
               .firstOrNull() ?: return@transaction null
           return@transaction MenuMessageInfo(RawChatId(chatId))
         }
 
         return@transaction SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solution.id.id)
+          .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
           .map {
             MenuMessageInfo(
               RawChatId(it[SolutionGroupMessagesTable.chatId]),

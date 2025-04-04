@@ -33,7 +33,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   override fun resolveProblem(problemId: ProblemId): Result<Problem, ResolveError<ProblemId>> {
     val row =
       transaction(database) {
-        ProblemTable.selectAll().where(ProblemTable.id eq problemId.id).singleOrNull()
+        ProblemTable.selectAll().where(ProblemTable.id eq problemId.long).singleOrNull()
       } ?: return Err(ResolveError(problemId))
     return Ok(
       Problem(
@@ -59,7 +59,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
         ProblemTable.insertAndGetId {
           it[ProblemTable.serialNumber] = serialNumber
           it[ProblemTable.number] = number
-          it[ProblemTable.assignmentId] = assignmentId.id
+          it[ProblemTable.assignmentId] = assignmentId.long
           it[ProblemTable.maxScore] = maxScore
           it[ProblemTable.description] = description
           it[ProblemTable.deadline] = deadline
@@ -70,7 +70,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
 
   override fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
     transaction(database) {
-      ProblemTable.selectAll().where(ProblemTable.assignmentId eq assignmentId.id).map {
+      ProblemTable.selectAll().where(ProblemTable.assignmentId eq assignmentId.long).map {
         Problem(
           it[ProblemTable.id].value.toProblemId(),
           it[ProblemTable.serialNumber],
@@ -92,7 +92,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where(AssignmentTable.courseId eq courseId.id)
+        .where(AssignmentTable.courseId eq courseId.long)
         .map {
           Problem(
             it[ProblemTable.id].value.toProblemId(),
@@ -117,7 +117,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where(AssignmentTable.courseId eq courseId.id)
+        .where(AssignmentTable.courseId eq courseId.long)
         .groupBy({
           Assignment(
             it[AssignmentTable.id].value.toAssignmentId(),

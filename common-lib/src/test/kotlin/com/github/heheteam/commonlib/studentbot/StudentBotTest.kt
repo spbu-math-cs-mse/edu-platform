@@ -97,7 +97,7 @@ class StudentBotTest {
     val studentId = studentStorage.createStudent()
 
     val studentCourses = studentApi.getStudentCourses(studentId)
-    assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.id })
+    assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.long })
   }
 
   @Test
@@ -111,7 +111,7 @@ class StudentBotTest {
 
     assertEquals(
       listOf(courseIds[0], courseIds[3]),
-      studentCourses.map { it.id }.sortedBy { it.id },
+      studentCourses.map { it.id }.sortedBy { it.long },
     )
     assertEquals(listOf("course 1", "course 4"), studentCourses.map { it.name }.toList())
   }

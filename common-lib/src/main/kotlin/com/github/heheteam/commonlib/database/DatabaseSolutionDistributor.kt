@@ -50,13 +50,13 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     val solutionId =
       transaction(database) {
           SolutionTable.insert {
-            it[SolutionTable.studentId] = studentId.id
+            it[SolutionTable.studentId] = studentId.long
             it[SolutionTable.chatId] = chatId.toChatId().chatId.long
             it[SolutionTable.messageId] = messageId.long
-            it[SolutionTable.problemId] = problemId.id
+            it[SolutionTable.problemId] = problemId.long
             it[SolutionTable.timestamp] = timestamp.toKotlinLocalDateTime()
             it[SolutionTable.solutionContent] = solutionContent
-            it[SolutionTable.responsibleTeacher] = teacherId?.id
+            it[SolutionTable.responsibleTeacher] = teacherId?.long
           } get SolutionTable.id
         }
         .value
@@ -66,7 +66,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
   override fun querySolution(teacherId: TeacherId): Result<Solution?, SolutionResolveError> =
     transaction(database) {
       val teacherRow =
-        TeacherTable.select(TeacherTable.id).where(TeacherTable.id eq teacherId.id).firstOrNull()
+        TeacherTable.select(TeacherTable.id).where(TeacherTable.id eq teacherId.long).firstOrNull()
           ?: return@transaction Err(TeacherDoesNotExist(teacherId))
       val courses =
         CourseTeachers.select(CourseTeachers.courseId)
@@ -102,7 +102,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           .where {
             AssessmentTable.id.isNull() and
               (CourseTable.id inList courses) and
-              (SolutionTable.responsibleTeacher eq teacherId.id)
+              (SolutionTable.responsibleTeacher eq teacherId.long)
           }
           .orderBy(SolutionTable.timestamp)
           .firstOrNull() ?: return@transaction Ok(null)
@@ -150,7 +150,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
             otherColumn = CourseTable.id,
           )
           .selectAll()
-          .where { AssessmentTable.id.isNull() and (CourseTable.id eq courseId.id) }
+          .where { AssessmentTable.id.isNull() and (CourseTable.id eq courseId.long) }
           .orderBy(SolutionTable.timestamp)
           .firstOrNull() ?: return@transaction Ok(null)
 
@@ -171,7 +171,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
   override fun resolveSolution(solutionId: SolutionId): Result<Solution, ResolveError<SolutionId>> =
     transaction(database) {
       val solution =
-        SolutionTable.selectAll().where { SolutionTable.id eq solutionId.id }.singleOrNull()
+        SolutionTable.selectAll().where { SolutionTable.id eq solutionId.long }.singleOrNull()
           ?: return@transaction Err(ResolveError(solutionId))
 
       Ok(
@@ -205,7 +205,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where { SolutionTable.id eq solutionId.id }
+        .where { SolutionTable.id eq solutionId.long }
         .singleOrNull()
         ?.let { Ok(CourseId(it[AssignmentTable.courseId].value)) }
         ?: return@transaction Err(ResolveError(solutionId))
@@ -215,8 +215,8 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     transaction(database) {
       SolutionTable.selectAll()
         .where {
-          (SolutionTable.problemId eq solution.problemId.id) and
-            (SolutionTable.studentId eq solution.studentId.id)
+          (SolutionTable.problemId eq solution.problemId.long) and
+            (SolutionTable.studentId eq solution.studentId.long)
         }
         .map { row -> row[SolutionTable.responsibleTeacher]?.value?.toTeacherId() }
         .firstOrNull()
@@ -225,14 +225,14 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
   override fun getSolutionsForProblem(problemId: ProblemId): List<SolutionId> =
     transaction(database) {
       SolutionTable.selectAll()
-        .where { SolutionTable.problemId eq problemId.id }
+        .where { SolutionTable.problemId eq problemId.long }
         .map { row -> SolutionId(row[SolutionTable.id].value) }
     }
 
   override fun isSolutionAssessed(solutionId: SolutionId): Boolean =
     transaction(database) {
       AssessmentTable.select(AssessmentTable.id)
-        .where { AssessmentTable.solutionId eq solutionId.id }
+        .where { AssessmentTable.solutionId eq solutionId.long }
         .firstOrNull() != null
     }
 }

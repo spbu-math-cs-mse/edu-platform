@@ -3,46 +3,46 @@ package com.github.heheteam.commonlib.interfaces
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CourseId(val id: Long) {
-  override fun toString(): String = "$id"
+data class CourseId(val long: Long) {
+  override fun toString(): String = "$long"
 }
 
 @Serializable
-data class ProblemId(val id: Long) {
-  override fun toString(): String = "$id"
+data class ProblemId(val long: Long) {
+  override fun toString(): String = "$long"
 }
 
-data class AdminId(val id: Long) {
-  override fun toString(): String = "$id"
-}
-
-@Serializable
-data class StudentId(val id: Long) {
-  override fun toString(): String = "$id"
+data class AdminId(val long: Long) {
+  override fun toString(): String = "$long"
 }
 
 @Serializable
-data class TeacherId(val id: Long) {
-  override fun toString(): String = "$id"
-}
-
-data class ParentId(val id: Long) {
-  override fun toString(): String = "$id"
+data class StudentId(val long: Long) {
+  override fun toString(): String = "$long"
 }
 
 @Serializable
-data class SolutionId(val id: Long) {
-  override fun toString(): String = "$id"
+data class TeacherId(val long: Long) {
+  override fun toString(): String = "$long"
+}
+
+data class ParentId(val long: Long) {
+  override fun toString(): String = "$long"
 }
 
 @Serializable
-data class AssignmentId(val id: Long) {
-  override fun toString(): String = "$id"
+data class SolutionId(val long: Long) {
+  override fun toString(): String = "$long"
 }
 
 @Serializable
-data class SpreadsheetId(val id: String) {
-  override fun toString(): String = id
+data class AssignmentId(val long: Long) {
+  override fun toString(): String = "$long"
+}
+
+@Serializable
+data class SpreadsheetId(val long: String) {
+  override fun toString(): String = long
 }
 
 fun Long.toCourseId() = CourseId(this)

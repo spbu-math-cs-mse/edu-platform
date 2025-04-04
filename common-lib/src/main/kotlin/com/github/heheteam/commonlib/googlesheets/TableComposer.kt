@@ -21,7 +21,7 @@ internal class TableComposer {
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ): ComposedTable {
     val sortedProblems =
-      problems.sortedWith(compareBy<Problem> { it.assignmentId.id }.thenBy { it.serialNumber })
+      problems.sortedWith(compareBy<Problem> { it.assignmentId.long }.thenBy { it.serialNumber })
     val assignmentSizes = mutableMapOf<AssignmentId, Int>()
 
     for (problem in sortedProblems) {
@@ -66,7 +66,7 @@ internal class TableComposer {
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ) =
     students.map { student ->
-      listOf(student.id.id, student.surname, student.name).map {
+      listOf(student.id.long, student.surname, student.name).map {
         FormattedCell(it.toString(), DataType.STRING).borders()
       } +
         sortedProblems

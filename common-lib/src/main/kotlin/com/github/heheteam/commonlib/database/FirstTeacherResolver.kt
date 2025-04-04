@@ -23,7 +23,7 @@ internal class FirstTeacherResolver(
       binding {
           val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
           val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-          val teachers = coursesDistributor.getTeachers(assignment.courseId).sortedBy { it.id.id }
+          val teachers = coursesDistributor.getTeachers(assignment.courseId).sortedBy { it.id.long }
           teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
         }
         .mapError { it.toString() }

@@ -67,7 +67,7 @@ class DatabaseTest {
     solutionDistributor.inputSolution(
       studentId,
       chatId,
-      MessageId(problem.id.id),
+      MessageId(problem.id.long),
       SolutionContent(text = "sample${problem.number}"),
       problem.id,
       clock.next().toJavaLocalDateTime(),

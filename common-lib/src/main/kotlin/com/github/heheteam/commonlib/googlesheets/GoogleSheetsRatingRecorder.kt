@@ -68,7 +68,7 @@ internal constructor(
             coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map {
               (course, spreadsheetId) ->
               googleSheetsService.updateRating(
-                spreadsheetId.id,
+                spreadsheetId.long,
                 course,
                 assignmentStorage.getAssignmentsForCourse(courseId),
                 problemStorage.getProblemsFromCourse(courseId),

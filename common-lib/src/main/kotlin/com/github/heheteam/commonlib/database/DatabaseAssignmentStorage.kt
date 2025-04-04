@@ -34,7 +34,7 @@ class DatabaseAssignmentStorage(
   ): Result<Assignment, ResolveError<AssignmentId>> {
     val row =
       transaction {
-        AssignmentTable.selectAll().where(AssignmentTable.id eq assignmentId.id).singleOrNull()
+        AssignmentTable.selectAll().where(AssignmentTable.id eq assignmentId.long).singleOrNull()
       } ?: return Err(ResolveError(assignmentId))
     return Ok(
       Assignment(
@@ -55,13 +55,13 @@ class DatabaseAssignmentStorage(
       transaction(database) {
           val serialNumber =
             (AssignmentTable.select(AssignmentTable.serialNumber.max())
-              .where(AssignmentTable.courseId eq courseId.id)
+              .where(AssignmentTable.courseId eq courseId.long)
               .firstOrNull()
               ?.get(AssignmentTable.serialNumber.max()) ?: 0) + 1
           AssignmentTable.insertAndGetId {
             it[AssignmentTable.serialNumber] = serialNumber
             it[AssignmentTable.description] = description
-            it[AssignmentTable.courseId] = courseId.id
+            it[AssignmentTable.courseId] = courseId.long
           }
         }
         .value
@@ -80,7 +80,7 @@ class DatabaseAssignmentStorage(
   }
 
   override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> = transaction {
-    AssignmentTable.selectAll().where(AssignmentTable.courseId eq courseId.id).map {
+    AssignmentTable.selectAll().where(AssignmentTable.courseId eq courseId.long).map {
       Assignment(
         it[AssignmentTable.id].value.toAssignmentId(),
         it[AssignmentTable.serialNumber],

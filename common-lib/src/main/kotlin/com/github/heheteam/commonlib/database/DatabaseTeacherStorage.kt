@@ -44,7 +44,7 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
   override fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     transaction(database) {
       val row =
-        TeacherTable.selectAll().where(TeacherTable.id eq teacherId.id).singleOrNull()
+        TeacherTable.selectAll().where(TeacherTable.id eq teacherId.long).singleOrNull()
           ?: return@transaction Err(ResolveError(teacherId))
       Ok(
         Teacher(
@@ -89,7 +89,7 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
   ): Result<Unit, ResolveError<TeacherId>> {
     val rows =
       transaction(database) {
-        TeacherTable.update({ TeacherTable.id eq teacherId.id }) {
+        TeacherTable.update({ TeacherTable.id eq teacherId.long }) {
           it[TeacherTable.tgId] = newTgId.chatId.long
         }
       }

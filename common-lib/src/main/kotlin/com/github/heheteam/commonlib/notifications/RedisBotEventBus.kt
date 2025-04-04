@@ -33,7 +33,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
   ) {
     val simpleEvent =
       SimpleGradeEvent(
-        studentId = studentId.id,
+        studentId = studentId.long,
         chatId = chatId.long,
         messageId = messageId.long,
         grade = assessment.grade,

@@ -51,7 +51,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = ProblemTable.id,
         )
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.id }
+        .where { SolutionTable.studentId eq studentId.long }
         .orderBy(
           AssessmentTable.timestamp,
           SortOrder.ASC,
@@ -78,8 +78,8 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         )
         .selectAll()
         .where {
-          ((SolutionTable.studentId eq studentId.id) or (SolutionTable.id eq null)) and
-            (ProblemTable.assignmentId eq assignmentId.id)
+          ((SolutionTable.studentId eq studentId.long) or (SolutionTable.id eq null)) and
+            (ProblemTable.assignmentId eq assignmentId.long)
         }
         .orderBy(
           SolutionTable.timestamp to SortOrder.ASC,
@@ -129,7 +129,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where { AssignmentTable.courseId eq courseId.id }
+        .where { AssignmentTable.courseId eq courseId.long }
         .groupBy { it[SolutionTable.studentId].value.toStudentId() }
         .mapValues { (_, trios) -> // Transform each group into a Map
           trios.associate { it[ProblemTable.id].value.toProblemId() to it[AssessmentTable.grade] }
@@ -144,8 +144,8 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solutionId.id
-        it[AssessmentTable.teacherId] = teacherId.id
+        it[AssessmentTable.solutionId] = solutionId.long
+        it[AssessmentTable.teacherId] = teacherId.long
         it[AssessmentTable.grade] = assessment.grade
         it[AssessmentTable.comment] = assessment.comment
         it[AssessmentTable.timestamp] = timestamp
@@ -155,12 +155,12 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
 
   override fun isChecked(solutionId: SolutionId): Boolean =
     !transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.id).empty()
+      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.long).empty()
     }
 
   override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
     transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.id).map {
+      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.long).map {
         GradingEntry(
           it[AssessmentTable.teacherId].value.toTeacherId(),
           SolutionAssessment(it[AssessmentTable.grade], it[AssessmentTable.comment]),

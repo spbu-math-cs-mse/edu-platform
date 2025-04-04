@@ -31,7 +31,7 @@ class CheckDeadlinesState(
       buildEntities(" ") {
         problemsByAssignments
           .filterByDeadlineAndSort()
-          .sortedBy { it.first.id.id }
+          .sortedBy { it.first.id.long }
           .forEach { (assignment, problems) ->
             +bold(assignment.description) + regular("\n")
             problems.forEach { problem ->

@@ -33,7 +33,7 @@ internal constructor(
           solution.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).get() }
         buildString {
           appendLine("(Ответьте на это сообщение или нажмите на кнопки внизу для проверки)")
-          appendLine("Отправка #${solutionId.id}")
+          appendLine("Отправка #${solutionId.long}")
           appendLine("Задача ${assignment.description}:${problem.number}")
           appendLine("Решение отправил ${student.name} ${student.surname} (id=${student.id})")
           if (responsibleTeacher != null)

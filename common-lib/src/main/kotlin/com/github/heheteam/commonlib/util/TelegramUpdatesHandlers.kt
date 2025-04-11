@@ -36,3 +36,5 @@ typealias DataCallbackHandler<T, Err> = (DataCallbackQuery) -> Result<HandlerRes
 
 typealias TextMessageHandler<T, Err> =
   (CommonMessage<TextContent>) -> Result<HandlerResult<T>, Err>?
+
+typealias AnyMessageHandler<T, Err> = (CommonMessage<*>) -> Result<HandlerResult<T>, Err>?

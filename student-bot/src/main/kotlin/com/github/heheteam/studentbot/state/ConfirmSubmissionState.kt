@@ -9,7 +9,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
-import com.github.heheteam.commonlib.util.sendSolutionContent
+import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.delete
@@ -38,7 +38,8 @@ class ConfirmSubmissionState(
         ButtonData("Да", "yes") { true },
         ButtonData("Нет (отменить отправку)", "no") { false },
       )
-    solutionMessage = bot.sendSolutionContent(context.id, solutionInputRequest.solutionContent)
+    solutionMessage =
+      bot.sendTextWithMediaAttachments(context.id, solutionInputRequest.solutionContent)
     confirmMessage =
       bot.sendMessage(
         context,

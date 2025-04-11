@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.SolutionContent
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -83,7 +83,7 @@ class TeacherBotTest {
       studentId,
       RawChatId(0),
       MessageId(0),
-      SolutionContent(text = "text"),
+      TextWithMediaAttachments(text = "text"),
       problemId,
       LocalDateTime.now(),
       teacherId,
@@ -91,7 +91,7 @@ class TeacherBotTest {
     val solution = solutionDistributor.querySolution(teacherId).value!!
 
     assertEquals(studentId, solution.studentId)
-    assertEquals(SolutionContent(text = "text"), solution.content)
+    assertEquals(TextWithMediaAttachments(text = "text"), solution.content)
     assertEquals(MessageId(0), solution.messageId)
     assertEquals(RawChatId(0), solution.chatId)
   }

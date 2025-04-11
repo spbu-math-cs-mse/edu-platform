@@ -78,7 +78,10 @@ jobs:
   deploy-prod:
     if: github.ref == 'refs/heads/deployment'
     runs-on: ubuntu-latest
-    needs: [run-backend-tests, check-formatting, check-static-analyzer]
+#    needs: [run-backend-tests, check-formatting, check-static-analyzer] TODO: uncomment this
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

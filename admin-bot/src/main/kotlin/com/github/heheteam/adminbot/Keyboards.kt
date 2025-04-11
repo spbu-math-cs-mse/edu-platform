@@ -46,6 +46,5 @@ object Keyboards {
 
   fun courseInfo(ratingUrl: String?) = inlineKeyboard {
     if (ratingUrl != null) row { urlButton("Кондуит", ratingUrl) }
-    row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
   }
 }

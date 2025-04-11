@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ForbiddenComment:SignUpState.kt$// TODO: rewrite or remove this state</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourseForSolution(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askProblem(): String</ID>

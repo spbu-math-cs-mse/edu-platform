@@ -3,6 +3,7 @@ package com.github.heheteam.adminbot
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.CourseInfoState
+import com.github.heheteam.adminbot.states.CreateAssignmentErrorState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
@@ -52,6 +53,7 @@ suspend fun adminRun(botToken: String, adminApi: AdminApi) {
       registerState<EditCourseState, Unit>(Unit)
       registerState<EditDescriptionState, Unit>(Unit)
       registerState<CreateAssignmentState, AdminApi>(adminApi)
+      registerState<CreateAssignmentErrorState, AdminApi>(adminApi)
       registerState<AddStudentState, AdminApi>(adminApi)
       registerState<RemoveStudentState, AdminApi>(adminApi)
       registerState<AddTeacherState, AdminApi>(adminApi)

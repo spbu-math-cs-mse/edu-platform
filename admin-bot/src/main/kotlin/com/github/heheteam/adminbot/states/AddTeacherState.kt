@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
@@ -31,7 +32,7 @@ class AddTeacherState(override val context: User, val course: Course, val course
   val sentMessages = mutableListOf<AccessibleMessage>()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
-    // No special cleanup needed
+    sentMessages.forEach { bot.delete(it) }
   }
 
   override suspend fun intro(
@@ -46,7 +47,13 @@ class AddTeacherState(override val context: User, val course: Course, val course
       }
     sentMessages.add(introMessage)
 
-    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
+    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
+      if (maybeCommandMessage.content.text == "/menu") {
+        NewState(MenuState(context))
+      } else {
+        UserInput(maybeCommandMessage.content.text)
+      }
+    }
   }
 
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
@@ -117,7 +124,6 @@ class AddTeacherState(override val context: User, val course: Course, val course
     service: AdminApi,
     response: List<String>,
   ) {
-    sentMessages.forEach { bot.delete(it) }
     response.forEach { msg -> bot.send(context, msg) }
   }
 

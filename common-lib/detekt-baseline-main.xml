@@ -6,7 +6,6 @@
     <ID>LongMethod:DatabaseSolutionDistributor.kt$DatabaseSolutionDistributor$override fun querySolution(teacherId: TeacherId): Result&lt;Solution?, SolutionResolveError&gt;</ID>
     <ID>LongParameterList:GoogleSheetsService.kt$GoogleSheetsService$( courseSpreadsheetId: String, course: Course, assignments: List&lt;Assignment&gt;, problems: List&lt;Problem&gt;, students: List&lt;Student&gt;, performance: Map&lt;StudentId, Map&lt;ProblemId, Grade?&gt;&gt;, )</ID>
     <ID>LongParameterList:ProblemStorage.kt$ProblemStorage$( assignmentId: AssignmentId, serialNumber: Int, number: String, maxScore: Grade, description: String, deadline: LocalDateTime? = null, )</ID>
-    <ID>LongParameterList:SampleFill.kt$( name: String, coursesDistributor: CoursesDistributor, assignmentStorage: AssignmentStorage, problemStorage: ProblemStorage, assignmentsPerCourse: Int = 2, problemsPerAssignment: Int = 5, )</ID>
     <ID>MagicNumber:AdminTable.kt$AdminTable$255</ID>
     <ID>MagicNumber:AssignmentTable.kt$AssignmentTable$100</ID>
     <ID>MagicNumber:CourseTable.kt$CourseTable$255</ID>

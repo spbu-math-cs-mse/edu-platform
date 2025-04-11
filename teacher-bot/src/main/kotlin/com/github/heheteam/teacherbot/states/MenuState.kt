@@ -118,7 +118,10 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     return if (number != null) {
       val corresponded = storedInfo[number]
       if (corresponded != null) {
-        ActionWrapper<TeacherAction>(ConfirmSending(corresponded.first, corresponded.second)).ok()
+        ActionWrapper<TeacherAction>(
+            ConfirmSending(corresponded.first, corresponded.second, data.message)
+          )
+          .ok()
       } else null
     } else if (data.data == NOT_CONFIRM_ASSESSING) {
       val message = data.message
@@ -173,6 +176,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
           action.solutionAssessment,
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
+        with(bot) { action.messageToDeleteOnConfirm?.let { delete(it) } }
       }
 
       is DeleteMessage -> {

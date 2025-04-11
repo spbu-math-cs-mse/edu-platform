@@ -7,6 +7,7 @@ import com.github.michaelbull.result.get
 import com.github.michaelbull.result.onFailure
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
+import kotlinx.coroutines.runBlocking
 
 internal class UiControllerTelegramSender(
   private val studentNotifier: StudentNewGradeNotifier,
@@ -19,7 +20,7 @@ internal class UiControllerTelegramSender(
     assessment: SolutionAssessment,
   ) {
     studentNotifier.notifyStudentOnNewAssessment(solutionId, assessment)
-    journalUpdater.updateJournalDisplaysForSolution(solutionId)
+    runBlocking { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
     val teacherId = solutionDistributor.resolveSolution(solutionId).get()?.responsibleTeacherId
     if (teacherId != null) {
       menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId).onFailure { KSLog.error(it) }

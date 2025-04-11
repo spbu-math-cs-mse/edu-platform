@@ -31,7 +31,6 @@ import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.PrettyTechnicalMessageService
 import com.github.heheteam.commonlib.logic.ui.SolutionCourseResolverImpl
-import com.github.heheteam.commonlib.logic.ui.SolutionMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
@@ -40,7 +39,8 @@ import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.ObserverBus
 import com.github.heheteam.commonlib.notifications.RedisBotEventBus
-import com.github.heheteam.commonlib.notifications.StudentNotificationService
+import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
+import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
 
@@ -48,7 +48,6 @@ import org.jetbrains.exposed.sql.Database
 // mocking of telegram services possible
 // should be removed ASAP
 data class Hack(
-  val solutionMessageUpdaterImpl: SolutionMessageUpdaterImpl,
   val menuMessageUpdater: MenuMessageUpdaterImpl,
   val telegramSolutionSender: TelegramSolutionSenderImpl,
 )
@@ -70,7 +69,9 @@ class ApiFabric(
   private val database: Database,
   private val config: Config,
   private val googleSheetsService: GoogleSheetsService,
-  private val studentNotificationService: StudentNotificationService,
+  private val studentBotTelegramController: StudentBotTelegramController,
+  private val teacherBotTelegramController: TeacherBotTelegramController,
+  //  private val studentNotificationService: StudentNotificationService,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(
@@ -118,13 +119,18 @@ class ApiFabric(
 
     val parentStorage = MockParentStorage()
 
-    val notificationService = studentNotificationService
     val botEventBus =
       if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
       else ObserverBus()
 
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
-      notificationService.notifyStudentAboutGrade(studentId, chatId, messageId, assessment, problem)
+      studentBotTelegramController.notifyStudentOnNewAssessment(
+        chatId,
+        messageId,
+        studentId,
+        problem,
+        assessment,
+      )
     }
 
     val tgTechnicalMessagesStorage =
@@ -138,13 +144,21 @@ class ApiFabric(
         databaseGradeTable,
         teacherStorage,
       )
-    val solutionMessageService =
-      SolutionMessageUpdaterImpl(tgTechnicalMessagesStorage, prettyTechnicalMessageService)
+
     val menuMessageUpdaterService = MenuMessageUpdaterImpl(tgTechnicalMessagesStorage)
     val uiController =
       UiControllerTelegramSender(
         StudentNewGradeNotifierImpl(botEventBus, problemStorage, solutionDistributor),
-        TelegramMessagesJournalUpdater(gradeTable, solutionMessageService),
+        TelegramMessagesJournalUpdater(
+          gradeTable,
+          solutionDistributorDecorator,
+          problemStorage,
+          assignmentStorage,
+          studentStorage,
+          teacherStorage,
+          tgTechnicalMessagesStorage,
+          teacherBotTelegramController,
+        ),
         menuMessageUpdaterService,
         solutionDistributor,
       )
@@ -206,7 +220,7 @@ class ApiFabric(
         teacherStorage,
         tgTechnicalMessagesStorage,
       )
-    val hack = Hack(solutionMessageService, menuMessageUpdaterService, telegramSolutionSender)
+    val hack = Hack(menuMessageUpdaterService, telegramSolutionSender)
     return ApiCollection(studentApi, teacherApi, adminApi, parentApi, hack)
   }
 }

@@ -47,7 +47,7 @@ class TeacherRunner(
         println(getMe())
         setMyCommands(listOf(BotCommand("start", "start"), BotCommand("end", "endCommand")))
         command("start") { startFsm(it) }
-        stateRegister.registerTeacherStates(this)
+        stateRegister.registerTeacherStates(this, botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
       }
@@ -79,12 +79,18 @@ class TeacherRunner(
 }
 
 class StateRegister(private val teacherApi: TeacherApi) {
-  fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>) {
+  fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>, botToken: String) {
     with(context) {
-      strictlyOn<ListeningForSolutionsGroupState>({ state -> state.execute(this, teacherApi) })
+      strictlyOn<ListeningForSolutionsGroupState> { state ->
+        state.lateinitTeacherBotToken = botToken
+        state.handle(this, teacherApi)
+      }
       registerState<StartState, TeacherApi>(teacherApi)
       registerState<DeveloperStartState, TeacherApi>(teacherApi)
-      strictlyOn<MenuState> { state -> state.handle(this, teacherApi) }
+      strictlyOn<MenuState> { state ->
+        state.teacherBotToken = botToken
+        state.handle(this, teacherApi)
+      }
       registerState<PresetTeacherState, TeacherApi>(teacherApi)
       registerState<ChooseGroupCourseState, TeacherApi>(teacherApi)
     }

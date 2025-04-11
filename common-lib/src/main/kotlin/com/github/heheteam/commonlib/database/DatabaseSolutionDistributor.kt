@@ -2,10 +2,10 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionContent
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.SolutionResolveError
 import com.github.heheteam.commonlib.TeacherDoesNotExist
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.CourseTable
@@ -42,7 +42,7 @@ class DatabaseSolutionDistributor(val database: Database) : SolutionDistributor 
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    solutionContent: SolutionContent,
+    solutionContent: TextWithMediaAttachments,
     problemId: ProblemId,
     timestamp: LocalDateTime,
     teacherId: TeacherId?,

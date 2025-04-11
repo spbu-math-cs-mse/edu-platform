@@ -3,11 +3,15 @@ package com.github.heheteam.commonlib.telegram
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.logic.ui.createSolutionGradingKeyboard
-import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.toTelegramMessageInfo
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.runCatching
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
+import dev.inmo.tgbotapi.extensions.api.send.reply
+import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 
@@ -16,8 +20,15 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun sendInitSolutionStatusMessageDM(
     chatId: RawChatId,
     solutionStatusMessageInfo: SolutionStatusMessageInfo,
-  ) {
-    TODO("Not yet implemented")
+  ): Result<TelegramMessageInfo, Any> = runCatching {
+    val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+    val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
+    teacherBot.editMessageReplyMarkup(
+      message.chat,
+      message.messageId,
+      replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+    )
+    message.toTelegramMessageInfo()
   }
 
   override suspend fun updateSolutionStatusMessageDM(
@@ -37,8 +48,15 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun sendInitSolutionStatusMessageInCourseGroupChat(
     chatId: RawChatId,
     solutionStatusMessageInfo: SolutionStatusMessageInfo,
-  ) {
-    TODO("Not yet implemented")
+  ): Result<TelegramMessageInfo, Any> = runCatching {
+    val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+    val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
+    teacherBot.editMessageReplyMarkup(
+      message.chat,
+      message.messageId,
+      replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+    )
+    message.toTelegramMessageInfo()
   }
 
   override suspend fun updateSolutionStatusMessageInCourseGroupChat(
@@ -55,8 +73,16 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
     )
   }
 
-  override suspend fun sendMenuMessage(replyTo: TelegramMessageInfo?) {
-    TODO("Not yet implemented")
+  override suspend fun sendMenuMessage(
+    chatId: RawChatId,
+    replyTo: TelegramMessageInfo?,
+  ): Result<TelegramMessageInfo, Any> = runCatching {
+    if (replyTo != null) {
+        teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "Главное меню")
+      } else {
+        teacherBot.sendMessage(chatId.toChatId(), "Главное меню")
+      }
+      .toTelegramMessageInfo()
   }
 
   override suspend fun deleteMessage(telegramMessageInfo: TelegramMessageInfo) {

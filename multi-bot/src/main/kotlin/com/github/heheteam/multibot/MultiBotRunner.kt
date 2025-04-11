@@ -88,9 +88,7 @@ class MultiBotRunner : CliktCommand() {
       launch {
         val stateRegister = StateRegister(apis.teacherApi)
         val teacherRunner = TeacherRunner(teacherBotToken, stateRegister, developerOptions)
-        teacherRunner.execute(
-          listOf(apis.hack.menuMessageUpdater, apis.hack.telegramSolutionSender)
-        )
+        teacherRunner.execute(listOf())
       }
       launch { adminRun(adminBotToken, apis.adminApi) }
       launch { parentRun(parentBotToken, apis.parentApi) }

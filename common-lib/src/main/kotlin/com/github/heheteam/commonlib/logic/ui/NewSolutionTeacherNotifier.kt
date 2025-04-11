@@ -157,12 +157,12 @@ internal class NewSolutionTeacherNotifier(
       solution.id,
       personalTechnicalMessage,
     )
-  }
+  }.also { println("Returned $it") }
 
   private fun extractSolutionStatusMessageInfo(
     solutionId: SolutionId
   ): Result<SolutionStatusMessageInfo, ResolveError<out Any>> {
-    return binding {
+    val result = binding {
       val gradingEntries = gradeTable.getGradingsForSolution(solutionId)
       val solution = solutionDistributor.resolveSolution(solutionId).bind()
       val problem = problemStorage.resolveProblem(solution.problemId).bind()
@@ -179,6 +179,8 @@ internal class NewSolutionTeacherNotifier(
         gradingEntries,
       )
     }
+    println(result)
+    return result
   }
 
   private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {

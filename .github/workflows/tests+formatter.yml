@@ -1,4 +1,4 @@
-name: Tests and Formatting
+name: Tests, Formatting and Deployment
 
 on:
   push:
@@ -61,6 +61,8 @@ jobs:
 
       - name: Run Static Analysis
         run: ./gradlew spotlessCheck
+
+
   check-static-analyzer:
     runs-on: ubuntu-latest
     needs: setup-environment
@@ -72,3 +74,39 @@ jobs:
         run: |
           ./gradlew detektMain
           ./gradlew detektTest
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/deployment'
+    runs-on: ubuntu-latest
+    needs: [run-backend-tests, check-formatting, check-static-analyzer]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USERNAME }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/edu-platform
+            docker compose pull backend
+            docker compose up -d --force-recreate backend
+            docker image prune -af

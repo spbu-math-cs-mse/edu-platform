@@ -1,8 +1,13 @@
-FROM ubuntu:latest
+FROM eclipse-temurin:21-jdk-jammy AS cache
+WORKDIR /cache
+COPY gradle gradle
+COPY gradlew .
+COPY settings.gradle.kts .
+COPY build.gradle.kts .
+RUN ./gradlew dependencies
 
 FROM eclipse-temurin:21-jdk-jammy AS build
-
-COPY . /edu-platform
+COPY --from=cache /cache /edu-platform
 WORKDIR /edu-platform
 
 COPY gradlew ./
@@ -12,7 +17,6 @@ COPY . ./
 
 RUN chmod +x ./gradlew
 
-RUN ./gradlew spotlessApply
 RUN ./gradlew :multi-bot:shadowJar
 
 FROM eclipse-temurin:21-jre-jammy AS runtime

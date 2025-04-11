@@ -1,15 +1,15 @@
 
 services:
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/spbu-math-cs-mse/edu-platform:latest
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
     env_file:
       - .env
     container_name: edu-platform
     depends_on:
       - postgres
-      - redis
     volumes:
       - ./logs/:/edu-platform/logs/
 
@@ -27,13 +27,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:latest
-    container_name: redis_cache
-    ports:
-      - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
 
 secrets:
   db_user:

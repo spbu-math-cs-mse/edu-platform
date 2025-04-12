@@ -102,6 +102,15 @@ jobs:
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
 
+      - name: Transfer Compose File
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USERNAME }}
+          password: ${{ secrets.PROD_SSH_PASSWORD }}
+          source: "compose.yaml"
+          target: "/root/edu-platform"
+
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:

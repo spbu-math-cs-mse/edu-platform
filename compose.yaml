@@ -2,6 +2,7 @@
 services:
   backend:
     image: ghcr.io/spbu-math-cs-mse/edu-platform:latest
+#    Uncomment for building an image from your local code
 #    build:
 #      context: .
 #      dockerfile: Dockerfile

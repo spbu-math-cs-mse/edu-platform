@@ -76,7 +76,7 @@ jobs:
           ./gradlew detektTest
 
   deploy-prod:
-    if: github.ref == 'refs/heads/deployment'
+    if: github.ref == 'refs/heads/deployment' # TODO: change to the main branch
     runs-on: ubuntu-latest
 #    needs: [run-backend-tests, check-formatting, check-static-analyzer] TODO: uncomment this
     permissions:
@@ -107,7 +107,7 @@ jobs:
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USERNAME }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.PROD_SSH_PASSWORD }}
           script: |
             cd /root/edu-platform
             docker compose pull backend

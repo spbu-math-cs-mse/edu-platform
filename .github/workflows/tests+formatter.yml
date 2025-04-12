@@ -86,6 +86,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Load Config Files from Secrets
+        env:
+          CONFIG_FILE: ${{ secrets.PROD_CONFIG_FILE }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          echo $CONFIG_FILE > common-lib/src/main/resources/config.json
+          echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:

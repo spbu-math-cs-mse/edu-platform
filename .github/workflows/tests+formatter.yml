@@ -115,7 +115,7 @@ jobs:
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USERNAME }}
-          password: ${{ secrets.PROD_SSH_PASSWORD }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           source: "compose.yaml"
           target: "/root/edu-platform"
 
@@ -124,7 +124,7 @@ jobs:
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USERNAME }}
-          password: ${{ secrets.PROD_SSH_PASSWORD }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd /root/edu-platform
             docker compose pull backend

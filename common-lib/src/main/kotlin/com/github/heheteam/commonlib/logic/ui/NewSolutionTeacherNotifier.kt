@@ -139,25 +139,30 @@ internal class NewSolutionTeacherNotifier(
 
   private suspend fun sendSolutionToTeacherPersonally(
     solution: Solution
-  ): Result<Unit, SolutionSendingError> = coroutineBinding {
-    val teacherId =
-      solution.responsibleTeacherId.toResultOr { NoResponsibleTeacherFor(solution) }.bind()
-    val teacher =
-      teacherStorage.resolveTeacher(teacherId).mapError { NoResponsibleTeacherFor(solution) }.bind()
-    val solutionStatusInfo =
-      extractSolutionStatusMessageInfo(solution.id)
-        .mapError { FailedToResolveSolution(solution) }
-        .bind()
-    val personalTechnicalMessage =
-      teacherBotTelegramController
-        .sendInitSolutionStatusMessageDM(teacher.tgId, solutionStatusInfo)
-        .mapError { SendToTeacherSolutionError(teacherId) }
-        .bind()
-    telegramTechnicalMessageStorage.registerPersonalSolutionPublication(
-      solution.id,
-      personalTechnicalMessage,
-    )
-  }.also { println("Returned $it") }
+  ): Result<Unit, SolutionSendingError> =
+    coroutineBinding {
+        val teacherId =
+          solution.responsibleTeacherId.toResultOr { NoResponsibleTeacherFor(solution) }.bind()
+        val teacher =
+          teacherStorage
+            .resolveTeacher(teacherId)
+            .mapError { NoResponsibleTeacherFor(solution) }
+            .bind()
+        val solutionStatusInfo =
+          extractSolutionStatusMessageInfo(solution.id)
+            .mapError { FailedToResolveSolution(solution) }
+            .bind()
+        val personalTechnicalMessage =
+          teacherBotTelegramController
+            .sendInitSolutionStatusMessageDM(teacher.tgId, solutionStatusInfo)
+            .mapError { SendToTeacherSolutionError(teacherId) }
+            .bind()
+        telegramTechnicalMessageStorage.registerPersonalSolutionPublication(
+          solution.id,
+          personalTechnicalMessage,
+        )
+      }
+      .also { println("Returned $it") }
 
   private fun extractSolutionStatusMessageInfo(
     solutionId: SolutionId

@@ -41,10 +41,6 @@ import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
 
-// we actually should not return that; instead, we must accepts its analogs as inputs to made the
-// mocking of telegram services possible
-// should be removed ASAP
-
 data class ApiCollection(
   val studentApi: StudentApi,
   val teacherApi: TeacherApi,
@@ -63,7 +59,6 @@ class ApiFabric(
   private val googleSheetsService: GoogleSheetsService,
   private val studentBotTelegramController: StudentBotTelegramController,
   private val teacherBotTelegramController: TeacherBotTelegramController,
-  //  private val studentNotificationService: StudentNotificationService,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(

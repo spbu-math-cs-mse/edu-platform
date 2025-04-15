@@ -1,10 +1,13 @@
 package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.api.ApiFabric
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.interfaces.toProblemId
+import com.github.heheteam.commonlib.interfaces.toSolutionId
 import com.github.heheteam.commonlib.interfaces.toStudentId
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.MonotoneDummyClock
@@ -58,6 +61,42 @@ class ApiTests {
       )
     )
     coVerify { teacherBotTelegramController.sendInitSolutionStatusMessageDM(any(), any()) }
+  }
+
+  private fun sendSolution(studentApi: StudentApi) {
+    coEvery { teacherBotTelegramController.sendInitSolutionStatusMessageDM(any(), any()) } returns
+      Ok(defaultMessageInfoNum(1))
+    coEvery {
+      teacherBotTelegramController.sendInitSolutionStatusMessageInCourseGroupChat(any(), any())
+    } returns Ok(defaultMessageInfoNum(1))
+    studentApi.inputSolution(
+      SolutionInputRequest(
+        studentId = 1L.toStudentId(),
+        problemId = 1L.toProblemId(),
+        TextWithMediaAttachments(),
+        defaultMessageInfo,
+        defaultTimestamp,
+      )
+    )
+  }
+
+  @Test
+  fun `telegram notifications are sent on new assessment`() {
+    val apis = createDefaultApis()
+    sendSolution(apis.studentApi)
+    sendSolution(apis.studentApi)
+    coEvery {
+      studentBotTelegramController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
+    } returns Unit
+    apis.teacherApi.assessSolution(
+      1L.toSolutionId(),
+      1L.toTeacherId(),
+      SolutionAssessment(1),
+      defaultTimestamp,
+    )
+    coVerify {
+      studentBotTelegramController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
+    }
   }
 
   private fun createDefaultApis() =

@@ -16,7 +16,12 @@ import kotlinx.serialization.Serializable
 
 typealias Grade = Int
 
-data class Student(val id: StudentId, val name: String = "", val surname: String = "")
+data class Student(
+  val id: StudentId,
+  val name: String = "",
+  val surname: String = "",
+  val tgId: RawChatId,
+)
 
 data class Parent(
   val id: ParentId,

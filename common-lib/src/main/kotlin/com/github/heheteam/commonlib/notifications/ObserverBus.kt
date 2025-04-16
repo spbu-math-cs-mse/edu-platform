@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventBus {
   private val newSolutionHandlers = mutableListOf<suspend (Solution) -> Unit>()
@@ -30,7 +31,7 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
     }
 
   override fun publishNewSolutionEvent(solutionId: Solution) =
-    newSolutionHandlers.forEach { CoroutineScope(context).launch { it.invoke(solutionId) } }
+    newSolutionHandlers.forEach { runBlocking { it.invoke(solutionId) } }
 
   override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
     newSolutionHandlers.add(handler)

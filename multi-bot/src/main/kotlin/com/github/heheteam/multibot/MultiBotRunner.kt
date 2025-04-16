@@ -15,7 +15,8 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.loadConfig
-import com.github.heheteam.commonlib.notifications.StudentNotificationService
+import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
+import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.studentRun
@@ -49,15 +50,32 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.password,
       )
     val googleSheetsService = GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
-    val bot =
+    val studentBot =
       telegramBot(studentBotToken) {
         logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
           println(defaultMessageFormatter(level, tag, message, throwable))
         }
       }
 
-    val studentNotificationService = StudentNotificationService(bot)
-    val apiFabric = ApiFabric(database, config, googleSheetsService, studentNotificationService)
+    val studentBotTelegramController = StudentBotTelegramControllerImpl(studentBot)
+
+    val teacherBot =
+      telegramBot(teacherBotToken) {
+        logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+          println(defaultMessageFormatter(level, tag, message, throwable))
+        }
+      }
+
+    val teacherBotTelegramController = TeacherBotTelegramControllerImpl(teacherBot)
+    val apiFabric =
+      ApiFabric(
+        database,
+        config,
+        googleSheetsService,
+        studentBotTelegramController,
+        teacherBotTelegramController,
+      )
+
     val apis = apiFabric.createApis(initDatabase, useRedis, TeacherResolverKind.FIRST)
 
     val developerOptions = run {
@@ -70,13 +88,7 @@ class MultiBotRunner : CliktCommand() {
       launch {
         val stateRegister = StateRegister(apis.teacherApi)
         val teacherRunner = TeacherRunner(teacherBotToken, stateRegister, developerOptions)
-        teacherRunner.execute(
-          listOf(
-            apis.hack.menuMessageUpdater,
-            apis.hack.solutionMessageUpdaterImpl,
-            apis.hack.telegramSolutionSender,
-          )
-        )
+        teacherRunner.execute(listOf())
       }
       launch { adminRun(adminBotToken, apis.adminApi) }
       launch { parentRun(parentBotToken, apis.parentApi) }

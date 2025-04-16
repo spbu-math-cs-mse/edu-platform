@@ -36,6 +36,7 @@ internal class AcademicWorkflowService(
         solutionInputRequest.timestamp,
       )
     botEventBus.publishNewSolutionEvent(solution)
+    solutionId
   }
 
   fun assessSolution(

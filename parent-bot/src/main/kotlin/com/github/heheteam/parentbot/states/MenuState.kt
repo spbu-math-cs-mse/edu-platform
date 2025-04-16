@@ -1,6 +1,5 @@
 package com.github.heheteam.parentbot.states
 
-import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -42,11 +41,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(parentApi: Pare
       else -> {
         bot.delete(stickerMessage)
         bot.delete(menuMessage)
-        return@strictlyOn ChildPerformanceState(
-          state.context,
-          Student(StudentId(command.toLong())),
-          state.parentId,
-        )
+        val child = parentApi.getChildren(parentId).first { it.id == StudentId(command.toLong()) }
+        return@strictlyOn ChildPerformanceState(state.context, child, state.parentId)
       }
     }
   }

@@ -45,8 +45,6 @@ internal constructor(
 
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
-  fun addCourse(courseName: String) = coursesDistributor.createCourse(courseName)
-
   fun getCourse(courseName: String): Course? =
     coursesDistributor.getCourses().find { it.name == courseName }
 

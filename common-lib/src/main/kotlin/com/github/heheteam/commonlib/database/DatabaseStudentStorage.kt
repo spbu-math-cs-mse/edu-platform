@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.toStudentId
+import com.github.heheteam.commonlib.util.toRawChatId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -56,7 +57,14 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       return@transaction ids.map { studentId ->
         StudentTable.selectAll()
           .where(StudentTable.id eq studentId)
-          .map { Student(studentId.toStudentId(), it[StudentTable.name], it[StudentTable.name]) }
+          .map {
+            Student(
+              studentId.toStudentId(),
+              it[StudentTable.name],
+              it[StudentTable.name],
+              it[StudentTable.tgId].toRawChatId(),
+            )
+          }
           .single()
       }
     }
@@ -78,7 +86,14 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       val row =
         StudentTable.selectAll().where(StudentTable.id eq studentId.long).singleOrNull()
           ?: return@transaction Err(ResolveError(studentId))
-      Ok(Student(studentId, row[StudentTable.name], row[StudentTable.surname]))
+      Ok(
+        Student(
+          studentId,
+          row[StudentTable.name],
+          row[StudentTable.surname],
+          row[StudentTable.tgId].toRawChatId(),
+        )
+      )
     }
 
   override fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> {
@@ -94,6 +109,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
           row[StudentTable.id].value.toStudentId(),
           row[StudentTable.name],
           row[StudentTable.surname],
+          row[StudentTable.tgId].toRawChatId(),
         )
       }
     }

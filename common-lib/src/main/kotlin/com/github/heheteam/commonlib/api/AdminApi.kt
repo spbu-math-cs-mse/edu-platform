@@ -19,6 +19,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.map
 import java.time.LocalDateTime
 
 @Suppress(
@@ -124,6 +125,6 @@ internal constructor(
     )
   }
 
-  fun getRatingLink(courseId: CourseId): String? =
-    coursesDistributor.resolveCourseWithSpreadsheetId(courseId).get()?.second?.toUrl()
+  fun getRatingLink(courseId: CourseId): Result<String, ResolveError<CourseId>> =
+    coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map { it.second.toUrl() }
 }

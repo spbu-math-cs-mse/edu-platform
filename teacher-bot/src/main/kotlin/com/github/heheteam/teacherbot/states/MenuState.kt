@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -34,12 +33,13 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
-import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
+import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
+import dev.inmo.tgbotapi.types.message.content.MessageContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
@@ -61,12 +61,8 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
   suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
     teacherApi.updateTgId(teacherId, context.id)
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
-    val menuMessage = bot.send(context, Dialogues.menu)
-    teacherApi.updateTeacherMenuMessage(
-      TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
-    )
+    teacherApi.updateTeacherMenuMessage(teacherId)
     messages.add(stickerMessage)
-    messages.add(menuMessage)
 
     val messageHandlers = createMessagesHandlers(bot)
     val dataCallbackQueryHandlers = createDataCallbackHandlers()
@@ -101,10 +97,9 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     bot: TelegramBot
   ): List<AnyMessageHandler<TeacherAction, MessageError>> =
     listOf(
+      { tryHandleSetIdCommand(it) },
+      { tryHandleMenuCommand(it) },
       { tryParseGradingReplyWithoutChecking(it, teacherBotToken, bot) },
-      { message ->
-        NewState(handleCommands(message.content.textedContentOrNull()?.text.orEmpty()).first).ok()
-      },
     )
 
   private fun createDataCallbackHandlers() =
@@ -153,6 +148,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
           SolutionAssessment(action.grade),
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
+
       is GradingFromReply -> {
         storedInfo[++counter] = action.solutionId to action.solutionAssessment
         bot.sendMessage(
@@ -179,26 +175,33 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
         with(bot) { action.messageToDeleteOnConfirm?.let { delete(it) } }
       }
 
-      is DeleteMessage -> {
-        with(bot) { action.message?.let { delete(it) } }
-      }
+      is DeleteMessage -> with(bot) { action.message?.let { delete(it) } }
+
+      is UpdateMenuMessage -> teacherApi.updateTeacherMenuMessage(teacherId)
     }
   }
 
-  private fun handleCommands(message: String): Pair<State, String?> {
+  private fun tryHandleMenuCommand(
+    message: CommonMessage<MessageContent>
+  ): Result<ActionWrapper<TeacherAction>, Nothing>? =
+    if (message.content.textContentOrNull()?.text == "/menu") {
+      ActionWrapper<TeacherAction>(UpdateMenuMessage).ok()
+    } else null
+
+  private fun tryHandleSetIdCommand(
+    message: CommonMessage<MessageContent>
+  ): Result<NewState, Nothing>? {
     val re = Regex("/setid ([0-9]+)")
-    val match = re.matchEntire(message)
+    val match = message.content.textContentOrNull()?.text?.let { re.matchEntire(it) }
     return if (match != null) {
       val newId =
         match.groups[1]?.value?.toLongOrNull()
           ?: run {
             logger.error("input id ${match.groups[1]} is not long!")
-            return Pair(MenuState(context, teacherId), null)
+            return NewState(MenuState(context, teacherId)).ok()
           }
-      Pair(PresetTeacherState(context, newId.toTeacherId()), null)
-    } else {
-      Pair(MenuState(context, teacherId), "Unrecognized command")
-    }
+      NewState(PresetTeacherState(context, newId.toTeacherId())).ok()
+    } else null
   }
 
   private fun tryParseGradingReplyWithoutChecking(

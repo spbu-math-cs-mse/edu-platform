@@ -7,47 +7,58 @@ import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.state.BotState
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.queryCourse
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
+import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
+import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
+import dev.inmo.tgbotapi.types.message.content.TextContent
 
-class MenuState(override val context: User) : BotState<State, Unit, AdminApi> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: AdminApi): State {
-    val initialMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
-    val newState =
-      bot
-        .waitDataCallbackQueryWithUser(context.id)
-        .mapNotNull { callback ->
-          when (callback.data) {
-            CREATE_COURSE -> CreateCourseState(context)
+class MenuState(override val context: User) : BotStateWithHandlers<State, Unit, AdminApi> {
 
-            EDIT_COURSE -> {
-              QueryCourseForEditing(context)
-            }
+  private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
 
-            CREATE_ASSIGNMENT -> {
-              QueryCourseForAssignmentCreation(context)
-            }
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
+    sentMessages.forEach { bot.delete(it) }
+  }
 
-            COURSE_INFO -> {
-              val courses = service.getCourses().map { it.value }
-              bot.queryCourse(context, courses)?.let { course -> CourseInfoState(context, course) }
-            }
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: AdminApi,
+    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+  ) {
+    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    sentMessages.add(menuMessage)
 
-            else -> null
-          }
+    updateHandlersController.addTextMessageHandler { message ->
+      if (message.content.text == "/menu") {
+        NewState(MenuState(context))
+      } else {
+        Unhandled
+      }
+    }
+
+    updateHandlersController.addDataCallbackHandler { callback ->
+      when (callback.data) {
+        CREATE_COURSE -> NewState(CreateCourseState(context))
+        EDIT_COURSE -> NewState(QueryCourseForEditing(context))
+        CREATE_ASSIGNMENT -> NewState(QueryCourseForAssignmentCreation(context))
+        COURSE_INFO -> {
+          val courses = service.getCourses().map { it.value }
+          bot.queryCourse(context, courses)?.let { course ->
+            NewState(CourseInfoState(context, course))
+          } ?: Unhandled
         }
-        .first()
 
-    bot.deleteMessage(initialMessage)
-    return newState
+        else -> Unhandled
+      }
+    }
   }
 
   override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {

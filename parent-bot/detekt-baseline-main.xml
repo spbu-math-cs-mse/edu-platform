@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
     <ID>ForbiddenComment:GivingFeedbackState.kt$// TODO: implement receiving feedback</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun acceptFeedback(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
@@ -10,7 +9,6 @@
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
     <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
-    <ID>LongMethod:StartState.kt$fun DefaultBehaviourContextWithFSM&lt;BotState&gt;.strictlyOnStartState( parentStorage: ParentStorage, isDeveloperRun: Boolean = false, )</ID>
     <ID>LoopWithTooManyJumpStatements:StartState.kt$while</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val giveFeedback = "Дать обратную связь"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>

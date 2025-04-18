@@ -6,13 +6,10 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CourseStatistics
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotState
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
-import kotlinx.coroutines.flow.first
 
 class CourseInfoState(override val context: User, val course: Course) :
   BotState<Unit, CourseStatistics, AdminApi> {
@@ -28,13 +25,10 @@ class CourseInfoState(override val context: User, val course: Course) :
     service: AdminApi,
     response: CourseStatistics,
   ) {
-    val statsMessage =
-      bot.send(
-        context,
-        entities = CourseStatisticsFormatter.format(course.name, response),
-        replyMarkup = Keyboards.courseInfo(service.getRatingLink(course.id)),
-      )
-    bot.waitDataCallbackQueryWithUser(context.id).first()
-    bot.deleteMessage(statsMessage)
+    bot.send(
+      context,
+      entities = CourseStatisticsFormatter.format(course.name, response),
+      replyMarkup = Keyboards.courseInfo(service.getRatingLink(course.id).value),
+    )
   }
 }

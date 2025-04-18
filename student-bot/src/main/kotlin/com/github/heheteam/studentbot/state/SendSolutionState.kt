@@ -17,11 +17,9 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.back
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import java.time.LocalDateTime
@@ -40,7 +38,6 @@ data class SendSolutionState(
     updateHandlersController: UpdateHandlersController<() -> Unit, SolutionInputRequest?, Any>,
   ) {
     bot.send(context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
-    bot.setMyCommands(BotCommand("menu", "main menu"))
     updateHandlersController.addTextMessageHandler { message ->
       if (message.content.text == "/menu") {
         NewState(MenuState(context, studentId))

@@ -45,7 +45,10 @@ class TeacherRunner(
       ) {
         telegramBotControllers.forEach { it.setTelegramBot(this) }
         println(getMe())
-        setMyCommands(listOf(BotCommand("start", "start"), BotCommand("end", "endCommand")))
+
+        setMyCommands(
+          listOf(BotCommand("start", "Start bot"), BotCommand("menu", "Resend menu message"))
+        )
         command("start") { startFsm(it) }
         stateRegister.registerTeacherStates(this, botToken)
 

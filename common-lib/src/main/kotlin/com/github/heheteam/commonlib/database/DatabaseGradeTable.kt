@@ -130,6 +130,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         )
         .selectAll()
         .where { AssignmentTable.courseId eq courseId.long }
+        .orderBy(
+          SolutionTable.timestamp to SortOrder.ASC,
+          AssessmentTable.timestamp to SortOrder.ASC,
+        )
         .groupBy { it[SolutionTable.studentId].value.toStudentId() }
         .mapValues { (_, trios) -> // Transform each group into a Map
           trios.associate { it[ProblemTable.id].value.toProblemId() to it[AssessmentTable.grade] }

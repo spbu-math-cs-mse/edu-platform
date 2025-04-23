@@ -3,7 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.toStudentId
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.HandlingError
@@ -29,8 +29,8 @@ import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
-data class MenuState(override val context: User, val studentId: StudentId) :
-  BotStateWithHandlers<State, Unit, StudentApi> {
+data class MenuState(override val context: User, override val userId: StudentId) :
+  BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
   override suspend fun intro(
@@ -42,29 +42,18 @@ data class MenuState(override val context: User, val studentId: StudentId) :
     val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
-        NewState(MenuState(context, studentId))
-      } else {
-        Unhandled
-      }
-    }
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
     updateHandlersController.addTextMessageHandler { t -> bot.handleTextMessage(t, context) }
   }
 
   private fun processKeyboardButtonPresses(
     callback: DataCallbackQuery
-  ): HandlerResultWithUserInputOrUnhandled<
-    Nothing,
-    BotStateWithHandlers<out Any?, Unit, StudentApi>,
-    Nothing,
-  > {
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
     val state =
       when (callback.data) {
-        SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, studentId)
-        CHECK_GRADES -> QueryCourseForSolutionSendingState(context, studentId)
-        CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, studentId)
+        SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, userId)
+        CHECK_GRADES -> QueryCourseForSolutionSendingState(context, userId)
+        CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
         else -> null
       }
     return if (state != null) {

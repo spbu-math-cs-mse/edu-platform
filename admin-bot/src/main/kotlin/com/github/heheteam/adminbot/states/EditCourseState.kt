@@ -31,14 +31,6 @@ class EditCourseState(override val context: User, private val course: Course) :
       bot.send(context, "Изменить курс ${course.name}:", replyMarkup = Keyboards.editCourse())
     sentMessages.add(message)
 
-    updateHandlersController.addTextMessageHandler { commandMessage ->
-      if (commandMessage.content.text == "/menu") {
-        NewState(MenuState(context))
-      } else {
-        Unhandled
-      }
-    }
-
     updateHandlersController.addDataCallbackHandler { callback ->
       when (callback.data) {
         Keyboards.RETURN_BACK -> NewState(MenuState(context))

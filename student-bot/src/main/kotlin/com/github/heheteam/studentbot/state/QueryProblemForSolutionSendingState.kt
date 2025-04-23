@@ -6,9 +6,8 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -25,9 +24,14 @@ import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 class QueryProblemForSolutionSendingState(
   override val context: User,
-  val studentId: StudentId,
+  override val userId: StudentId,
   private val selectedCourseId: CourseId,
-) : BotStateWithHandlers<Problem?, Unit, StudentApi> { // null means user chose back button
+) :
+  BotStateWithHandlersAndStudentId<
+    Problem?,
+    Unit,
+    StudentApi,
+  > { // null means user chose back button
   private val sentMessage = mutableListOf<AccessibleMessage>()
 
   override suspend fun intro(
@@ -35,13 +39,6 @@ class QueryProblemForSolutionSendingState(
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ) {
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
-        NewState(MenuState(context, studentId))
-      } else {
-        Unhandled
-      }
-    }
     val assignments = service.getCourseAssignments(selectedCourseId)
     val problems = assignments.associateWith { service.getProblemsFromAssignment(it.id) }
     val message =
@@ -68,9 +65,9 @@ class QueryProblemForSolutionSendingState(
   }
 
   override fun computeNewState(service: StudentApi, input: Problem?): Pair<State, Unit> {
-    return if (input != null) SendSolutionState(context, studentId, input) to Unit
+    return if (input != null) SendSolutionState(context, userId, input) to Unit
     else {
-      MenuState(context, studentId) to Unit
+      MenuState(context, userId) to Unit
     }
   }
 

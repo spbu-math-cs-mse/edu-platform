@@ -41,7 +41,6 @@ class CreateAssignmentErrorState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
-        "/menu" -> NewState(MenuState(context))
         "/stop" -> NewState(MenuState(context))
         else -> Unhandled
       }

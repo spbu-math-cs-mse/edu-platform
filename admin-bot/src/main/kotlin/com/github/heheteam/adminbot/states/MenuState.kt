@@ -36,14 +36,6 @@ class MenuState(override val context: User) : BotStateWithHandlers<State, Unit, 
     val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
     sentMessages.add(menuMessage)
 
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
-        NewState(MenuState(context))
-      } else {
-        Unhandled
-      }
-    }
-
     updateHandlersController.addDataCallbackHandler { callback ->
       when (callback.data) {
         CREATE_COURSE -> NewState(CreateCourseState(context))

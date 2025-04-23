@@ -71,7 +71,6 @@ class CreateAssignmentState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
-        "/menu" -> NewState(MenuState(context))
         "/stop" -> NewState(MenuState(context))
         else -> NewState(processDescriptionInput(message.content.text))
       }

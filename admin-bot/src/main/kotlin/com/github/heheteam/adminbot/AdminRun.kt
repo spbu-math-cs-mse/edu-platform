@@ -15,6 +15,9 @@ import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.registerState
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
@@ -22,6 +25,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAn
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.types.BotCommand
+import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,22 +51,35 @@ suspend fun adminRun(botToken: String, adminApi: AdminApi) {
         if (user != null) startChain(MenuState(user))
       }
 
-      registerState<MenuState, AdminApi>(adminApi)
-      registerState<CreateCourseState, AdminApi>(adminApi)
+      registerState<MenuState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<CreateCourseState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<EditCourseState, Unit>(Unit, ::menuCommandHandler)
+      registerState<CreateAssignmentState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<CreateAssignmentErrorState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<AddStudentState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<RemoveStudentState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<AddTeacherState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<RemoveTeacherState, AdminApi>(adminApi, ::menuCommandHandler)
+      registerState<QueryCourseForEditing, AdminApi>(adminApi, ::menuCommandHandler)
       registerState<CourseInfoState, AdminApi>(adminApi)
-      registerState<EditCourseState, Unit>(Unit)
       registerState<EditDescriptionState, Unit>(Unit)
-      registerState<CreateAssignmentState, AdminApi>(adminApi)
-      registerState<CreateAssignmentErrorState, AdminApi>(adminApi)
-      registerState<AddStudentState, AdminApi>(adminApi)
-      registerState<RemoveStudentState, AdminApi>(adminApi)
-      registerState<AddTeacherState, AdminApi>(adminApi)
-      registerState<RemoveTeacherState, AdminApi>(adminApi)
-      registerState<QueryCourseForEditing, AdminApi>(adminApi)
       strictlyOnAddScheduledMessageState(adminApi)
 
       allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
     }
     .second
     .join()
+}
+
+fun menuCommandHandler(
+  handlersController: UpdateHandlersController<() -> Unit, out Any?, Any>,
+  context: User,
+) {
+  handlersController.addTextMessageHandler { maybeCommandMessage ->
+    if (maybeCommandMessage.content.text == "/menu") {
+      NewState(MenuState(context))
+    } else {
+      Unhandled
+    }
+  }
 }

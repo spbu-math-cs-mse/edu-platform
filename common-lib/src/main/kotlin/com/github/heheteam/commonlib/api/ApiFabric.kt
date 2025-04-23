@@ -29,36 +29,24 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
-import com.github.heheteam.commonlib.logic.ui.PrettyTechnicalMessageService
 import com.github.heheteam.commonlib.logic.ui.SolutionCourseResolverImpl
-import com.github.heheteam.commonlib.logic.ui.SolutionMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
-import com.github.heheteam.commonlib.logic.ui.TelegramSolutionSenderImpl
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.ObserverBus
 import com.github.heheteam.commonlib.notifications.RedisBotEventBus
-import com.github.heheteam.commonlib.notifications.StudentNotificationService
+import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
+import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
 import org.jetbrains.exposed.sql.Database
-
-// we actually should not return that; instead, we must accepts its analogs as inputs to made the
-// mocking of telegram services possible
-// should be removed ASAP
-data class Hack(
-  val solutionMessageUpdaterImpl: SolutionMessageUpdaterImpl,
-  val menuMessageUpdater: MenuMessageUpdaterImpl,
-  val telegramSolutionSender: TelegramSolutionSenderImpl,
-)
 
 data class ApiCollection(
   val studentApi: StudentApi,
   val teacherApi: TeacherApi,
   val adminApi: AdminApi,
   val parentApi: ParentApi,
-  val hack: Hack,
 )
 
 enum class TeacherResolverKind {
@@ -70,7 +58,8 @@ class ApiFabric(
   private val database: Database,
   private val config: Config,
   private val googleSheetsService: GoogleSheetsService,
-  private val studentNotificationService: StudentNotificationService,
+  private val studentBotTelegramController: StudentBotTelegramController,
+  private val teacherBotTelegramController: TeacherBotTelegramController,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(
@@ -117,35 +106,39 @@ class ApiFabric(
 
     val parentStorage = MockParentStorage()
 
-    val notificationService = studentNotificationService
     val botEventBus =
       if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
       else ObserverBus()
 
     botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
-      notificationService.notifyStudentAboutGrade(studentId, chatId, messageId, assessment, problem)
+      studentBotTelegramController.notifyStudentOnNewAssessment(
+        chatId,
+        messageId,
+        studentId,
+        problem,
+        assessment,
+      )
     }
 
     val tgTechnicalMessagesStorage =
       DatabaseTelegramTechnicalMessagesStorage(database, solutionDistributor)
-    val prettyTechnicalMessageService =
-      PrettyTechnicalMessageService(
-        solutionDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        gradeTable,
-        teacherStorage,
-      )
-    val solutionMessageService =
-      SolutionMessageUpdaterImpl(tgTechnicalMessagesStorage, prettyTechnicalMessageService)
     val menuMessageUpdaterService = MenuMessageUpdaterImpl(tgTechnicalMessagesStorage)
     val uiController =
       UiControllerTelegramSender(
         StudentNewGradeNotifierImpl(botEventBus, problemStorage, solutionDistributor),
-        TelegramMessagesJournalUpdater(gradeTable, solutionMessageService),
-        menuMessageUpdaterService,
+        TelegramMessagesJournalUpdater(
+          gradeTable,
+          solutionDistributor,
+          problemStorage,
+          assignmentStorage,
+          studentStorage,
+          teacherStorage,
+          tgTechnicalMessagesStorage,
+          teacherBotTelegramController,
+        ),
         solutionDistributor,
+        teacherBotTelegramController,
+        tgTechnicalMessagesStorage,
       )
     val teacherResolver: ResponsibleTeacherResolver =
       when (teacherResolverKind) {
@@ -182,16 +175,20 @@ class ApiFabric(
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
-    val telegramSolutionSender =
-      TelegramSolutionSenderImpl(teacherStorage, prettyTechnicalMessageService, coursesDistributor)
     val solutionCourseResolver =
       SolutionCourseResolverImpl(solutionDistributor, problemStorage, assignmentStorage)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
-        telegramSolutionSender,
         tgTechnicalMessagesStorage,
         solutionCourseResolver,
-        menuMessageUpdaterService,
+        teacherBotTelegramController,
+        solutionDistributor,
+        problemStorage,
+        assignmentStorage,
+        studentStorage,
+        databaseGradeTable,
+        teacherStorage,
+        coursesDistributor,
       )
 
     botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
@@ -204,7 +201,6 @@ class ApiFabric(
         teacherStorage,
         menuMessageUpdaterService,
       )
-    val hack = Hack(solutionMessageService, menuMessageUpdaterService, telegramSolutionSender)
-    return ApiCollection(studentApi, teacherApi, adminApi, parentApi, hack)
+    return ApiCollection(studentApi, teacherApi, adminApi, parentApi)
   }
 }

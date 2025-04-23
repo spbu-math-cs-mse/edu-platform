@@ -44,8 +44,8 @@ internal constructor(
   fun inputSolution(solutionInputRequest: SolutionInputRequest) =
     academicWorkflowService.sendSolution(solutionInputRequest)
 
-  fun getProblemsFromAssignment(assignment: Assignment): List<Problem> =
-    problemStorage.getProblemsFromAssignment(assignment.id)
+  fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
+    problemStorage.getProblemsFromAssignment(assignmentId)
 
   fun loginByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> =
     studentStorage.resolveByTgId(tgId)

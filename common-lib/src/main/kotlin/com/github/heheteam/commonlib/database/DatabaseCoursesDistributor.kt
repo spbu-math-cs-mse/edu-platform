@@ -19,6 +19,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
+import com.github.heheteam.commonlib.util.toRawChatId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -250,6 +251,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
             it[CourseStudents.studentId].value.toStudentId(),
             it[StudentTable.name].toString(),
             it[StudentTable.surname].toString(),
+            it[StudentTable.tgId].toRawChatId(),
           )
         }
     }
@@ -269,7 +271,7 @@ class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
             it[CourseTeachers.teacherId].value.toTeacherId(),
             it[TeacherTable.name].toString(),
             it[TeacherTable.surname].toString(),
-            RawChatId(it[TeacherTable.tgId]),
+            it[TeacherTable.tgId].toRawChatId(),
           )
         }
     }

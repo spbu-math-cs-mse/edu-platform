@@ -32,18 +32,19 @@ class DatabaseAssignmentStorage(
   override fun resolveAssignment(
     assignmentId: AssignmentId
   ): Result<Assignment, ResolveError<AssignmentId>> {
-    val row =
-      transaction {
+    return transaction(database) {
+      val row =
         AssignmentTable.selectAll().where(AssignmentTable.id eq assignmentId.long).singleOrNull()
-      } ?: return Err(ResolveError(assignmentId))
-    return Ok(
-      Assignment(
-        assignmentId,
-        row[AssignmentTable.serialNumber],
-        row[AssignmentTable.description],
-        row[AssignmentTable.courseId].value.toCourseId(),
+          ?: return@transaction Err(ResolveError(assignmentId))
+      Ok(
+        Assignment(
+          assignmentId,
+          row[AssignmentTable.serialNumber],
+          row[AssignmentTable.description],
+          row[AssignmentTable.courseId].value.toCourseId(),
+        )
       )
-    )
+    }
   }
 
   override fun createAssignment(

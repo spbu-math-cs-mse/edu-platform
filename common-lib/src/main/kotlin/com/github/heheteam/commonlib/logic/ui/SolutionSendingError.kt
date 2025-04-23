@@ -9,6 +9,8 @@ open class SolutionSendingError
 
 data class NoResponsibleTeacherFor(val solution: Solution) : SolutionSendingError()
 
+data class FailedToResolveSolution(val solution: Solution) : SolutionSendingError()
+
 data class NoCourseFoundFor(val solutionId: SolutionId) : SolutionSendingError()
 
 data class SendToGroupSolutionError(val courseId: CourseId) : SolutionSendingError()

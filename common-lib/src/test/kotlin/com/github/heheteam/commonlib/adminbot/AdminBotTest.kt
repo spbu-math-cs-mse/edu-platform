@@ -79,7 +79,7 @@ class AdminBotTest {
     assertEquals(null, core.getCourse(courseName))
     assertEquals(mapOf(), core.getCourses())
 
-    core.addCourse(courseName)
+    core.createCourse(courseName)
     assertEquals(true, core.courseExists(courseName))
     assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName))
     assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses())

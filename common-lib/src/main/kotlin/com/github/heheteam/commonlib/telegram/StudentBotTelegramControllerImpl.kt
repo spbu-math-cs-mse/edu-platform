@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib.notifications
+package com.github.heheteam.commonlib.telegram
 
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SolutionAssessment
@@ -9,13 +9,13 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 
-class StudentNotificationService(private val bot: TelegramBot) : NotificationService {
-  override suspend fun notifyStudentAboutGrade(
-    studentId: StudentId,
+class StudentBotTelegramControllerImpl(val studentBot: TelegramBot) : StudentBotTelegramController {
+  override suspend fun notifyStudentOnNewAssessment(
     chatId: RawChatId,
-    messageId: MessageId,
-    assessment: SolutionAssessment,
+    messageToReplyTo: MessageId,
+    studentId: StudentId,
     problem: Problem,
+    assessment: SolutionAssessment,
   ) {
     val emoji =
       when {
@@ -33,10 +33,10 @@ class StudentNotificationService(private val bot: TelegramBot) : NotificationSer
         append("Комментарий преподавателя: ${assessment.comment.text}")
       }
     }
-    bot.sendTextWithMediaAttachments(
+    studentBot.sendTextWithMediaAttachments(
       chatId.toChatId(),
       assessment.comment.copy(text = messageText),
-      replyTo = messageId,
+      replyTo = messageToReplyTo,
     )
   }
 }

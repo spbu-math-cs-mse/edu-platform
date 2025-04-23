@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
@@ -19,7 +20,9 @@ class CreateCourseState(override val context: User) :
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
-  override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
+    sentMessages.forEach { bot.delete(it) }
+  }
 
   override suspend fun intro(
     bot: BehaviourContext,
@@ -33,7 +36,13 @@ class CreateCourseState(override val context: User) :
       )
     sentMessages.add(introMessage)
 
-    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
+    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
+      if (maybeCommandMessage.content.text == "/menu") {
+        NewState(MenuState(context))
+      } else {
+        UserInput(maybeCommandMessage.content.text)
+      }
+    }
   }
 
   override fun computeNewState(service: AdminApi, input: String): Pair<State, String?> {
@@ -55,10 +64,6 @@ class CreateCourseState(override val context: User) :
   }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String?) {
-    // Clean up our initial messages
-    sentMessages.forEach { bot.delete(it) }
-
-    // Send response if we have one
     if (response != null) {
       bot.send(context, response)
     }

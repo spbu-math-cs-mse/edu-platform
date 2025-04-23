@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
+import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -16,9 +17,6 @@ import dev.inmo.kslog.common.info
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDocumentMessage
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitMediaMessage
-import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitTextMessage
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -30,7 +28,6 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDateTime
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -44,14 +41,17 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
     with(bot) {
       teacherApi.setCourseGroup(courseId, context.id.chatId)
+      teacherApi.updateGroupMenuMessage(courseId)
       while (true) {
         merge(
-            merge(waitTextMessage(), waitMediaMessage(), waitDocumentMessage())
-              .filter { it.chat.id.chatId == context.id.chatId }
-              .map { message ->
-                val result = tryParseGradingReply(message, bot)
-                result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
-              },
+            waitTextMessageWithUser(context.id.toChatId()).map { commonMessage ->
+              if (commonMessage.content.text == "/menu") {
+                teacherApi.updateGroupMenuMessage(courseId)
+                return@map
+              }
+              val result = tryParseGradingReply(commonMessage, bot)
+              result.mapError { errorMessage -> sendMessage(context.id, errorMessage) }
+            },
             waitDataCallbackQueryWithUser(context.id.toChatId()).map { dataCallback ->
               val maybeCounter = dataCallback.data.toIntOrNull()
               if (maybeCounter != null) {

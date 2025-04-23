@@ -1,190 +1,149 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.Dialogues.askAssignmentDescription
-import com.github.heheteam.adminbot.Dialogues.askProblemsDescriptions
-import com.github.heheteam.adminbot.Dialogues.assignmentDescriptionIsNotText
-import com.github.heheteam.adminbot.Dialogues.assignmentWasCreatedSuccessfully
-import com.github.heheteam.adminbot.Dialogues.incorrectProblemDescriptionEmpty
-import com.github.heheteam.adminbot.Dialogues.incorrectProblemDescriptionMaxScoreIsNotInt
-import com.github.heheteam.adminbot.Dialogues.incorrectProblemDescriptionTooManyArguments
-import com.github.heheteam.adminbot.Dialogues.problemsDescriptionsAreNotTexts
+import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.Keyboards
 import com.github.heheteam.adminbot.Keyboards.RETURN_BACK
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.state.BotState
-import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
-import com.github.heheteam.commonlib.util.waitTextMessageWithUser
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.toResultOr
-import dev.inmo.kslog.common.info
-import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.delete
-import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
+import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
-import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.LocalDateTime
 
-class CreateAssignmentState(override val context: User, private val course: Course) :
-  BotState<State, Unit, AdminApi> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: AdminApi): State {
-    val description = queryAssignmentDescription(bot, this) ?: return MenuState(context)
-    val problemsDescriptions = queryProblemsDescriptions(bot, this) ?: return MenuState(context)
+class CreateAssignmentState(
+  override val context: User,
+  private val course: Course,
+  private var description: Pair<String, LocalDateTime?>? = null,
+  private var problems: List<ProblemDescription>? = null,
+) : BotStateWithHandlers<State, Unit, AdminApi> {
 
+  private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
+  private var lastMessageId: MessageId? = null
+
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
+    sentMessages.forEach { bot.delete(it) }
+  }
+
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: AdminApi,
+    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+  ) {
+    when {
+      description == null -> handleAssignmentDescription(bot, updateHandlersController)
+      problems == null -> handleProblemsDescription(bot, updateHandlersController)
+      else -> completeAssignmentCreation(bot, service, description!!)
+    }
+  }
+
+  private suspend fun handleAssignmentDescription(
+    bot: BehaviourContext,
+    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+  ) {
+    val msg =
+      bot.send(context, Dialogues.askAssignmentDescription(), replyMarkup = Keyboards.returnBack())
+    sentMessages.add(msg)
+    lastMessageId = msg.messageId
+
+    updateHandlersController.addDataCallbackHandler { callback ->
+      if (callback.data == RETURN_BACK) {
+        NewState(MenuState(context))
+      } else {
+        Unhandled
+      }
+    }
+
+    updateHandlersController.addTextMessageHandler { message ->
+      when (message.content.text) {
+        "/menu" -> NewState(MenuState(context))
+        "/stop" -> NewState(MenuState(context))
+        else -> NewState(processDescriptionInput(message.content.text))
+      }
+    }
+  }
+
+  private fun processDescriptionInput(text: String): State {
+    return if (text.contains("\$")) {
+      val tokens = text.split("\$")
+      if (tokens.size != 2) {
+        CreateAssignmentErrorState(context, course, "too many dollar signs in query")
+      } else {
+        val date = LocalDateTime.Formats.ISO.parseOrNull(tokens[1])
+        CreateAssignmentState(context, course, tokens[0] to date, null)
+      }
+    } else {
+      CreateAssignmentState(context, course, text to null, null)
+    }
+  }
+
+  private suspend fun handleProblemsDescription(
+    bot: BehaviourContext,
+    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+  ) {
+    lastMessageId?.let { bot.delete(context.id, it) }
+    val msg =
+      bot.send(context, Dialogues.askProblemsDescriptions(), replyMarkup = Keyboards.returnBack())
+    sentMessages.add(msg as CommonMessage<TextContent>)
+    lastMessageId = msg.messageId
+
+    updateHandlersController.addDataCallbackHandler { callback ->
+      if (callback.data == RETURN_BACK) {
+        NewState(MenuState(context))
+      } else {
+        Unhandled
+      }
+    }
+
+    updateHandlersController.addTextMessageHandler { message ->
+      when (message.content.text) {
+        "/menu" -> NewState(MenuState(context))
+        "/stop" -> NewState(MenuState(context))
+        else -> NewState(processProblemsInput(message.content.text))
+      }
+    }
+  }
+
+  private fun processProblemsInput(text: String): State {
+    return parseProblemsDescriptions(text)
+      .mapBoth(
+        { result -> CreateAssignmentState(context, course, description, result) },
+        { result -> CreateAssignmentErrorState(context, course, result) },
+      )
+  }
+
+  private suspend fun completeAssignmentCreation(
+    bot: BehaviourContext,
+    service: AdminApi,
+    assignmentDescription: Pair<String, LocalDateTime?>,
+  ) {
     service.createAssignment(
       course.id,
-      description.first,
-      problemsDescriptions.map { it.copy(deadline = description.second) },
+      assignmentDescription.first,
+      problems.orEmpty().map { it.copy(deadline = assignmentDescription.second) },
     )
-    bot.send(context, assignmentWasCreatedSuccessfully())
-    return MenuState(context)
+    bot.send(context, Dialogues.assignmentWasCreatedSuccessfully())
+    NewState(MenuState(context))
   }
 
-  override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
-    return Pair(input, Unit)
-  }
+  override fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
 
   override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
-
-  @OptIn(ExperimentalCoroutinesApi::class)
-  private suspend fun queryAssignmentDescription(
-    bot: BehaviourContext,
-    state: CreateAssignmentState,
-  ): Pair<String, LocalDateTime?>? {
-    val messages: MutableList<ContentMessage<TextContent>> = mutableListOf()
-    messages.add(
-      bot.send(
-        state.context,
-        text = askAssignmentDescription(),
-        replyMarkup = Keyboards.returnBack(),
-      )
-    )
-
-    while (true) {
-      when (
-        val response =
-          flowOf(
-              bot.waitDataCallbackQueryWithUser(state.context.id),
-              bot.waitTextMessageWithUser(state.context.id),
-            )
-            .flattenMerge()
-            .first()
-      ) {
-        is DataCallbackQuery -> {
-          if (response.data == RETURN_BACK) {
-            messages.forEach { bot.delete(it) }
-            return null
-          }
-        }
-
-        is CommonMessage<*> -> {
-          val descriptionFromText = response.content.textContentOrNull()?.text
-          if (descriptionFromText == null) {
-            bot.editMessageReplyMarkup(messages.last(), replyMarkup = null)
-            messages.add(
-              bot.send(
-                state.context,
-                assignmentDescriptionIsNotText(),
-                replyMarkup = Keyboards.returnBack(),
-              )
-            )
-            continue
-          }
-          messages.forEach { bot.delete(it) }
-          if (descriptionFromText.contains("\$")) {
-            val tokens = descriptionFromText.split("\$")
-            if (tokens.size != 2) {
-              bot.logger.info("too many dollar signs in query")
-              return null
-            } else {
-              val before = tokens[0]
-              val after = tokens[1]
-              return before to LocalDateTime.Formats.ISO.parseOrNull(after)
-            }
-          } else {
-            return descriptionFromText to null
-          }
-        }
-      }
-    }
-  }
-
-  private suspend fun queryProblemsDescriptions(
-    bot: BehaviourContext,
-    state: CreateAssignmentState,
-  ): List<ProblemDescription>? {
-    val messages =
-      mutableListOf<ContentMessage<TextContent>>().apply {
-        add(
-          bot.send(
-            state.context,
-            text = askProblemsDescriptions(),
-            replyMarkup = Keyboards.returnBack(),
-          )
-        )
-      }
-    val problemsDescriptions: List<ProblemDescription>
-    while (true) {
-      when (
-        val response =
-          merge(
-              bot.waitDataCallbackQueryWithUser(state.context.id),
-              bot.waitTextMessageWithUser(state.context.id),
-            )
-            .first()
-      ) {
-        is DataCallbackQuery -> {
-          if (response.data == RETURN_BACK) {
-            messages.forEach { bot.delete(it) }
-            return null
-          }
-        }
-
-        is CommonMessage<*> -> {
-          val problemsDescriptionsFromText = response.content.textContentOrNull()?.text
-          if (problemsDescriptionsFromText == null) {
-            handleError(bot, state, messages, problemsDescriptionsAreNotTexts())
-            continue
-          }
-
-          val parsedProblemsDescriptions = parseProblemsDescriptions(problemsDescriptionsFromText)
-          if (parsedProblemsDescriptions.isErr) {
-            handleError(bot, state, messages, parsedProblemsDescriptions.error)
-            continue
-          }
-          problemsDescriptions = parsedProblemsDescriptions.value
-          break
-        }
-      }
-    }
-    messages.forEach { bot.delete(it) }
-    return problemsDescriptions
-  }
-
-  private suspend fun handleError(
-    bot: BehaviourContext,
-    state: CreateAssignmentState,
-    messages: MutableList<ContentMessage<TextContent>>,
-    errorMessage: String,
-  ) {
-    bot.editMessageReplyMarkup(messages.last(), replyMarkup = null)
-    messages.add(bot.send(state.context, errorMessage, replyMarkup = Keyboards.returnBack()))
-  }
 }
 
 fun parseProblemsDescriptions(
@@ -202,18 +161,18 @@ fun parseProblemsDescriptions(
     val maxScore =
       when {
         arguments.isEmpty() -> {
-          Err(incorrectProblemDescriptionEmpty())
+          Err(Dialogues.incorrectProblemDescriptionEmpty())
         }
 
         arguments.size > 3 -> {
-          Err(incorrectProblemDescriptionTooManyArguments(problemDescription))
+          Err(Dialogues.incorrectProblemDescriptionTooManyArguments(problemDescription))
         }
 
         else -> {
           arguments
             .elementAtOrElse(2) { "1" }
             .toIntOrNull()
-            .toResultOr { incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()) }
+            .toResultOr { Dialogues.incorrectProblemDescriptionMaxScoreIsNotInt(arguments.last()) }
         }
       }
     if (maxScore.isErr) {

@@ -1,4 +1,4 @@
-name: Tests and Formatting
+name: Tests, Formatting and Deployment
 
 on:
   push:
@@ -19,6 +19,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle'
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -61,6 +62,8 @@ jobs:
 
       - name: Run Static Analysis
         run: ./gradlew spotlessCheck
+
+
   check-static-analyzer:
     runs-on: ubuntu-latest
     needs: setup-environment
@@ -72,3 +75,60 @@ jobs:
         run: |
           ./gradlew detektMain
           ./gradlew detektTest
+
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [run-backend-tests, check-formatting, check-static-analyzer]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Load Config Files from Secrets
+        env:
+          CONFIG_FILE: ${{ secrets.PROD_CONFIG_FILE }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          echo $CONFIG_FILE > common-lib/src/main/resources/config.json
+          echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Transfer Compose File
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "compose.yaml"
+          target: "/root/edu-platform"
+
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd /root/edu-platform
+            docker compose pull backend
+            docker compose up -d --force-recreate backend
+            docker image prune -af

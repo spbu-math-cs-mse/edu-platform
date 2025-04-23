@@ -51,10 +51,14 @@ class ApiTests {
       studentBotTelegramController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
     } returns Unit
 
+  private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, Any>) =
+    coEvery { teacherBotTelegramController.sendMenuMessage(any(), any()) } returns returnValue
+
   @Test
   fun `telegram notifications are sent on new solution`() {
     mockSendInitSolutionStatusMessageDM(Ok(defaultMessageInfoNum(1)))
     mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(defaultMessageInfoNum(1)))
+    mockSendMenuMessage(Ok(defaultMessageInfoNum(1)))
 
     buildData(createDefaultApis()) {
       val student = student("Student1", "Student1")
@@ -89,6 +93,7 @@ class ApiTests {
   fun `telegram notifications are sent on new assessment`() {
     mockSendInitSolutionStatusMessageDM(Ok(defaultMessageInfoNum(1)))
     mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(defaultMessageInfoNum(1)))
+    mockSendMenuMessage(Ok(defaultMessageInfoNum(1)))
     mockNotifyStudentOnNewAssessment()
 
     buildData(createDefaultApis()) {

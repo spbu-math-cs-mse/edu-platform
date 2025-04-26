@@ -4,45 +4,41 @@ import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
-import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
-import dev.inmo.tgbotapi.extensions.api.deleteMessage
-import dev.inmo.tgbotapi.extensions.api.send.reply
-import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-private object Dialogues {
-  const val MENU: String = "\u2705 Главное меню"
-}
-
 class MenuMessageUpdaterImpl
-internal constructor(private val technicalMessageStorage: TelegramTechnicalMessagesStorage) :
-  MenuMessageUpdater, TelegramBotController {
-  private lateinit var myBot: TelegramBot
-
+internal constructor(
+  private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
+  private val teacherBotTelegramController: TeacherBotTelegramController,
+) : MenuMessageUpdater {
   override fun updateMenuMessageInPersonalChat(teacherId: TeacherId): Result<Unit, String> =
     runBlocking(Dispatchers.IO) {
       return@runBlocking coroutineBinding {
         val menuMessages = technicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
         deleteMenuMessages(menuMessages)
-
         val (chatId, messageId) =
           technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
         val menuMessage =
           if (messageId != null) {
-            myBot.reply(chatId.toChatId(), messageId, Dialogues.MENU)
-          } else {
-            myBot.send(chatId.toChatId(), Dialogues.MENU)
-          }
-
+              teacherBotTelegramController.sendMenuMessage(
+                chatId,
+                TelegramMessageInfo(chatId, messageId),
+              )
+            } else {
+              teacherBotTelegramController.sendMenuMessage(chatId, null)
+            }
+            .mapError { it.toString() }
+            .bind()
         technicalMessageStorage.updateTeacherMenuMessage(
-          TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
+          TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
         )
       }
     }
@@ -56,13 +52,17 @@ internal constructor(private val technicalMessageStorage: TelegramTechnicalMessa
           technicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
         val menuMessage =
           if (messageId != null) {
-            myBot.reply(chatId.toChatId(), messageId, Dialogues.MENU)
-          } else {
-            myBot.send(chatId.toChatId(), Dialogues.MENU)
-          }
-
+              teacherBotTelegramController.sendMenuMessage(
+                chatId,
+                TelegramMessageInfo(chatId, messageId),
+              )
+            } else {
+              teacherBotTelegramController.sendMenuMessage(chatId, null)
+            }
+            .mapError { it.toString() }
+            .bind()
         technicalMessageStorage.updateTeacherMenuMessage(
-          TelegramMessageInfo(menuMessage.chat.id.chatId, menuMessage.messageId)
+          TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
         )
       }
     }
@@ -70,14 +70,12 @@ internal constructor(private val technicalMessageStorage: TelegramTechnicalMessa
   private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {
     menuMessages.map { menuMessage ->
       try {
-        myBot.deleteMessage(menuMessage.chatId.toChatId(), menuMessage.messageId)
+        teacherBotTelegramController.deleteMessage(
+          TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
+        )
       } catch (e: CommonRequestException) {
         KSLog.warning("Menu message has already been deleted:\n$e")
       }
     }
-  }
-
-  override fun setTelegramBot(telegramBot: TelegramBot) {
-    myBot = telegramBot
   }
 }

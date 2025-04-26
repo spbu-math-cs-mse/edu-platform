@@ -29,7 +29,6 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
-import com.github.heheteam.commonlib.logic.ui.SolutionCourseResolverImpl
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
@@ -122,7 +121,8 @@ class ApiFabric(
 
     val tgTechnicalMessagesStorage =
       DatabaseTelegramTechnicalMessagesStorage(database, solutionDistributor)
-    val menuMessageUpdaterService = MenuMessageUpdaterImpl(tgTechnicalMessagesStorage)
+    val menuMessageUpdaterService =
+      MenuMessageUpdaterImpl(tgTechnicalMessagesStorage, teacherBotTelegramController)
     val uiController =
       UiControllerTelegramSender(
         StudentNewGradeNotifierImpl(botEventBus, problemStorage, solutionDistributor),
@@ -175,12 +175,9 @@ class ApiFabric(
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
-    val solutionCourseResolver =
-      SolutionCourseResolverImpl(solutionDistributor, problemStorage, assignmentStorage)
     val newSolutionTeacherNotifier =
       NewSolutionTeacherNotifier(
         tgTechnicalMessagesStorage,
-        solutionCourseResolver,
         teacherBotTelegramController,
         solutionDistributor,
         problemStorage,

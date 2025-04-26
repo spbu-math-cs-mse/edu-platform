@@ -41,7 +41,7 @@ internal class UiControllerTelegramSender(
 
     val courseId = solutionDistributor.resolveSolutionCourse(solutionId).get()
     if (courseId != null) {
-      runBlocking<Result<Unit, String>>(Dispatchers.IO) { updateMenuMessageInGroup(courseId) }
+      runBlocking(Dispatchers.IO) { updateMenuMessageInGroup(courseId) }
         .onFailure { KSLog.error(it) }
     }
   }

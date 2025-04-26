@@ -78,9 +78,9 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, Any> = runCatching {
     if (replyTo != null) {
-        teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "Главное меню")
+        teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "\u2705 Главное меню")
       } else {
-        teacherBot.sendMessage(chatId.toChatId(), "Главное меню")
+        teacherBot.sendMessage(chatId.toChatId(), "\u2705 Главное меню")
       }
       .toTelegramMessageInfo()
   }

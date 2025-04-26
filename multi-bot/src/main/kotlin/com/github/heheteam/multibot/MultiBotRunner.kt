@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.long
-import com.github.heheteam.adminbot.adminRun
+import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
@@ -88,9 +88,9 @@ class MultiBotRunner : CliktCommand() {
       launch {
         val stateRegister = StateRegister(apis.teacherApi)
         val teacherRunner = TeacherRunner(teacherBotToken, stateRegister, developerOptions)
-        teacherRunner.execute(listOf())
+        teacherRunner.execute()
       }
-      launch { adminRun(adminBotToken, apis.adminApi) }
+      launch { AdminRunner(apis.adminApi).run(adminBotToken) }
       launch { parentRun(parentBotToken, apis.parentApi) }
     }
   }

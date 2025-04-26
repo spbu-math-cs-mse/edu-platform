@@ -30,7 +30,6 @@ import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 @Suppress("LongParameterList") // fix after test exist
 internal class NewSolutionTeacherNotifier(
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
-  private val solutionCourseResolver: SolutionCourseResolver,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val solutionDistributor: SolutionDistributor,
   private val problemStorage: ProblemStorage,
@@ -48,7 +47,7 @@ internal class NewSolutionTeacherNotifier(
       if (teacherId != null) {
         updateMenuMessageInPersonalMessages(teacherId, solution)
       }
-      val courseId = solutionCourseResolver.resolveCourse(solution.id).get()
+      val courseId = solutionDistributor.resolveSolutionCourse(solution.id).get()
       if (courseId != null) {
         updateMenuMessageInGroup(courseId, solution)
       }

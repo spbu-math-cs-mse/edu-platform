@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.logic.ui.TelegramBotController
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
@@ -33,7 +32,7 @@ class TeacherRunner(
   private val stateRegister: StateRegister,
   private val developerOptions: DeveloperOptions = DeveloperOptions(),
 ) {
-  suspend fun execute(telegramBotControllers: List<TelegramBotController>) {
+  suspend fun execute() {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
         CoroutineScope(Dispatchers.IO),
@@ -43,7 +42,6 @@ class TeacherRunner(
           state
         },
       ) {
-        telegramBotControllers.forEach { it.setTelegramBot(this) }
         println(getMe())
 
         setMyCommands(

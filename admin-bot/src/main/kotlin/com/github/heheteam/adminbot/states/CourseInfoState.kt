@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.Keyboards
+import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CourseStatistics
@@ -28,7 +28,7 @@ class CourseInfoState(override val context: User, val course: Course) :
     bot.send(
       context,
       entities = CourseStatisticsFormatter.format(course.name, response),
-      replyMarkup = Keyboards.courseInfo(service.getRatingLink(course.id).value),
+      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).value),
     )
   }
 }

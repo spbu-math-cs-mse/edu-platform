@@ -15,8 +15,10 @@ import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
+import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
+import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.heheteam.studentbot.state.SendSolutionState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
@@ -84,6 +86,10 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
     studentApi,
     ::menuCommandHandler,
   )
+  registerStateWithStudentId<QueryCourseForCheckingGradesState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
   registerStateWithStudentId<QueryCourseForCheckingDeadlinesState, StudentApi>(
     studentApi,
     ::menuCommandHandler,
@@ -93,6 +99,7 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
     ::menuCommandHandler,
   )
   strictlyOnPresetStudentState(studentApi)
+  registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
   registerState<CheckDeadlinesState, StudentApi>(studentApi)
   registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
     studentApi,

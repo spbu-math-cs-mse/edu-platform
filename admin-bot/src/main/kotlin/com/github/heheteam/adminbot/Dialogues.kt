@@ -26,11 +26,7 @@ object Dialogues {
 
   fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
 
-  fun idIsNotLong(id: String): String =
-    "Обнаружен некорректный id — \"$id\".\nid должен быть числом. Попробуйте ещё раз!"
-
-  fun duplicatedId(id: String): String =
-    "Обнаружен id, который встретился несколько раз, — \"$id\".\nВсе id должны быть уникальными. Попробуйте ещё раз!"
+  fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 
   fun noIdInInput(): String = "Вы не ввели ни одного id. Попробуйте ещё раз!"
 
@@ -95,16 +91,6 @@ object Dialogues {
 
   fun menu(): String = "\u2705 Главное меню"
 
-  fun noCoursesWasFound(): String = "Не было найдено никаких курсов!"
-
-  fun noCoursesWasFoundForCreationOfAssignment(): String = "Сначала создайте какой-нибудь курс!"
-
-  fun assignmentDescriptionIsNotText(): String =
-    "Название серии должно являться текстом. Отправьте текстовое сообщение!"
-
-  fun problemsDescriptionsAreNotTexts(): String =
-    "Описания задач должны быть представлены в текстовом виде. Отправьте текстовое сообщение!"
-
   fun askAssignmentDescription(): String =
     "Введите название серии, которую хотите создать, и дедлайн по ней. " +
       "Например, \"Диффуры и не только\"\$2025-01-19T23:55:00"
@@ -124,7 +110,8 @@ object Dialogues {
     "Некорректный формат ввода (обнаружена пустая строка). Попробуйте ещё раз!"
 
   fun incorrectProblemDescriptionTooManyArguments(problemDescription: String): String =
-    "Некорректный формат ввода (обнаружена строчка ($problemDescription) с более, чем 3-мя аргументами). Попробуйте ещё раз!"
+    "Некорректный формат ввода (обнаружена строчка ($problemDescription) с более, чем 3-мя аргументами). " +
+      "Попробуйте ещё раз!"
 
   fun incorrectProblemDescriptionMaxScoreIsNotInt(maxScore: String): String =
     "Некорректный формат ввода (3-ий аргумент в какой-то строчке ($maxScore) не является числом). Попробуйте ещё раз!"

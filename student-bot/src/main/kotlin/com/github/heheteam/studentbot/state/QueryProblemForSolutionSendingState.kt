@@ -40,7 +40,11 @@ class QueryProblemForSolutionSendingState(
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ) {
     val assignments = service.getCourseAssignments(selectedCourseId)
-    val problems = assignments.associateWith { service.getProblemsFromAssignment(it.id) }
+    val problems =
+      service.calculateRescheduledDeadlines(
+        userId,
+        assignments.associateWith { service.getProblemsFromAssignment(it.id) },
+      )
     val message =
       bot.send(context, Dialogues.askProblem(), replyMarkup = buildProblemSendingSelector(problems))
     sentMessage.add(message)

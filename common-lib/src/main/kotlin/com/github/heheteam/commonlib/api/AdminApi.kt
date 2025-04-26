@@ -1,9 +1,12 @@
 package com.github.heheteam.commonlib.api
 
+import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CourseStatistics
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
+import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
@@ -16,10 +19,11 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
+import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
+import dev.inmo.tgbotapi.types.UserId
 import java.time.LocalDateTime
 
 @Suppress(
@@ -30,11 +34,13 @@ class AdminApi
 internal constructor(
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
   private val coursesDistributor: CoursesDistributor,
+  private val adminStorage: AdminStorage,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
   private val solutionDistributor: SolutionDistributor,
+  private val personalDeadlinesService: PersonalDeadlinesService,
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
@@ -43,6 +49,13 @@ internal constructor(
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime) =
     scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
+
+  fun moveAllDeadlinesForStudent(
+    studentId: StudentId,
+    newDeadline: kotlinx.datetime.LocalDateTime,
+  ) {
+    personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
+  }
 
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
@@ -125,4 +138,16 @@ internal constructor(
 
   fun getRatingLink(courseId: CourseId): Result<String, ResolveError<CourseId>> =
     coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map { it.second.toUrl() }
+
+  fun loginByTgId(tgId: UserId): Result<Admin, ResolveError<UserId>> =
+    adminStorage.resolveByTgId(tgId)
+
+  fun loginById(adminId: AdminId): Result<Admin, ResolveError<AdminId>> =
+    adminStorage.resolveAdmin(adminId)
+
+  fun updateTgId(adminId: AdminId, newTgId: UserId): Result<Unit, ResolveError<AdminId>> =
+    adminStorage.updateTgId(adminId, newTgId)
+
+  fun createStudent(name: String, surname: String, tgId: Long): AdminId =
+    adminStorage.createAdmin(name, surname, tgId)
 }

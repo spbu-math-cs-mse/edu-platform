@@ -16,6 +16,7 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
+import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
@@ -38,6 +39,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
   ) {
+    service.updateTgId(userId, context.id)
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
     val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
     sentMessages.add(stickerMessage)
@@ -52,8 +54,9 @@ data class MenuState(override val context: User, override val userId: StudentId)
     val state =
       when (callback.data) {
         SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, userId)
-        CHECK_GRADES -> QueryCourseForSolutionSendingState(context, userId)
+        CHECK_GRADES -> QueryCourseForCheckingGradesState(context, userId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
+        MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)
         else -> null
       }
     return if (state != null) {

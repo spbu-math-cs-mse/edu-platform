@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.loadConfig
+import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.util.DeveloperOptions
@@ -66,7 +67,15 @@ class MultiBotRunner : CliktCommand() {
         }
       }
 
+    val adminBot =
+      telegramBot(adminBotToken) {
+        logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
+          println(defaultMessageFormatter(level, tag, message, throwable))
+        }
+      }
+
     val teacherBotTelegramController = TeacherBotTelegramControllerImpl(teacherBot)
+    val adminBotTelegramController = AdminBotTelegramControllerImpl(adminBot)
     val apiFabric =
       ApiFabric(
         database,
@@ -74,6 +83,7 @@ class MultiBotRunner : CliktCommand() {
         googleSheetsService,
         studentBotTelegramController,
         teacherBotTelegramController,
+        adminBotTelegramController,
       )
 
     val apis = apiFabric.createApis(initDatabase, useRedis, TeacherResolverKind.FIRST)

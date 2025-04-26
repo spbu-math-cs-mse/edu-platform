@@ -15,8 +15,10 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
+import kotlinx.datetime.LocalDateTime
 
 class StudentApi
 internal constructor(
@@ -24,6 +26,7 @@ internal constructor(
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val academicWorkflowService: AcademicWorkflowService,
+  private val personalDeadlinesService: PersonalDeadlinesService,
   private val studentStorage: StudentStorage,
 ) {
   fun getGradingForAssignment(
@@ -53,9 +56,28 @@ internal constructor(
   fun loginById(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
     studentStorage.resolveStudent(studentId)
 
+  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>> =
+    studentStorage.updateTgId(studentId, newTgId)
+
   fun createStudent(name: String, surname: String, tgId: Long): StudentId =
     studentStorage.createStudent(name, surname, tgId)
 
+  /**
+   * Returns assignments and all of their problems with original deadlines. You might need to
+   * calculate personal deadlines additionally.
+   */
   fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
+
+  fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
+    personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline)
+
+  fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =
+    personalDeadlinesService.calculateNewDeadlines(studentId, problems)
+
+  fun calculateRescheduledDeadlines(
+    studentId: StudentId,
+    problems: Map<Assignment, List<Problem>>,
+  ): Map<Assignment, List<Problem>> =
+    personalDeadlinesService.calculateNewDeadlines(studentId, problems)
 }

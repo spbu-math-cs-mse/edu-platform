@@ -31,8 +31,10 @@ internal class UiControllerTelegramSender(
     solutionId: SolutionId,
     assessment: SolutionAssessment,
   ) {
-    studentNotifier.notifyStudentOnNewAssessment(solutionId, assessment)
-    runBlocking { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
+    runBlocking(Dispatchers.IO) {
+      studentNotifier.notifyStudentOnNewAssessment(solutionId, assessment)
+    }
+    runBlocking(Dispatchers.IO) { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
     val teacherId = solutionDistributor.resolveSolution(solutionId).get()?.responsibleTeacherId
     if (teacherId != null) {
       runBlocking(Dispatchers.IO) { updateMenuMessageInPersonalMessages(teacherId) }

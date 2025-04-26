@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.Keyboards
+import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.NewState
@@ -25,22 +25,23 @@ class EditCourseState(override val context: User, private val course: Course) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Unit,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
     val message =
-      bot.send(context, "Изменить курс ${course.name}:", replyMarkup = Keyboards.editCourse())
+      bot.send(context, "Изменить курс ${course.name}:", replyMarkup = AdminKeyboards.editCourse())
     sentMessages.add(message)
 
     updateHandlersController.addDataCallbackHandler { callback ->
       when (callback.data) {
-        Keyboards.RETURN_BACK -> NewState(MenuState(context))
-        Keyboards.ADD_STUDENT -> NewState(AddStudentState(context, course, course.name))
-        Keyboards.REMOVE_STUDENT -> NewState(RemoveStudentState(context, course, course.name))
-        Keyboards.ADD_TEACHER -> NewState(AddTeacherState(context, course, course.name))
-        Keyboards.REMOVE_TEACHER -> NewState(RemoveTeacherState(context, course, course.name))
-        Keyboards.EDIT_DESCRIPTION -> NewState(EditDescriptionState(context, course, course.name))
-        Keyboards.ADD_SCHEDULED_MESSAGE -> NewState(AddScheduledMessageState(context, course))
-        Keyboards.CREATE_ASSIGNMENT -> NewState(CreateAssignmentState(context, course))
+        AdminKeyboards.RETURN_BACK -> NewState(MenuState(context))
+        AdminKeyboards.ADD_STUDENT -> NewState(AddStudentState(context, course, course.name))
+        AdminKeyboards.REMOVE_STUDENT -> NewState(RemoveStudentState(context, course, course.name))
+        AdminKeyboards.ADD_TEACHER -> NewState(AddTeacherState(context, course, course.name))
+        AdminKeyboards.REMOVE_TEACHER -> NewState(RemoveTeacherState(context, course, course.name))
+        AdminKeyboards.EDIT_DESCRIPTION ->
+          NewState(EditDescriptionState(context, course, course.name))
+        AdminKeyboards.ADD_SCHEDULED_MESSAGE -> NewState(AddScheduledMessageState(context, course))
+        AdminKeyboards.CREATE_ASSIGNMENT -> NewState(CreateAssignmentState(context, course))
         else -> Unhandled
       }
     }

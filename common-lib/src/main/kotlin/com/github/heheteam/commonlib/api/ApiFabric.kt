@@ -2,9 +2,11 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Config
 import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
@@ -20,6 +22,7 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
+import com.github.heheteam.commonlib.interfaces.PersonalDeadlineStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
@@ -27,6 +30,7 @@ import com.github.heheteam.commonlib.interfaces.SolutionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
@@ -34,8 +38,10 @@ import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockParentStorage
+import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
 import com.github.heheteam.commonlib.notifications.RedisBotEventBus
+import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -59,6 +65,7 @@ class ApiFabric(
   private val googleSheetsService: GoogleSheetsService,
   private val studentBotTelegramController: StudentBotTelegramController,
   private val teacherBotTelegramController: TeacherBotTelegramController,
+  private val adminBotTelegramController: AdminBotTelegramController,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(
@@ -75,6 +82,7 @@ class ApiFabric(
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
+    val personalDeadlineStorage: PersonalDeadlineStorage = DatabasePersonalDeadlineStorage(database)
 
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
@@ -93,10 +101,12 @@ class ApiFabric(
     val solutionDistributor =
       SolutionDistributorDecorator(databaseSolutionDistributor, ratingRecorder)
     val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
+    val adminStorage = DatabaseAdminStorage(database)
     if (initDatabase) {
       fillWithSamples(
         coursesDistributor,
         assignmentStorage,
+        adminStorage,
         studentStorage,
         teacherStorage,
         database,
@@ -104,19 +114,32 @@ class ApiFabric(
     }
 
     val parentStorage = MockParentStorage()
-
-    val botEventBus =
+    val botEventBus: BotEventBus =
       if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
       else ObserverBus()
 
-    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
-      studentBotTelegramController.notifyStudentOnNewAssessment(
-        chatId,
-        messageId,
-        studentId,
-        problem,
-        assessment,
-      )
+    //    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
+    //      studentBotTelegramController.notifyStudentOnNewAssessment(
+    //        chatId,
+    //        messageId,
+    //        studentId,
+    //        problem,
+    //        assessment,
+    //      )
+    //    }
+
+    botEventBus.subscribeToMovingDeadlineEvents { chatId, newDeadline ->
+      studentBotTelegramController.notifyStudentOnDeadlineRescheduling(chatId, newDeadline)
+    }
+
+    botEventBus.subscribeToNewDeadlineRequest { studentId, newDeadline ->
+      adminStorage.getAdmins().forEach { admin ->
+        adminBotTelegramController.notifyAdminOnNewMovingDeadlinesRequest(
+          admin.tgId,
+          studentId,
+          newDeadline,
+        )
+      }
     }
 
     val tgTechnicalMessagesStorage =
@@ -125,7 +148,11 @@ class ApiFabric(
       MenuMessageUpdaterImpl(tgTechnicalMessagesStorage, teacherBotTelegramController)
     val uiController =
       UiControllerTelegramSender(
-        StudentNewGradeNotifierImpl(botEventBus, problemStorage, solutionDistributor),
+        StudentNewGradeNotifierImpl(
+          studentBotTelegramController,
+          problemStorage,
+          solutionDistributor,
+        ),
         TelegramMessagesJournalUpdater(
           gradeTable,
           solutionDistributor,
@@ -144,6 +171,7 @@ class ApiFabric(
       when (teacherResolverKind) {
         TeacherResolverKind.FIRST ->
           FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
+
         TeacherResolverKind.RANDOM ->
           RandomTeacherResolver(
             problemStorage,
@@ -154,12 +182,17 @@ class ApiFabric(
       }
     val academicWorkflowService =
       AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
+
+    val personalDeadlinesService =
+      PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
+
     val studentApi =
       StudentApi(
         coursesDistributor,
         problemStorage,
         assignmentStorage,
         academicWorkflowService,
+        personalDeadlinesService,
         studentStorage,
       )
 
@@ -167,11 +200,13 @@ class ApiFabric(
       AdminApi(
         inMemoryScheduledMessagesDistributor,
         coursesDistributor,
+        adminStorage,
         studentStorage,
         teacherStorage,
         assignmentStorage,
         problemStorage,
         solutionDistributor,
+        personalDeadlinesService,
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
@@ -191,6 +226,7 @@ class ApiFabric(
     botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
       newSolutionTeacherNotifier.notifyNewSolution(solution)
     }
+
     val teacherApi =
       TeacherApi(
         coursesDistributor,

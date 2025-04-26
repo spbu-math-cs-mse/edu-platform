@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
@@ -49,11 +50,15 @@ data class FillContent(
 internal fun fillWithSamples(
   coursesDistributor: CoursesDistributor,
   assignmentStorage: AssignmentStorage,
+  adminStorage: AdminStorage,
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
   database: Database,
 ): FillContent {
   reset(database)
+  // Admins
+  listOf("Кабан" to "Кабаныч").map { adminStorage.createAdmin(it.first, it.second) }
+
   val realAnalysis = generateCourse("Начала мат. анализа", coursesDistributor, assignmentStorage)
   val probTheory = generateCourse("Теория вероятностей", coursesDistributor, assignmentStorage)
   val linAlgebra = generateCourse("Линейная алгебра", coursesDistributor, assignmentStorage)

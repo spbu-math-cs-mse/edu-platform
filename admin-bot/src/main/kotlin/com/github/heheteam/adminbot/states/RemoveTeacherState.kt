@@ -35,7 +35,7 @@ class RemoveTeacherState(override val context: User, val course: Course, val cou
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, String, Any>,
   ) {
     val introMessage =
       bot.send(context) {

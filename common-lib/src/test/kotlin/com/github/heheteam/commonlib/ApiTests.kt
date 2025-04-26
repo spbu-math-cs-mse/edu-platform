@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
+import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.SolutionStatusMessageInfo
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -30,6 +31,7 @@ class ApiTests {
   private val googleSheetsService = mockk<GoogleSheetsService>(relaxed = true)
   private val studentBotTelegramController = mockk<StudentBotTelegramController>(relaxed = true)
   private val teacherBotTelegramController = mockk<TeacherBotTelegramController>(relaxed = true)
+  private val adminBotTelegramController = mockk<AdminBotTelegramController>(relaxed = true)
 
   private val defaultMessageInfoNum = { num: Int ->
     TelegramMessageInfo(RawChatId(num.toLong()), MessageId(num.toLong()))
@@ -128,6 +130,7 @@ class ApiTests {
         googleSheetsService,
         studentBotTelegramController,
         teacherBotTelegramController,
+        adminBotTelegramController,
       )
       .createApis(
         initDatabase = false,

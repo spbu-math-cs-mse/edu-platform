@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -7,6 +8,7 @@ import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.GradeTable
@@ -28,6 +30,7 @@ class DatabaseStartupTest {
   private lateinit var gradeTable: GradeTable
   private lateinit var problemStorage: ProblemStorage
   private lateinit var solutionDistributor: SolutionDistributor
+  private lateinit var adminStorage: AdminStorage
   private lateinit var studentStorage: StudentStorage
   private lateinit var teacherStorage: TeacherStorage
 
@@ -48,12 +51,14 @@ class DatabaseStartupTest {
       coursesDistributor = DatabaseCoursesDistributor(database)
       gradeTable = DatabaseGradeTable(database)
       solutionDistributor = DatabaseSolutionDistributor(database)
+      adminStorage = DatabaseAdminStorage(database)
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
       fillWithSamples(
         coursesDistributor,
         assignmentStorage,
+        adminStorage,
         studentStorage,
         teacherStorage,
         database,

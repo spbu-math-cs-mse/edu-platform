@@ -19,7 +19,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, In, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, In, Any>,
   )
 
   fun computeNewState(service: ApiService, input: In): Pair<State, Out>
@@ -29,16 +29,17 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
-    initUpdateHandlers: (UpdateHandlersController<() -> Unit, In, Any>, context: User) -> Unit =
+    initUpdateHandlers:
+      (UpdateHandlersController<BehaviourContext.() -> Unit, In, Any>, context: User) -> Unit =
       { _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlersController<() -> Unit, In, Any>()
+    val updateHandlersController = UpdateHandlersController<BehaviourContext.() -> Unit, In, Any>()
     initUpdateHandlers(updateHandlersController, context)
     intro(bot, service, updateHandlersController)
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
-        is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()
+        is ActionWrapper<BehaviourContext.() -> Unit> -> handlerResult.action.invoke(bot)
         is HandlingError<Any> -> {
           bot.send(context.id, handlerResult.toString())
         }
@@ -61,7 +62,7 @@ inline fun <
 > DefaultBehaviourContextWithFSM<State>.registerState(
   service: HelperService,
   noinline initUpdateHandlers:
-    (UpdateHandlersController<() -> Unit, out Any?, Any>, context: User) -> Unit =
+    (UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, Any>, context: User) -> Unit =
     { _, _ ->
     },
 ) {

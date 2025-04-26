@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -20,6 +21,8 @@ import redis.clients.jedis.JedisPubSub
 class RedisBotEventBus(private val redisHost: String, private val redisPort: Int) : BotEventBus {
   private val jedis = Jedis(redisHost, redisPort)
   private val channel = "grade_events"
+  private val newDeadlineRequestChannel = "new_deadline_request_events"
+  private val movingDeadlineChannel = "moving_deadline_events"
 
   init {
     println("Connecting to Redis at $redisHost:$redisPort")
@@ -33,7 +36,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     problem: Problem,
   ) {
     val simpleEvent =
-      SimpleGradeEvent(
+      GradeEvent(
         studentId = studentId.long,
         chatId = chatId.long,
         messageId = messageId.long,
@@ -49,6 +52,18 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     val simpleEvent = NewSolutionEvent(solution)
     val event = Json.encodeToString(simpleEvent)
     jedis.publish(channel, event)
+  }
+
+  override fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime) {
+    val simpleEvent = NewDeadlineRequestEvent(studentId = studentId.long, newDeadline = newDeadline)
+    val event = Json.encodeToString(simpleEvent)
+    jedis.publish(newDeadlineRequestChannel, event)
+  }
+
+  override fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime) {
+    val simpleEvent = MovingDeadlineEvent(chatId = chatId.long, newDeadline = newDeadline)
+    val event = Json.encodeToString(simpleEvent)
+    jedis.publish(movingDeadlineChannel, event)
   }
 
   override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
@@ -85,7 +100,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
           object : JedisPubSub() {
             override fun onMessage(channel: String, message: String) {
               val simpleEvent =
-                kotlin.runCatching { Json.decodeFromString<SimpleGradeEvent>(message) }.getOrNull()
+                kotlin.runCatching { Json.decodeFromString<GradeEvent>(message) }.getOrNull()
                   ?: return@onMessage
               runBlocking {
                 handler(
@@ -107,8 +122,62 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     }
   }
 
+  override fun subscribeToNewDeadlineRequest(handler: suspend (StudentId, LocalDateTime) -> Unit) {
+    val subscriberJedis = Jedis(redisHost, redisPort)
+
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+        subscriberJedis.subscribe(
+          object : JedisPubSub() {
+            override fun onMessage(channel: String, message: String) {
+              val simpleEvent =
+                kotlin
+                  .runCatching { Json.decodeFromString<NewDeadlineRequestEvent>(message) }
+                  .getOrNull() ?: return@onMessage
+              runBlocking { handler(StudentId(simpleEvent.studentId), simpleEvent.newDeadline) }
+            }
+          },
+          newDeadlineRequestChannel,
+        )
+      } catch (e: Exception) {
+        println("Error in Redis subscription (NewDeadlineRequest): ${e.message}")
+        e.printStackTrace()
+      } finally {
+        subscriberJedis.close()
+      }
+    }
+  }
+
+  override fun subscribeToMovingDeadlineEvents(
+    handler: suspend (RawChatId, LocalDateTime) -> Unit
+  ) {
+    val subscriberJedis = Jedis(redisHost, redisPort)
+
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+        subscriberJedis.subscribe(
+          object : JedisPubSub() {
+            override fun onMessage(channel: String, message: String) {
+              val simpleEvent =
+                kotlin
+                  .runCatching { Json.decodeFromString<MovingDeadlineEvent>(message) }
+                  .getOrNull() ?: return@onMessage
+              runBlocking { handler(RawChatId(simpleEvent.chatId), simpleEvent.newDeadline) }
+            }
+          },
+          movingDeadlineChannel,
+        )
+      } catch (e: Exception) {
+        println("Error in Redis subscription (MovingDeadlineEvents): ${e.message}")
+        e.printStackTrace()
+      } finally {
+        subscriberJedis.close()
+      }
+    }
+  }
+
   @Serializable
-  private data class SimpleGradeEvent(
+  private data class GradeEvent(
     val studentId: Long,
     val chatId: Long,
     val messageId: Long,
@@ -118,4 +187,10 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
   )
 
   @Serializable private data class NewSolutionEvent(val solution: Solution)
+
+  @Serializable
+  private data class NewDeadlineRequestEvent(val studentId: Long, val newDeadline: LocalDateTime)
+
+  @Serializable
+  private data class MovingDeadlineEvent(val chatId: Long, val newDeadline: LocalDateTime)
 }

@@ -12,7 +12,6 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createAssignmentPicker
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -40,7 +39,7 @@ data class QueryAssignmentForCheckingGradesState(
     val assignments = service.getCourseAssignments(courseId)
     val coursesPicker = createAssignmentPicker(assignments)
     val selectCourseMessage =
-      bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
+      bot.sendMessage(context.id, "Выберите серию", replyMarkup = coursesPicker.keyboard)
     sentMessages.add(selectCourseMessage)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       coursesPicker
@@ -79,7 +78,7 @@ data class QueryAssignmentForCheckingGradesState(
   ) {
     val strGrades =
       "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
-    bot.send(context, text = strGrades, replyMarkup = back())
+    bot.send(context, text = strGrades)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit

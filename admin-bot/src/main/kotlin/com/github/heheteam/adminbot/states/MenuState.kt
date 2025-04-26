@@ -1,11 +1,11 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.adminbot.AdminKeyboards
+import com.github.heheteam.adminbot.AdminKeyboards.COURSE_INFO
+import com.github.heheteam.adminbot.AdminKeyboards.CREATE_ASSIGNMENT
+import com.github.heheteam.adminbot.AdminKeyboards.CREATE_COURSE
+import com.github.heheteam.adminbot.AdminKeyboards.EDIT_COURSE
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.Keyboards
-import com.github.heheteam.adminbot.Keyboards.COURSE_INFO
-import com.github.heheteam.adminbot.Keyboards.CREATE_ASSIGNMENT
-import com.github.heheteam.adminbot.Keyboards.CREATE_COURSE
-import com.github.heheteam.adminbot.Keyboards.EDIT_COURSE
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.NewState
@@ -31,9 +31,9 @@ class MenuState(override val context: User) : BotStateWithHandlers<State, Unit, 
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
-    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = Keyboards.menu())
+    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = AdminKeyboards.menu())
     sentMessages.add(menuMessage)
 
     updateHandlersController.addDataCallbackHandler { callback ->

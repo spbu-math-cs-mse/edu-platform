@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.Keyboards
+import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -26,13 +26,13 @@ class CreateAssignmentErrorState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
-    val msg = bot.send(context, errorMessage, replyMarkup = Keyboards.returnBack())
+    val msg = bot.send(context, errorMessage, replyMarkup = AdminKeyboards.returnBack())
     sentMessages.add(msg)
 
     updateHandlersController.addDataCallbackHandler { callback ->
-      if (callback.data == Keyboards.RETURN_BACK) {
+      if (callback.data == AdminKeyboards.RETURN_BACK) {
         NewState(CreateAssignmentState(context, course))
       } else {
         Unhandled

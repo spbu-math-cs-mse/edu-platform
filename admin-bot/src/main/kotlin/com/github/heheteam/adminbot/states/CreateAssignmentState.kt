@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.adminbot.AdminKeyboards
+import com.github.heheteam.adminbot.AdminKeyboards.RETURN_BACK
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.Keyboards
-import com.github.heheteam.adminbot.Keyboards.RETURN_BACK
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
@@ -43,7 +43,7 @@ class CreateAssignmentState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
     when {
       description == null -> handleAssignmentDescription(bot, updateHandlersController)
@@ -54,10 +54,14 @@ class CreateAssignmentState(
 
   private suspend fun handleAssignmentDescription(
     bot: BehaviourContext,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
     val msg =
-      bot.send(context, Dialogues.askAssignmentDescription(), replyMarkup = Keyboards.returnBack())
+      bot.send(
+        context,
+        Dialogues.askAssignmentDescription(),
+        replyMarkup = AdminKeyboards.returnBack(),
+      )
     sentMessages.add(msg)
     lastMessageId = msg.messageId
 
@@ -93,11 +97,15 @@ class CreateAssignmentState(
 
   private suspend fun handleProblemsDescription(
     bot: BehaviourContext,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
     lastMessageId?.let { bot.delete(context.id, it) }
     val msg =
-      bot.send(context, Dialogues.askProblemsDescriptions(), replyMarkup = Keyboards.returnBack())
+      bot.send(
+        context,
+        Dialogues.askProblemsDescriptions(),
+        replyMarkup = AdminKeyboards.returnBack(),
+      )
     sentMessages.add(msg as CommonMessage<TextContent>)
     lastMessageId = msg.messageId
 

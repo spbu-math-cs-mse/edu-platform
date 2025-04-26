@@ -7,7 +7,7 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
-object Keyboards {
+object AdminKeyboards {
   const val RETURN_BACK = "Назад"
 
   fun returnBack() =
@@ -47,4 +47,6 @@ object Keyboards {
   fun courseInfo(ratingUrl: String?) = inlineKeyboard {
     if (ratingUrl != null) row { urlButton("Кондуит", ratingUrl) }
   }
+
+  const val MOVE_DEADLINES = "moveDeadlines"
 }

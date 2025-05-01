@@ -79,9 +79,12 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
 ) {
   registerState<StartState, StudentApi>(studentApi)
   registerState<DeveloperStartState, StudentApi>(studentApi)
+  registerSendSolutionState(botToken, studentApi)
+  strictlyOnPresetStudentState(studentApi)
+  registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
+  registerState<CheckDeadlinesState, StudentApi>(studentApi)
   registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::menuCommandHandler)
   registerStateWithStudentId<ConfirmSubmissionState, StudentApi>(studentApi, ::menuCommandHandler)
-  registerSendSolutionState(botToken, studentApi)
   registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
     studentApi,
     ::menuCommandHandler,
@@ -98,9 +101,6 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
     studentApi,
     ::menuCommandHandler,
   )
-  strictlyOnPresetStudentState(studentApi)
-  registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
-  registerState<CheckDeadlinesState, StudentApi>(studentApi)
   registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
     studentApi,
     ::menuCommandHandler,

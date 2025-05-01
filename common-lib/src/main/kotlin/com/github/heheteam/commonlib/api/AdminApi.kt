@@ -148,6 +148,6 @@ internal constructor(
   fun updateTgId(adminId: AdminId, newTgId: UserId): Result<Unit, ResolveError<AdminId>> =
     adminStorage.updateTgId(adminId, newTgId)
 
-  fun createStudent(name: String, surname: String, tgId: Long): AdminId =
+  fun createAdmin(name: String, surname: String, tgId: Long): AdminId =
     adminStorage.createAdmin(name, surname, tgId)
 }

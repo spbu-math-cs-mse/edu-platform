@@ -16,11 +16,16 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
+import com.github.heheteam.studentbot.Keyboards.COURSES_CATALOG
+import com.github.heheteam.studentbot.Keyboards.FREE_ACTIVITY
 import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
+import com.github.heheteam.studentbot.Keyboards.PET_THE_DACHSHUND
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
+import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -41,7 +46,11 @@ data class MenuState(override val context: User, override val userId: StudentId)
   ) {
     service.updateTgId(userId, context.id)
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
-    val initialMessage = bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu())
+
+    val isNewUser = service.getStudentCourses(userId).isEmpty()
+
+    val initialMessage =
+      bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu(isNewUser))
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
@@ -57,6 +66,9 @@ data class MenuState(override val context: User, override val userId: StudentId)
         CHECK_GRADES -> QueryCourseForCheckingGradesState(context, userId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
         MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)
+        COURSES_CATALOG -> ApplyForCoursesState(context, userId)
+        PET_THE_DACHSHUND -> PetTheDachshundState(context, userId)
+        FREE_ACTIVITY -> RandomActivityState(context, userId)
         else -> null
       }
     return if (state != null) {
@@ -71,8 +83,12 @@ data class MenuState(override val context: User, override val userId: StudentId)
   }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) {
-    for (message in sentMessages) {
-      bot.delete(message)
+    sentMessages.forEach { message ->
+      try {
+        bot.delete(message)
+      } catch (e: CommonRequestException) {
+        KSLog.error(e.message.toString())
+      }
     }
   }
 

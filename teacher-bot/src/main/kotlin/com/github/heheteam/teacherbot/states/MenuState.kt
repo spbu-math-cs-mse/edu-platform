@@ -61,8 +61,8 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
   suspend fun handle(bot: BehaviourContext, teacherApi: TeacherApi): State {
     teacherApi.updateTgId(teacherId, context.id)
     val stickerMessage = bot.sendSticker(context, Dialogues.typingSticker)
-    teacherApi.updateTeacherMenuMessage(teacherId)
     messages.add(stickerMessage)
+    teacherApi.updateTeacherMenuMessage(teacherId)
 
     val messageHandlers = createMessagesHandlers(bot)
     val dataCallbackQueryHandlers = createDataCallbackHandlers()

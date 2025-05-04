@@ -35,6 +35,8 @@ internal constructor(
   ): List<Pair<Problem, ProblemGrade>> =
     academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
 
+  fun getAllCourses(): List<Course> = coursesDistributor.getCourses()
+
   fun getStudentCourses(studentId: StudentId): List<Course> =
     coursesDistributor.getStudentCourses(studentId)
 

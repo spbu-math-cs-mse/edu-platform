@@ -1,9 +1,11 @@
 package com.github.heheteam.commonlib.telegram
 
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.logic.ui.createSolutionGradingKeyboard
 import com.github.heheteam.commonlib.toTelegramMessageInfo
+import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.runCatching
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -71,6 +73,10 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
       message.messageId,
       replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
     )
+  }
+
+  override suspend fun sendSolution(chatId: RawChatId, content: TextWithMediaAttachments) {
+    teacherBot.sendTextWithMediaAttachments(chatId.toChatId(), content)
   }
 
   override suspend fun sendMenuMessage(

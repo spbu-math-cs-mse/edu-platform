@@ -124,6 +124,7 @@ internal class NewSolutionTeacherNotifier(
       if (chat == null) {
         Err(SendToGroupSolutionError(assignment.courseId)).bind<Nothing>()
       }
+      teacherBotTelegramController.sendSolution(chat, solution.content)
       val solutionStatusInfo =
         extractSolutionStatusMessageInfo(solution.id)
           .mapError { FailedToResolveSolution(solution) }
@@ -147,6 +148,7 @@ internal class NewSolutionTeacherNotifier(
             .resolveTeacher(teacherId)
             .mapError { NoResponsibleTeacherFor(solution) }
             .bind()
+        teacherBotTelegramController.sendSolution(teacher.tgId, solution.content)
         val solutionStatusInfo =
           extractSolutionStatusMessageInfo(solution.id)
             .mapError { FailedToResolveSolution(solution) }

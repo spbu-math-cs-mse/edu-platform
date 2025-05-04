@@ -8,16 +8,19 @@ import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.studentbot.state.ApplyForCoursesState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
+import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
+import com.github.heheteam.studentbot.state.RandomActivityState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.heheteam.studentbot.state.SendSolutionState
 import com.github.heheteam.studentbot.state.StartState
@@ -83,6 +86,9 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
   strictlyOnPresetStudentState(studentApi)
   registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
   registerState<CheckDeadlinesState, StudentApi>(studentApi)
+  registerState<PetTheDachshundState, StudentApi>(studentApi)
+  registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::menuCommandHandler)
+  registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::menuCommandHandler)
   registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::menuCommandHandler)
   registerStateWithStudentId<ConfirmSubmissionState, StudentApi>(studentApi, ::menuCommandHandler)
   registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(

@@ -89,7 +89,7 @@ internal class UiControllerTelegramSender(
       try {
         teacherBotTelegramController.deleteMessage(menuMessage)
       } catch (e: CommonRequestException) {
-        KSLog.warning("Menu message has already been deleted:\n$e")
+        KSLog.warning("Menu message has already been deleted:\n${e.message}")
       }
     }
   }

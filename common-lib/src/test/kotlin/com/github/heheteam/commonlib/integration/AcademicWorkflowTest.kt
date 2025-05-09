@@ -1,64 +1,39 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.integration
 
-import com.github.heheteam.commonlib.api.ApiFabric
-import com.github.heheteam.commonlib.api.TeacherResolverKind
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
+import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.telegram.SolutionStatusMessageInfo
-import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
-import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.buildData
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import dev.inmo.tgbotapi.types.MessageId
-import dev.inmo.tgbotapi.types.RawChatId
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.mockk
 import kotlin.test.Test
-import org.jetbrains.exposed.sql.Database
 
-class ApiTests {
-  private val config = loadConfig()
-  private val database =
-    Database.connect(
-      config.databaseConfig.url,
-      config.databaseConfig.driver,
-      config.databaseConfig.login,
-      config.databaseConfig.password,
-    )
-
-  private val googleSheetsService = mockk<GoogleSheetsService>(relaxed = true)
-  private val studentBotTelegramController = mockk<StudentBotTelegramController>(relaxed = true)
-  private val teacherBotTelegramController = mockk<TeacherBotTelegramController>(relaxed = true)
-
-  private val defaultMessageInfoNum = { num: Int ->
-    TelegramMessageInfo(RawChatId(num.toLong()), MessageId(num.toLong()))
-  }
-
+class AcademicWorkflowTest : IntegrationTestEnvironment() {
   private fun mockSendInitSolutionStatusMessageDM(returnValue: Result<TelegramMessageInfo, Any>) =
-    coEvery { teacherBotTelegramController.sendInitSolutionStatusMessageDM(any(), any()) } returns
+    coEvery { teacherBotController.sendInitSolutionStatusMessageDM(any(), any()) } returns
       returnValue
 
   private fun mockSendInitSolutionStatusMessageInCourseGroupChat(
     returnValue: Result<TelegramMessageInfo, Any>
   ) =
     coEvery {
-      teacherBotTelegramController.sendInitSolutionStatusMessageInCourseGroupChat(any(), any())
+      teacherBotController.sendInitSolutionStatusMessageInCourseGroupChat(any(), any())
     } returns returnValue
 
   private fun mockNotifyStudentOnNewAssessment() =
     coEvery {
-      studentBotTelegramController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
+      studentBotController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
     } returns Unit
 
   private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, Any>) =
-    coEvery { teacherBotTelegramController.sendMenuMessage(any(), any()) } returns returnValue
+    coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
 
   @Test
   fun `telegram notifications are sent on new solution`() {
-    mockSendInitSolutionStatusMessageDM(Ok(defaultMessageInfoNum(1)))
-    mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(defaultMessageInfoNum(1)))
-    mockSendMenuMessage(Ok(defaultMessageInfoNum(1)))
+    mockSendInitSolutionStatusMessageDM(Ok(messageInfoNum(1)))
+    mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+    mockSendMenuMessage(Ok(messageInfoNum(1)))
 
     buildData(createDefaultApis()) {
       val student = student("Student1", "Student1")
@@ -72,7 +47,7 @@ class ApiTests {
         val solution = solution(student, problems.first(), "Solution1")
 
         coVerify {
-          teacherBotTelegramController.sendInitSolutionStatusMessageDM(
+          teacherBotController.sendInitSolutionStatusMessageDM(
             chatId = teacher.tgId,
             solutionStatusMessageInfo =
               SolutionStatusMessageInfo(
@@ -91,9 +66,9 @@ class ApiTests {
 
   @Test
   fun `telegram notifications are sent on new assessment`() {
-    mockSendInitSolutionStatusMessageDM(Ok(defaultMessageInfoNum(1)))
-    mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(defaultMessageInfoNum(1)))
-    mockSendMenuMessage(Ok(defaultMessageInfoNum(1)))
+    mockSendInitSolutionStatusMessageDM(Ok(messageInfoNum(1)))
+    mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+    mockSendMenuMessage(Ok(messageInfoNum(1)))
     mockNotifyStudentOnNewAssessment()
 
     buildData(createDefaultApis()) {
@@ -109,7 +84,7 @@ class ApiTests {
         val assessment = assessment(teacher, solution, 1)
 
         coVerify(exactly = 1) {
-          studentBotTelegramController.notifyStudentOnNewAssessment(
+          studentBotController.notifyStudentOnNewAssessment(
             chatId = student.tgId,
             messageToReplyTo = solution.messageId,
             studentId = student.id,
@@ -120,18 +95,4 @@ class ApiTests {
       }
     }
   }
-
-  private fun createDefaultApis() =
-    ApiFabric(
-        database,
-        config,
-        googleSheetsService,
-        studentBotTelegramController,
-        teacherBotTelegramController,
-      )
-      .createApis(
-        initDatabase = false,
-        useRedis = false,
-        teacherResolverKind = TeacherResolverKind.FIRST,
-      )
 }

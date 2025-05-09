@@ -11,9 +11,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
-import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -37,7 +35,7 @@ class AddStudentState(override val context: User, val course: Course, val course
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, String, Any>,
   ) {
     val introMessage =
       bot.send(
@@ -46,14 +44,6 @@ class AddStudentState(override val context: User, val course: Course, val course
           ", или отправьте /stop, чтобы отменить операцию.",
       )
     sentMessages.add(introMessage)
-
-    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context))
-      } else {
-        UserInput(maybeCommandMessage.content.text)
-      }
-    }
   }
 
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later

@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.Student
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
-internal interface StudentStorage {
+interface StudentStorage {
   fun bindStudentToParent(
     studentId: StudentId,
     parentId: ParentId,
@@ -23,4 +23,6 @@ internal interface StudentStorage {
   fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>>
 
   fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>>
+
+  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>>
 }

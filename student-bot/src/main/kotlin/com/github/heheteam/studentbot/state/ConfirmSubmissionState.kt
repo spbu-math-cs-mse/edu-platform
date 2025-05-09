@@ -2,9 +2,9 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.ButtonData
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -22,10 +22,11 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 class ConfirmSubmissionState(
   override val context: User,
-  val solutionInputRequest: SolutionInputRequest,
-) : BotStateWithHandlers<Boolean, Boolean, StudentApi> {
-  lateinit var solutionMessage: AccessibleMessage
-  lateinit var confirmMessage: AccessibleMessage
+  override val userId: StudentId,
+  private val solutionInputRequest: SolutionInputRequest,
+) : BotStateWithHandlersAndStudentId<Boolean, Boolean, StudentApi> {
+  private lateinit var solutionMessage: AccessibleMessage
+  private lateinit var confirmMessage: AccessibleMessage
 
   override suspend fun intro(
     bot: BehaviourContext,
@@ -46,13 +47,6 @@ class ConfirmSubmissionState(
         "Вы уверены, что хотите отправить это решение?",
         replyMarkup = confirmMessageKeyboard.keyboard,
       )
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
-        NewState(MenuState(context, solutionInputRequest.studentId))
-      } else {
-        Unhandled
-      }
-    }
     updateHandlersController.addDataCallbackHandler { value: DataCallbackQuery ->
       val result = confirmMessageKeyboard.handler.invoke(value.data)
       result.mapBoth(success = { UserInput(it) }, failure = { Unhandled })

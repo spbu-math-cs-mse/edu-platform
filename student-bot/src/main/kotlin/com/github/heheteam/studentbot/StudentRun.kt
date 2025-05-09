@@ -1,17 +1,29 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.registerState
+import com.github.heheteam.commonlib.state.registerStateWithStudentId
 import com.github.heheteam.commonlib.util.DeveloperOptions
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.studentbot.state.ApplyForCoursesState
+import com.github.heheteam.studentbot.state.AskFirstNameState
+import com.github.heheteam.studentbot.state.AskLastNameState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
+import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.PresetStudentState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
+import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
+import com.github.heheteam.studentbot.state.RandomActivityState
+import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.heheteam.studentbot.state.SendSolutionState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
@@ -71,17 +83,42 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
   botToken: String,
 ) {
   registerState<StartState, StudentApi>(studentApi)
+  registerState<AskFirstNameState, StudentApi>(studentApi)
+  registerState<AskLastNameState, StudentApi>(studentApi)
   registerState<DeveloperStartState, StudentApi>(studentApi)
-  registerState<MenuState, StudentApi>(studentApi)
-  registerState<ConfirmSubmissionState, StudentApi>(studentApi)
   registerSendSolutionState(botToken, studentApi)
-  registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi)
-  registerState<QueryCourseForCheckingDeadlinesState, StudentApi>(studentApi)
-  registerState<QueryAssignmentForCheckingGradesState, StudentApi>(studentApi)
   strictlyOnPresetStudentState(studentApi)
+  registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
   registerState<CheckDeadlinesState, StudentApi>(studentApi)
-  registerState<QueryCourseForSolutionSendingState, StudentApi>(studentApi) {}
-  registerState<QueryProblemForSolutionSendingState, StudentApi>(studentApi) {}
+  registerState<PetTheDachshundState, StudentApi>(studentApi)
+  registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::menuCommandHandler)
+  registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::menuCommandHandler)
+  registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::menuCommandHandler)
+  registerStateWithStudentId<ConfirmSubmissionState, StudentApi>(studentApi, ::menuCommandHandler)
+  registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
+  registerStateWithStudentId<QueryCourseForCheckingGradesState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
+  registerStateWithStudentId<QueryCourseForCheckingDeadlinesState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
+  registerStateWithStudentId<QueryAssignmentForCheckingGradesState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
+  registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
+  registerStateWithStudentId<QueryProblemForSolutionSendingState, StudentApi>(
+    studentApi,
+    ::menuCommandHandler,
+  )
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(
@@ -90,18 +127,29 @@ private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(
 ) {
   strictlyOn<SendSolutionState> { state ->
     state.studentBotToken = botToken
-    state.handle(this, studentApi) {}
+    state.handle(this, studentApi)
   }
 }
 
-private fun findStartState(developerOptions: DeveloperOptions?, user: User) =
-  if (developerOptions != null) {
-    val presetStudent = developerOptions.presetStudentId
-    if (presetStudent != null) {
-      PresetStudentState(user, presetStudent)
-    } else {
-      DeveloperStartState(user)
-    }
+private fun findStartState(developerOptions: DeveloperOptions?, user: User): State {
+  val presetStudent = developerOptions?.presetStudentId
+  return if (presetStudent != null) {
+    PresetStudentState(user, presetStudent)
   } else {
     StartState(user)
   }
+}
+
+fun menuCommandHandler(
+  handlersController: UpdateHandlersController<() -> Unit, out Any?, Any>,
+  context: User,
+  studentId: StudentId,
+) {
+  handlersController.addTextMessageHandler { maybeCommandMessage ->
+    if (maybeCommandMessage.content.text == "/menu") {
+      NewState(MenuState(context, studentId))
+    } else {
+      Unhandled
+    }
+  }
+}

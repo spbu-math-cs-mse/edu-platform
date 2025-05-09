@@ -53,6 +53,8 @@ fun Long.toProblemId() = ProblemId(this)
 
 fun Long.toSolutionId() = SolutionId(this)
 
+fun Long.toAdminId() = AdminId(this)
+
 fun Long.toStudentId() = StudentId(this)
 
 fun Long.toTeacherId() = TeacherId(this)

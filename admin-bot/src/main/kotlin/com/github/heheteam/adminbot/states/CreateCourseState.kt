@@ -2,9 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
-import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.binding
@@ -27,7 +25,7 @@ class CreateCourseState(override val context: User) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, String, Any>,
   ) {
     val introMessage =
       bot.send(
@@ -35,14 +33,6 @@ class CreateCourseState(override val context: User) :
         "Введите название курса, который хотите создать, или отправьте /stop, чтобы отменить операцию",
       )
     sentMessages.add(introMessage)
-
-    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context))
-      } else {
-        UserInput(maybeCommandMessage.content.text)
-      }
-    }
   }
 
   override fun computeNewState(service: AdminApi, input: String): Pair<State, String?> {

@@ -9,6 +9,8 @@ import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.studentbot.state.ApplyForCoursesState
+import com.github.heheteam.studentbot.state.AskFirstNameState
+import com.github.heheteam.studentbot.state.AskLastNameState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.DeveloperStartState
@@ -81,6 +83,8 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(
   botToken: String,
 ) {
   registerState<StartState, StudentApi>(studentApi)
+  registerState<AskFirstNameState, StudentApi>(studentApi)
+  registerState<AskLastNameState, StudentApi>(studentApi)
   registerState<DeveloperStartState, StudentApi>(studentApi)
   registerSendSolutionState(botToken, studentApi)
   strictlyOnPresetStudentState(studentApi)
@@ -127,17 +131,14 @@ private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(
   }
 }
 
-private fun findStartState(developerOptions: DeveloperOptions?, user: User) =
-  if (developerOptions != null) {
-    val presetStudent = developerOptions.presetStudentId
-    if (presetStudent != null) {
-      PresetStudentState(user, presetStudent)
-    } else {
-      DeveloperStartState(user)
-    }
+private fun findStartState(developerOptions: DeveloperOptions?, user: User): State {
+  val presetStudent = developerOptions?.presetStudentId
+  return if (presetStudent != null) {
+    PresetStudentState(user, presetStudent)
   } else {
     StartState(user)
   }
+}
 
 fun menuCommandHandler(
   handlersController: UpdateHandlersController<() -> Unit, out Any?, Any>,

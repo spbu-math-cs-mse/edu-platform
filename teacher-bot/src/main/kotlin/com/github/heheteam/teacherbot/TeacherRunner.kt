@@ -30,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 class TeacherRunner(
   private val botToken: String,
   private val stateRegister: StateRegister,
-  private val developerOptions: DeveloperOptions = DeveloperOptions(),
+  private val developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
   suspend fun execute() {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
@@ -69,14 +69,17 @@ class TeacherRunner(
     }
   }
 
-  private fun findStartState(user: User): BotState<out Any?, out Any, out Any> {
-    val presetTeacher = developerOptions.presetTeacherId
-    return if (presetTeacher != null) {
-      PresetTeacherState(user, presetTeacher)
+  private fun findStartState(user: User): BotState<out Any?, out Any, out Any> =
+    if (developerOptions != null) {
+      val presetTeacher = developerOptions.presetTeacherId
+      if (presetTeacher != null) {
+        PresetTeacherState(user, presetTeacher)
+      } else {
+        DeveloperStartState(user)
+      }
     } else {
-      DeveloperStartState(user)
+      StartState(user)
     }
-  }
 }
 
 class StateRegister(private val teacherApi: TeacherApi) {

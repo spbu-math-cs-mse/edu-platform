@@ -2,6 +2,7 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
@@ -20,11 +21,13 @@ class DeveloperStartState(override val context: User) : BotState<TeacherId?, Str
   override suspend fun readUserInput(bot: BehaviourContext, service: TeacherApi): TeacherId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
     bot.send(context, Dialogues.devAskForId)
-    val teacherIdFromText =
-      bot.waitTextMessageWithUser(context.id).first().content.text.toLongOrNull()?.let {
-        TeacherId(it)
-      }
-    return teacherIdFromText
+    return bot
+      .waitTextMessageWithUser(context.id)
+      .first()
+      .content
+      .text
+      .toLongOrNull()
+      ?.toTeacherId()
   }
 
   override fun computeNewState(service: TeacherApi, input: TeacherId?): Pair<State, String> =

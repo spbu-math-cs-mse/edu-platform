@@ -21,6 +21,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import io.mockk.mockk
@@ -69,6 +70,7 @@ class StudentBotTest {
 
     val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
     val mockUiController = mockk<UiController>(relaxed = true)
+    val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
     academicWorkflowService =
       AcademicWorkflowService(
         academicWorkflowLogic,
@@ -88,6 +90,7 @@ class StudentBotTest {
         problemStorage,
         assignmentStorage,
         academicWorkflowService,
+        mockPersonalDeadlinesService,
         studentStorage,
       )
   }

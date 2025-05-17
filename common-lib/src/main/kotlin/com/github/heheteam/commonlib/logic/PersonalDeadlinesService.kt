@@ -8,7 +8,7 @@ import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import kotlinx.datetime.LocalDateTime
 
-class PersonalDeadlinesService(
+internal class PersonalDeadlinesService(
   private val studentStorage: StudentStorage,
   private val personalDeadlineStorage: PersonalDeadlineStorage,
   private val botEventBus: BotEventBus,

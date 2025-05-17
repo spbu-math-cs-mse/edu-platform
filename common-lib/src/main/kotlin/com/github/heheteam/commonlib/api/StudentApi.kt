@@ -9,14 +9,18 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
 
@@ -28,6 +32,7 @@ internal constructor(
   private val academicWorkflowService: AcademicWorkflowService,
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val studentStorage: StudentStorage,
+  private val courseTokenStorage: CourseTokenStorage,
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
@@ -82,4 +87,16 @@ internal constructor(
     problems: Map<Assignment, List<Problem>>,
   ): Map<Assignment, List<Problem>> =
     personalDeadlinesService.calculateNewDeadlines(studentId, problems)
+
+  fun registerForCourseWithToken(token: String, studentId: StudentId): Result<Unit, TokenError> {
+    val courseIdResult = courseTokenStorage.getCourseIdByToken(token)
+
+    return courseIdResult.mapBoth(
+      success = { courseId ->
+        coursesDistributor.addStudentToCourse(studentId, courseId)
+        courseTokenStorage.useToken(token, studentId)
+      },
+      failure = { error -> Err(error) },
+    )
+  }
 }

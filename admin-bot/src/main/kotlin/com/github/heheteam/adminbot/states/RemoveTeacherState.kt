@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -43,6 +44,8 @@ class RemoveTeacherState(override val context: User, val course: Course, val cou
           "или отправьте /stop, чтобы отменить операцию."
       }
     sentMessages.add(introMessage)
+
+    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later

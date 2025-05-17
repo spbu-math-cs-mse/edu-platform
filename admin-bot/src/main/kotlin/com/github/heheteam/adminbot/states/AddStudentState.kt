@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -43,6 +44,8 @@ class AddStudentState(override val context: User, val course: Course, val course
         "Введите ID учеников (через запятую), которых хотите добавить на курс ${course.name}" +
           ", или отправьте /stop, чтобы отменить операцию.",
       )
+
+    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
     sentMessages.add(introMessage)
   }
 

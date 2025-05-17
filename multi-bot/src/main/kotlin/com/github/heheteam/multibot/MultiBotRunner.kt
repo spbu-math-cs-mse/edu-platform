@@ -20,7 +20,7 @@ import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.parentbot.parentRun
-import com.github.heheteam.studentbot.studentRun
+import com.github.heheteam.studentbot.StudentRunner
 import com.github.heheteam.teacherbot.StateRegister
 import com.github.heheteam.teacherbot.TeacherRunner
 import dev.inmo.kslog.common.KSLog
@@ -94,7 +94,7 @@ class MultiBotRunner : CliktCommand() {
       DeveloperOptions(presetStudent, presetTeacher)
     }
     runBlocking {
-      launch { studentRun(studentBotToken, apis.studentApi, developerOptions) }
+      launch { StudentRunner(studentBotToken, apis.studentApi, developerOptions).run() }
       launch {
         val stateRegister = StateRegister(apis.teacherApi)
         val teacherRunner = TeacherRunner(teacherBotToken, stateRegister, developerOptions)

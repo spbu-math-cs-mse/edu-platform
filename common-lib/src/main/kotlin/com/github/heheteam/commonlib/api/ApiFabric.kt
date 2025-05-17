@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Config
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
@@ -83,6 +84,7 @@ class ApiFabric(
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
       InMemoryScheduledMessagesDistributor()
     val personalDeadlineStorage: PersonalDeadlineStorage = DatabasePersonalDeadlineStorage(database)
+    val courseTokenService = DatabaseCourseTokenStorage(database)
 
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
@@ -117,16 +119,6 @@ class ApiFabric(
     val botEventBus: BotEventBus =
       if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
       else ObserverBus()
-
-    //    botEventBus.subscribeToGradeEvents { studentId, chatId, messageId, assessment, problem ->
-    //      studentBotTelegramController.notifyStudentOnNewAssessment(
-    //        chatId,
-    //        messageId,
-    //        studentId,
-    //        problem,
-    //        assessment,
-    //      )
-    //    }
 
     botEventBus.subscribeToMovingDeadlineEvents { chatId, newDeadline ->
       studentBotTelegramController.notifyStudentOnDeadlineRescheduling(chatId, newDeadline)
@@ -194,6 +186,7 @@ class ApiFabric(
         academicWorkflowService,
         personalDeadlinesService,
         studentStorage,
+        courseTokenService,
       )
 
     val adminApi =

@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.CourseTeachers
+import com.github.heheteam.commonlib.database.table.CourseTokenTable
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.ParentTable
 import com.github.heheteam.commonlib.database.table.PersonalDeadlineTable
@@ -41,6 +42,7 @@ private val allTables =
     SolutionPersonalMessagesTable,
     TeacherMenuMessageTable,
     PersonalDeadlineTable,
+    CourseTokenTable,
   )
 
 fun main() {

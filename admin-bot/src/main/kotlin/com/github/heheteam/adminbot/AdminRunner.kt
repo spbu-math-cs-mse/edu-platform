@@ -131,7 +131,6 @@ class AdminRunner(private val adminApi: AdminApi) {
           val studentId = args.getOrNull(1)?.toLongOrNull()?.toStudentId()
           val dateTimeString = args.getOrNull(2)
           if (studentId == null || dateTimeString == null) {
-
             KSLog.error("Unexpected data callback query \"${args.joinToString(" ")}}\"")
             return@ActionWrapper
           }

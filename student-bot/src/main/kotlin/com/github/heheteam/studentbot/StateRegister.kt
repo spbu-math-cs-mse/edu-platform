@@ -108,8 +108,12 @@ internal class StateRegister(
         studentApi
           .registerForCourseWithToken(token, studentId)
           .mapBoth(
-            success = {
-              bot.send(context, "Вы успешно записались на курс, используя токен $token")
+            success = { courseId ->
+              val course = studentApi.getStudentCourses(studentId).first { it.id == courseId }
+              bot.send(
+                context,
+                "Вы успешно записались на курс ${course.name}, используя токен $token",
+              )
               NewState(MenuState(context, studentId))
             },
             failure = { error ->
@@ -117,8 +121,7 @@ internal class StateRegister(
                 when (error) {
                   is TokenError.TokenNotFound -> "Такого токена не существует"
 
-                  is TokenError.TokenAlreadyUsed ->
-                    "Этот токен уже был использован. <UNK> <UNK> <UNK>."
+                  is TokenError.TokenAlreadyUsed -> "Этот токен уже был использован"
                 }
               bot.send(context, errorMessage)
               NewState(MenuState(context, studentId))

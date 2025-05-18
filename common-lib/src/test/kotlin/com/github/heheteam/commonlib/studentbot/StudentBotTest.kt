@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
@@ -71,6 +72,7 @@ class StudentBotTest {
     val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
     val mockUiController = mockk<UiController>(relaxed = true)
     val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
+    val mockCourseTokensService = mockk<CourseTokenStorage>(relaxed = true)
     academicWorkflowService =
       AcademicWorkflowService(
         academicWorkflowLogic,
@@ -92,6 +94,7 @@ class StudentBotTest {
         academicWorkflowService,
         mockPersonalDeadlinesService,
         studentStorage,
+        mockCourseTokensService,
       )
   }
 

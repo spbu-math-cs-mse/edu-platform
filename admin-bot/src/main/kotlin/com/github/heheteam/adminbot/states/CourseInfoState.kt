@@ -3,32 +3,48 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.CourseStatistics
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.state.BotState
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.UpdateHandlersController
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
 class CourseInfoState(override val context: User, val course: Course) :
-  BotState<Unit, CourseStatistics, AdminApi> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: AdminApi) = Unit
-
-  override fun computeNewState(service: AdminApi, input: Unit): Pair<State, CourseStatistics> {
-    val stats = service.getCourseStatistics(course.id)
-    return Pair(MenuState(context), stats)
-  }
-
-  override suspend fun sendResponse(
+  BotStateWithHandlers<Unit, Unit, AdminApi> {
+  override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    response: CourseStatistics,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, Unit, Any>,
   ) {
+    val stats = service.getCourseStatistics(course.id)
+    val courseToken = service.getTokenForCourse(course.id)
     bot.send(
       context,
-      entities = CourseStatisticsFormatter.format(course.name, response),
-      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).value),
+      entities = CourseStatisticsFormatter.format(course.name, stats, courseToken),
+      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).value, courseToken),
     )
+
+    updateHandlersController.addDataCallbackHandler { callback ->
+      when (callback.data) {
+        AdminKeyboards.RETURN_BACK -> NewState(MenuState(context))
+        AdminKeyboards.REGENERATE_TOKEN -> {
+          service.regenerateTokenForCourse(course.id)
+          NewState(CourseInfoState(context, course))
+        }
+
+        else -> Unhandled
+      }
+    }
   }
+
+  override fun computeNewState(service: AdminApi, input: Unit): Pair<State, Unit> =
+    Pair(MenuState(context), Unit)
+
+  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

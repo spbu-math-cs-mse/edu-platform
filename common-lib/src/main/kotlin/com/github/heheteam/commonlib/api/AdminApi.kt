@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessage
@@ -41,6 +42,7 @@ internal constructor(
   private val problemStorage: ProblemStorage,
   private val solutionDistributor: SolutionDistributor,
   private val personalDeadlinesService: PersonalDeadlinesService,
+  private val tokenStorage: CourseTokenStorage,
 ) {
   fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
 
@@ -150,4 +152,8 @@ internal constructor(
 
   fun createAdmin(name: String, surname: String, tgId: Long): AdminId =
     adminStorage.createAdmin(name, surname, tgId)
+
+  fun getTokenForCourse(courseId: CourseId): String? = tokenStorage.getTokenForCourse(courseId)
+
+  fun regenerateTokenForCourse(courseId: CourseId): String = tokenStorage.regenerateToken(courseId)
 }

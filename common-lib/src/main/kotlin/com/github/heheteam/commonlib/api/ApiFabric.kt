@@ -97,7 +97,8 @@ class ApiFabric(
       )
     val studentStorage = DatabaseStudentStorage(database)
 
-    val coursesDistributor = CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder)
+    val coursesDistributor =
+      CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder, courseTokenService)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
     val assignmentStorage = AssignmentStorageDecorator(databaseAssignmentStorage, ratingRecorder)
     val solutionDistributor =
@@ -200,6 +201,7 @@ class ApiFabric(
         problemStorage,
         solutionDistributor,
         personalDeadlinesService,
+        courseTokenService,
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)

@@ -20,6 +20,7 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
@@ -88,13 +89,16 @@ internal constructor(
   ): Map<Assignment, List<Problem>> =
     personalDeadlinesService.calculateNewDeadlines(studentId, problems)
 
-  fun registerForCourseWithToken(token: String, studentId: StudentId): Result<Unit, TokenError> {
+  fun registerForCourseWithToken(
+    token: String,
+    studentId: StudentId,
+  ): Result<CourseId, TokenError> {
     val courseIdResult = courseTokenStorage.getCourseIdByToken(token)
 
     return courseIdResult.mapBoth(
       success = { courseId ->
         coursesDistributor.addStudentToCourse(studentId, courseId)
-        courseTokenStorage.useToken(token, studentId)
+        courseTokenStorage.useToken(token, studentId).map { courseId }
       },
       failure = { error -> Err(error) },
     )

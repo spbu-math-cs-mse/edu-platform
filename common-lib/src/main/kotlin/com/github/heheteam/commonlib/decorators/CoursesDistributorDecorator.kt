@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
@@ -19,6 +20,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 internal class CoursesDistributorDecorator(
   private val coursesDistributor: CoursesDistributor,
   private val ratingRecorder: RatingRecorder,
+  private val tokenStorage: CourseTokenStorage,
 ) : CoursesDistributor {
   override fun addStudentToCourse(
     studentId: StudentId,
@@ -77,6 +79,7 @@ internal class CoursesDistributorDecorator(
 
   override fun createCourse(description: String): CourseId =
     coursesDistributor.createCourse(description).also {
+      tokenStorage.createToken(it)
       ratingRecorder.createRatingSpreadsheet(it).getError()?.also { err -> println(err) }
     }
 

@@ -9,14 +9,21 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.types.UserId
+import kotlinx.datetime.LocalDateTime
 
 class StudentApi
 internal constructor(
@@ -24,13 +31,17 @@ internal constructor(
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val academicWorkflowService: AcademicWorkflowService,
+  private val personalDeadlinesService: PersonalDeadlinesService,
   private val studentStorage: StudentStorage,
+  private val courseTokenStorage: CourseTokenStorage,
 ) {
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
   ): List<Pair<Problem, ProblemGrade>> =
     academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
+
+  fun getAllCourses(): List<Course> = coursesDistributor.getCourses()
 
   fun getStudentCourses(studentId: StudentId): List<Course> =
     coursesDistributor.getStudentCourses(studentId)
@@ -53,9 +64,43 @@ internal constructor(
   fun loginById(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
     studentStorage.resolveStudent(studentId)
 
+  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>> =
+    studentStorage.updateTgId(studentId, newTgId)
+
   fun createStudent(name: String, surname: String, tgId: Long): StudentId =
     studentStorage.createStudent(name, surname, tgId)
 
+  /**
+   * Returns assignments and all of their problems with original deadlines. You might need to
+   * calculate personal deadlines additionally.
+   */
   fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
+
+  fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
+    personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline)
+
+  fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =
+    personalDeadlinesService.calculateNewDeadlines(studentId, problems)
+
+  fun calculateRescheduledDeadlines(
+    studentId: StudentId,
+    problems: Map<Assignment, List<Problem>>,
+  ): Map<Assignment, List<Problem>> =
+    personalDeadlinesService.calculateNewDeadlines(studentId, problems)
+
+  fun registerForCourseWithToken(
+    token: String,
+    studentId: StudentId,
+  ): Result<CourseId, TokenError> {
+    val courseIdResult = courseTokenStorage.getCourseIdByToken(token)
+
+    return courseIdResult.mapBoth(
+      success = { courseId ->
+        coursesDistributor.addStudentToCourse(studentId, courseId)
+        courseTokenStorage.useToken(token, studentId).map { courseId }
+      },
+      failure = { error -> Err(error) },
+    )
+  }
 }

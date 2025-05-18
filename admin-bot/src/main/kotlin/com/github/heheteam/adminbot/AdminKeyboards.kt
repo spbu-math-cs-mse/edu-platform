@@ -7,7 +7,7 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
-object Keyboards {
+object AdminKeyboards {
   const val RETURN_BACK = "Назад"
 
   fun returnBack() =
@@ -44,7 +44,14 @@ object Keyboards {
     row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
   }
 
-  fun courseInfo(ratingUrl: String?) = inlineKeyboard {
+  const val REGENERATE_TOKEN = "regenerate token"
+
+  fun courseInfo(ratingUrl: String?, token: String?) = inlineKeyboard {
     if (ratingUrl != null) row { urlButton("Кондуит", ratingUrl) }
+    if (token != null) row { dataButton("Обновить токен", REGENERATE_TOKEN) }
+    else row { dataButton("Создать токен", REGENERATE_TOKEN) }
+    row { dataButton("Назад", RETURN_BACK) }
   }
+
+  const val MOVE_DEADLINES = "moveDeadlines"
 }

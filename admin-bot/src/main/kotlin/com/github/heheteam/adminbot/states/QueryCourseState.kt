@@ -22,7 +22,7 @@ abstract class QueryCourseState(override val context: User) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Course?, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, Course?, Any>,
   ) {
     val courses = service.getCourses().map { it.value }
     val coursesPicker = createCoursePicker(courses)

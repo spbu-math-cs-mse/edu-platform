@@ -5,10 +5,9 @@ import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
 import com.github.heheteam.commonlib.util.HandlingError
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -27,9 +26,9 @@ import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSolutionState(
   override val context: User,
-  val studentId: StudentId,
+  override val userId: StudentId,
   val problem: Problem,
-) : BotStateWithHandlers<SolutionInputRequest?, SolutionInputRequest?, StudentApi> {
+) : BotStateWithHandlersAndStudentId<SolutionInputRequest?, SolutionInputRequest?, StudentApi> {
   lateinit var studentBotToken: String
 
   override suspend fun intro(
@@ -38,13 +37,6 @@ data class SendSolutionState(
     updateHandlersController: UpdateHandlersController<() -> Unit, SolutionInputRequest?, Any>,
   ) {
     bot.send(context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
-        NewState(MenuState(context, studentId))
-      } else {
-        Unhandled
-      }
-    }
     updateHandlersController.addTextMessageHandler { message ->
       bot.parseSentSolution(message, studentBotToken)
     }
@@ -69,9 +61,9 @@ data class SendSolutionState(
     input: SolutionInputRequest?,
   ): Pair<State, SolutionInputRequest?> {
     return if (input == null) {
-      MenuState(context, studentId) to input
+      MenuState(context, userId) to input
     } else {
-      ConfirmSubmissionState(context, input) to input
+      ConfirmSubmissionState(context, userId, input) to input
     }
   }
 
@@ -91,7 +83,7 @@ data class SendSolutionState(
     } else {
       UserInput(
         SolutionInputRequest(
-          studentId,
+          userId,
           problem.id,
           attachment,
           TelegramMessageInfo(solutionMessage.chat.id.chatId, solutionMessage.messageId),

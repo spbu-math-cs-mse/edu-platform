@@ -123,7 +123,6 @@ internal class StateRegister(
         NewState(MenuState(context, studentId))
       } else {
         val token = parts[1].trim()
-
         studentApi
           .registerForCourseWithToken(token, studentId)
           .mapBoth(
@@ -136,13 +135,7 @@ internal class StateRegister(
               NewState(MenuState(context, studentId))
             },
             failure = { error ->
-              val errorMessage =
-                when (error) {
-                  is TokenError.TokenNotFound -> "Такого токена не существует"
-
-                  is TokenError.TokenAlreadyUsed -> "Этот токен уже был использован"
-                }
-              bot.send(context, errorMessage)
+              bot.send(context, tokenErrorToString(error))
               NewState(MenuState(context, studentId))
             },
           )
@@ -151,4 +144,10 @@ internal class StateRegister(
       Unhandled
     }
 
+  private fun tokenErrorToString(error: TokenError): String =
+    when (error) {
+      is TokenError.TokenNotFound -> "Такого токена не существует"
+
+      is TokenError.TokenAlreadyUsed -> "Этот токен уже был использован"
+    }
 }

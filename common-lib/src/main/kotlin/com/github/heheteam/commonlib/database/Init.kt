@@ -57,7 +57,10 @@ fun main() {
 
 fun reset(database: Database) {
   transaction(database) {
-    exec("DROP TABLE IF EXISTS ${allTables.joinToString(", ") { it.tableName }} CASCADE;")
+    when (database.vendor) {
+      "H2" -> exec("DROP ALL OBJECTS")
+      else -> exec("DROP TABLE IF EXISTS ${allTables.joinToString { it.tableName }} CASCADE")
+    }
     create(*allTables)
   }
 }

@@ -179,7 +179,8 @@ class DatabaseTest {
         teacherStorage,
         database,
       )
-    val someAssignment = assignmentStorage.getAssignmentsForCourse(content.courses.first()).first()
+    val someAssignment =
+      assignmentStorage.getAssignmentsForCourse(content.courses.realAnalysis).first()
     val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).first()
     val someStudent = content.students[0]
     val teachers = content.teachers

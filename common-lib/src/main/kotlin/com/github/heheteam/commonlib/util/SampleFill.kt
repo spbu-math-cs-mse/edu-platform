@@ -40,8 +40,15 @@ internal fun generateCourse(
   return courseId
 }
 
-data class FillContent(
-  val courses: List<CourseId>,
+data class CourseFill(
+  val realAnalysis: CourseId,
+  val probTheory: CourseId,
+  val linAlgebra: CourseId,
+  val complAnalysis: CourseId,
+)
+
+data class ContentFill(
+  val courses: CourseFill,
   val students: List<StudentId>,
   val teachers: List<TeacherId>,
 )
@@ -54,7 +61,7 @@ internal fun fillWithSamples(
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
   database: Database,
-): FillContent {
+): ContentFill {
   reset(database)
   // Admins
   listOf("Кабан" to "Кабаныч").map { adminStorage.createAdmin(it.first, it.second) }
@@ -80,8 +87,8 @@ internal fun fillWithSamples(
   courseStorage.addTeacherToCourse(TeacherId(1), realAnalysis)
   courseStorage.addTeacherToCourse(TeacherId(2), realAnalysis)
 
-  return FillContent(
-    courses = listOf(realAnalysis, probTheory, linAlgebra, complAnalysis),
+  return ContentFill(
+    courses = CourseFill(realAnalysis, probTheory, linAlgebra, complAnalysis),
     students = students,
     teachers = teachers,
   )

@@ -9,8 +9,8 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -25,9 +25,10 @@ import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
 
+@Suppress("LongParameterList", "TooManyFunctions")
 class StudentApi
 internal constructor(
-  private val coursesDistributor: CoursesDistributor,
+  private val courseStorage: CourseStorage,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val academicWorkflowService: AcademicWorkflowService,
@@ -41,16 +42,16 @@ internal constructor(
   ): List<Pair<Problem, ProblemGrade>> =
     academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
 
-  fun getAllCourses(): List<Course> = coursesDistributor.getCourses()
+  fun getAllCourses(): List<Course> = courseStorage.getCourses()
 
   fun getStudentCourses(studentId: StudentId): List<Course> =
-    coursesDistributor.getStudentCourses(studentId)
+    courseStorage.getStudentCourses(studentId)
 
   fun getCourseAssignments(courseId: CourseId): List<Assignment> =
     assignmentStorage.getAssignmentsForCourse(courseId)
 
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =
-    coursesDistributor.addStudentToCourse(studentId, courseId)
+    courseStorage.addStudentToCourse(studentId, courseId)
 
   fun inputSolution(solutionInputRequest: SolutionInputRequest) =
     academicWorkflowService.sendSolution(solutionInputRequest)
@@ -97,7 +98,7 @@ internal constructor(
 
     return courseIdResult.mapBoth(
       success = { courseId ->
-        coursesDistributor.addStudentToCourse(studentId, courseId)
+        courseStorage.addStudentToCourse(studentId, courseId)
         courseTokenStorage.useToken(token, studentId).map { courseId }
       },
       failure = { error -> Err(error) },

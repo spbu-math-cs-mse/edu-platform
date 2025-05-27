@@ -8,7 +8,7 @@ import dev.inmo.tgbotapi.types.message.textsources.bold
 import dev.inmo.tgbotapi.utils.RiskFeature
 
 object CourseStatisticsFormatter {
-  @Suppress("FunctionIsTooLong")
+  @Suppress("LongMethod")
   @OptIn(RiskFeature::class)
   fun format(courseName: String, stats: CourseStatistics, token: String?): List<TextSource> =
     buildList {

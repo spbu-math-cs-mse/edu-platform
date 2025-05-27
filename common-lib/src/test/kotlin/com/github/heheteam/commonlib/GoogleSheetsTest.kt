@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
@@ -33,7 +33,7 @@ class GoogleSheetsTest {
       config.databaseConfig.password,
     )
 
-  private val coursesDistributor = DatabaseCoursesDistributor(database)
+  private val courseStorage = DatabaseCourseStorage(database)
   private val gradeTable = DatabaseGradeTable(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
@@ -52,20 +52,20 @@ class GoogleSheetsTest {
   //  @Ignore
   @Test
   fun `update rating works`() {
-    val course1Id = coursesDistributor.createCourse("course 1")
-    val course2Id = coursesDistributor.createCourse("course 2")
+    val course1Id = courseStorage.createCourse("course 1")
+    val course2Id = courseStorage.createCourse("course 2")
     val student1Id = studentStorage.createStudent()
     val student2Id = studentStorage.createStudent()
     val student3Id = studentStorage.createStudent()
-    coursesDistributor.addStudentToCourse(student1Id, course1Id)
-    coursesDistributor.addStudentToCourse(student1Id, course2Id)
-    coursesDistributor.addStudentToCourse(student2Id, course1Id)
-    coursesDistributor.addStudentToCourse(student2Id, course2Id)
-    coursesDistributor.addStudentToCourse(student3Id, course1Id)
+    courseStorage.addStudentToCourse(student1Id, course1Id)
+    courseStorage.addStudentToCourse(student1Id, course2Id)
+    courseStorage.addStudentToCourse(student2Id, course1Id)
+    courseStorage.addStudentToCourse(student2Id, course2Id)
+    courseStorage.addStudentToCourse(student3Id, course1Id)
 
     val teacher1Id = teacherStorage.createTeacher()
-    coursesDistributor.addTeacherToCourse(teacher1Id, course1Id)
-    coursesDistributor.addTeacherToCourse(teacher1Id, course2Id)
+    courseStorage.addTeacherToCourse(teacher1Id, course1Id)
+    courseStorage.addTeacherToCourse(teacher1Id, course2Id)
 
     assignmentStorage.createAssignment(
       course1Id,
@@ -128,18 +128,18 @@ class GoogleSheetsTest {
 
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
-      coursesDistributor.resolveCourse(course1Id).value,
+      courseStorage.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id),
       problemStorage.getProblemsFromCourse(course1Id),
-      coursesDistributor.getStudents(course1Id),
+      courseStorage.getStudents(course1Id),
       gradeTable.getCourseRating(course1Id),
     )
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
-      coursesDistributor.resolveCourse(course2Id).value,
+      courseStorage.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id),
       problemStorage.getProblemsFromCourse(course2Id),
-      coursesDistributor.getStudents(course2Id),
+      courseStorage.getStudents(course2Id),
       gradeTable.getCourseRating(course2Id),
     )
   }

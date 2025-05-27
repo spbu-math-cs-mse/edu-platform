@@ -12,7 +12,7 @@ import com.github.heheteam.commonlib.database.table.CourseTeachers
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -37,7 +37,8 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-class DatabaseCoursesDistributor(val database: Database) : CoursesDistributor {
+@Suppress("TooManyFunctions") // ok, as it is a database access class
+class DatabaseCourseStorage(val database: Database) : CourseStorage {
   init {
     transaction(database) {
       SchemaUtils.create(CourseTable)

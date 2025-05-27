@@ -4,8 +4,8 @@ import com.github.heheteam.commonlib.Config
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -16,7 +16,7 @@ import com.github.heheteam.commonlib.database.DatabaseTelegramTechnicalMessagesS
 import com.github.heheteam.commonlib.database.FirstTeacherResolver
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
-import com.github.heheteam.commonlib.decorators.CoursesDistributorDecorator
+import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.decorators.SolutionDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
@@ -74,7 +74,7 @@ class ApiFabric(
     useRedis: Boolean,
     teacherResolverKind: TeacherResolverKind,
   ): ApiCollection {
-    val databaseCoursesDistributor = DatabaseCoursesDistributor(database)
+    val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database, problemStorage)
@@ -89,7 +89,7 @@ class ApiFabric(
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
         googleSheetsService,
-        databaseCoursesDistributor,
+        databaseCourseStorage,
         databaseAssignmentStorage,
         problemStorage,
         databaseSolutionDistributor,
@@ -97,8 +97,8 @@ class ApiFabric(
       )
     val studentStorage = DatabaseStudentStorage(database)
 
-    val coursesDistributor =
-      CoursesDistributorDecorator(databaseCoursesDistributor, ratingRecorder, courseTokenService)
+    val courseStorage =
+      CourseStorageDecorator(databaseCourseStorage, ratingRecorder, courseTokenService)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
     val assignmentStorage = AssignmentStorageDecorator(databaseAssignmentStorage, ratingRecorder)
     val solutionDistributor =
@@ -107,7 +107,7 @@ class ApiFabric(
     val adminStorage = DatabaseAdminStorage(database)
     if (initDatabase) {
       fillWithSamples(
-        coursesDistributor,
+        courseStorage,
         assignmentStorage,
         adminStorage,
         studentStorage,
@@ -163,13 +163,13 @@ class ApiFabric(
     val teacherResolver: ResponsibleTeacherResolver =
       when (teacherResolverKind) {
         TeacherResolverKind.FIRST ->
-          FirstTeacherResolver(problemStorage, assignmentStorage, coursesDistributor)
+          FirstTeacherResolver(problemStorage, assignmentStorage, courseStorage)
 
         TeacherResolverKind.RANDOM ->
           RandomTeacherResolver(
             problemStorage,
             assignmentStorage,
-            coursesDistributor,
+            courseStorage,
             solutionDistributor,
           )
       }
@@ -181,7 +181,7 @@ class ApiFabric(
 
     val studentApi =
       StudentApi(
-        coursesDistributor,
+        courseStorage,
         problemStorage,
         assignmentStorage,
         academicWorkflowService,
@@ -193,7 +193,7 @@ class ApiFabric(
     val adminApi =
       AdminApi(
         inMemoryScheduledMessagesDistributor,
-        coursesDistributor,
+        courseStorage,
         adminStorage,
         studentStorage,
         teacherStorage,
@@ -215,7 +215,7 @@ class ApiFabric(
         studentStorage,
         databaseGradeTable,
         teacherStorage,
-        coursesDistributor,
+        courseStorage,
       )
 
     botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
@@ -223,12 +223,7 @@ class ApiFabric(
     }
 
     val teacherApi =
-      TeacherApi(
-        coursesDistributor,
-        academicWorkflowService,
-        teacherStorage,
-        menuMessageUpdaterService,
-      )
+      TeacherApi(courseStorage, academicWorkflowService, teacherStorage, menuMessageUpdaterService)
     return ApiCollection(studentApi, teacherApi, adminApi, parentApi)
   }
 }

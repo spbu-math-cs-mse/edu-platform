@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.SolutionDistributor
@@ -37,7 +37,7 @@ internal class NewSolutionTeacherNotifier(
   private val studentStorage: StudentStorage,
   private val gradeTable: GradeTable,
   private val teacherStorage: TeacherStorage,
-  private val coursesDistributor: CoursesDistributor,
+  private val courseStorage: CourseStorage,
 ) {
   suspend fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> =
     coroutineBinding {
@@ -117,7 +117,7 @@ internal class NewSolutionTeacherNotifier(
           .bind()
 
       val chat =
-        coursesDistributor
+        courseStorage
           .resolveCourseGroup(assignment.courseId)
           .mapError { FailedToResolveSolution(solution) }
           .bind()

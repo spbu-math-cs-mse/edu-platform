@@ -9,8 +9,8 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
@@ -34,7 +34,7 @@ import java.time.LocalDateTime
 class AdminApi
 internal constructor(
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
-  private val coursesDistributor: CoursesDistributor,
+  private val courseStorage: CourseStorage,
   private val adminStorage: AdminStorage,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
@@ -62,32 +62,32 @@ internal constructor(
   fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
 
   fun getCourse(courseName: String): Course? =
-    coursesDistributor.getCourses().find { it.name == courseName }
+    courseStorage.getCourses().find { it.name == courseName }
 
   fun getCourses(): Map<String, Course> =
-    coursesDistributor.getCourses().groupBy { it.name }.mapValues { it.value.first() }
+    courseStorage.getCourses().groupBy { it.name }.mapValues { it.value.first() }
 
   fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
 
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
   fun studiesIn(id: StudentId, course: Course): Boolean =
-    coursesDistributor.getStudentCourses(id).any { it.id == course.id }
+    courseStorage.getStudentCourses(id).any { it.id == course.id }
 
   fun teachesIn(id: TeacherId, course: Course): Boolean =
-    coursesDistributor.getTeacherCourses(id).any { it.id == course.id }
+    courseStorage.getTeacherCourses(id).any { it.id == course.id }
 
   fun registerStudentForCourse(studentId: StudentId, courseId: CourseId) =
-    coursesDistributor.addStudentToCourse(studentId, courseId)
+    courseStorage.addStudentToCourse(studentId, courseId)
 
   fun registerTeacherForCourse(teacherId: TeacherId, courseId: CourseId) =
-    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    courseStorage.addTeacherToCourse(teacherId, courseId)
 
   fun removeTeacher(teacherId: TeacherId, courseId: CourseId): Boolean =
-    coursesDistributor.removeTeacherFromCourse(teacherId, courseId).isOk
+    courseStorage.removeTeacherFromCourse(teacherId, courseId).isOk
 
   fun removeStudent(studentId: StudentId, courseId: CourseId): Boolean =
-    coursesDistributor.removeStudentFromCourse(studentId, courseId).isOk
+    courseStorage.removeStudentFromCourse(studentId, courseId).isOk
 
   fun createAssignment(
     courseId: CourseId,
@@ -95,16 +95,16 @@ internal constructor(
     problemsDescriptions: List<ProblemDescription>,
   ) = assignmentStorage.createAssignment(courseId, description, problemsDescriptions)
 
-  fun createCourse(input: String): CourseId = coursesDistributor.createCourse(input)
+  fun createCourse(input: String): CourseId = courseStorage.createCourse(input)
 
   fun resolveCourseWithSpreadsheetId(
     courseId: CourseId
   ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
-    coursesDistributor.resolveCourseWithSpreadsheetId(courseId)
+    courseStorage.resolveCourseWithSpreadsheetId(courseId)
 
   fun getCourseStatistics(courseId: CourseId): CourseStatistics {
-    val students = coursesDistributor.getStudents(courseId)
-    val teachers = coursesDistributor.getTeachers(courseId)
+    val students = courseStorage.getStudents(courseId)
+    val teachers = courseStorage.getTeachers(courseId)
     val assignments = assignmentStorage.getAssignmentsForCourse(courseId)
 
     var totalProblems = 0
@@ -139,7 +139,7 @@ internal constructor(
   }
 
   fun getRatingLink(courseId: CourseId): Result<String, ResolveError<CourseId>> =
-    coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map { it.second.toUrl() }
+    courseStorage.resolveCourseWithSpreadsheetId(courseId).map { it.second.toUrl() }
 
   fun loginByTgId(tgId: UserId): Result<Admin, ResolveError<UserId>> =
     adminStorage.resolveByTgId(tgId)

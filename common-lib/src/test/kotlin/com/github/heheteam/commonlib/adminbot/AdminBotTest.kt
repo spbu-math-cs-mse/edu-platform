@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
@@ -41,7 +41,7 @@ class AdminBotTest {
     core =
       AdminApi(
         InMemoryScheduledMessagesDistributor(),
-        DatabaseCoursesDistributor(database),
+        DatabaseCourseStorage(database),
         DatabaseAdminStorage(database),
         DatabaseStudentStorage(database),
         DatabaseTeacherStorage(database),

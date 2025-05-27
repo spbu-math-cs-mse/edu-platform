@@ -3,7 +3,7 @@ package com.github.heheteam.teacherbot
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
@@ -36,7 +36,7 @@ class TeacherBotTest {
       config.databaseConfig.password,
     )
   private val solutionDistributor = DatabaseSolutionDistributor(database)
-  private val coursesDistributor = DatabaseCoursesDistributor(database)
+  private val courseStorage = DatabaseCourseStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val teacherStorage = DatabaseTeacherStorage(database)
@@ -47,9 +47,9 @@ class TeacherBotTest {
     reset(database)
     teacherId = teacherStorage.createTeacher()
     studentId = studentStorage.createStudent()
-    val courseId = coursesDistributor.createCourse("test course")
-    coursesDistributor.addTeacherToCourse(teacherId, courseId)
-    coursesDistributor.addStudentToCourse(studentId, courseId)
+    val courseId = courseStorage.createCourse("test course")
+    courseStorage.addTeacherToCourse(teacherId, courseId)
+    courseStorage.addStudentToCourse(studentId, courseId)
     val assignmentId =
       assignmentStorage.createAssignment(
         courseId,

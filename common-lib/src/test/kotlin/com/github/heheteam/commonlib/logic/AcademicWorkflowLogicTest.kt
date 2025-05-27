@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
@@ -47,7 +47,7 @@ class AcademicWorkflowLogicTest {
       config.databaseConfig.password,
     )
 
-  private val coursesDistributor = DatabaseCoursesDistributor(database)
+  private val courseStorage = DatabaseCourseStorage(database)
   private val gradeTable = DatabaseGradeTable(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
@@ -74,11 +74,11 @@ class AcademicWorkflowLogicTest {
   @AfterTest
   fun setup() {
     reset(database)
-    courseId = coursesDistributor.createCourse("course 1")
+    courseId = courseStorage.createCourse("course 1")
     studentId = studentStorage.createStudent()
-    coursesDistributor.addStudentToCourse(studentId, courseId)
+    courseStorage.addStudentToCourse(studentId, courseId)
     teacherId = teacherStorage.createTeacher()
-    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    courseStorage.addTeacherToCourse(teacherId, courseId)
     assignmentId = createAssignment(courseId)
     timestamp = Instant.parse("2020-01-01T00:00:00Z")
   }

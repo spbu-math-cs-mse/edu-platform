@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
@@ -18,13 +18,13 @@ import kotlinx.datetime.LocalDateTime
 
 class TeacherApi
 internal constructor(
-  private val coursesDistributor: CoursesDistributor,
+  private val courseStorage: CourseStorage,
   private val academicWorkflowService: AcademicWorkflowService,
   private val teacherStorage: TeacherStorage,
   private val menuMessageUpdater: MenuMessageUpdater,
 ) {
   fun setCourseGroup(courseId: CourseId, chatId: RawChatId): Result<Unit, ResolveError<CourseId>> =
-    coursesDistributor.setCourseGroup(courseId, chatId)
+    courseStorage.setCourseGroup(courseId, chatId)
 
   fun assessSolution(
     solutionId: SolutionId,
@@ -43,10 +43,10 @@ internal constructor(
     teacherStorage.resolveTeacher(teacherId)
 
   fun getTeacherCourses(teacherId: TeacherId): List<Course> =
-    coursesDistributor.getTeacherCourses(teacherId)
+    courseStorage.getTeacherCourses(teacherId)
 
   fun resolveCourse(it: CourseId): Result<Course, ResolveError<CourseId>> =
-    coursesDistributor.resolveCourse(it)
+    courseStorage.resolveCourse(it)
 
   fun updateTgId(teacherId: TeacherId, id: UserId): Result<Unit, ResolveError<TeacherId>> =
     teacherStorage.updateTgId(teacherId, id)

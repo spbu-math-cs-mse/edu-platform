@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.googlesheets
 import com.github.heheteam.commonlib.CreateError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
@@ -31,7 +31,7 @@ private const val DELAY_IN_MILLISECONDS: Long = 1000
 class GoogleSheetsRatingRecorder
 internal constructor(
   private val googleSheetsService: GoogleSheetsService,
-  private val coursesDistributor: CoursesDistributor,
+  private val courseStorage: CourseStorage,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
   private val solutionDistributor: SolutionDistributor,
@@ -42,14 +42,14 @@ internal constructor(
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
   override fun createRatingSpreadsheet(courseId: CourseId): Result<SpreadsheetId, CreateError> {
-    val course = coursesDistributor.resolveCourse(courseId).value
+    val course = courseStorage.resolveCourse(courseId).value
     val spreadsheetId =
       try {
         googleSheetsService.createCourseSpreadsheet(course)
       } catch (e: java.io.IOException) {
         return Err(CreateError("Google Spreadheet", e.message))
       }
-    coursesDistributor.updateCourseSpreadsheetId(courseId, spreadsheetId)
+    courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
     println(
       "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${course.name}\" (id: $courseId)"
     )
@@ -65,14 +65,13 @@ internal constructor(
         mutex.withLock {
           willBeUpdated.replace(courseId, false)
           val elapsedTime = measureTimeMillis {
-            coursesDistributor.resolveCourseWithSpreadsheetId(courseId).map {
-              (course, spreadsheetId) ->
+            courseStorage.resolveCourseWithSpreadsheetId(courseId).map { (course, spreadsheetId) ->
               googleSheetsService.updateRating(
                 spreadsheetId.long,
                 course,
                 assignmentStorage.getAssignmentsForCourse(courseId),
                 problemStorage.getProblemsFromCourse(courseId),
-                coursesDistributor.getStudents(courseId),
+                courseStorage.getStudents(courseId),
                 academicWorkflowLogic.getCourseRating(courseId),
               )
             }

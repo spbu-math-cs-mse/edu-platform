@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
@@ -36,7 +36,7 @@ class DatabaseTest {
       config.databaseConfig.password,
     )
 
-  private val coursesDistributor = DatabaseCoursesDistributor(database)
+  private val courseStorage = DatabaseCourseStorage(database)
   private val gradeTable = DatabaseGradeTable(database)
   private val adminStorage = DatabaseAdminStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
@@ -77,11 +77,11 @@ class DatabaseTest {
     )
 
   private fun createCourseWithTeacherAndStudent(): Triple<CourseId, TeacherId, StudentId> {
-    val courseId = coursesDistributor.createCourse("sample course")
+    val courseId = courseStorage.createCourse("sample course")
     val teacherId = teacherStorage.createTeacher()
     val studentId = studentStorage.createStudent()
-    coursesDistributor.addStudentToCourse(studentId, courseId)
-    coursesDistributor.addTeacherToCourse(teacherId, courseId)
+    courseStorage.addStudentToCourse(studentId, courseId)
+    courseStorage.addTeacherToCourse(teacherId, courseId)
     return Triple(courseId, teacherId, studentId)
   }
 
@@ -94,10 +94,10 @@ class DatabaseTest {
   @Test
   fun `course distributor works`() {
     val sampleDescription = "sample description"
-    val id = coursesDistributor.createCourse(sampleDescription)
-    val requiredId = coursesDistributor.getCourses().single().id
+    val id = courseStorage.createCourse(sampleDescription)
+    val requiredId = courseStorage.getCourses().single().id
     assertEquals(id, requiredId)
-    val resolvedCourse = coursesDistributor.resolveCourse(requiredId)
+    val resolvedCourse = courseStorage.resolveCourse(requiredId)
     assertEquals(true, resolvedCourse.isOk)
     assertEquals(sampleDescription, resolvedCourse.value.name)
   }
@@ -172,7 +172,7 @@ class DatabaseTest {
   private fun generateSampleTeachersAndSolution(): Pair<List<TeacherId>, SolutionId> {
     val content =
       fillWithSamples(
-        coursesDistributor,
+        courseStorage,
         assignmentStorage,
         adminStorage,
         studentStorage,

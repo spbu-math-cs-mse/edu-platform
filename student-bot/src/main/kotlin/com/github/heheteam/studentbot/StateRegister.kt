@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -36,6 +37,7 @@ internal class StateRegister(
   private val studentApi: StudentApi,
   private val bot: DefaultBehaviourContextWithFSM<State>,
 ) {
+  @Suppress("LongMethod") // ok, as it only initializes states
   fun registerStates(botToken: String) {
     with(bot) {
       registerState<StartState, StudentApi>(studentApi)
@@ -98,11 +100,28 @@ internal class StateRegister(
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
       val text = maybeCommandMessage.content.text
-      if (text.startsWith("/start")) {
-        val parts = text.split(" ")
-        if (parts.size != 2) {
-          return@addTextMessageHandler NewState(MenuState(context, studentId))
-        }
+      parseCommand(text, studentId, context)
+    }
+
+    handlersController.addTextMessageHandler { maybeCommandMessage ->
+      if (maybeCommandMessage.content.text == "/menu") {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    }
+  }
+
+  private suspend fun parseCommand(
+    text: String,
+    studentId: StudentId,
+    context: User,
+  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, Any> =
+    if (text.startsWith("/start")) {
+      val parts = text.split(" ")
+      if (parts.size != 2) {
+        NewState(MenuState(context, studentId))
+      } else {
         val token = parts[1].trim()
 
         studentApi
@@ -127,17 +146,9 @@ internal class StateRegister(
               NewState(MenuState(context, studentId))
             },
           )
-      } else {
-        Unhandled
       }
+    } else {
+      Unhandled
     }
 
-    handlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context, studentId))
-      } else {
-        Unhandled
-      }
-    }
-  }
 }

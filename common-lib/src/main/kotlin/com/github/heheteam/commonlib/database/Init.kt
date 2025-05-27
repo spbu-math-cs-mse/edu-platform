@@ -57,7 +57,7 @@ fun main() {
 
 fun reset(database: Database) {
   transaction(database) {
-    exec(allTables.joinToString("\n") { "DROP TABLE IF EXISTS \"${it.tableName}\" CASCADE;" })
+    exec("DROP TABLE IF EXISTS ${allTables.joinToString(", ") { it.tableName }} CASCADE;")
     create(*allTables)
   }
 }

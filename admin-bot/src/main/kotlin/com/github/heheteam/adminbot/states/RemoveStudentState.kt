@@ -45,7 +45,9 @@ class RemoveStudentState(override val context: User, val course: Course, val cou
       }
     sentMessages.add(message)
 
-    updateHandlersController.addTextMessageHandler { textMessage -> UserInput(textMessage.content.text) }
+    updateHandlersController.addTextMessageHandler { textMessage ->
+      UserInput(textMessage.content.text)
+    }
   }
 
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later

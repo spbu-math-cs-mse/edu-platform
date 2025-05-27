@@ -87,6 +87,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         registerState<RemoveTeacherState>(::registerHandlers)
         registerState<QueryCourseForEditing>(::registerHandlers)
         registerState<EditCourseState, Unit>(Unit, ::registerHandlers)
+        registerState<CourseInfoState, AdminApi>(adminApi, ::registerHandlers)
 
         registerState<DeveloperStartState, AdminApi>(adminApi)
         registerState<CourseInfoState, AdminApi>(adminApi)

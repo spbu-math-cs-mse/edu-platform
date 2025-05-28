@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.interfaces.SolutionDistributor
@@ -15,7 +15,7 @@ import com.github.michaelbull.result.toResultOr
 internal class RandomTeacherResolver(
   val problemStorage: ProblemStorage,
   val assignmentStorage: AssignmentStorage,
-  val coursesDistributor: CoursesDistributor,
+  val courseStorage: CourseStorage,
   val solutionDistributor: SolutionDistributor,
 ) : ResponsibleTeacherResolver {
   override fun resolveResponsibleTeacher(
@@ -31,7 +31,7 @@ internal class RandomTeacherResolver(
           // Resolve random
           val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
           val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-          val teachers = coursesDistributor.getTeachers(assignment.courseId).shuffled()
+          val teachers = courseStorage.getTeachers(assignment.courseId).shuffled()
           println(teachers)
           teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
         }

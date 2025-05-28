@@ -2,16 +2,19 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.ButtonData
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.mapBoth
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -22,10 +25,11 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 class ConfirmSubmissionState(
   override val context: User,
-  val solutionInputRequest: SolutionInputRequest,
-) : BotStateWithHandlers<Boolean, Boolean, StudentApi> {
-  lateinit var solutionMessage: AccessibleMessage
-  lateinit var confirmMessage: AccessibleMessage
+  override val userId: StudentId,
+  private val solutionInputRequest: SolutionInputRequest,
+) : BotStateWithHandlersAndStudentId<Boolean, Boolean, StudentApi> {
+  private lateinit var solutionMessage: AccessibleMessage
+  private lateinit var confirmMessage: AccessibleMessage
 
   override suspend fun intro(
     bot: BehaviourContext,
@@ -46,13 +50,6 @@ class ConfirmSubmissionState(
         "Вы уверены, что хотите отправить это решение?",
         replyMarkup = confirmMessageKeyboard.keyboard,
       )
-    updateHandlersController.addTextMessageHandler { message ->
-      if (message.content.text == "/menu") {
-        NewState(MenuState(context, solutionInputRequest.studentId))
-      } else {
-        Unhandled
-      }
-    }
     updateHandlersController.addDataCallbackHandler { value: DataCallbackQuery ->
       val result = confirmMessageKeyboard.handler.invoke(value.data)
       result.mapBoth(success = { UserInput(it) }, failure = { Unhandled })
@@ -68,8 +65,16 @@ class ConfirmSubmissionState(
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Boolean) {
     with(bot) {
-      delete(solutionMessage)
-      delete(confirmMessage)
+      try {
+        delete(solutionMessage)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+      try {
+        delete(confirmMessage)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
     }
     if (response) {
       bot.send(context.id, "Решение успешно отправлено на проверку!")

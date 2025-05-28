@@ -9,7 +9,8 @@ import com.github.heheteam.commonlib.Teacher
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
 
-internal interface CoursesDistributor {
+@Suppress("TooManyFunctions") // ok, as it is a database access class
+internal interface CourseStorage {
   fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,

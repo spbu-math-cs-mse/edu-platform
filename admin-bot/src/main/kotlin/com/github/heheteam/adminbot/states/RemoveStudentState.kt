@@ -11,7 +11,6 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
@@ -37,7 +36,7 @@ class RemoveStudentState(override val context: User, val course: Course, val cou
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, String, Any>,
   ) {
     val message =
       bot.send(context) {
@@ -46,12 +45,8 @@ class RemoveStudentState(override val context: User, val course: Course, val cou
       }
     sentMessages.add(message)
 
-    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context))
-      } else {
-        UserInput(maybeCommandMessage.content.text)
-      }
+    updateHandlersController.addTextMessageHandler { textMessage ->
+      UserInput(textMessage.content.text)
     }
   }
 

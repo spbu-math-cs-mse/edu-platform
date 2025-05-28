@@ -6,14 +6,12 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createAssignmentPicker
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -23,10 +21,10 @@ import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 data class QueryAssignmentForCheckingGradesState(
   override val context: User,
-  val studentId: StudentId,
+  override val userId: StudentId,
   val courseId: CourseId,
 ) :
-  BotStateWithHandlers<
+  BotStateWithHandlersAndStudentId<
     Assignment?,
     Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?,
     StudentApi,
@@ -41,15 +39,8 @@ data class QueryAssignmentForCheckingGradesState(
     val assignments = service.getCourseAssignments(courseId)
     val coursesPicker = createAssignmentPicker(assignments)
     val selectCourseMessage =
-      bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
+      bot.sendMessage(context.id, "Выберите серию", replyMarkup = coursesPicker.keyboard)
     sentMessages.add(selectCourseMessage)
-    updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context, studentId))
-      } else {
-        Unhandled
-      }
-    }
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       coursesPicker
         .handler(dataCallbackQuery.data)
@@ -62,10 +53,10 @@ data class QueryAssignmentForCheckingGradesState(
     input: Assignment?,
   ): Pair<MenuState, Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?> =
     if (input != null) {
-      val gradedProblems = service.getGradingForAssignment(input.id, studentId)
-      MenuState(context, studentId) to (input to gradedProblems)
+      val gradedProblems = service.getGradingForAssignment(input.id, userId)
+      MenuState(context, userId) to (input to gradedProblems)
     } else {
-      MenuState(context, studentId) to null
+      MenuState(context, userId) to null
     }
 
   override suspend fun sendResponse(
@@ -87,7 +78,7 @@ data class QueryAssignmentForCheckingGradesState(
   ) {
     val strGrades =
       "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
-    bot.send(context, text = strGrades, replyMarkup = back())
+    bot.send(context, text = strGrades)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit

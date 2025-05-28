@@ -1,14 +1,16 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
+import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.SolutionDistributor
@@ -24,10 +26,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DatabaseStartupTest {
   private lateinit var database: Database
   private lateinit var assignmentStorage: AssignmentStorage
-  private lateinit var coursesDistributor: CoursesDistributor
+  private lateinit var courseStorage: CourseStorage
   private lateinit var gradeTable: GradeTable
   private lateinit var problemStorage: ProblemStorage
   private lateinit var solutionDistributor: SolutionDistributor
+  private lateinit var adminStorage: AdminStorage
   private lateinit var studentStorage: StudentStorage
   private lateinit var teacherStorage: TeacherStorage
 
@@ -45,15 +48,17 @@ class DatabaseStartupTest {
 
       problemStorage = DatabaseProblemStorage(database)
       assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
-      coursesDistributor = DatabaseCoursesDistributor(database)
+      courseStorage = DatabaseCourseStorage(database)
       gradeTable = DatabaseGradeTable(database)
       solutionDistributor = DatabaseSolutionDistributor(database)
+      adminStorage = DatabaseAdminStorage(database)
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
       fillWithSamples(
-        coursesDistributor,
+        courseStorage,
         assignmentStorage,
+        adminStorage,
         studentStorage,
         teacherStorage,
         database,
@@ -64,9 +69,9 @@ class DatabaseStartupTest {
 
     val transactionsTime = measureTimeMillis {
       transaction {
-        val course = coursesDistributor.getCourses().first()
-        coursesDistributor.getStudents(course.id)
-        coursesDistributor.getTeachers(course.id)
+        val course = courseStorage.getCourses().first()
+        courseStorage.getStudents(course.id)
+        courseStorage.getTeachers(course.id)
         problemStorage.getProblemsFromCourse(course.id)
         assignmentStorage.getAssignmentsForCourse(course.id)
       }

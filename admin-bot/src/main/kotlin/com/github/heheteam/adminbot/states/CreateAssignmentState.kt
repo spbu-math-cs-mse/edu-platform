@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.adminbot.AdminKeyboards
+import com.github.heheteam.adminbot.AdminKeyboards.RETURN_BACK
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.Keyboards
-import com.github.heheteam.adminbot.Keyboards.RETURN_BACK
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
@@ -15,7 +15,10 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -37,13 +40,19 @@ class CreateAssignmentState(
   private var lastMessageId: MessageId? = null
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
-    sentMessages.forEach { bot.delete(it) }
+    sentMessages.forEach {
+      try {
+        bot.delete(it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
   }
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
     when {
       description == null -> handleAssignmentDescription(bot, updateHandlersController)
@@ -54,10 +63,14 @@ class CreateAssignmentState(
 
   private suspend fun handleAssignmentDescription(
     bot: BehaviourContext,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
     val msg =
-      bot.send(context, Dialogues.askAssignmentDescription(), replyMarkup = Keyboards.returnBack())
+      bot.send(
+        context,
+        Dialogues.askAssignmentDescription(),
+        replyMarkup = AdminKeyboards.returnBack(),
+      )
     sentMessages.add(msg)
     lastMessageId = msg.messageId
 
@@ -71,7 +84,6 @@ class CreateAssignmentState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
-        "/menu" -> NewState(MenuState(context))
         "/stop" -> NewState(MenuState(context))
         else -> NewState(processDescriptionInput(message.content.text))
       }
@@ -94,11 +106,21 @@ class CreateAssignmentState(
 
   private suspend fun handleProblemsDescription(
     bot: BehaviourContext,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
-    lastMessageId?.let { bot.delete(context.id, it) }
+    lastMessageId?.let {
+      try {
+        bot.delete(context.id, it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
     val msg =
-      bot.send(context, Dialogues.askProblemsDescriptions(), replyMarkup = Keyboards.returnBack())
+      bot.send(
+        context,
+        Dialogues.askProblemsDescriptions(),
+        replyMarkup = AdminKeyboards.returnBack(),
+      )
     sentMessages.add(msg as CommonMessage<TextContent>)
     lastMessageId = msg.messageId
 

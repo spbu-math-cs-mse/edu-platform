@@ -4,5 +4,5 @@ import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.interfaces.SolutionId
 
 interface StudentNewGradeNotifier {
-  fun notifyStudentOnNewAssessment(solutionId: SolutionId, assessment: SolutionAssessment)
+  suspend fun notifyStudentOnNewAssessment(solutionId: SolutionId, assessment: SolutionAssessment)
 }

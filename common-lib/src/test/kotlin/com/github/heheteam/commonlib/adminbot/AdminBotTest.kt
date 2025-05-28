@@ -2,17 +2,21 @@ package com.github.heheteam.commonlib.adminbot
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseCoursesDistributor
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.loadConfig
+import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
+import io.mockk.mockk
 import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -37,12 +41,15 @@ class AdminBotTest {
     core =
       AdminApi(
         InMemoryScheduledMessagesDistributor(),
-        DatabaseCoursesDistributor(database),
+        DatabaseCourseStorage(database),
+        DatabaseAdminStorage(database),
         DatabaseStudentStorage(database),
         DatabaseTeacherStorage(database),
         DatabaseAssignmentStorage(database, problemStorage),
         problemStorage,
         DatabaseSolutionDistributor(database),
+        mockk<PersonalDeadlinesService>(relaxed = true),
+        mockk<CourseTokenStorage>(relaxed = true),
       )
   }
 

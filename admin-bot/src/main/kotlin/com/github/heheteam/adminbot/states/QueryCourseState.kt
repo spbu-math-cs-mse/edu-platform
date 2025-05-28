@@ -10,6 +10,9 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createCoursePicker
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.mapBoth
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -22,7 +25,7 @@ abstract class QueryCourseState(override val context: User) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Course?, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, Course?, Any>,
   ) {
     val courses = service.getCourses().map { it.value }
     val coursesPicker = createCoursePicker(courses)
@@ -45,6 +48,12 @@ abstract class QueryCourseState(override val context: User) :
   override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
-    sentMessages.forEach { bot.delete(it) }
+    sentMessages.forEach {
+      try {
+        bot.delete(it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
   }
 }

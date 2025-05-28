@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.util
 
+import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
@@ -16,6 +17,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import kotlinx.datetime.LocalDateTime
 
 data class MonotoneCounter(private var startValue: Long = 0) {
   fun next(): Long = ++startValue
@@ -29,6 +31,14 @@ class TestDataBuilder(private val apis: ApiCollection) {
   private val messageIdCounter = MonotoneCounter()
   private val defaultMessageId = MessageId(messageIdCounter.next())
   private val coursesChatId = mutableMapOf<CourseId, RawChatId>()
+
+  fun admin(name: String, surname: String, tgId: Long = defaultChatId): Admin =
+    binding {
+        val adminId = apis.adminApi.createAdmin(name, surname, tgId)
+        val admin = apis.adminApi.loginById(adminId).bind()
+        admin
+      }
+      .value
 
   fun student(name: String, surname: String, tgId: Long = defaultChatId): Student =
     binding {
@@ -83,13 +93,14 @@ class TestDataBuilder(private val apis: ApiCollection) {
   inner class AssignmentContext {
     val problems = mutableListOf<ProblemDescription>()
 
-    fun problem(description: String, maxScore: Int) {
+    fun problem(description: String, maxScore: Int, deadline: LocalDateTime? = null) {
       problems.add(
         ProblemDescription(
           number = (problems.size + 1).toString(),
           description = description,
           maxScore = maxScore,
           serialNumber = problems.size,
+          deadline = deadline,
         )
       )
     }
@@ -126,6 +137,14 @@ class TestDataBuilder(private val apis: ApiCollection) {
       timestamp = defaultTimestamp,
     )
     return assessment
+  }
+
+  fun movingDeadlinesRequest(student: Student, newDeadline: LocalDateTime) {
+    apis.studentApi.requestReschedulingDeadlines(student.id, newDeadline)
+  }
+
+  fun moveDeadlines(student: Student, newDeadline: LocalDateTime) {
+    apis.adminApi.moveAllDeadlinesForStudent(student.id, newDeadline)
   }
 }
 

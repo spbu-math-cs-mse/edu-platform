@@ -25,7 +25,7 @@ abstract class NavigationBotStateWithHandlers<Service> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State?, Any>,
+    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State?, Any>,
   ) {
     val keyboardData = createKeyboard(service)
     val introMessage =

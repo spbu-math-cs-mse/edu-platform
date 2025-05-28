@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ParentId
@@ -15,6 +16,13 @@ import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 
 typealias Grade = Int
+
+data class Admin(
+  val id: AdminId,
+  val name: String = "",
+  val surname: String = "",
+  val tgId: RawChatId,
+)
 
 data class Student(
   val id: StudentId,

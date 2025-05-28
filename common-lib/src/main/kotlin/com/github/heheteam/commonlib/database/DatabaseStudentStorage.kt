@@ -22,6 +22,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class DatabaseStudentStorage(val database: Database) : StudentStorage {
   init {
@@ -112,6 +113,23 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
           row[StudentTable.tgId].toRawChatId(),
         )
       }
+    }
+  }
+
+  override fun updateTgId(
+    studentId: StudentId,
+    newTgId: UserId,
+  ): Result<Unit, ResolveError<StudentId>> {
+    val rows =
+      transaction(database) {
+        StudentTable.update({ StudentTable.id eq studentId.long }) {
+          it[StudentTable.tgId] = newTgId.chatId.long
+        }
+      }
+    return if (rows == 1) {
+      Ok(Unit)
+    } else {
+      Err(ResolveError(studentId))
     }
   }
 }

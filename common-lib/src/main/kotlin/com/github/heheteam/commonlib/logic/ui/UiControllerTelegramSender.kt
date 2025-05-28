@@ -31,8 +31,10 @@ internal class UiControllerTelegramSender(
     solutionId: SolutionId,
     assessment: SolutionAssessment,
   ) {
-    studentNotifier.notifyStudentOnNewAssessment(solutionId, assessment)
-    runBlocking { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
+    runBlocking(Dispatchers.IO) {
+      studentNotifier.notifyStudentOnNewAssessment(solutionId, assessment)
+    }
+    runBlocking(Dispatchers.IO) { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
     val teacherId = solutionDistributor.resolveSolution(solutionId).get()?.responsibleTeacherId
     if (teacherId != null) {
       runBlocking(Dispatchers.IO) { updateMenuMessageInPersonalMessages(teacherId) }
@@ -41,7 +43,7 @@ internal class UiControllerTelegramSender(
 
     val courseId = solutionDistributor.resolveSolutionCourse(solutionId).get()
     if (courseId != null) {
-      runBlocking<Result<Unit, String>>(Dispatchers.IO) { updateMenuMessageInGroup(courseId) }
+      runBlocking(Dispatchers.IO) { updateMenuMessageInGroup(courseId) }
         .onFailure { KSLog.error(it) }
     }
   }
@@ -76,9 +78,13 @@ internal class UiControllerTelegramSender(
 
       val (chatId, messageId) =
         telegramTechnicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
-      teacherBotTelegramController.sendMenuMessage(
-        chatId,
-        messageId?.let { TelegramMessageInfo(chatId, it) },
+      val menuMessage =
+        teacherBotTelegramController
+          .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
+          .mapError { it.toString() }
+          .bind()
+      telegramTechnicalMessageStorage.updateTeacherMenuMessage(
+        TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
       )
     }
 
@@ -87,7 +93,7 @@ internal class UiControllerTelegramSender(
       try {
         teacherBotTelegramController.deleteMessage(menuMessage)
       } catch (e: CommonRequestException) {
-        KSLog.warning("Menu message has already been deleted:\n$e")
+        KSLog.warning("Menu message has already been deleted:\n${e.message}")
       }
     }
   }

@@ -27,14 +27,16 @@ class CheckDeadlinesState(
 ) : BotState<Unit, Unit, StudentApi> {
   override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi) {
     val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id)
+    val problemsWithPersonalDeadlines =
+      service.calculateRescheduledDeadlines(studentId, problemsByAssignments)
     val messageText =
       buildEntities(" ") {
-        problemsByAssignments
+        problemsWithPersonalDeadlines
           .filterByDeadlineAndSort()
           .sortedBy { it.first.id.long }
           .forEach { (assignment, problems) ->
             +bold(assignment.description) + regular("\n")
-            problems.forEach { problem ->
+            service.calculateRescheduledDeadlines(studentId, problems).forEach { problem ->
               val formattedDeadline = problem.deadline?.format(deadlineFormat)?.let { regular(it) }
               +" • ${problem.number}:   " + (formattedDeadline ?: italic("Без дедлайна")) + "\n"
             }

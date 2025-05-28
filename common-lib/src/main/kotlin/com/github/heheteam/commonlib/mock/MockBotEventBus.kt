@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import kotlinx.datetime.LocalDateTime
 
 class MockBotEventBus : BotEventBus {
   override fun publishGradeEvent(
@@ -19,7 +20,15 @@ class MockBotEventBus : BotEventBus {
     // Do nothing
   }
 
-  override fun publishNewSolutionEvent(solutionId: Solution) {
+  override fun publishNewSolutionEvent(solution: Solution) {
+    // Do nothing
+  }
+
+  override fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime) {
+    // Do nothing
+  }
+
+  override fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime) {
     // Do nothing
   }
 
@@ -29,6 +38,16 @@ class MockBotEventBus : BotEventBus {
 
   override fun subscribeToGradeEvents(
     handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
+  ) {
+    // Do nothing
+  }
+
+  override fun subscribeToNewDeadlineRequest(handler: suspend (StudentId, LocalDateTime) -> Unit) {
+    // Do nothing
+  }
+
+  override fun subscribeToMovingDeadlineEvents(
+    handler: suspend (RawChatId, LocalDateTime) -> Unit
   ) {
     // Do nothing
   }

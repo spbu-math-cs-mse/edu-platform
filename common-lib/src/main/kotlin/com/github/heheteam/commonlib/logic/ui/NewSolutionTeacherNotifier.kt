@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CoursesDistributor
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.SolutionDistributor
@@ -30,7 +30,6 @@ import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 @Suppress("LongParameterList") // fix after test exist
 internal class NewSolutionTeacherNotifier(
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
-  private val solutionCourseResolver: SolutionCourseResolver,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val solutionDistributor: SolutionDistributor,
   private val problemStorage: ProblemStorage,
@@ -38,7 +37,7 @@ internal class NewSolutionTeacherNotifier(
   private val studentStorage: StudentStorage,
   private val gradeTable: GradeTable,
   private val teacherStorage: TeacherStorage,
-  private val coursesDistributor: CoursesDistributor,
+  private val courseStorage: CourseStorage,
 ) {
   suspend fun notifyNewSolution(solution: Solution): Result<Unit, SolutionSendingError> =
     coroutineBinding {
@@ -48,7 +47,7 @@ internal class NewSolutionTeacherNotifier(
       if (teacherId != null) {
         updateMenuMessageInPersonalMessages(teacherId, solution)
       }
-      val courseId = solutionCourseResolver.resolveCourse(solution.id).get()
+      val courseId = solutionDistributor.resolveSolutionCourse(solution.id).get()
       if (courseId != null) {
         updateMenuMessageInGroup(courseId, solution)
       }
@@ -118,13 +117,14 @@ internal class NewSolutionTeacherNotifier(
           .bind()
 
       val chat =
-        coursesDistributor
+        courseStorage
           .resolveCourseGroup(assignment.courseId)
           .mapError { FailedToResolveSolution(solution) }
           .bind()
       if (chat == null) {
         Err(SendToGroupSolutionError(assignment.courseId)).bind<Nothing>()
       }
+      teacherBotTelegramController.sendSolution(chat, solution.content)
       val solutionStatusInfo =
         extractSolutionStatusMessageInfo(solution.id)
           .mapError { FailedToResolveSolution(solution) }
@@ -148,6 +148,7 @@ internal class NewSolutionTeacherNotifier(
             .resolveTeacher(teacherId)
             .mapError { NoResponsibleTeacherFor(solution) }
             .bind()
+        teacherBotTelegramController.sendSolution(teacher.tgId, solution.content)
         val solutionStatusInfo =
           extractSolutionStatusMessageInfo(solution.id)
             .mapError { FailedToResolveSolution(solution) }

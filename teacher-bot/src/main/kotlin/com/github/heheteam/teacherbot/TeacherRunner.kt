@@ -1,7 +1,6 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.logic.ui.TelegramBotController
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
@@ -31,19 +30,18 @@ import kotlinx.coroutines.Dispatchers
 class TeacherRunner(
   private val botToken: String,
   private val stateRegister: StateRegister,
-  private val developerOptions: DeveloperOptions = DeveloperOptions(),
+  private val developerOptions: DeveloperOptions? = DeveloperOptions(),
 ) {
-  suspend fun execute(telegramBotControllers: List<TelegramBotController>) {
+  suspend fun execute() {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
         CoroutineScope(Dispatchers.IO),
         onStateHandlingErrorHandler = { state, e ->
-          println("Thrown error on $state")
+          println("Thrown error in TeacherBot on $state")
           e.printStackTrace()
           state
         },
       ) {
-        telegramBotControllers.forEach { it.setTelegramBot(this) }
         println(getMe())
 
         setMyCommands(
@@ -71,14 +69,17 @@ class TeacherRunner(
     }
   }
 
-  private fun findStartState(user: User): BotState<out Any?, out Any, out Any> {
-    val presetTeacher = developerOptions.presetTeacherId
-    return if (presetTeacher != null) {
-      PresetTeacherState(user, presetTeacher)
+  private fun findStartState(user: User): BotState<out Any?, out Any, out Any> =
+    if (developerOptions != null) {
+      val presetTeacher = developerOptions.presetTeacherId
+      if (presetTeacher != null) {
+        PresetTeacherState(user, presetTeacher)
+      } else {
+        DeveloperStartState(user)
+      }
     } else {
-      DeveloperStartState(user)
+      StartState(user)
     }
-  }
 }
 
 class StateRegister(private val teacherApi: TeacherApi) {

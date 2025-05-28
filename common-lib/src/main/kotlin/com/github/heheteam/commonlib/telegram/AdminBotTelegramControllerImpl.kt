@@ -33,7 +33,7 @@ class AdminBotTelegramControllerImpl(val adminBot: TelegramBot) : AdminBotTelegr
   private fun moveDeadlines(studentId: StudentId, newDeadline: LocalDateTime) = inlineKeyboard {
     row {
       dataButton("➕ Да", "$MOVE_DEADLINES ${studentId.long} $newDeadline")
-      dataButton("➖ Нет", MOVE_DEADLINES)
+      dataButton("➖ Нет", "$MOVE_DEADLINES ${studentId.long}")
     }
   }
 

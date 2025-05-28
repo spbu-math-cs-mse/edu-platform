@@ -37,7 +37,7 @@ class TeacherRunner(
         botToken,
         CoroutineScope(Dispatchers.IO),
         onStateHandlingErrorHandler = { state, e ->
-          println("Thrown error on $state")
+          println("Thrown error in TeacherBot on $state")
           e.printStackTrace()
           state
         },

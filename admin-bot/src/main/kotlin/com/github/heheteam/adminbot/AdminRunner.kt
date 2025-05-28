@@ -62,7 +62,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         botToken,
         CoroutineScope(Dispatchers.IO),
         onStateHandlingErrorHandler = { state, e ->
-          println("Thrown error on $state")
+          println("Thrown error in AdminBot on $state")
           e.printStackTrace()
           state
         },
@@ -128,24 +128,28 @@ class AdminRunner(private val adminApi: AdminApi) {
     handlersController.addDataCallbackHandler { dataCallbackQuery ->
       if (dataCallbackQuery.data.startsWith(AdminKeyboards.MOVE_DEADLINES)) {
         ActionWrapper {
+          println(dataCallbackQuery.data)
           val args = dataCallbackQuery.data.drop(AdminKeyboards.MOVE_DEADLINES.length).split(' ')
           val studentId = args.getOrNull(1)?.toLongOrNull()?.toStudentId()
           val dateTimeString = args.getOrNull(2)
-          if (studentId == null || dateTimeString == null) {
-            KSLog.error("Unexpected data callback query \"${args.joinToString(" ")}}\"")
-            return@ActionWrapper
-          }
-
-          val newDeadline =
-            try {
-              LocalDateTime.parse(dateTimeString)
-            } catch (e: IllegalArgumentException) {
-              KSLog.error("Error parsing date time: ${e.message}")
-              return@ActionWrapper
+          if (studentId == null) {
+            KSLog.error("Unexpected data callback query \"${dataCallbackQuery.data}\"")
+          } else if (dateTimeString == null) {
+            runBlocking(Dispatchers.IO) {
+              send(context, "Дедлайн ученика с id ${studentId.long} не перенесен")
             }
-          adminApi.moveAllDeadlinesForStudent(studentId, newDeadline)
-          runBlocking(Dispatchers.IO) {
-            send(context, "Дедлайн ученика с id ${studentId.long} успешно перенесен!")
+          } else {
+            val newDeadline =
+              try {
+                LocalDateTime.parse(dateTimeString)
+              } catch (e: IllegalArgumentException) {
+                KSLog.error("Error parsing date time: ${e.message}")
+                return@ActionWrapper
+              }
+            adminApi.moveAllDeadlinesForStudent(studentId, newDeadline)
+            runBlocking(Dispatchers.IO) {
+              send(context, "Дедлайн ученика с id ${studentId.long} успешно перенесен!")
+            }
           }
         }
       } else {

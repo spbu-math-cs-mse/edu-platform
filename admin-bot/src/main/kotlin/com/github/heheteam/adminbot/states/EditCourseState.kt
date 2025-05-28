@@ -6,7 +6,10 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -19,7 +22,13 @@ class EditCourseState(override val context: User, private val course: Course) :
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
   override suspend fun outro(bot: BehaviourContext, service: Unit) {
-    sentMessages.forEach { bot.delete(it) }
+    sentMessages.forEach {
+      try {
+        bot.delete(it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
   }
 
   override suspend fun intro(

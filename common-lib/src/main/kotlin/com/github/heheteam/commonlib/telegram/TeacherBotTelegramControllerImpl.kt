@@ -8,7 +8,10 @@ import com.github.heheteam.commonlib.toTelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.runCatching
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.TelegramBot
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
@@ -92,7 +95,11 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   }
 
   override suspend fun deleteMessage(telegramMessageInfo: TelegramMessageInfo) {
-    teacherBot.delete(telegramMessageInfo.chatId.toChatId(), telegramMessageInfo.messageId)
+    try {
+      teacherBot.delete(telegramMessageInfo.chatId.toChatId(), telegramMessageInfo.messageId)
+    } catch (e: CommonRequestException) {
+      KSLog.warning("Failed to delete message", e)
+    }
   }
 
   private fun solutionStatusInfoToMessageContent(

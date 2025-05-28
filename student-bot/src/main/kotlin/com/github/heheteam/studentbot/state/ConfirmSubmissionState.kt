@@ -11,7 +11,10 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.mapBoth
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -62,8 +65,16 @@ class ConfirmSubmissionState(
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Boolean) {
     with(bot) {
-      delete(solutionMessage)
-      delete(confirmMessage)
+      try {
+        delete(solutionMessage)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+      try {
+        delete(confirmMessage)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
     }
     if (response) {
       bot.send(context.id, "Решение успешно отправлено на проверку!")

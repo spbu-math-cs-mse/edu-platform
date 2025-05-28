@@ -15,7 +15,10 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -37,7 +40,13 @@ class CreateAssignmentState(
   private var lastMessageId: MessageId? = null
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
-    sentMessages.forEach { bot.delete(it) }
+    sentMessages.forEach {
+      try {
+        bot.delete(it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
   }
 
   override suspend fun intro(
@@ -99,7 +108,13 @@ class CreateAssignmentState(
     bot: BehaviourContext,
     updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
   ) {
-    lastMessageId?.let { bot.delete(context.id, it) }
+    lastMessageId?.let {
+      try {
+        bot.delete(context.id, it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
     val msg =
       bot.send(
         context,

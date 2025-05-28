@@ -78,9 +78,13 @@ internal class UiControllerTelegramSender(
 
       val (chatId, messageId) =
         telegramTechnicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
-      teacherBotTelegramController.sendMenuMessage(
-        chatId,
-        messageId?.let { TelegramMessageInfo(chatId, it) },
+      val menuMessage =
+        teacherBotTelegramController
+          .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
+          .mapError { it.toString() }
+          .bind()
+      telegramTechnicalMessageStorage.updateTeacherMenuMessage(
+        TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
       )
     }
 

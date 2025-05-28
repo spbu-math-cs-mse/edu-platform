@@ -2,6 +2,9 @@ package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.warning
+import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.deleteMessage
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -32,7 +35,11 @@ suspend fun <T> BehaviourContext.queryPickerWithBackFromList(
       .filter { it.isOk }
       .first()
       .value
-  deleteMessage(message)
+  try {
+    deleteMessage(message)
+  } catch (e: CommonRequestException) {
+    KSLog.warning("Failed to delete message", e)
+  }
   return result
 }
 

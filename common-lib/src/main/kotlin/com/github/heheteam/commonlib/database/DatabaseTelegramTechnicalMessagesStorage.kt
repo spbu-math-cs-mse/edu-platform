@@ -1,7 +1,9 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
@@ -64,7 +66,9 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     }
   }
 
-  override fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String> {
+  override fun resolveGroupMessage(
+    solutionId: SolutionId
+  ): Result<TelegramMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
         SolutionGroupMessagesTable.selectAll()
@@ -76,10 +80,14 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.singleOrNull().toResultOr { "" }
+    return row.singleOrNull().toResultOr {
+      "Failed to resolve a singlie group message (got ${row.size})".asNamedError()
+    }
   }
 
-  override fun resolvePersonalMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String> {
+  override fun resolvePersonalMessage(
+    solutionId: SolutionId
+  ): Result<TelegramMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
         SolutionPersonalMessagesTable.selectAll()
@@ -91,7 +99,9 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.singleOrNull().toResultOr { "" }
+    return row.singleOrNull().toResultOr {
+      "Failed to resolve a singlie personal message (got ${row.size})".asNamedError()
+    }
   }
 
   override fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo) {
@@ -114,7 +124,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
 
   override fun resolveTeacherMenuMessage(
     teacherId: TeacherId
-  ): Result<List<TelegramMessageInfo>, String> {
+  ): Result<List<TelegramMessageInfo>, EduPlatformError> {
     val row =
       transaction(database) {
         TeacherTable.join(
@@ -132,12 +142,12 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.toResultOr { "" }
+    return row.toResultOr { "Failed to lookup teacher menu message".asNamedError() }
   }
 
   override fun resolveTeacherFirstUncheckedSolutionMessage(
     teacherId: TeacherId
-  ): Result<MenuMessageInfo, String> {
+  ): Result<MenuMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
         val solution = solutionDistributor.querySolution(teacherId).get()
@@ -161,12 +171,12 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
           }
           .firstOrNull()
       }
-    return row.toResultOr { "" }
+    return row.toResultOr { "Failed to find teachers's message".asNamedError() }
   }
 
   override fun resolveGroupMenuMessage(
     courseId: CourseId
-  ): Result<List<TelegramMessageInfo>, String> {
+  ): Result<List<TelegramMessageInfo>, EduPlatformError> {
     val row =
       transaction(database) {
         CourseTable.join(
@@ -184,12 +194,12 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.toResultOr { "failed to resolve group menu message" }
+    return row.toResultOr { "Failed to resolve group menu messages".asNamedError() }
   }
 
   override fun resolveGroupFirstUncheckedSolutionMessage(
     courseId: CourseId
-  ): Result<MenuMessageInfo, String> {
+  ): Result<MenuMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
         val solution = solutionDistributor.querySolution(courseId).get()
@@ -212,6 +222,6 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
           }
           .firstOrNull()
       }
-    return row.toResultOr { "" }
+    return row.toResultOr { "Failed to find first unchecked solution message".asNamedError() }
   }
 }

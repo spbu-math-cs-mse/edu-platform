@@ -175,7 +175,7 @@ internal class NewSolutionTeacherNotifier(
       val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
       val student = studentStorage.resolveStudent(solution.studentId).bind()
       val responsibleTeacher =
-        solution.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).get() }
+        solution.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).bind() }
       SolutionStatusMessageInfo(
         solutionId,
         assignment.description,

@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
@@ -20,22 +21,23 @@ internal class RandomTeacherResolver(
 ) : ResponsibleTeacherResolver {
   override fun resolveResponsibleTeacher(
     solutionInputRequest: SolutionInputRequest
-  ): Result<TeacherId, String> {
-    val result =
-      binding {
-          // If teacher has already been assigned
-          val teacherId = solutionDistributor.resolveResponsibleTeacher(solutionInputRequest)
-          println(teacherId)
-          if (teacherId != null) return@binding teacherId
+  ): Result<TeacherId, TeacherResolveError> =
+    binding {
+        // If teacher has already been assigned
+        val teacherId = solutionDistributor.resolveResponsibleTeacher(solutionInputRequest)
+        println(teacherId)
+        if (teacherId != null) return@binding teacherId
 
-          // Resolve random
-          val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
-          val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-          val teachers = courseStorage.getTeachers(assignment.courseId).shuffled()
-          println(teachers)
-          teachers.firstOrNull()?.id.toResultOr { "No teachers" }.bind()
-        }
-        .mapError { it.toString() }
-    return result
-  }
+        // Resolve random
+        val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
+        val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
+        val teachers = courseStorage.getTeachers(assignment.courseId).shuffled()
+        println(teachers)
+        teachers
+          .firstOrNull()
+          ?.id
+          .toResultOr { TeacherResolveError(message = "No teachers") }
+          .bind()
+      }
+      .mapError { error -> TeacherResolveError(message = error.toString(), causedBy = error) }
 }

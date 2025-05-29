@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
@@ -12,6 +13,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.notifications.BotEventBus
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import kotlinx.datetime.LocalDateTime
 
@@ -21,7 +23,9 @@ internal class AcademicWorkflowService(
   private val botEventBus: BotEventBus,
   private val uiController: UiController,
 ) {
-  fun sendSolution(solutionInputRequest: SolutionInputRequest) = binding {
+  fun sendSolution(
+    solutionInputRequest: SolutionInputRequest
+  ): Result<SolutionId, TeacherResolveError> = binding {
     val teacher = responsibleTeacherResolver.resolveResponsibleTeacher(solutionInputRequest).bind()
     val solutionId = academicWorkflowLogic.inputSolution(solutionInputRequest, teacher)
     val solution =

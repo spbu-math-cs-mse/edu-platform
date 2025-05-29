@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.Teacher
@@ -51,9 +52,9 @@ internal constructor(
   fun updateTgId(teacherId: TeacherId, id: UserId): Result<Unit, ResolveError<TeacherId>> =
     teacherStorage.updateTgId(teacherId, id)
 
-  fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, String> =
+  fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, EduPlatformError> =
     menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
 
-  fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, String> =
+  fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, EduPlatformError> =
     menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
 }

@@ -1,11 +1,18 @@
 package com.github.heheteam.commonlib.interfaces
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.michaelbull.result.Result
 
-sealed class TokenError {
-  data object TokenNotFound : TokenError()
+sealed class TokenError(override val causedBy: EduPlatformError? = null) : EduPlatformError {
+  data object TokenNotFound : TokenError() {
+    override val shortDescription: String
+      get() = "Token not recognized/found"
+  }
 
-  data object TokenAlreadyUsed : TokenError()
+  data object TokenAlreadyUsed : TokenError() {
+    override val shortDescription: String
+      get() = "Token is already used"
+  }
 }
 
 interface CourseTokenStorage {

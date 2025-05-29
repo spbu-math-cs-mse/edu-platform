@@ -132,7 +132,9 @@ internal class NewSolutionTeacherNotifier(
       val groupMessage =
         teacherBotTelegramController
           .sendInitSolutionStatusMessageInCourseGroupChat(chat, solutionStatusInfo)
-          .mapError { SendToGroupSolutionError(assignment.courseId) }
+          .mapError { originalError ->
+            SendToGroupSolutionError(assignment.courseId, causedBy = originalError)
+          }
           .bind()
       telegramTechnicalMessageStorage.registerGroupSolutionPublication(solution.id, groupMessage)
     }

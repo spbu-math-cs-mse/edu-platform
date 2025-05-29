@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.asEduPlatformError
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.interfaces.ParentId
@@ -45,7 +46,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       }
       Ok(Unit)
     } catch (e: Throwable) {
-      Err(BindError(studentId, parentId))
+      Err(BindError(studentId, parentId, causedBy = e.asEduPlatformError()))
     }
 
   override fun getChildren(parentId: ParentId): List<Student> {

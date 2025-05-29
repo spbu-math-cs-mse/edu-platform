@@ -3,6 +3,8 @@ package com.github.heheteam.commonlib.util
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.MediaAttachment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.get.getFileAdditionalInfo
 import dev.inmo.tgbotapi.extensions.api.send.media.sendDocument
@@ -95,7 +97,9 @@ private suspend fun TelegramBot.sendSingleMedia(
   }.also {
     try {
       file.delete()
-    } catch (_: Throwable) {}
+    } catch (e: SecurityException) {
+      KSLog.error("Failed to delete file after sending single media: ${e.message}")
+    }
   }
 }
 
@@ -129,7 +133,9 @@ private suspend fun TelegramBot.sendSolutionAsGroupMedia(
     files.forEach { file ->
       try {
         file.delete()
-      } catch (_: Throwable) {}
+      } catch (e: SecurityException) {
+        KSLog.error("Failed to delete file after sending media group", e)
+      }
     }
   }
 }

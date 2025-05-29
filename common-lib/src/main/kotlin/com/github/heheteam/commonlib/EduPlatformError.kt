@@ -16,6 +16,14 @@ data class NamedError(
 
 fun String.asNamedError(causedBy: EduPlatformError? = null) = NamedError(this, causedBy)
 
+fun Throwable.asEduPlatformError(): EduPlatformError {
+  val cause = this.cause
+  return NamedError(
+    shortDescription = this.message ?: this.javaClass.simpleName,
+    causedBy = cause?.asEduPlatformError(),
+  )
+}
+
 fun EduPlatformError.toStackedString(): String {
   val cause = this.causedBy
   val stackMessagePart =

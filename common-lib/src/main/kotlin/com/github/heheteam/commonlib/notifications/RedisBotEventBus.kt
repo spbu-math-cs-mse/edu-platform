@@ -5,6 +5,8 @@ import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.interfaces.StudentId
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import kotlinx.coroutines.CoroutineScope
@@ -83,7 +85,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
           channel,
         )
       } catch (e: Exception) {
-        println("Error in Redis subscription: ${e.message}")
+        KSLog.error("Error in Redis subscription: ${e.message}")
         e.printStackTrace()
       }
     }
@@ -116,7 +118,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
           channel,
         )
       } catch (e: Exception) {
-        println("Error in Redis subscription: ${e.message}")
+        KSLog.error("Error in Redis subscription: ${e.message}")
         e.printStackTrace()
       }
     }
@@ -140,7 +142,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
           newDeadlineRequestChannel,
         )
       } catch (e: Exception) {
-        println("Error in Redis subscription (NewDeadlineRequest): ${e.message}")
+        KSLog.error("Error in Redis subscription (NewDeadlineRequest): ${e.message}")
         e.printStackTrace()
       } finally {
         subscriberJedis.close()
@@ -168,7 +170,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
           movingDeadlineChannel,
         )
       } catch (e: Exception) {
-        println("Error in Redis subscription (MovingDeadlineEvents): ${e.message}")
+        KSLog.error("Error in Redis subscription (MovingDeadlineEvents): ${e.message}")
         e.printStackTrace()
       } finally {
         subscriberJedis.close()

@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.DeleteError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.asEduPlatformError
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.CourseTeachers
@@ -26,6 +27,7 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.tgbotapi.types.RawChatId
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -95,8 +97,8 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
             it[CourseTeachers.courseId] = courseId.long
           }
           Ok(Unit)
-        } catch (_: Throwable) {
-          Err(BindError(teacherId, courseId))
+        } catch (e: ExposedSQLException) {
+          Err(BindError(teacherId, courseId, causedBy = e.asEduPlatformError()))
         }
       } else {
         Err(BindError(teacherId, courseId))

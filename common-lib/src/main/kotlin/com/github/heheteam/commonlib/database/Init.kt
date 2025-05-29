@@ -19,6 +19,7 @@ import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.loadConfig
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -57,10 +58,7 @@ fun main() {
 
 fun reset(database: Database) {
   transaction(database) {
-    when (database.vendor) {
-      "H2" -> exec("DROP ALL OBJECTS")
-      else -> exec("DROP TABLE IF EXISTS ${allTables.joinToString { it.tableName }} CASCADE")
-    }
-    create(*allTables)
+    SchemaUtils.drop(*allTables)
+    SchemaUtils.create(*allTables)
   }
 }

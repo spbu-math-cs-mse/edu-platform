@@ -14,6 +14,8 @@ import com.github.heheteam.commonlib.interfaces.SolutionDistributor
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.util.ok
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.toResultOr
@@ -148,30 +150,32 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   override fun resolveTeacherFirstUncheckedSolutionMessage(
     teacherId: TeacherId
   ): Result<MenuMessageInfo, EduPlatformError> {
-    val row =
-      transaction(database) {
-        val solution = solutionDistributor.querySolution(teacherId).get()
+    return transaction(database) {
+      val solution = solutionDistributor.querySolution(teacherId).get()
 
-        if (solution == null) {
-          val chatId =
-            TeacherTable.selectAll()
-              .where(TeacherTable.id eq teacherId.long)
-              .map { it[TeacherTable.tgId] }
-              .firstOrNull() ?: return@transaction null
-          return@transaction MenuMessageInfo(RawChatId(chatId))
-        }
-
-        return@transaction SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
-          .map {
-            MenuMessageInfo(
-              RawChatId(it[SolutionPersonalMessagesTable.chatId]),
-              MessageId(it[SolutionPersonalMessagesTable.messageId]),
-            )
-          }
-          .firstOrNull()
+      if (solution == null) {
+        val chatId =
+          TeacherTable.selectAll()
+            .where(TeacherTable.id eq teacherId.long)
+            .map { it[TeacherTable.tgId] }
+            .firstOrNull()
+            ?: return@transaction Err("No tg id for the teacher $teacherId".asNamedError())
+        return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
-    return row.toResultOr { "Failed to find teachers's message".asNamedError() }
+
+      return@transaction SolutionPersonalMessagesTable.selectAll()
+        .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
+        .map {
+          MenuMessageInfo(
+            RawChatId(it[SolutionPersonalMessagesTable.chatId]),
+            MessageId(it[SolutionPersonalMessagesTable.messageId]),
+          )
+        }
+        .firstOrNull()
+        .toResultOr {
+          "Solution ${solution.id} does not have a corresponding message".asNamedError()
+        }
+    }
   }
 
   override fun resolveGroupMenuMessage(
@@ -200,28 +204,33 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   override fun resolveGroupFirstUncheckedSolutionMessage(
     courseId: CourseId
   ): Result<MenuMessageInfo, EduPlatformError> {
-    val row =
-      transaction(database) {
-        val solution = solutionDistributor.querySolution(courseId).get()
-        if (solution == null) {
-          val chatId =
-            CourseTable.selectAll()
-              .where(CourseTable.id eq courseId.long)
-              .map { it[CourseTable.groupRawChatId] }
-              .firstOrNull() ?: return@transaction null
-          return@transaction MenuMessageInfo(RawChatId(chatId))
-        }
-
-        return@transaction SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
-          .map {
-            MenuMessageInfo(
-              RawChatId(it[SolutionGroupMessagesTable.chatId]),
-              MessageId(it[SolutionGroupMessagesTable.messageId]),
+    return transaction(database) {
+      val solution = solutionDistributor.querySolution(courseId).get()
+      if (solution == null) {
+        val chatId =
+          CourseTable.selectAll()
+            .where(CourseTable.id eq courseId.long)
+            .map { it[CourseTable.groupRawChatId] }
+            .firstOrNull()
+            ?: return@transaction Err(
+              "Course $courseId does not have a corresponding group!".asNamedError()
             )
-          }
-          .firstOrNull()
+        return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
-    return row.toResultOr { "Failed to find first unchecked solution message".asNamedError() }
+
+      return@transaction SolutionGroupMessagesTable.selectAll()
+        .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
+        .map {
+          MenuMessageInfo(
+            RawChatId(it[SolutionGroupMessagesTable.chatId]),
+            MessageId(it[SolutionGroupMessagesTable.messageId]),
+          )
+        }
+        .firstOrNull()
+        .toResultOr {
+          "The solution ${solution.id} does not have an associated message in a group of the course $courseId"
+            .asNamedError()
+        }
+    }
   }
 }

@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.integration
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.telegram.SolutionStatusMessageInfo
 import com.github.heheteam.commonlib.util.buildData
@@ -10,12 +11,14 @@ import io.mockk.coVerify
 import kotlin.test.Test
 
 class AcademicWorkflowTest : IntegrationTestEnvironment() {
-  private fun mockSendInitSolutionStatusMessageDM(returnValue: Result<TelegramMessageInfo, Any>) =
+  private fun mockSendInitSolutionStatusMessageDM(
+    returnValue: Result<TelegramMessageInfo, EduPlatformError>
+  ) =
     coEvery { teacherBotController.sendInitSolutionStatusMessageDM(any(), any()) } returns
       returnValue
 
   private fun mockSendInitSolutionStatusMessageInCourseGroupChat(
-    returnValue: Result<TelegramMessageInfo, Any>
+    returnValue: Result<TelegramMessageInfo, EduPlatformError>
   ) =
     coEvery {
       teacherBotController.sendInitSolutionStatusMessageInCourseGroupChat(any(), any())
@@ -26,7 +29,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
       studentBotController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
     } returns Unit
 
-  private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, Any>) =
+  private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
 
   @Test

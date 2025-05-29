@@ -46,6 +46,5 @@ data class TeacherResolveError(
   val message: String,
   override val causedBy: EduPlatformError? = null,
 ) : EduPlatformError {
-  override val shortDescription: String
-    get() = "Error identifying the teacher"
+  override val shortDescription: String = "Error identifying the teacher"
 }

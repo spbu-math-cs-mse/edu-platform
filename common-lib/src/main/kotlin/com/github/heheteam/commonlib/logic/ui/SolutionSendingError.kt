@@ -27,14 +27,12 @@ class SendToGroupSolutionError(
   val courseId: CourseId,
   override val causedBy: EduPlatformError? = null,
 ) : SolutionSendingError(causedBy) {
-  override val shortDescription: String
-    get() = "Failed to send a solution to the group"
+  override val shortDescription: String = "Failed to send a solution to the group"
 }
 
 class SendToTeacherSolutionError(
   val teacherId: TeacherId,
   override val causedBy: EduPlatformError? = null,
 ) : SolutionSendingError(causedBy) {
-  override val shortDescription: String
-    get() = "Failed to send submission to a group"
+  override val shortDescription: String = "Failed to send submission to a group"
 }

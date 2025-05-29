@@ -5,13 +5,11 @@ import com.github.michaelbull.result.Result
 
 sealed class TokenError(override val causedBy: EduPlatformError? = null) : EduPlatformError {
   data object TokenNotFound : TokenError() {
-    override val shortDescription: String
-      get() = "Token not recognized/found"
+    override val shortDescription: String = "Token not recognized/found"
   }
 
   data object TokenAlreadyUsed : TokenError() {
-    override val shortDescription: String
-      get() = "Token is already used"
+    override val shortDescription: String = "Token is already used"
   }
 }
 

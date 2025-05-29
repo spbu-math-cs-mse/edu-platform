@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -25,7 +26,8 @@ abstract class NavigationBotStateWithHandlers<Service> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State?, Any>,
+    updateHandlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, State?, EduPlatformError>,
   ) {
     val keyboardData = createKeyboard(service)
     val introMessage =

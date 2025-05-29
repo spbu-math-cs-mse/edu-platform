@@ -4,9 +4,11 @@ import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.AdminKeyboards.RETURN_BACK
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -52,7 +54,7 @@ class CreateAssignmentState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlerManager<State>,
   ) {
     when {
       description == null -> handleAssignmentDescription(bot, updateHandlersController)
@@ -63,7 +65,8 @@ class CreateAssignmentState(
 
   private suspend fun handleAssignmentDescription(
     bot: BehaviourContext,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
+    updateHandlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, State, EduPlatformError>,
   ) {
     val msg =
       bot.send(
@@ -106,7 +109,8 @@ class CreateAssignmentState(
 
   private suspend fun handleProblemsDescription(
     bot: BehaviourContext,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
+    updateHandlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, State, EduPlatformError>,
   ) {
     lastMessageId?.let {
       try {

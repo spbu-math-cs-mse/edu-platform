@@ -120,3 +120,5 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
       .firstNotNull()
   }
 }
+
+// typealias UpdateHandlersController

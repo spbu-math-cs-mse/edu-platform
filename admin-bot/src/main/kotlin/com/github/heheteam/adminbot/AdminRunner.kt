@@ -14,6 +14,7 @@ import com.github.heheteam.adminbot.states.QueryCourseForEditing
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -48,7 +49,8 @@ class AdminRunner(private val adminApi: AdminApi) {
   > DefaultBehaviourContextWithFSM<State>.registerState(
     noinline initUpdateHandlers:
       (
-        UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, Any>, context: User,
+        UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
+        context: User,
       ) -> Unit =
       { _, _ ->
       }
@@ -101,15 +103,17 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun registerHandlers(
-    handlersController: UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, Any>,
+    handlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
     context: User,
   ) {
-    menuCommandHandler(handlersController, context)
-    moveDeadlinesHandler(handlersController, context)
+    addMenuCommandHandler(handlersController, context)
+    addMoveDeadlinesHandler(handlersController, context)
   }
 
-  private fun menuCommandHandler(
-    handlersController: UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, Any>,
+  private fun addMenuCommandHandler(
+    handlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
     context: User,
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
@@ -121,8 +125,9 @@ class AdminRunner(private val adminApi: AdminApi) {
     }
   }
 
-  private fun moveDeadlinesHandler(
-    handlersController: UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, Any>,
+  private fun addMoveDeadlinesHandler(
+    handlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
     context: User,
   ) {
     handlersController.addDataCallbackHandler { dataCallbackQuery ->

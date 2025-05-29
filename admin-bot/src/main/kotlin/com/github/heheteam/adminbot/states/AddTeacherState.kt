@@ -8,6 +8,7 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForTeacherAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -37,7 +38,8 @@ class AddTeacherState(override val context: User, val course: Course, val course
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, String, Any>,
+    updateHandlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, String, EduPlatformError>,
   ) {
     val introMessage =
       bot.send(context) {

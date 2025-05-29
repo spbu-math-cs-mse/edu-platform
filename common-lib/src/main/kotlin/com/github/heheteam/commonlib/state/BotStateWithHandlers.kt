@@ -1,5 +1,7 @@
 package com.github.heheteam.commonlib.state
 
+import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
@@ -11,6 +13,9 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
 
+typealias UpdateHandlerManager<In> =
+  UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>
+
 interface BotStateWithHandlers<In, Out, ApiService> : State {
   override val context: User
 
@@ -19,7 +24,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, In, Any>,
+    updateHandlersController: UpdateHandlerManager<In>,
   )
 
   fun computeNewState(service: ApiService, input: In): Pair<State, Out>
@@ -30,18 +35,21 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     bot: BehaviourContext,
     service: ApiService,
     initUpdateHandlers:
-      (UpdateHandlersController<BehaviourContext.() -> Unit, In, Any>, context: User) -> Unit =
+      (
+        UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>, context: User,
+      ) -> Unit =
       { _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlersController<BehaviourContext.() -> Unit, In, Any>()
+    val updateHandlersController =
+      UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>()
     initUpdateHandlers(updateHandlersController, context)
     intro(bot, service, updateHandlersController)
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<BehaviourContext.() -> Unit> -> handlerResult.action.invoke(bot)
-        is HandlingError<Any> -> {
-          bot.send(context.id, handlerResult.toString())
+        is HandlingError<EduPlatformError> -> {
+          bot.send(context.id, handlerResult.error.toStackedString())
         }
 
         is NewState -> return handlerResult.state.also { outro(bot, service) }
@@ -62,7 +70,10 @@ inline fun <
 > DefaultBehaviourContextWithFSM<State>.registerState(
   service: HelperService,
   noinline initUpdateHandlers:
-    (UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, Any>, context: User) -> Unit =
+    (
+      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
+      context: User,
+    ) -> Unit =
     { _, _ ->
     },
 ) {

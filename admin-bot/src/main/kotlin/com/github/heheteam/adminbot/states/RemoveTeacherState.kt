@@ -11,7 +11,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Err
@@ -36,7 +36,7 @@ class RemoveTeacherState(override val context: User, val course: Course, val cou
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, String, Any>,
+    updateHandlersController: UpdateHandlerManager<String>,
   ) {
     val introMessage =
       bot.send(context) {

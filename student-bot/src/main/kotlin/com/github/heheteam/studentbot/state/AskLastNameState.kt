@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -27,7 +28,8 @@ class AskLastNameState(override val context: User, private val firstName: String
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, StudentId, Any>,
+    updateHandlersController:
+      UpdateHandlersController<BehaviourContext.() -> Unit, StudentId, EduPlatformError>,
   ) {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->

@@ -13,15 +13,11 @@ private const val ID_COLUMN_WIDTH: Int = 30
 private const val RATING_COLUMN_WIDTH: Int = 40
 
 internal class TableComposer {
-  fun composeTable(
-    course: Course,
-    problems: List<Problem>,
-    assignments: List<Assignment>,
-    students: List<Student>,
-    performance: Map<StudentId, Map<ProblemId, Grade?>>,
-  ): ComposedTable {
+  fun composeTable(course: Course, rawCourseSheetData: RawCourseSheetData): ComposedTable {
     val sortedProblems =
-      problems.sortedWith(compareBy<Problem> { it.assignmentId.long }.thenBy { it.serialNumber })
+      rawCourseSheetData.problems.sortedWith(
+        compareBy<Problem> { it.assignmentId.long }.thenBy { it.serialNumber }
+      )
     val assignmentSizes = mutableMapOf<AssignmentId, Int>()
 
     for (problem in sortedProblems) {
@@ -30,8 +26,8 @@ internal class TableComposer {
     }
 
     return ComposedTable(
-      composeHeader(course, assignments, assignmentSizes, sortedProblems) +
-        composeGrades(students, sortedProblems, performance),
+      composeHeader(course, rawCourseSheetData.assignments, assignmentSizes, sortedProblems) +
+        composeGrades(rawCourseSheetData.students, sortedProblems, rawCourseSheetData.performance),
       listOf(ID_COLUMN_WIDTH, null, null) + List<Int?>(sortedProblems.size) { RATING_COLUMN_WIDTH },
     )
   }

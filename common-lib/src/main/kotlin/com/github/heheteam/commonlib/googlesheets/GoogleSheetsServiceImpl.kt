@@ -1,13 +1,7 @@
 package com.github.heheteam.commonlib.googlesheets
 
-import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.Grade
-import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
-import com.github.heheteam.commonlib.interfaces.StudentId
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.Permission
@@ -105,16 +99,12 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
   override fun updateRating(
     courseSpreadsheetId: String,
     course: Course,
-    assignments: List<Assignment>,
-    problems: List<Problem>,
-    students: List<Student>,
-    performance: Map<StudentId, Map<ProblemId, Grade?>>,
+    rawCourseSheetData: RawCourseSheetData,
   ) {
     val spreadsheet = apiClient.spreadsheets().get(courseSpreadsheetId).execute()
     val sheetId =
       spreadsheet.sheets.first { it.properties.title == RATING_SHEET_TITLE }.properties.sheetId
-    val table: ComposedTable =
-      tableComposer.composeTable(course, problems, assignments, students, performance)
+    val table: ComposedTable = tableComposer.composeTable(course, rawCourseSheetData)
 
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()

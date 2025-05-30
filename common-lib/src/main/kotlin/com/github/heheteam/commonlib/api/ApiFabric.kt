@@ -46,6 +46,8 @@ import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 
 data class ApiCollection(
@@ -67,6 +69,7 @@ class ApiFabric(
   private val studentBotTelegramController: StudentBotTelegramController,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val adminBotTelegramController: AdminBotTelegramController,
+  private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(
@@ -95,6 +98,7 @@ class ApiFabric(
         problemStorage,
         databaseSubmissionDistributor,
         AcademicWorkflowLogic(databaseSubmissionDistributor, databaseGradeTable),
+        dispatcher,
       )
     val studentStorage = DatabaseStudentStorage(database)
 

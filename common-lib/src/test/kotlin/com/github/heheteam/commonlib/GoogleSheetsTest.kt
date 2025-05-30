@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
+import com.github.heheteam.commonlib.googlesheets.RawCourseSheetData
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
@@ -129,18 +130,22 @@ class GoogleSheetsTest {
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course1Id).value,
-      assignmentStorage.getAssignmentsForCourse(course1Id),
-      problemStorage.getProblemsFromCourse(course1Id),
-      courseStorage.getStudents(course1Id),
-      gradeTable.getCourseRating(course1Id),
+      RawCourseSheetData(
+        assignmentStorage.getAssignmentsForCourse(course1Id),
+        problemStorage.getProblemsFromCourse(course1Id),
+        courseStorage.getStudents(course1Id),
+        gradeTable.getCourseRating(course1Id),
+      ),
     )
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course2Id).value,
-      assignmentStorage.getAssignmentsForCourse(course2Id),
-      problemStorage.getProblemsFromCourse(course2Id),
-      courseStorage.getStudents(course2Id),
-      gradeTable.getCourseRating(course2Id),
+      RawCourseSheetData(
+        assignmentStorage.getAssignmentsForCourse(course2Id),
+        problemStorage.getProblemsFromCourse(course2Id),
+        courseStorage.getStudents(course2Id),
+        gradeTable.getCourseRating(course2Id),
+      ),
     )
   }
 }

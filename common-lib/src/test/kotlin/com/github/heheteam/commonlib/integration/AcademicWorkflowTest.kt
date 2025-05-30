@@ -2,13 +2,22 @@ package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.googlesheets.RawCourseSheetData
 import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
 import com.github.heheteam.commonlib.util.buildData
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.justRun
+import io.mockk.slot
+import io.mockk.verify
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 
 class AcademicWorkflowTest : IntegrationTestEnvironment() {
   private fun mockSendInitSubmissionStatusMessageDM(
@@ -31,6 +40,8 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
 
   private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
+
+  private fun mockUpdateRating() = justRun { googleSheetsService.updateRating(any(), any(), any()) }
 
   @Test
   fun `telegram notifications are sent on new submission`() {
@@ -97,5 +108,43 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
         }
       }
     }
+  }
+
+  @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
+  @Test
+  fun `google table is updated on new assessment with correct performance`() =
+    runTest(testDispatcher) {
+      mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
+      mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+      mockSendMenuMessage(Ok(messageInfoNum(1)))
+      mockNotifyStudentOnNewAssessment()
+      mockUpdateRating()
+      buildData(createDefaultApis()) {
+        val student = student("Student1", "Student1")
+        val teacher = teacher("Teacher1", "Teacher1")
+        course("Course1") {
+          setChat(13L)
+          withStudent(student)
+          withTeacher(teacher)
+          val problem = assignment("Assignment1") { problem("Problem1", 10) }.second.first()
+          val submission = submission(student, problem, "Submission1")
+          awaitCoroutineScheduler()
+          clearMocks(googleSheetsService)
+          val assessment = assessment(teacher, submission, 1)
+          awaitCoroutineScheduler()
+          val performanceSlot = slot<RawCourseSheetData>()
+          verify(exactly = 1) {
+            googleSheetsService.updateRating(any(), any(), capture(performanceSlot))
+          }
+          val expectedPerformance = mapOf(student.id to mapOf(problem.id to assessment.grade))
+          val actualPerformance = performanceSlot.captured.performance
+          assertEquals(expectedPerformance, actualPerformance)
+        }
+      }
+    }
+
+  private fun TestScope.awaitCoroutineScheduler() {
+    testScheduler.runCurrent()
+    testScheduler.advanceUntilIdle()
   }
 }

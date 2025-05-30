@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.api.ApiCollection
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.database.reset
@@ -12,6 +13,8 @@ import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 
@@ -34,20 +37,25 @@ open class IntegrationTestEnvironment {
     TelegramMessageInfo(RawChatId(num.toLong()), MessageId(num.toLong()))
   }
 
-  protected fun createDefaultApis() =
-    ApiFabric(
-        database,
-        config,
-        googleSheetsService,
-        studentBotController,
-        teacherBotController,
-        adminBotController,
-      )
+  val testDispatcher = UnconfinedTestDispatcher()
+  
+  @OptIn(ExperimentalCoroutinesApi::class)
+  protected fun createDefaultApis(): ApiCollection {
+    return ApiFabric(
+          database,
+          config,
+          googleSheetsService,
+          studentBotController,
+          teacherBotController,
+          adminBotController,
+      testDispatcher
+    )
       .createApis(
         initDatabase = false,
         useRedis = false,
         teacherResolverKind = TeacherResolverKind.FIRST,
       )
+  }
 
   @BeforeEach
   fun setup() {

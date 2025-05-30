@@ -19,6 +19,7 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,8 +38,9 @@ internal constructor(
   private val problemStorage: ProblemStorage,
   private val submissionDistributor: SubmissionDistributor,
   private val academicWorkflowLogic: AcademicWorkflowLogic,
+  private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : RatingRecorder {
-  private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+  private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
@@ -70,10 +72,12 @@ internal constructor(
               googleSheetsService.updateRating(
                 spreadsheetId.long,
                 course,
-                assignmentStorage.getAssignmentsForCourse(courseId),
-                problemStorage.getProblemsFromCourse(courseId),
-                courseStorage.getStudents(courseId),
-                academicWorkflowLogic.getCourseRating(courseId),
+                RawCourseSheetData(
+                  assignmentStorage.getAssignmentsForCourse(courseId),
+                  problemStorage.getProblemsFromCourse(courseId),
+                  courseStorage.getStudents(courseId),
+                  academicWorkflowLogic.getCourseRating(courseId),
+                ),
               )
             }
           }
@@ -84,19 +88,16 @@ internal constructor(
   }
 
   override fun updateRating(problemId: ProblemId) {
-    scope.launch {
-      val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
-      val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
-      updateRating(courseId)
-    }
+
+    val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
+    val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
+    updateRating(courseId)
   }
 
   override fun updateRating(submissionId: SubmissionId) {
-    scope.launch {
-      val problemId = submissionDistributor.resolveSubmission(submissionId).value.problemId
-      val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
-      val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
-      updateRating(courseId)
-    }
+    val problemId = submissionDistributor.resolveSubmission(submissionId).value.problemId
+    val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
+    val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
+    updateRating(courseId)
   }
 }

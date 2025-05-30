@@ -10,6 +10,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.17")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     implementation(libs.tgbotapi)
     implementation(libs.exposed.core)
     implementation(libs.exposed.json)

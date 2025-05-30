@@ -9,15 +9,19 @@ import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 
+data class RawCourseSheetData(
+  val assignments: List<Assignment>,
+  val problems: List<Problem>,
+  val students: List<Student>,
+  val performance: Map<StudentId, Map<ProblemId, Grade?>>,
+)
+
 interface GoogleSheetsService {
   fun createCourseSpreadsheet(course: Course): SpreadsheetId
 
   fun updateRating(
     courseSpreadsheetId: String,
     course: Course,
-    assignments: List<Assignment>,
-    problems: List<Problem>,
-    students: List<Student>,
-    performance: Map<StudentId, Map<ProblemId, Grade?>>,
+    rawCourseSheetData: RawCourseSheetData,
   )
 }

@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.SolutionAssessment
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -11,7 +12,6 @@ import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
-import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.onFailure
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
@@ -50,7 +50,7 @@ internal class UiControllerTelegramSender(
 
   private suspend fun updateMenuMessageInPersonalMessages(
     teacherId: TeacherId
-  ): Result<Unit, String> {
+  ): Result<Unit, EduPlatformError> {
     return coroutineBinding {
       val menuMessages = telegramTechnicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
       deleteMenuMessages(menuMessages)
@@ -62,7 +62,6 @@ internal class UiControllerTelegramSender(
       val menuMessage =
         teacherBotTelegramController
           .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
-          .mapError { it.toString() }
           .bind()
 
       telegramTechnicalMessageStorage.updateTeacherMenuMessage(
@@ -71,7 +70,7 @@ internal class UiControllerTelegramSender(
     }
   }
 
-  private suspend fun updateMenuMessageInGroup(courseId: CourseId): Result<Unit, String> =
+  private suspend fun updateMenuMessageInGroup(courseId: CourseId): Result<Unit, EduPlatformError> =
     coroutineBinding {
       val menuMessages = telegramTechnicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
       deleteMenuMessages(menuMessages)
@@ -81,7 +80,6 @@ internal class UiControllerTelegramSender(
       val menuMessage =
         teacherBotTelegramController
           .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
-          .mapError { it.toString() }
           .bind()
       telegramTechnicalMessageStorage.updateTeacherMenuMessage(
         TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)

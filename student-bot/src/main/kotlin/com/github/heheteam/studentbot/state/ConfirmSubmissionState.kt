@@ -1,15 +1,19 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -27,7 +31,12 @@ class ConfirmSubmissionState(
   override val context: User,
   override val userId: StudentId,
   private val solutionInputRequest: SolutionInputRequest,
-) : BotStateWithHandlersAndStudentId<Boolean, Boolean, StudentApi> {
+) :
+  BotStateWithHandlersAndStudentId<
+    Boolean,
+    Result<SolutionId, TeacherResolveError>?,
+    StudentApi,
+  > { // null Out implies the user did not confirm the submission
   private lateinit var solutionMessage: AccessibleMessage
   private lateinit var confirmMessage: AccessibleMessage
 
@@ -56,14 +65,24 @@ class ConfirmSubmissionState(
     }
   }
 
-  override fun computeNewState(service: StudentApi, input: Boolean): Pair<State, Boolean> {
-    if (input) {
-      service.inputSolution(solutionInputRequest)
-    }
-    return MenuState(context, solutionInputRequest.studentId) to input
+  override fun computeNewState(
+    service: StudentApi,
+    input: Boolean,
+  ): Pair<State, Result<SolutionId, TeacherResolveError>?> {
+    val menuState = MenuState(context, solutionInputRequest.studentId)
+    return menuState to
+      if (input) {
+        service.inputSolution(solutionInputRequest)
+      } else {
+        null
+      }
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Boolean) {
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: StudentApi,
+    response: Result<SolutionId, TeacherResolveError>?,
+  ) {
     with(bot) {
       try {
         delete(solutionMessage)
@@ -76,9 +95,12 @@ class ConfirmSubmissionState(
         KSLog.warning("Failed to delete message", e)
       }
     }
-    if (response) {
-      bot.send(context.id, "Решение успешно отправлено на проверку!")
-    }
+    response?.mapBoth(
+      success = { bot.send(context.id, "Решение ${it.long} успешно отправлено на проверку!") },
+      failure = {
+        bot.send(context.id, "Случилась ошибка при отправке решения\n" + it.toStackedString())
+      },
+    )
   }
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit

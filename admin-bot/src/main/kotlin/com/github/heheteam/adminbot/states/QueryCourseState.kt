@@ -3,9 +3,9 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createCoursePicker
 import com.github.heheteam.commonlib.util.delete
@@ -25,7 +25,7 @@ abstract class QueryCourseState(override val context: User) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, Course?, Any>,
+    updateHandlersController: UpdateHandlerManager<Course?>,
   ) {
     val courses = service.getCourses().map { it.value }
     val coursesPicker = createCoursePicker(courses)

@@ -1,15 +1,38 @@
 package com.github.heheteam.commonlib.logic.ui
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Solution
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 
-open class SolutionSendingError
+abstract class SolutionSendingError(override val causedBy: EduPlatformError?) : EduPlatformError
 
-data class NoResponsibleTeacherFor(val solution: Solution) : SolutionSendingError()
+class NoResponsibleTeacherFor(
+  val solution: Solution,
+  override val causedBy: EduPlatformError? = null,
+) : SolutionSendingError(causedBy) {
+  override val shortDescription: String
+    get() = "No teacher is responsible for solution $solution"
+}
 
-data class FailedToResolveSolution(val solution: Solution) : SolutionSendingError()
+class FailedToResolveSolution(
+  val solution: Solution,
+  override val causedBy: EduPlatformError? = null,
+) : SolutionSendingError(causedBy) {
+  override val shortDescription: String
+    get() = "Failed ot find solution id=${solution.id} in the database"
+}
 
-data class SendToGroupSolutionError(val courseId: CourseId) : SolutionSendingError()
+class SendToGroupSolutionError(
+  val courseId: CourseId,
+  override val causedBy: EduPlatformError? = null,
+) : SolutionSendingError(causedBy) {
+  override val shortDescription: String = "Failed to send a solution to the group"
+}
 
-data class SendToTeacherSolutionError(val teacherId: TeacherId) : SolutionSendingError()
+class SendToTeacherSolutionError(
+  val teacherId: TeacherId,
+  override val causedBy: EduPlatformError? = null,
+) : SolutionSendingError(causedBy) {
+  override val shortDescription: String = "Failed to send submission to a group"
+}

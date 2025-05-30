@@ -1,12 +1,15 @@
 package com.github.heheteam.commonlib.telegram
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
+import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.logic.ui.createSolutionGradingKeyboard
 import com.github.heheteam.commonlib.toTelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -25,16 +28,18 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun sendInitSolutionStatusMessageDM(
     chatId: RawChatId,
     solutionStatusMessageInfo: SolutionStatusMessageInfo,
-  ): Result<TelegramMessageInfo, Any> = runCatching {
-    val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
-    val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
-    teacherBot.editMessageReplyMarkup(
-      message.chat,
-      message.messageId,
-      replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
-    )
-    message.toTelegramMessageInfo()
-  }
+  ): Result<TelegramMessageInfo, EduPlatformError> =
+    runCatching {
+        val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+        val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
+        teacherBot.editMessageReplyMarkup(
+          message.chat,
+          message.messageId,
+          replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+        )
+        message.toTelegramMessageInfo()
+      }
+      .mapError { TelegramError(it) }
 
   override suspend fun updateSolutionStatusMessageDM(
     message: TelegramMessageInfo,
@@ -53,16 +58,18 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun sendInitSolutionStatusMessageInCourseGroupChat(
     chatId: RawChatId,
     solutionStatusMessageInfo: SolutionStatusMessageInfo,
-  ): Result<TelegramMessageInfo, Any> = runCatching {
-    val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
-    val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
-    teacherBot.editMessageReplyMarkup(
-      message.chat,
-      message.messageId,
-      replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
-    )
-    message.toTelegramMessageInfo()
-  }
+  ): Result<TelegramMessageInfo, EduPlatformError> =
+    runCatching {
+        val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+        val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
+        teacherBot.editMessageReplyMarkup(
+          message.chat,
+          message.messageId,
+          replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+        )
+        message.toTelegramMessageInfo()
+      }
+      .mapError { TelegramError(it) }
 
   override suspend fun updateSolutionStatusMessageInCourseGroupChat(
     message: TelegramMessageInfo,
@@ -85,14 +92,16 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun sendMenuMessage(
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
-  ): Result<TelegramMessageInfo, Any> = runCatching {
-    if (replyTo != null) {
-        teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "\u2705 Главное меню")
-      } else {
-        teacherBot.sendMessage(chatId.toChatId(), "\u2705 Главное меню")
+  ): Result<TelegramMessageInfo, EduPlatformError> =
+    runCatching {
+        if (replyTo != null) {
+            teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "\u2705 Главное меню")
+          } else {
+            teacherBot.sendMessage(chatId.toChatId(), "\u2705 Главное меню")
+          }
+          .toTelegramMessageInfo()
       }
-      .toTelegramMessageInfo()
-  }
+      .mapError { "".asNamedError() }
 
   override suspend fun deleteMessage(telegramMessageInfo: TelegramMessageInfo) {
     try {

@@ -4,9 +4,9 @@ import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -29,7 +29,7 @@ class CreateAssignmentErrorState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlerManager<State>,
   ) {
     val msg = bot.send(context, errorMessage, replyMarkup = AdminKeyboards.returnBack())
     sentMessages.add(msg)

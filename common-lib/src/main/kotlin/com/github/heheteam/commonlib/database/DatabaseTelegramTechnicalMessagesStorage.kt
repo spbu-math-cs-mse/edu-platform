@@ -1,7 +1,9 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
@@ -12,6 +14,8 @@ import com.github.heheteam.commonlib.interfaces.SolutionDistributor
 import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.util.ok
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.toResultOr
@@ -64,7 +68,9 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     }
   }
 
-  override fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String> {
+  override fun resolveGroupMessage(
+    solutionId: SolutionId
+  ): Result<TelegramMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
         SolutionGroupMessagesTable.selectAll()
@@ -76,10 +82,14 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.singleOrNull().toResultOr { "" }
+    return row.singleOrNull().toResultOr {
+      "Failed to resolve a singlie group message (got ${row.size})".asNamedError()
+    }
   }
 
-  override fun resolvePersonalMessage(solutionId: SolutionId): Result<TelegramMessageInfo, String> {
+  override fun resolvePersonalMessage(
+    solutionId: SolutionId
+  ): Result<TelegramMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
         SolutionPersonalMessagesTable.selectAll()
@@ -91,7 +101,9 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.singleOrNull().toResultOr { "" }
+    return row.singleOrNull().toResultOr {
+      "Failed to resolve a singlie personal message (got ${row.size})".asNamedError()
+    }
   }
 
   override fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo) {
@@ -114,7 +126,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
 
   override fun resolveTeacherMenuMessage(
     teacherId: TeacherId
-  ): Result<List<TelegramMessageInfo>, String> {
+  ): Result<List<TelegramMessageInfo>, EduPlatformError> {
     val row =
       transaction(database) {
         TeacherTable.join(
@@ -132,41 +144,43 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.toResultOr { "" }
+    return row.toResultOr { "Failed to lookup teacher menu message".asNamedError() }
   }
 
   override fun resolveTeacherFirstUncheckedSolutionMessage(
     teacherId: TeacherId
-  ): Result<MenuMessageInfo, String> {
-    val row =
-      transaction(database) {
-        val solution = solutionDistributor.querySolution(teacherId).get()
+  ): Result<MenuMessageInfo, EduPlatformError> {
+    return transaction(database) {
+      val solution = solutionDistributor.querySolution(teacherId).get()
 
-        if (solution == null) {
-          val chatId =
-            TeacherTable.selectAll()
-              .where(TeacherTable.id eq teacherId.long)
-              .map { it[TeacherTable.tgId] }
-              .firstOrNull() ?: return@transaction null
-          return@transaction MenuMessageInfo(RawChatId(chatId))
-        }
-
-        return@transaction SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
-          .map {
-            MenuMessageInfo(
-              RawChatId(it[SolutionPersonalMessagesTable.chatId]),
-              MessageId(it[SolutionPersonalMessagesTable.messageId]),
-            )
-          }
-          .firstOrNull()
+      if (solution == null) {
+        val chatId =
+          TeacherTable.selectAll()
+            .where(TeacherTable.id eq teacherId.long)
+            .map { it[TeacherTable.tgId] }
+            .firstOrNull()
+            ?: return@transaction Err("No tg id for the teacher $teacherId".asNamedError())
+        return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
-    return row.toResultOr { "" }
+
+      return@transaction SolutionPersonalMessagesTable.selectAll()
+        .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
+        .map {
+          MenuMessageInfo(
+            RawChatId(it[SolutionPersonalMessagesTable.chatId]),
+            MessageId(it[SolutionPersonalMessagesTable.messageId]),
+          )
+        }
+        .firstOrNull()
+        .toResultOr {
+          "Solution ${solution.id} does not have a corresponding message".asNamedError()
+        }
+    }
   }
 
   override fun resolveGroupMenuMessage(
     courseId: CourseId
-  ): Result<List<TelegramMessageInfo>, String> {
+  ): Result<List<TelegramMessageInfo>, EduPlatformError> {
     val row =
       transaction(database) {
         CourseTable.join(
@@ -184,34 +198,39 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.toResultOr { "failed to resolve group menu message" }
+    return row.toResultOr { "Failed to resolve group menu messages".asNamedError() }
   }
 
   override fun resolveGroupFirstUncheckedSolutionMessage(
     courseId: CourseId
-  ): Result<MenuMessageInfo, String> {
-    val row =
-      transaction(database) {
-        val solution = solutionDistributor.querySolution(courseId).get()
-        if (solution == null) {
-          val chatId =
-            CourseTable.selectAll()
-              .where(CourseTable.id eq courseId.long)
-              .map { it[CourseTable.groupRawChatId] }
-              .firstOrNull() ?: return@transaction null
-          return@transaction MenuMessageInfo(RawChatId(chatId))
-        }
-
-        return@transaction SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
-          .map {
-            MenuMessageInfo(
-              RawChatId(it[SolutionGroupMessagesTable.chatId]),
-              MessageId(it[SolutionGroupMessagesTable.messageId]),
+  ): Result<MenuMessageInfo, EduPlatformError> {
+    return transaction(database) {
+      val solution = solutionDistributor.querySolution(courseId).get()
+      if (solution == null) {
+        val chatId =
+          CourseTable.selectAll()
+            .where(CourseTable.id eq courseId.long)
+            .map { it[CourseTable.groupRawChatId] }
+            .firstOrNull()
+            ?: return@transaction Err(
+              "Course $courseId does not have a corresponding group!".asNamedError()
             )
-          }
-          .firstOrNull()
+        return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
-    return row.toResultOr { "" }
+
+      return@transaction SolutionGroupMessagesTable.selectAll()
+        .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
+        .map {
+          MenuMessageInfo(
+            RawChatId(it[SolutionGroupMessagesTable.chatId]),
+            MessageId(it[SolutionGroupMessagesTable.messageId]),
+          )
+        }
+        .firstOrNull()
+        .toResultOr {
+          "The solution ${solution.id} does not have an associated message in a group of the course $courseId"
+            .asNamedError()
+        }
+    }
   }
 }

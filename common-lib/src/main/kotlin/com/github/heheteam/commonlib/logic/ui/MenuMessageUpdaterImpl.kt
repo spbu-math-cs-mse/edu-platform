@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -7,7 +8,6 @@ import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
@@ -19,7 +19,9 @@ internal constructor(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val teacherBotTelegramController: TeacherBotTelegramController,
 ) : MenuMessageUpdater {
-  override fun updateMenuMessageInPersonalChat(teacherId: TeacherId): Result<Unit, String> =
+  override fun updateMenuMessageInPersonalChat(
+    teacherId: TeacherId
+  ): Result<Unit, EduPlatformError> =
     runBlocking(Dispatchers.IO) {
       return@runBlocking coroutineBinding {
         val menuMessages = technicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
@@ -35,7 +37,6 @@ internal constructor(
             } else {
               teacherBotTelegramController.sendMenuMessage(chatId, null)
             }
-            .mapError { it.toString() }
             .bind()
         technicalMessageStorage.updateTeacherMenuMessage(
           TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
@@ -43,7 +44,7 @@ internal constructor(
       }
     }
 
-  override fun updateMenuMessageInGroupChat(courseId: CourseId): Result<Unit, String> =
+  override fun updateMenuMessageInGroupChat(courseId: CourseId): Result<Unit, EduPlatformError> =
     runBlocking(Dispatchers.IO) {
       coroutineBinding {
         val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
@@ -59,7 +60,6 @@ internal constructor(
             } else {
               teacherBotTelegramController.sendMenuMessage(chatId, null)
             }
-            .mapError { it.toString() }
             .bind()
         technicalMessageStorage.updateTeacherMenuMessage(
           TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)

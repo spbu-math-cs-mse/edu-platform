@@ -3,9 +3,9 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -34,7 +34,7 @@ class EditCourseState(override val context: User, private val course: Course) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Unit,
-    updateHandlersController: UpdateHandlersController<BehaviourContext.() -> Unit, State, Any>,
+    updateHandlersController: UpdateHandlerManager<State>,
   ) {
     val message =
       bot.send(context, "Изменить курс ${course.name}:", replyMarkup = AdminKeyboards.editCourse())

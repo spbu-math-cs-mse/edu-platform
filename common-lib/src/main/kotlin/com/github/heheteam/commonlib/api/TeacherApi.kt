@@ -40,11 +40,11 @@ internal constructor(
       timestamp,
     )
 
-  fun tryLoginByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
-    teacherStorage.resolveByTgId(tgId)
-
   fun createTeacher(firstName: String, lastName: String, tgId: Long): TeacherId =
     teacherStorage.createTeacher(firstName, lastName, tgId)
+
+  fun loginByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
+    teacherStorage.resolveByTgId(tgId)
 
   fun loginById(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     teacherStorage.resolveTeacher(teacherId)

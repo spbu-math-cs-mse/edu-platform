@@ -22,7 +22,10 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapBoth
+import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.UserId
+import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.datetime.LocalDateTime
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -103,5 +106,24 @@ internal constructor(
       },
       failure = { error -> Err(error) },
     )
+  }
+
+  suspend fun registerForCourseWithTokenAndSendFeedback(
+    bot: BehaviourContext,
+    context: User,
+    token: String,
+    studentId: StudentId,
+  ): Result<CourseId, TokenError> {
+    return registerForCourseWithToken(token, studentId).also {
+      it.mapBoth(
+        success = { courseId ->
+          val course = getStudentCourses(studentId).first { it.id == courseId }
+          bot.send(context, "Вы успешно записались на курс ${course.name}, используя токен $token")
+        },
+        failure = { error ->
+          bot.send(context, "Не удалось записаться на курс.\n" + error.toReadableString())
+        },
+      )
+    }
   }
 }

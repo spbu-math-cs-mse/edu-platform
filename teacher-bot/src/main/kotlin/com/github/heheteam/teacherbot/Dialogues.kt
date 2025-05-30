@@ -26,5 +26,8 @@ object Dialogues {
   fun askLastName(firstName: String): String =
     "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"
 
+  fun niceToMeetYou(firstName: String, lastName: String): String =
+    "Приятно познакомиться, $firstName $lastName!\n"
+
   const val menu: String = "\u2705 Главное меню"
 }

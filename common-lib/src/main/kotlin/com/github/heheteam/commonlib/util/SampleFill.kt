@@ -61,6 +61,7 @@ internal fun fillWithSamples(
   studentStorage: StudentStorage,
   teacherStorage: TeacherStorage,
   database: Database,
+  initTeachers: Boolean = false,
 ): ContentFill {
   reset(database)
   // Admins
@@ -80,9 +81,11 @@ internal fun fillWithSamples(
     courseStorage.addStudentToCourse(studentId, linAlgebra)
   }
   val teachers =
-    listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
-      teacherStorage.createTeacher(it.first, it.second)
-    }
+    if (initTeachers) {
+      listOf("Павел" to "Мозоляко", "Егор" to "Тихонов").map {
+        teacherStorage.createTeacher(it.first, it.second)
+      }
+    } else listOf()
 
   courseStorage.addTeacherToCourse(TeacherId(1), realAnalysis)
   courseStorage.addTeacherToCourse(TeacherId(2), realAnalysis)

@@ -14,8 +14,11 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class AskLastNameState(override val context: User, private val firstName: String) :
-  BotStateWithHandlers<StudentId, Unit, StudentApi> {
+class AskLastNameState(
+  override val context: User,
+  private val firstName: String,
+  private val token: String?,
+) : BotStateWithHandlers<StudentId, Unit, StudentApi> {
   override fun computeNewState(service: StudentApi, input: StudentId): Pair<State, Unit> {
     return MenuState(context, input) to Unit
   }
@@ -36,11 +39,14 @@ class AskLastNameState(override val context: User, private val firstName: String
       val lastName = message.content.text
       val studentId = service.createStudent(firstName, lastName, context.id.chatId.long)
       bot.send(context, Dialogues.niceToMeetYou(firstName, lastName))
+      if (token != null) {
+        service.registerForCourseWithTokenAndSendFeedback(bot, context, token, studentId)
+      }
       NewState(MenuState(context, studentId))
     }
     updateHandlersController.addDataCallbackHandler { callback ->
       if (callback.data == Keyboards.RETURN_BACK) {
-        NewState(AskFirstNameState(context))
+        NewState(AskFirstNameState(context, token))
       } else {
         Unhandled
       }

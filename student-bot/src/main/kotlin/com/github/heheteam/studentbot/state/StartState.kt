@@ -11,17 +11,24 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class StartState(override val context: User) : BotState<StudentId?, String?, StudentApi> {
+class StartState(override val context: User, private val token: String?) :
+  BotState<StudentId?, String?, StudentApi> {
   override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): StudentId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
-    return service.loginByTgId(context.id).get()?.id
+    val id = service.loginByTgId(context.id).get()?.id
+    if (id != null) {
+      if (token != null) {
+        service.registerForCourseWithTokenAndSendFeedback(bot, context, token, id)
+      }
+    }
+    return id
   }
 
   override fun computeNewState(service: StudentApi, input: StudentId?): Pair<State, String?> =
     if (input != null) {
       MenuState(context, input) to Dialogues.greetings
     } else {
-      AskFirstNameState(context) to Dialogues.greetings
+      AskFirstNameState(context, token) to Dialogues.greetings
     }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: String?) {

@@ -11,6 +11,13 @@ sealed class TokenError(override val causedBy: EduPlatformError? = null) : EduPl
   data object TokenAlreadyUsed : TokenError() {
     override val shortDescription: String = "Token is already used"
   }
+
+  fun toReadableString(): String =
+    when (this) {
+      is TokenNotFound -> "Такого токена не существует"
+
+      is TokenAlreadyUsed -> "Этот токен уже был использован"
+    }
 }
 
 interface CourseTokenStorage {

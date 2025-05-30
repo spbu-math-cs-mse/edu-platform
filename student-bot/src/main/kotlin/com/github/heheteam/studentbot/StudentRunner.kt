@@ -10,7 +10,6 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAn
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.parseCommandsWithArgs
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
-import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +31,6 @@ class StudentRunner(private val botToken: String, private val studentApi: Studen
         )
 
         command("start", requireOnlyCommandInMessage = false) {
-          println(it.text)
-          println(it.parseCommandsWithArgs(" ")["start"]?.firstOrNull())
           val user = it.from
           if (user != null) {
             val token = it.parseCommandsWithArgs(" ")["start"]?.firstOrNull()

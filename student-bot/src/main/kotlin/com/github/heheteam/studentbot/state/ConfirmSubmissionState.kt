@@ -1,10 +1,10 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ButtonData
@@ -30,14 +30,14 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 class ConfirmSubmissionState(
   override val context: User,
   override val userId: StudentId,
-  private val solutionInputRequest: SolutionInputRequest,
+  private val submissionInputRequest: SubmissionInputRequest,
 ) :
   BotStateWithHandlersAndStudentId<
     Boolean,
-    Result<SolutionId, TeacherResolveError>?,
+    Result<SubmissionId, TeacherResolveError>?,
     StudentApi,
   > { // null Out implies the user did not confirm the submission
-  private lateinit var solutionMessage: AccessibleMessage
+  private lateinit var submissionMessage: AccessibleMessage
   private lateinit var confirmMessage: AccessibleMessage
 
   override suspend fun intro(
@@ -51,8 +51,8 @@ class ConfirmSubmissionState(
         ButtonData("Да", "yes") { true },
         ButtonData("Нет (отменить отправку)", "no") { false },
       )
-    solutionMessage =
-      bot.sendTextWithMediaAttachments(context.id, solutionInputRequest.solutionContent)
+    submissionMessage =
+      bot.sendTextWithMediaAttachments(context.id, submissionInputRequest.submissionContent)
     confirmMessage =
       bot.sendMessage(
         context,
@@ -68,11 +68,11 @@ class ConfirmSubmissionState(
   override fun computeNewState(
     service: StudentApi,
     input: Boolean,
-  ): Pair<State, Result<SolutionId, TeacherResolveError>?> {
-    val menuState = MenuState(context, solutionInputRequest.studentId)
+  ): Pair<State, Result<SubmissionId, TeacherResolveError>?> {
+    val menuState = MenuState(context, submissionInputRequest.studentId)
     return menuState to
       if (input) {
-        service.inputSolution(solutionInputRequest)
+        service.inputSubmission(submissionInputRequest)
       } else {
         null
       }
@@ -81,11 +81,11 @@ class ConfirmSubmissionState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
-    response: Result<SolutionId, TeacherResolveError>?,
+    response: Result<SubmissionId, TeacherResolveError>?,
   ) {
     with(bot) {
       try {
-        delete(solutionMessage)
+        delete(submissionMessage)
       } catch (e: CommonRequestException) {
         KSLog.warning("Failed to delete message", e)
       }

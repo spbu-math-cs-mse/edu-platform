@@ -5,10 +5,10 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.SubmissionAssessment
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
@@ -106,34 +106,34 @@ class TestDataBuilder(private val apis: ApiCollection) {
     }
   }
 
-  fun solution(student: Student, problem: Problem, content: String): Solution {
-    val solutionInputRequest =
-      SolutionInputRequest(
+  fun submission(student: Student, problem: Problem, content: String): Submission {
+    val submissionInputRequest =
+      SubmissionInputRequest(
         studentId = student.id,
         problemId = problem.id,
-        solutionContent = TextWithMediaAttachments(content),
+        submissionContent = TextWithMediaAttachments(content),
         telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
         timestamp = defaultTimestamp,
       )
-    val solutionId = apis.studentApi.inputSolution(solutionInputRequest).value
-    return Solution(
-      solutionId,
-      solutionInputRequest.studentId,
-      solutionInputRequest.telegramMessageInfo.chatId,
-      solutionInputRequest.telegramMessageInfo.messageId,
-      solutionInputRequest.problemId,
-      solutionInputRequest.solutionContent,
+    val submissionId = apis.studentApi.inputSubmission(submissionInputRequest).value
+    return Submission(
+      submissionId,
+      submissionInputRequest.studentId,
+      submissionInputRequest.telegramMessageInfo.chatId,
+      submissionInputRequest.telegramMessageInfo.messageId,
+      submissionInputRequest.problemId,
+      submissionInputRequest.submissionContent,
       null,
-      solutionInputRequest.timestamp,
+      submissionInputRequest.timestamp,
     )
   }
 
-  fun assessment(teacher: Teacher, solution: Solution, grade: Int): SolutionAssessment {
-    val assessment = SolutionAssessment(grade, TextWithMediaAttachments())
-    apis.teacherApi.assessSolution(
-      solutionId = solution.id,
+  fun assessment(teacher: Teacher, submission: Submission, grade: Int): SubmissionAssessment {
+    val assessment = SubmissionAssessment(grade, TextWithMediaAttachments())
+    apis.teacherApi.assessSubmission(
+      submissionId = submission.id,
       teacherId = teacher.id,
-      solutionAssessment = assessment,
+      submissionAssessment = assessment,
       timestamp = defaultTimestamp,
     )
     return assessment

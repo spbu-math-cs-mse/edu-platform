@@ -6,8 +6,8 @@ import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -47,7 +47,7 @@ class AdminBotTest {
         DatabaseTeacherStorage(database),
         DatabaseAssignmentStorage(database, problemStorage),
         problemStorage,
-        DatabaseSolutionDistributor(database),
+        DatabaseSubmissionDistributor(database),
         mockk<PersonalDeadlinesService>(relaxed = true),
         mockk<CourseTokenStorage>(relaxed = true),
       )

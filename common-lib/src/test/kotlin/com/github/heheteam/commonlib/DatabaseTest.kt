@@ -5,14 +5,14 @@ import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.GradingEntry
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.MonotoneDummyClock
 import com.github.heheteam.commonlib.util.fillWithSamples
@@ -41,13 +41,13 @@ class DatabaseTest {
   private val adminStorage = DatabaseAdminStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
-  private val solutionDistributor = DatabaseSolutionDistributor(database)
+  private val submissionDistributor = DatabaseSubmissionDistributor(database)
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
 
   private val emptyContent = TextWithMediaAttachments()
-  private val good = SolutionAssessment(1)
-  private val bad = SolutionAssessment(0)
+  private val good = SubmissionAssessment(1)
+  private val bad = SubmissionAssessment(0)
 
   private fun createAssignment(courseId: CourseId): List<Problem> {
     val assignment =
@@ -59,14 +59,14 @@ class DatabaseTest {
     return problemStorage.getProblemsFromAssignment(assignment)
   }
 
-  private fun inputSampleSolution(
+  private fun inputSampleSubmission(
     studentId: StudentId,
     chatId: RawChatId,
     problem: Problem,
     clock: MonotoneDummyClock,
     teacherId: TeacherId,
   ) =
-    solutionDistributor.inputSolution(
+    submissionDistributor.inputSubmission(
       studentId,
       chatId,
       MessageId(problem.id.long),
@@ -103,73 +103,73 @@ class DatabaseTest {
   }
 
   @Test
-  fun `query solution returns last unchecked solution`() {
+  fun `query submission returns last unchecked submission`() {
     val chatId = RawChatId(0)
     val clock = MonotoneDummyClock()
     val (courseId, teacherId, studentId) = createCourseWithTeacherAndStudent()
     val problemsInCourse = createAssignment(courseId)
-    val solutions =
+    val submissions =
       problemsInCourse.map { problem ->
-        inputSampleSolution(studentId, chatId, problem, clock, teacherId)
+        inputSampleSubmission(studentId, chatId, problem, clock, teacherId)
       }
 
-    gradeTable.recordSolutionAssessment(solutions[0], teacherId, SolutionAssessment(0))
-    gradeTable.recordSolutionAssessment(solutions[2], teacherId, SolutionAssessment(0))
-    gradeTable.recordSolutionAssessment(solutions[3], teacherId, SolutionAssessment(0))
+    gradeTable.recordSubmissionAssessment(submissions[0], teacherId, SubmissionAssessment(0))
+    gradeTable.recordSubmissionAssessment(submissions[2], teacherId, SubmissionAssessment(0))
+    gradeTable.recordSubmissionAssessment(submissions[3], teacherId, SubmissionAssessment(0))
 
-    val solutionId1 = solutionDistributor.querySolution(teacherId)
-    assertEquals(solutions[1], solutionId1.value!!.id)
-    gradeTable.recordSolutionAssessment(solutions[1], teacherId, SolutionAssessment(0))
+    val submissionId1 = submissionDistributor.querySubmission(teacherId)
+    assertEquals(submissions[1], submissionId1.value!!.id)
+    gradeTable.recordSubmissionAssessment(submissions[1], teacherId, SubmissionAssessment(0))
 
-    val solutionId2 = solutionDistributor.querySolution(teacherId)
-    assertEquals(solutions[4], solutionId2.value!!.id)
-    gradeTable.recordSolutionAssessment(solutions[4], teacherId, SolutionAssessment(0))
+    val submissionId2 = submissionDistributor.querySubmission(teacherId)
+    assertEquals(submissions[4], submissionId2.value!!.id)
+    gradeTable.recordSubmissionAssessment(submissions[4], teacherId, SubmissionAssessment(0))
 
-    assertEquals(null, solutionDistributor.querySolution(teacherId).value)
+    assertEquals(null, submissionDistributor.querySubmission(teacherId).value)
   }
 
   @Test
-  fun `query solution from course returns last unchecked solution`() {
+  fun `query submission from course returns last unchecked submission`() {
     val chatId = RawChatId(0)
     val clock = MonotoneDummyClock()
     val (courseId, teacherId, studentId) = createCourseWithTeacherAndStudent()
 
-    val solutions =
+    val submissions =
       createAssignment(courseId).map { problem ->
-        inputSampleSolution(studentId, chatId, problem, clock, teacherId)
+        inputSampleSubmission(studentId, chatId, problem, clock, teacherId)
       }
 
-    gradeTable.recordSolutionAssessment(solutions[0], teacherId, bad)
-    gradeTable.recordSolutionAssessment(solutions[2], teacherId, bad)
-    gradeTable.recordSolutionAssessment(solutions[3], teacherId, bad)
+    gradeTable.recordSubmissionAssessment(submissions[0], teacherId, bad)
+    gradeTable.recordSubmissionAssessment(submissions[2], teacherId, bad)
+    gradeTable.recordSubmissionAssessment(submissions[3], teacherId, bad)
 
-    val solutionId1 = solutionDistributor.querySolution(courseId)
-    assertEquals(solutions[1], solutionId1.value!!.id)
-    gradeTable.recordSolutionAssessment(solutions[1], teacherId, bad)
+    val submissionId1 = submissionDistributor.querySubmission(courseId)
+    assertEquals(submissions[1], submissionId1.value!!.id)
+    gradeTable.recordSubmissionAssessment(submissions[1], teacherId, bad)
 
-    val solutionId2 = solutionDistributor.querySolution(courseId)
-    assertEquals(solutions[4], solutionId2.value!!.id)
-    gradeTable.recordSolutionAssessment(solutions[4], teacherId, bad)
+    val submissionId2 = submissionDistributor.querySubmission(courseId)
+    assertEquals(submissions[4], submissionId2.value!!.id)
+    gradeTable.recordSubmissionAssessment(submissions[4], teacherId, bad)
 
-    assertEquals(null, solutionDistributor.querySolution(courseId).value)
+    assertEquals(null, submissionDistributor.querySubmission(courseId).value)
   }
 
   @Test
   fun `grade table properly returns all gradings`() {
     val clock = MonotoneDummyClock()
-    val (teachers, solution) = generateSampleTeachersAndSolution()
+    val (teachers, submission) = generateSampleTeachersAndSubmission()
     val expected = mutableSetOf<GradingEntry>()
     for ((i, teacher) in teachers.withIndex()) {
       val assessment = if (i % 2 == 0) good else bad
       val timestamp = clock.next()
-      gradeTable.recordSolutionAssessment(solution, teacher, assessment, timestamp)
+      gradeTable.recordSubmissionAssessment(submission, teacher, assessment, timestamp)
       expected.add(GradingEntry(teacher, assessment, timestamp))
     }
-    val gradingEntries = gradeTable.getGradingsForSolution(solution)
+    val gradingEntries = gradeTable.getGradingsForSubmission(submission)
     assertEquals(expected, gradingEntries.toSet())
   }
 
-  private fun generateSampleTeachersAndSolution(): Pair<List<TeacherId>, SolutionId> {
+  private fun generateSampleTeachersAndSubmission(): Pair<List<TeacherId>, SubmissionId> {
     val content =
       fillWithSamples(
         courseStorage,
@@ -184,14 +184,14 @@ class DatabaseTest {
     val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).first()
     val someStudent = content.students[0]
     val teachers = content.teachers
-    val solution =
-      solutionDistributor.inputSolution(
+    val submission =
+      submissionDistributor.inputSubmission(
         someStudent,
         RawChatId(0L),
         MessageId(0L),
         emptyContent,
         someProblem.id,
       )
-    return Pair(teachers, solution)
+    return Pair(teachers, submission)
   }
 }

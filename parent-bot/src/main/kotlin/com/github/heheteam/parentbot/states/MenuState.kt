@@ -20,7 +20,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(parentApi: Pare
     val menuMessage =
       bot.send(
         state.context,
-        Dialogues.menu(),
+        Dialogues.menu,
         replyMarkup = Keyboards.menu(parentApi.getChildren(parentId)),
       )
 
@@ -29,7 +29,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(parentApi: Pare
         bot.delete(stickerMessage)
         bot.delete(menuMessage)
         bot.sendSticker(state.context, Dialogues.heartSticker)
-        bot.send(state.context, Dialogues.petDog())
+        bot.send(state.context, Dialogues.petDog)
         return@strictlyOn MenuState(state.context, state.parentId)
       }
 

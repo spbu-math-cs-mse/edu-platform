@@ -1,15 +1,15 @@
 package com.github.heheteam.commonlib.logic
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.SubmissionAssessment
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.notifications.BotEventBus
@@ -23,34 +23,35 @@ internal class AcademicWorkflowService(
   private val botEventBus: BotEventBus,
   private val uiController: UiController,
 ) {
-  fun sendSolution(
-    solutionInputRequest: SolutionInputRequest
-  ): Result<SolutionId, TeacherResolveError> = binding {
-    val teacher = responsibleTeacherResolver.resolveResponsibleTeacher(solutionInputRequest).bind()
-    val solutionId = academicWorkflowLogic.inputSolution(solutionInputRequest, teacher)
-    val solution =
-      Solution(
-        solutionId,
-        solutionInputRequest.studentId,
-        solutionInputRequest.telegramMessageInfo.chatId,
-        solutionInputRequest.telegramMessageInfo.messageId,
-        solutionInputRequest.problemId,
-        solutionInputRequest.solutionContent,
+  fun sendSubmission(
+    submissionInputRequest: SubmissionInputRequest
+  ): Result<SubmissionId, TeacherResolveError> = binding {
+    val teacher =
+      responsibleTeacherResolver.resolveResponsibleTeacher(submissionInputRequest).bind()
+    val submissionId = academicWorkflowLogic.inputSubmission(submissionInputRequest, teacher)
+    val submission =
+      Submission(
+        submissionId,
+        submissionInputRequest.studentId,
+        submissionInputRequest.telegramMessageInfo.chatId,
+        submissionInputRequest.telegramMessageInfo.messageId,
+        submissionInputRequest.problemId,
+        submissionInputRequest.submissionContent,
         teacher,
-        solutionInputRequest.timestamp,
+        submissionInputRequest.timestamp,
       )
-    botEventBus.publishNewSolutionEvent(solution)
-    solutionId
+    botEventBus.publishNewSubmissionEvent(submission)
+    submissionId
   }
 
-  fun assessSolution(
-    solutionId: SolutionId,
+  fun assessSubmission(
+    submissionId: SubmissionId,
     teacherId: TeacherId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     timestamp: LocalDateTime,
   ) {
-    academicWorkflowLogic.assessSolution(solutionId, teacherId, assessment, timestamp)
-    uiController.updateUiOnSolutionAssessment(solutionId, assessment)
+    academicWorkflowLogic.assessSubmission(submissionId, teacherId, assessment, timestamp)
+    uiController.updateUiOnSubmissionAssessment(submissionId, assessment)
   }
 
   fun getGradingsForAssignment(

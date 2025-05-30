@@ -42,7 +42,7 @@ class MenuState(override val context: User) : BotStateWithHandlers<State, Unit, 
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
   ) {
-    val menuMessage = bot.send(context, Dialogues.menu(), replyMarkup = AdminKeyboards.menu())
+    val menuMessage = bot.send(context, Dialogues.menu, replyMarkup = AdminKeyboards.menu())
     sentMessages.add(menuMessage)
 
     updateHandlersController.addDataCallbackHandler { callback ->

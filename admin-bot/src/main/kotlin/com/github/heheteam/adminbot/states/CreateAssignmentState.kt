@@ -71,7 +71,7 @@ class CreateAssignmentState(
     val msg =
       bot.send(
         context,
-        Dialogues.askAssignmentDescription(),
+        Dialogues.askAssignmentDescription,
         replyMarkup = AdminKeyboards.returnBack(),
       )
     sentMessages.add(msg)
@@ -122,7 +122,7 @@ class CreateAssignmentState(
     val msg =
       bot.send(
         context,
-        Dialogues.askProblemsDescriptions(),
+        Dialogues.askProblemsDescriptions,
         replyMarkup = AdminKeyboards.returnBack(),
       )
     sentMessages.add(msg as CommonMessage<TextContent>)
@@ -163,7 +163,7 @@ class CreateAssignmentState(
       assignmentDescription.first,
       problems.orEmpty().map { it.copy(deadline = assignmentDescription.second) },
     )
-    bot.send(context, Dialogues.assignmentWasCreatedSuccessfully())
+    bot.send(context, Dialogues.assignmentWasCreatedSuccessfully)
     NewState(MenuState(context))
   }
 
@@ -187,7 +187,7 @@ fun parseProblemsDescriptions(
     val maxScore =
       when {
         arguments.isEmpty() -> {
-          Err(Dialogues.incorrectProblemDescriptionEmpty())
+          Err(Dialogues.incorrectProblemDescriptionEmpty)
         }
 
         arguments.size > 3 -> {

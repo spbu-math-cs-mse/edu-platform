@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib.decorators
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -10,8 +10,8 @@ import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ProblemId
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 
 internal class GradeTableDecorator(
@@ -29,18 +29,18 @@ internal class GradeTableDecorator(
   override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
     gradeTable.getCourseRating(courseId)
 
-  override fun recordSolutionAssessment(
-    solutionId: SolutionId,
+  override fun recordSubmissionAssessment(
+    submissionId: SubmissionId,
     teacherId: TeacherId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     timestamp: kotlinx.datetime.LocalDateTime,
   ) =
-    gradeTable.recordSolutionAssessment(solutionId, teacherId, assessment).apply {
-      ratingRecorder.updateRating(solutionId)
+    gradeTable.recordSubmissionAssessment(submissionId, teacherId, assessment).apply {
+      ratingRecorder.updateRating(submissionId)
     }
 
-  override fun isChecked(solutionId: SolutionId): Boolean = gradeTable.isChecked(solutionId)
+  override fun isChecked(submissionId: SubmissionId): Boolean = gradeTable.isChecked(submissionId)
 
-  override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
-    gradeTable.getGradingsForSolution(solutionId)
+  override fun getGradingsForSubmission(submissionId: SubmissionId): List<GradingEntry> =
+    gradeTable.getGradingsForSubmission(submissionId)
 }

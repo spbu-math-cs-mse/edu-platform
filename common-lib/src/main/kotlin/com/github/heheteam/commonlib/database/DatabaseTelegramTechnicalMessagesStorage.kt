@@ -5,13 +5,13 @@ import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.database.table.CourseTable
-import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
-import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
+import com.github.heheteam.commonlib.database.table.SubmissionGroupMessagesTable
+import com.github.heheteam.commonlib.database.table.SubmissionPersonalMessagesTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.util.ok
@@ -32,36 +32,36 @@ import org.jetbrains.exposed.sql.update
 
 internal class DatabaseTelegramTechnicalMessagesStorage(
   val database: Database,
-  val solutionDistributor: SolutionDistributor,
+  val submissionDistributor: SubmissionDistributor,
 ) : TelegramTechnicalMessagesStorage {
   init {
     transaction(database) {
-      SchemaUtils.create(SolutionGroupMessagesTable)
-      SchemaUtils.create(SolutionPersonalMessagesTable)
+      SchemaUtils.create(SubmissionGroupMessagesTable)
+      SchemaUtils.create(SubmissionPersonalMessagesTable)
       SchemaUtils.create(TeacherMenuMessageTable)
     }
   }
 
-  override fun registerGroupSolutionPublication(
-    solutionId: SolutionId,
+  override fun registerGroupSubmissionPublication(
+    submissionId: SubmissionId,
     telegramMessageInfo: TelegramMessageInfo,
   ) {
     transaction(database) {
-      SolutionGroupMessagesTable.insert {
-        it[SolutionGroupMessagesTable.solutionId] = solutionId.long
+      SubmissionGroupMessagesTable.insert {
+        it[SubmissionGroupMessagesTable.submissionId] = submissionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
     }
   }
 
-  override fun registerPersonalSolutionPublication(
-    solutionId: SolutionId,
+  override fun registerPersonalSubmissionPublication(
+    submissionId: SubmissionId,
     telegramMessageInfo: TelegramMessageInfo,
   ) {
     transaction(database) {
-      SolutionPersonalMessagesTable.insert {
-        it[SolutionPersonalMessagesTable.solutionId] = solutionId.long
+      SubmissionPersonalMessagesTable.insert {
+        it[SubmissionPersonalMessagesTable.submissionId] = submissionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
@@ -69,16 +69,16 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   }
 
   override fun resolveGroupMessage(
-    solutionId: SolutionId
+    submissionId: SubmissionId
   ): Result<TelegramMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
-        SolutionGroupMessagesTable.selectAll()
-          .where(SolutionGroupMessagesTable.solutionId eq solutionId.long)
+        SubmissionGroupMessagesTable.selectAll()
+          .where(SubmissionGroupMessagesTable.submissionId eq submissionId.long)
           .map {
             TelegramMessageInfo(
-              RawChatId(it[SolutionGroupMessagesTable.chatId]),
-              MessageId(it[SolutionGroupMessagesTable.messageId]),
+              RawChatId(it[SubmissionGroupMessagesTable.chatId]),
+              MessageId(it[SubmissionGroupMessagesTable.messageId]),
             )
           }
       }
@@ -88,16 +88,16 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   }
 
   override fun resolvePersonalMessage(
-    solutionId: SolutionId
+    submissionId: SubmissionId
   ): Result<TelegramMessageInfo, EduPlatformError> {
     val row =
       transaction(database) {
-        SolutionPersonalMessagesTable.selectAll()
-          .where(SolutionPersonalMessagesTable.solutionId eq solutionId.long)
+        SubmissionPersonalMessagesTable.selectAll()
+          .where(SubmissionPersonalMessagesTable.submissionId eq submissionId.long)
           .map {
             TelegramMessageInfo(
-              RawChatId(it[SolutionPersonalMessagesTable.chatId]),
-              MessageId(it[SolutionPersonalMessagesTable.messageId]),
+              RawChatId(it[SubmissionPersonalMessagesTable.chatId]),
+              MessageId(it[SubmissionPersonalMessagesTable.messageId]),
             )
           }
       }
@@ -147,13 +147,13 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     return row.toResultOr { "Failed to lookup teacher menu message".asNamedError() }
   }
 
-  override fun resolveTeacherFirstUncheckedSolutionMessage(
+  override fun resolveTeacherFirstUncheckedSubmissionMessage(
     teacherId: TeacherId
   ): Result<MenuMessageInfo, EduPlatformError> {
     return transaction(database) {
-      val solution = solutionDistributor.querySolution(teacherId).get()
+      val submission = submissionDistributor.querySubmission(teacherId).get()
 
-      if (solution == null) {
+      if (submission == null) {
         val chatId =
           TeacherTable.selectAll()
             .where(TeacherTable.id eq teacherId.long)
@@ -163,17 +163,17 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
         return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
 
-      return@transaction SolutionPersonalMessagesTable.selectAll()
-        .where(SolutionPersonalMessagesTable.solutionId eq solution.id.long)
+      return@transaction SubmissionPersonalMessagesTable.selectAll()
+        .where(SubmissionPersonalMessagesTable.submissionId eq submission.id.long)
         .map {
           MenuMessageInfo(
-            RawChatId(it[SolutionPersonalMessagesTable.chatId]),
-            MessageId(it[SolutionPersonalMessagesTable.messageId]),
+            RawChatId(it[SubmissionPersonalMessagesTable.chatId]),
+            MessageId(it[SubmissionPersonalMessagesTable.messageId]),
           )
         }
         .firstOrNull()
         .toResultOr {
-          "Solution ${solution.id} does not have a corresponding message".asNamedError()
+          "Submission ${submission.id} does not have a corresponding message".asNamedError()
         }
     }
   }
@@ -201,12 +201,12 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     return row.toResultOr { "Failed to resolve group menu messages".asNamedError() }
   }
 
-  override fun resolveGroupFirstUncheckedSolutionMessage(
+  override fun resolveGroupFirstUncheckedSubmissionMessage(
     courseId: CourseId
   ): Result<MenuMessageInfo, EduPlatformError> {
     return transaction(database) {
-      val solution = solutionDistributor.querySolution(courseId).get()
-      if (solution == null) {
+      val submission = submissionDistributor.querySubmission(courseId).get()
+      if (submission == null) {
         val chatId =
           CourseTable.selectAll()
             .where(CourseTable.id eq courseId.long)
@@ -218,17 +218,17 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
         return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
 
-      return@transaction SolutionGroupMessagesTable.selectAll()
-        .where(SolutionGroupMessagesTable.solutionId eq solution.id.long)
+      return@transaction SubmissionGroupMessagesTable.selectAll()
+        .where(SubmissionGroupMessagesTable.submissionId eq submission.id.long)
         .map {
           MenuMessageInfo(
-            RawChatId(it[SolutionGroupMessagesTable.chatId]),
-            MessageId(it[SolutionGroupMessagesTable.messageId]),
+            RawChatId(it[SubmissionGroupMessagesTable.chatId]),
+            MessageId(it[SubmissionGroupMessagesTable.messageId]),
           )
         }
         .firstOrNull()
         .toResultOr {
-          "The solution ${solution.id} does not have an associated message in a group of the course $courseId"
+          "The submission ${submission.id} does not have an associated message in a group of the course $courseId"
             .asNamedError()
         }
     }

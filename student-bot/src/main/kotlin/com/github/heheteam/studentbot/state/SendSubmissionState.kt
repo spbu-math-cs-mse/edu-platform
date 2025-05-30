@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -24,28 +24,28 @@ import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 
-data class SendSolutionState(
+data class SendSubmissionState(
   override val context: User,
   override val userId: StudentId,
   val problem: Problem,
-) : BotStateWithHandlersAndStudentId<SolutionInputRequest?, SolutionInputRequest?, StudentApi> {
+) : BotStateWithHandlersAndStudentId<SubmissionInputRequest?, SubmissionInputRequest?, StudentApi> {
   lateinit var studentBotToken: String
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, SolutionInputRequest?, Any>,
+    updateHandlersController: UpdateHandlersController<() -> Unit, SubmissionInputRequest?, Any>,
   ) {
-    bot.send(context, Dialogues.tellValidSolutionTypes(), replyMarkup = back())
+    bot.send(context, Dialogues.tellValidSubmissionTypes, replyMarkup = back())
     updateHandlersController.addTextMessageHandler { message ->
-      bot.parseSentSolution(message, studentBotToken)
+      bot.parseSentSubmission(message, studentBotToken)
     }
     updateHandlersController.addMediaMessageHandler { message ->
       bot.setMessageReaction(message, "\uD83E\uDD23")
-      bot.parseSentSolution(message, studentBotToken)
+      bot.parseSentSubmission(message, studentBotToken)
     }
     updateHandlersController.addDocumentMessageHandler { message ->
-      bot.parseSentSolution(message, studentBotToken)
+      bot.parseSentSubmission(message, studentBotToken)
     }
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       if (dataCallbackQuery.data == RETURN_BACK) {
@@ -58,8 +58,8 @@ data class SendSolutionState(
 
   override fun computeNewState(
     service: StudentApi,
-    input: SolutionInputRequest?,
-  ): Pair<State, SolutionInputRequest?> {
+    input: SubmissionInputRequest?,
+  ): Pair<State, SubmissionInputRequest?> {
     return if (input == null) {
       MenuState(context, userId) to input
     } else {
@@ -70,23 +70,23 @@ data class SendSolutionState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
-    response: SolutionInputRequest?,
+    response: SubmissionInputRequest?,
   ) = Unit
 
-  private suspend fun BehaviourContext.parseSentSolution(
-    solutionMessage: CommonMessage<*>,
+  private suspend fun BehaviourContext.parseSentSubmission(
+    submissionMessage: CommonMessage<*>,
     studentBotToken: String,
-  ): HandlerResultWithUserInput<Nothing, SolutionInputRequest, String> {
-    val attachment = extractTextWithMediaAttachments(solutionMessage, studentBotToken, this)
+  ): HandlerResultWithUserInput<Nothing, SubmissionInputRequest, String> {
+    val attachment = extractTextWithMediaAttachments(submissionMessage, studentBotToken, this)
     return if (attachment == null) {
-      HandlingError(Dialogues.tellSolutionTypeIsInvalid())
+      HandlingError(Dialogues.tellSubmissionTypeIsInvalid)
     } else {
       UserInput(
-        SolutionInputRequest(
+        SubmissionInputRequest(
           userId,
           problem.id,
           attachment,
-          TelegramMessageInfo(solutionMessage.chat.id.chatId, solutionMessage.messageId),
+          TelegramMessageInfo(submissionMessage.chat.id.chatId, submissionMessage.messageId),
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
       )

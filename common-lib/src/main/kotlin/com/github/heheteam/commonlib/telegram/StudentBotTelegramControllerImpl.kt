@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.telegram
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -23,7 +23,7 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
     messageToReplyTo: MessageId,
     studentId: StudentId,
     problem: Problem,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
   ) {
     val emoji =
       when {

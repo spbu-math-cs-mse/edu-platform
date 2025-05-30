@@ -8,7 +8,7 @@ object Dialogues {
   val greetingSticker =
     InputFile.fromId("CAACAgEAAxkBAAIBbmcdPydqt93f8S1XKHV3z73nUoLgAALxAQACOA6CEXTVKqzkcGAkNgQ")
 
-  fun greetings(): String =
+  const val greetings: String =
     "Здравствуйте! Я бот-помощник для преподавателей.\n" +
       "С моей помощью вы сможете:\n" +
       "• Получать решения учеников на проверку\n" +

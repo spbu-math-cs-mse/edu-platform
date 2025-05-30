@@ -50,7 +50,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
     val isNewUser = service.getStudentCourses(userId).isEmpty()
 
     val initialMessage =
-      bot.send(context, text = Dialogues.menu(), replyMarkup = Keyboards.menu(isNewUser))
+      bot.send(context, text = Dialogues.menu, replyMarkup = Keyboards.menu(isNewUser))
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
@@ -62,7 +62,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
   ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
     val state =
       when (callback.data) {
-        SEND_SOLUTION -> QueryCourseForSolutionSendingState(context, userId)
+        SEND_SOLUTION -> QueryCourseForSubmissionSendingState(context, userId)
         CHECK_GRADES -> QueryCourseForCheckingGradesState(context, userId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
         MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)

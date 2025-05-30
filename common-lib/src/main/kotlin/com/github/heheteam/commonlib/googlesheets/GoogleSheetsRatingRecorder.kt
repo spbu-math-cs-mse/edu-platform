@@ -8,9 +8,9 @@ import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Err
@@ -35,7 +35,7 @@ internal constructor(
   private val courseStorage: CourseStorage,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
-  private val solutionDistributor: SolutionDistributor,
+  private val submissionDistributor: SubmissionDistributor,
   private val academicWorkflowLogic: AcademicWorkflowLogic,
 ) : RatingRecorder {
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -91,9 +91,9 @@ internal constructor(
     }
   }
 
-  override fun updateRating(solutionId: SolutionId) {
+  override fun updateRating(submissionId: SubmissionId) {
     scope.launch {
-      val problemId = solutionDistributor.resolveSolution(solutionId).value.problemId
+      val problemId = submissionDistributor.resolveSubmission(submissionId).value.problemId
       val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
       val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
       updateRating(courseId)

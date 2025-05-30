@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.notifications.NotificationService
 import dev.inmo.tgbotapi.types.MessageId
@@ -12,7 +12,7 @@ class MockNotificationService : NotificationService {
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     problem: Problem,
   ) {
     // Do nothing

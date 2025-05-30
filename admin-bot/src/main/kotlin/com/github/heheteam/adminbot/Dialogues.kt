@@ -14,7 +14,7 @@ object Dialogues {
   val nerdSticker =
     InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")
 
-  fun greetings(): String =
+  const val greetings: String =
     "Привет! Я бот-помощник для управления образовательным процессом.\n" +
       "Я помогу тебе:\n" +
       "• Записаться на интересующие курсы\n" +
@@ -22,13 +22,13 @@ object Dialogues {
       "• Отправлять решения задач\n" +
       "• Получать обратную связь от преподавателей"
 
-  fun devAskForId(): String = "Введите свой id:"
+  const val devAskForId: String = "Введите свой id:"
 
-  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  const val devIdNotFound: String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
 
-  fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
+  const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 
-  fun noIdInInput(): String = "Вы не ввели ни одного id. Попробуйте ещё раз!"
+  const val noIdInInput: String = "Вы не ввели ни одного id. Попробуйте ещё раз!"
 
   fun oneIdAlreadyExistsForStudentAddition(id: Long, courseName: String): String =
     "Ученик $id уже есть на курсе $courseName!"
@@ -89,13 +89,13 @@ object Dialogues {
   fun manyIdsAreGoodForTeacherRemoving(ids: List<Long>, courseName: String): String =
     "Преподаватели с id ${ids.joinToString()} успешно удалены с курса $courseName!"
 
-  fun menu(): String = "\u2705 Главное меню"
+  const val menu: String = "\u2705 Главное меню"
 
-  fun askAssignmentDescription(): String =
+  const val askAssignmentDescription: String =
     "Введите название серии, которую хотите создать, и дедлайн по ней. " +
       "Например, \"Диффуры и не только\"\$2025-01-19T23:55:00"
 
-  fun askProblemsDescriptions(): String =
+  const val askProblemsDescriptions: String =
     "Введите описания задач, которые хотите добавить в серию, " +
       "в формате \'<номер> \"<описание>\" <максимальное кол-во баллов за задачу>\', " +
       "разделяя задачи переносом строки.\n" +
@@ -106,7 +106,7 @@ object Dialogues {
       "3a \"Лёгкая задача\"\n" +
       "3b \"Сложная задача\" 10"
 
-  fun incorrectProblemDescriptionEmpty(): String =
+  const val incorrectProblemDescriptionEmpty: String =
     "Некорректный формат ввода (обнаружена пустая строка). Попробуйте ещё раз!"
 
   fun incorrectProblemDescriptionTooManyArguments(problemDescription: String): String =
@@ -116,5 +116,5 @@ object Dialogues {
   fun incorrectProblemDescriptionMaxScoreIsNotInt(maxScore: String): String =
     "Некорректный формат ввода (3-ий аргумент в какой-то строчке ($maxScore) не является числом). Попробуйте ещё раз!"
 
-  fun assignmentWasCreatedSuccessfully(): String = "Серия успешно создана!"
+  const val assignmentWasCreatedSuccessfully: String = "Серия успешно создана!"
 }

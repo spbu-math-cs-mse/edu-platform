@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 
 class AskFirstNameState(override val context: User) : BotState<String, Unit, StudentApi> {
   override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): String {
-    bot.send(context, Dialogues.askFirstName())
+    bot.send(context, Dialogues.askFirstName)
     val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
     return firstName
   }

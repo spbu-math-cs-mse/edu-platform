@@ -26,9 +26,9 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
 
     var parentId = parentApi.tryLoginByTelegramId(state.context.id).get()?.id
     if (!isDeveloperRun && parentId == null) {
-      bot.send(state.context, Dialogues.greetings())
+      bot.send(state.context, Dialogues.greetings)
 
-      bot.send(state.context, Dialogues.askFirstName())
+      bot.send(state.context, Dialogues.askFirstName)
       val firstName = waitTextMessageWithUser(state.context.id).first().content.text
 
       bot.send(state.context, Dialogues.askLastName(firstName))
@@ -46,19 +46,19 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
       parentId = parentApi.createParent()
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
     } else if (isDeveloperRun) {
-      bot.send(state.context, Dialogues.devAskForId())
+      bot.send(state.context, Dialogues.devAskForId)
       while (true) {
         val parentIdFromText =
           waitTextMessageWithUser(state.context.id).first().content.text.toLongOrNull()?.let {
             ParentId(it)
           }
         if (parentIdFromText == null) {
-          bot.send(state.context, Dialogues.devIdIsNotLong())
+          bot.send(state.context, Dialogues.devIdIsNotLong)
           continue
         }
         val parent = parentApi.tryLoginByParentId(parentIdFromText)
         if (parent.isErr) {
-          bot.send(state.context, Dialogues.devIdNotFound())
+          bot.send(state.context, Dialogues.devIdNotFound)
           continue
         }
         parentId = parentIdFromText

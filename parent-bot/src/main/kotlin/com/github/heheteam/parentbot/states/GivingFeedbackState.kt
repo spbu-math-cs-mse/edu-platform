@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
   strictlyOn<GivingFeedbackState> { state ->
     val giveFeedbackMessage =
-      bot.send(state.context, Dialogues.giveFeedback(), replyMarkup = Keyboards.returnBack())
+      bot.send(state.context, Dialogues.giveFeedback, replyMarkup = Keyboards.returnBack())
 
     when (
       val response =
@@ -44,7 +44,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnGivingFeedbackState() {
         ) // TODO: implement receiving feedback
 
         bot.sendSticker(state.context, Dialogues.okSticker)
-        bot.send(state.context, Dialogues.acceptFeedback())
+        bot.send(state.context, Dialogues.acceptFeedback)
       }
     }
     MenuState(state.context, state.parentId)

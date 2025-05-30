@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -33,7 +33,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.datetime.toKotlinLocalDateTime
 
-class ListeningForSolutionsGroupState(override val context: Chat, val courseId: CourseId) : State {
+class ListeningForSubmissionsGroupState(override val context: Chat, val courseId: CourseId) :
+  State {
 
   var lateinitTeacherBotToken: String? = null
 
@@ -76,7 +77,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   ): Unit? {
     val data = storedInfo[maybeCounter]
     return if (data != null) {
-      teacherApi.assessSolution(
+      teacherApi.assessSubmission(
         data.first,
         TeacherId(1L),
         data.second,
@@ -89,7 +90,7 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   }
 
   private var counter = 0
-  private val storedInfo = mutableMapOf<Int, Pair<SolutionId, SolutionAssessment>>()
+  private val storedInfo = mutableMapOf<Int, Pair<SubmissionId, SubmissionAssessment>>()
 
   private suspend fun tryParseGradingReply(
     commonMessage: CommonMessage<*>,
@@ -97,12 +98,12 @@ class ListeningForSolutionsGroupState(override val context: Chat, val courseId: 
   ): Result<Unit, String> = coroutineBinding {
     val teacherBotToken =
       lateinitTeacherBotToken
-        .toResultOr { "Uninitialized teacher bot token in ListeningForSolutionGradeState" }
+        .toResultOr { "Uninitialized teacher bot token in ListeningForSubmissionGradeState" }
         .bind()
     val technicalMessageText = extractReplyText(commonMessage).bind()
-    val solutionId = parseTechnicalMessageContent(technicalMessageText).bind()
+    val submissionId = parseTechnicalMessageContent(technicalMessageText).bind()
     val assessment = extractAssessmentFromMessage(commonMessage, teacherBotToken, bot).bind()
-    storedInfo[++counter] = solutionId to assessment
+    storedInfo[++counter] = submissionId to assessment
     bot.sendMessage(
       context.id,
       "Вы подтверждаете отправку?",

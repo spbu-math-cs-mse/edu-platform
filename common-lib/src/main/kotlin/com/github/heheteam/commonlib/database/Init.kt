@@ -11,16 +11,15 @@ import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.ParentTable
 import com.github.heheteam.commonlib.database.table.PersonalDeadlineTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
-import com.github.heheteam.commonlib.database.table.SolutionGroupMessagesTable
-import com.github.heheteam.commonlib.database.table.SolutionPersonalMessagesTable
-import com.github.heheteam.commonlib.database.table.SolutionTable
 import com.github.heheteam.commonlib.database.table.StudentTable
+import com.github.heheteam.commonlib.database.table.SubmissionGroupMessagesTable
+import com.github.heheteam.commonlib.database.table.SubmissionPersonalMessagesTable
+import com.github.heheteam.commonlib.database.table.SubmissionTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.loadConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -34,13 +33,13 @@ private val allTables =
     AssignmentTable,
     CourseTable,
     ProblemTable,
-    SolutionTable,
+    SubmissionTable,
     StudentTable,
     TeacherTable,
     AdminTable,
     ParentTable,
-    SolutionGroupMessagesTable,
-    SolutionPersonalMessagesTable,
+    SubmissionGroupMessagesTable,
+    SubmissionPersonalMessagesTable,
     TeacherMenuMessageTable,
     PersonalDeadlineTable,
     CourseTokenTable,
@@ -58,7 +57,10 @@ fun main() {
 
 fun reset(database: Database) {
   transaction(database) {
-    SchemaUtils.drop(*allTables)
+    when (database.vendor) {
+      "H2" -> exec("DROP ALL OBJECTS")
+      else -> exec("DROP TABLE IF EXISTS ${allTables.joinToString { it.tableName }} CASCADE")
+    }
     SchemaUtils.create(*allTables)
   }
 }

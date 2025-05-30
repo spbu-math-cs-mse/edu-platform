@@ -6,19 +6,21 @@ import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.michaelbull.result.Result
 
 internal interface TelegramTechnicalMessagesStorage {
-  fun registerGroupSolutionPublication(
-    solutionId: SolutionId,
+  fun registerGroupSubmissionPublication(
+    submissionId: SubmissionId,
     telegramMessageInfo: TelegramMessageInfo,
   )
 
-  fun registerPersonalSolutionPublication(
-    solutionId: SolutionId,
+  fun registerPersonalSubmissionPublication(
+    submissionId: SubmissionId,
     telegramMessageInfo: TelegramMessageInfo,
   )
 
-  fun resolveGroupMessage(solutionId: SolutionId): Result<TelegramMessageInfo, EduPlatformError>
+  fun resolveGroupMessage(submissionId: SubmissionId): Result<TelegramMessageInfo, EduPlatformError>
 
-  fun resolvePersonalMessage(solutionId: SolutionId): Result<TelegramMessageInfo, EduPlatformError>
+  fun resolvePersonalMessage(
+    submissionId: SubmissionId
+  ): Result<TelegramMessageInfo, EduPlatformError>
 
   fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo)
 
@@ -30,7 +32,7 @@ internal interface TelegramTechnicalMessagesStorage {
    * @return TelegramMessageInfo of the menu message if it exists. Otherwise, just returns the chat
    *   id.
    */
-  fun resolveTeacherFirstUncheckedSolutionMessage(
+  fun resolveTeacherFirstUncheckedSubmissionMessage(
     teacherId: TeacherId
   ): Result<MenuMessageInfo, EduPlatformError>
 
@@ -42,7 +44,7 @@ internal interface TelegramTechnicalMessagesStorage {
    * @return TelegramMessageInfo of the menu message if it exists. Otherwise, just returns the chat
    *   id.
    */
-  fun resolveGroupFirstUncheckedSolutionMessage(
+  fun resolveGroupFirstUncheckedSubmissionMessage(
     courseId: CourseId
   ): Result<MenuMessageInfo, EduPlatformError>
 }

@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.telegram.SolutionStatusMessageInfo
+import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
 import com.github.heheteam.commonlib.util.buildData
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -11,17 +11,17 @@ import io.mockk.coVerify
 import kotlin.test.Test
 
 class AcademicWorkflowTest : IntegrationTestEnvironment() {
-  private fun mockSendInitSolutionStatusMessageDM(
+  private fun mockSendInitSubmissionStatusMessageDM(
     returnValue: Result<TelegramMessageInfo, EduPlatformError>
   ) =
-    coEvery { teacherBotController.sendInitSolutionStatusMessageDM(any(), any()) } returns
+    coEvery { teacherBotController.sendInitSubmissionStatusMessageDM(any(), any()) } returns
       returnValue
 
-  private fun mockSendInitSolutionStatusMessageInCourseGroupChat(
+  private fun mockSendInitSubmissionStatusMessageInCourseGroupChat(
     returnValue: Result<TelegramMessageInfo, EduPlatformError>
   ) =
     coEvery {
-      teacherBotController.sendInitSolutionStatusMessageInCourseGroupChat(any(), any())
+      teacherBotController.sendInitSubmissionStatusMessageInCourseGroupChat(any(), any())
     } returns returnValue
 
   private fun mockNotifyStudentOnNewAssessment() =
@@ -33,9 +33,9 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
 
   @Test
-  fun `telegram notifications are sent on new solution`() {
-    mockSendInitSolutionStatusMessageDM(Ok(messageInfoNum(1)))
-    mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+  fun `telegram notifications are sent on new submission`() {
+    mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
+    mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
     mockSendMenuMessage(Ok(messageInfoNum(1)))
 
     buildData(createDefaultApis()) {
@@ -47,14 +47,14 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
         withTeacher(teacher)
         val (assignment, problems) = assignment("Assignment1") { problem("Problem1", 10) }
 
-        val solution = solution(student, problems.first(), "Solution1")
+        val submission = submission(student, problems.first(), "Submission1")
 
         coVerify {
-          teacherBotController.sendInitSolutionStatusMessageDM(
+          teacherBotController.sendInitSubmissionStatusMessageDM(
             chatId = teacher.tgId,
-            solutionStatusMessageInfo =
-              SolutionStatusMessageInfo(
-                solutionId = solution.id,
+            submissionStatusMessageInfo =
+              SubmissionStatusMessageInfo(
+                submissionId = submission.id,
                 assignmentDisplayName = assignment.description,
                 problemDisplayName = problems.first().number,
                 student = student,
@@ -69,8 +69,8 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
 
   @Test
   fun `telegram notifications are sent on new assessment`() {
-    mockSendInitSolutionStatusMessageDM(Ok(messageInfoNum(1)))
-    mockSendInitSolutionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+    mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
+    mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
     mockSendMenuMessage(Ok(messageInfoNum(1)))
     mockNotifyStudentOnNewAssessment()
 
@@ -83,13 +83,13 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
         withTeacher(teacher)
         val (_, problems) = assignment("Assignment1") { problem("Problem1", 10) }
 
-        val solution = solution(student, problems.first(), "Solution1")
-        val assessment = assessment(teacher, solution, 1)
+        val submission = submission(student, problems.first(), "Submission1")
+        val assessment = assessment(teacher, submission, 1)
 
         coVerify(exactly = 1) {
           studentBotController.notifyStudentOnNewAssessment(
             chatId = student.tgId,
-            messageToReplyTo = solution.messageId,
+            messageToReplyTo = submission.messageId,
             studentId = student.id,
             problem = problems.first(),
             assessment = assessment,

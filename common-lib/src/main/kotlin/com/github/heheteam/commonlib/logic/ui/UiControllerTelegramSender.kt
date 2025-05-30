@@ -1,11 +1,11 @@
 package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -23,25 +23,26 @@ import kotlinx.coroutines.runBlocking
 internal class UiControllerTelegramSender(
   private val studentNotifier: StudentNewGradeNotifier,
   private val journalUpdater: JournalUpdater,
-  private val solutionDistributor: SolutionDistributor,
+  private val submissionDistributor: SubmissionDistributor,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
 ) : UiController {
-  override fun updateUiOnSolutionAssessment(
-    solutionId: SolutionId,
-    assessment: SolutionAssessment,
+  override fun updateUiOnSubmissionAssessment(
+    submissionId: SubmissionId,
+    assessment: SubmissionAssessment,
   ) {
     runBlocking(Dispatchers.IO) {
-      studentNotifier.notifyStudentOnNewAssessment(solutionId, assessment)
+      studentNotifier.notifyStudentOnNewAssessment(submissionId, assessment)
     }
-    runBlocking(Dispatchers.IO) { journalUpdater.updateJournalDisplaysForSolution(solutionId) }
-    val teacherId = solutionDistributor.resolveSolution(solutionId).get()?.responsibleTeacherId
+    runBlocking(Dispatchers.IO) { journalUpdater.updateJournalDisplaysForSubmission(submissionId) }
+    val teacherId =
+      submissionDistributor.resolveSubmission(submissionId).get()?.responsibleTeacherId
     if (teacherId != null) {
       runBlocking(Dispatchers.IO) { updateMenuMessageInPersonalMessages(teacherId) }
         .onFailure { KSLog.error(it) }
     }
 
-    val courseId = solutionDistributor.resolveSolutionCourse(solutionId).get()
+    val courseId = submissionDistributor.resolveSubmissionCourse(submissionId).get()
     if (courseId != null) {
       runBlocking(Dispatchers.IO) { updateMenuMessageInGroup(courseId) }
         .onFailure { KSLog.error(it) }
@@ -57,7 +58,7 @@ internal class UiControllerTelegramSender(
 
       val (chatId, messageId) =
         telegramTechnicalMessageStorage
-          .resolveTeacherFirstUncheckedSolutionMessage(teacherId)
+          .resolveTeacherFirstUncheckedSubmissionMessage(teacherId)
           .bind()
       val menuMessage =
         teacherBotTelegramController
@@ -76,7 +77,7 @@ internal class UiControllerTelegramSender(
       deleteMenuMessages(menuMessages)
 
       val (chatId, messageId) =
-        telegramTechnicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
+        telegramTechnicalMessageStorage.resolveGroupFirstUncheckedSubmissionMessage(courseId).bind()
       val menuMessage =
         teacherBotTelegramController
           .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })

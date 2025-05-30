@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.SubmissionAssessment
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 
 interface UiController {
-  fun updateUiOnSolutionAssessment(solutionId: SolutionId, assessment: SolutionAssessment)
+  fun updateUiOnSubmissionAssessment(submissionId: SubmissionId, assessment: SubmissionAssessment)
 }

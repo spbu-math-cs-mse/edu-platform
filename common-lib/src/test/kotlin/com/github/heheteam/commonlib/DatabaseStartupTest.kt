@@ -5,16 +5,16 @@ import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.util.fillWithSamples
 import kotlin.system.measureTimeMillis
@@ -29,7 +29,7 @@ class DatabaseStartupTest {
   private lateinit var courseStorage: CourseStorage
   private lateinit var gradeTable: GradeTable
   private lateinit var problemStorage: ProblemStorage
-  private lateinit var solutionDistributor: SolutionDistributor
+  private lateinit var submissionDistributor: SubmissionDistributor
   private lateinit var adminStorage: AdminStorage
   private lateinit var studentStorage: StudentStorage
   private lateinit var teacherStorage: TeacherStorage
@@ -50,7 +50,7 @@ class DatabaseStartupTest {
       assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
       courseStorage = DatabaseCourseStorage(database)
       gradeTable = DatabaseGradeTable(database)
-      solutionDistributor = DatabaseSolutionDistributor(database)
+      submissionDistributor = DatabaseSubmissionDistributor(database)
       adminStorage = DatabaseAdminStorage(database)
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)

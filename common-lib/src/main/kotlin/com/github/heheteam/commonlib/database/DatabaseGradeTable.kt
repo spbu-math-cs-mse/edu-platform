@@ -2,19 +2,19 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
-import com.github.heheteam.commonlib.database.table.SolutionTable
+import com.github.heheteam.commonlib.database.table.SubmissionTable
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ProblemId
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toProblemId
@@ -38,25 +38,27 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
 
   override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?> =
     transaction(database) {
-      SolutionTable.join(
+      SubmissionTable.join(
           AssessmentTable,
           JoinType.LEFT,
-          onColumn = SolutionTable.id,
-          otherColumn = AssessmentTable.solutionId,
+          onColumn = SubmissionTable.id,
+          otherColumn = AssessmentTable.submissionId,
         )
         .join(
           ProblemTable,
           JoinType.INNER,
-          onColumn = SolutionTable.problemId,
+          onColumn = SubmissionTable.problemId,
           otherColumn = ProblemTable.id,
         )
         .selectAll()
-        .where { SolutionTable.studentId eq studentId.long }
+        .where { SubmissionTable.studentId eq studentId.long }
         .orderBy(
           AssessmentTable.timestamp,
           SortOrder.ASC,
         ) // associate takes the latter entry with the same key
-        .associate { it[SolutionTable.problemId].value.toProblemId() to it[AssessmentTable.grade] }
+        .associate {
+          it[SubmissionTable.problemId].value.toProblemId() to it[AssessmentTable.grade]
+        }
     }
 
   override fun getStudentPerformance(
@@ -64,25 +66,25 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     assignmentId: AssignmentId,
   ): List<Pair<Problem, ProblemGrade>> =
     transaction(database) {
-      SolutionTable.join(
+      SubmissionTable.join(
           AssessmentTable,
           JoinType.LEFT,
-          onColumn = SolutionTable.id,
-          otherColumn = AssessmentTable.solutionId,
+          onColumn = SubmissionTable.id,
+          otherColumn = AssessmentTable.submissionId,
         )
         .join(
           ProblemTable,
           JoinType.RIGHT,
-          onColumn = SolutionTable.problemId,
+          onColumn = SubmissionTable.problemId,
           otherColumn = ProblemTable.id,
         )
         .selectAll()
         .where {
-          ((SolutionTable.studentId eq studentId.long) or (SolutionTable.id eq null)) and
+          ((SubmissionTable.studentId eq studentId.long) or (SubmissionTable.id eq null)) and
             (ProblemTable.assignmentId eq assignmentId.long)
         }
         .orderBy(
-          SolutionTable.timestamp to SortOrder.ASC,
+          SubmissionTable.timestamp to SortOrder.ASC,
           AssessmentTable.timestamp to SortOrder.ASC,
         )
         .associate {
@@ -97,7 +99,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           ) to
             if (it.getOrNull(AssessmentTable.grade) != null) {
               ProblemGrade.Graded(it[AssessmentTable.grade])
-            } else if (it.getOrNull(SolutionTable.id) != null) {
+            } else if (it.getOrNull(SubmissionTable.id) != null) {
               ProblemGrade.Unchecked
             } else {
               ProblemGrade.Unsent
@@ -110,16 +112,16 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
 
   override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
     transaction(database) {
-      SolutionTable.join(
+      SubmissionTable.join(
           AssessmentTable,
           JoinType.LEFT,
-          onColumn = SolutionTable.id,
-          otherColumn = AssessmentTable.solutionId,
+          onColumn = SubmissionTable.id,
+          otherColumn = AssessmentTable.submissionId,
         )
         .join(
           ProblemTable,
           JoinType.INNER,
-          onColumn = SolutionTable.problemId,
+          onColumn = SubmissionTable.problemId,
           otherColumn = ProblemTable.id,
         )
         .join(
@@ -131,24 +133,24 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         .selectAll()
         .where { AssignmentTable.courseId eq courseId.long }
         .orderBy(
-          SolutionTable.timestamp to SortOrder.ASC,
+          SubmissionTable.timestamp to SortOrder.ASC,
           AssessmentTable.timestamp to SortOrder.ASC,
         )
-        .groupBy { it[SolutionTable.studentId].value.toStudentId() }
+        .groupBy { it[SubmissionTable.studentId].value.toStudentId() }
         .mapValues { (_, trios) -> // Transform each group into a Map
           trios.associate { it[ProblemTable.id].value.toProblemId() to it[AssessmentTable.grade] }
         }
     }
 
-  override fun recordSolutionAssessment(
-    solutionId: SolutionId,
+  override fun recordSubmissionAssessment(
+    submissionId: SubmissionId,
     teacherId: TeacherId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     timestamp: kotlinx.datetime.LocalDateTime,
   ) {
     transaction(database) {
       AssessmentTable.insert {
-        it[AssessmentTable.solutionId] = solutionId.long
+        it[AssessmentTable.submissionId] = submissionId.long
         it[AssessmentTable.teacherId] = teacherId.long
         it[AssessmentTable.grade] = assessment.grade
         it[AssessmentTable.comment] = assessment.comment
@@ -157,17 +159,17 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     }
   }
 
-  override fun isChecked(solutionId: SolutionId): Boolean =
+  override fun isChecked(submissionId: SubmissionId): Boolean =
     !transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.long).empty()
+      AssessmentTable.selectAll().where(AssessmentTable.submissionId eq submissionId.long).empty()
     }
 
-  override fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry> =
+  override fun getGradingsForSubmission(submissionId: SubmissionId): List<GradingEntry> =
     transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.solutionId eq solutionId.long).map {
+      AssessmentTable.selectAll().where(AssessmentTable.submissionId eq submissionId.long).map {
         GradingEntry(
           it[AssessmentTable.teacherId].value.toTeacherId(),
-          SolutionAssessment(it[AssessmentTable.grade], it[AssessmentTable.comment]),
+          SubmissionAssessment(it[AssessmentTable.grade], it[AssessmentTable.comment]),
           it[AssessmentTable.timestamp],
         )
       }

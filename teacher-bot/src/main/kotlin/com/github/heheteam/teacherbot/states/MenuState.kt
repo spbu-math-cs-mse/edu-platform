@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
@@ -128,12 +128,12 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     dataCallback: DataCallbackQuery
   ): Result<ActionWrapper<TeacherAction>, Nothing>? =
     runCatching { Json.decodeFromString<GradingButtonContent>(dataCallback.data) }
-      .map { ActionWrapper<TeacherAction>(GradingFromButton(it.solutionId, it.grade)) }
+      .map { ActionWrapper<TeacherAction>(GradingFromButton(it.submissionId, it.grade)) }
       .get()
       ?.ok()
 
   private var counter = 0
-  private val storedInfo = mutableMapOf<Int, Pair<SolutionId, SolutionAssessment>>()
+  private val storedInfo = mutableMapOf<Int, Pair<SubmissionId, SubmissionAssessment>>()
 
   private suspend fun executeAction(
     action: TeacherAction,
@@ -142,15 +142,15 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
   ) {
     when (action) {
       is GradingFromButton ->
-        teacherApi.assessSolution(
-          action.solutionId,
+        teacherApi.assessSubmission(
+          action.submissionId,
           teacherId,
-          SolutionAssessment(action.grade),
+          SubmissionAssessment(action.grade),
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
 
       is GradingFromReply -> {
-        storedInfo[++counter] = action.solutionId to action.solutionAssessment
+        storedInfo[++counter] = action.submissionId to action.submissionAssessment
         bot.sendMessage(
           context.id,
           "Вы подтверждаете отправку?",
@@ -166,10 +166,10 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
       }
 
       is ConfirmSending -> {
-        teacherApi.assessSolution(
-          action.solutionId,
+        teacherApi.assessSubmission(
+          action.submissionId,
           teacherId,
-          action.solutionAssessment,
+          action.submissionAssessment,
           LocalDateTime.now().toKotlinLocalDateTime(),
         )
         with(bot) { action.messageToDeleteOnConfirm?.let { delete(it) } }
@@ -212,13 +212,13 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     coroutineBinding {
       val technicalMessageText =
         extractReplyText(commonMessage).mapError { NotReplyOrReplyNotToTextMessage }.bind()
-      val solutionId =
-        parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSolution }.bind()
+      val submissionId =
+        parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSubmission }.bind()
       val assessment =
         extractAssessmentFromMessage(commonMessage, teacherBotToken, telegramBot)
           .mapError { BadAssessment(it) }
           .bind()
-      ActionWrapper(GradingFromReply(solutionId, assessment))
+      ActionWrapper(GradingFromReply(submissionId, assessment))
     }
   }
 }
@@ -227,6 +227,6 @@ sealed interface MessageError
 
 data object NotReplyOrReplyNotToTextMessage : MessageError
 
-data object ReplyNotToSolution : MessageError
+data object ReplyNotToSubmission : MessageError
 
 data class BadAssessment(val error: String) : MessageError

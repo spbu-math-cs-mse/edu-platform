@@ -58,7 +58,7 @@ class RemoveStudentState(override val context: User, val course: Course, val cou
 
     val splitIds = input.split(",").map { it.trim() }
     if (splitIds.isEmpty()) {
-      return Pair(this, listOf(noIdInInput()))
+      return Pair(this, listOf(noIdInInput))
     }
 
     val processedIds = processStringIds(splitIds)

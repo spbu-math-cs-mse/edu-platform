@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object AssessmentTable : LongIdTable("assessment") {
-  val solutionId = reference("solutionId", SolutionTable.id)
+  val submissionId = reference("submissionId", SubmissionTable.id)
   val teacherId = reference("teacherId", TeacherTable.id)
   val grade = integer("grade")
   val comment = json<TextWithMediaAttachments>("content", Json)

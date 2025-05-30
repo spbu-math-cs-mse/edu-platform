@@ -27,7 +27,7 @@ internal constructor(
         val menuMessages = technicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
         deleteMenuMessages(menuMessages)
         val (chatId, messageId) =
-          technicalMessageStorage.resolveTeacherFirstUncheckedSolutionMessage(teacherId).bind()
+          technicalMessageStorage.resolveTeacherFirstUncheckedSubmissionMessage(teacherId).bind()
         val menuMessage =
           if (messageId != null) {
               teacherBotTelegramController.sendMenuMessage(
@@ -50,7 +50,7 @@ internal constructor(
         val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
         deleteMenuMessages(menuMessages)
         val (chatId, messageId) =
-          technicalMessageStorage.resolveGroupFirstUncheckedSolutionMessage(courseId).bind()
+          technicalMessageStorage.resolveGroupFirstUncheckedSubmissionMessage(courseId).bind()
         val menuMessage =
           if (messageId != null) {
               teacherBotTelegramController.sendMenuMessage(

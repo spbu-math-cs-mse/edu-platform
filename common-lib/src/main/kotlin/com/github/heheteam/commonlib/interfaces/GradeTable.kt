@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.ProblemGrade.Graded
 import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GradingEntry(
   val teacherId: TeacherId,
-  val assessment: SolutionAssessment,
+  val assessment: SubmissionAssessment,
   val timestamp: kotlinx.datetime.LocalDateTime,
 )
 
@@ -35,7 +35,7 @@ internal interface GradeTable {
    * @param studentId The unique identifier of the student.
    * @param assignmentId An identifier of the assignment to fetch grades for.
    * @return A map where each problem ID is associated with its corresponding grade. A grade is
-   *   `null` if the solution has not been checked.
+   *   `null` if the submission has not been checked.
    */
   fun getStudentPerformance(
     studentId: StudentId,
@@ -47,18 +47,18 @@ internal interface GradeTable {
    *
    * @param courseId The unique identifier of the course.
    * @return A map where each student ID is associated with a map of problem IDs to their
-   *   corresponding grades. A grade is `null` if the solution has not been checked.
+   *   corresponding grades. A grade is `null` if the submission has not been checked.
    */
   fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>>
 
-  fun recordSolutionAssessment(
-    solutionId: SolutionId,
+  fun recordSubmissionAssessment(
+    submissionId: SubmissionId,
     teacherId: TeacherId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     timestamp: kotlinx.datetime.LocalDateTime = LocalDateTime.now().toKotlinLocalDateTime(),
   )
 
-  fun isChecked(solutionId: SolutionId): Boolean
+  fun isChecked(submissionId: SubmissionId): Boolean
 
-  fun getGradingsForSolution(solutionId: SolutionId): List<GradingEntry>
+  fun getGradingsForSubmission(submissionId: SubmissionId): List<GradingEntry>
 }

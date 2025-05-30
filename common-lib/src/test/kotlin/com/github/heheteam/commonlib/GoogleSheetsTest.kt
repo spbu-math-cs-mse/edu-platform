@@ -4,8 +4,8 @@ import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
@@ -37,7 +37,7 @@ class GoogleSheetsTest {
   private val gradeTable = DatabaseGradeTable(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
-  private val solutionDistributor = DatabaseSolutionDistributor(database)
+  private val submissionDistributor = DatabaseSubmissionDistributor(database)
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val googleSheetsService =
@@ -94,7 +94,7 @@ class GoogleSheetsTest {
     )
 
     for (problemId in 1..11) {
-      solutionDistributor.inputSolution(
+      submissionDistributor.inputSubmission(
         student1Id,
         RawChatId(0),
         MessageId(0),
@@ -105,7 +105,7 @@ class GoogleSheetsTest {
       )
     }
     for (problemId in 1..6) {
-      solutionDistributor.inputSolution(
+      submissionDistributor.inputSubmission(
         student2Id,
         RawChatId(0),
         MessageId(0),
@@ -116,13 +116,13 @@ class GoogleSheetsTest {
       )
     }
 
-    for (solutionId in 1..17) {
-      val solution = solutionDistributor.querySolution(teacher1Id).get()
-      assertNotNull(solution)
-      gradeTable.recordSolutionAssessment(
-        solution.id,
+    for (submissionId in 1..17) {
+      val submission = submissionDistributor.querySubmission(teacher1Id).get()
+      assertNotNull(submission)
+      gradeTable.recordSubmissionAssessment(
+        submission.id,
         teacher1Id,
-        SolutionAssessment(solutionId % 2, TextWithMediaAttachments("comment")),
+        SubmissionAssessment(submissionId % 2, TextWithMediaAttachments("comment")),
       )
     }
 

@@ -26,7 +26,7 @@ open class IntegrationTestEnvironment {
     )
 
   protected val googleSheetsService = mockk<GoogleSheetsService>(relaxed = true)
-  protected val studentBotController = mockk<StudentBotTelegramController>(relaxed = true)
+  protected open val studentBotController = mockk<StudentBotTelegramController>(relaxed = true)
   protected val teacherBotController = mockk<TeacherBotTelegramController>(relaxed = true)
   protected val adminBotController = mockk<AdminBotTelegramController>(relaxed = true)
 

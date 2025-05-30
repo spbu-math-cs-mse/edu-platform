@@ -1,12 +1,38 @@
 package com.github.heheteam.commonlib.interfaces
 
-import com.github.heheteam.commonlib.Course
-import java.time.LocalDateTime
+import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.NewScheduledMessageInfo
+import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.michaelbull.result.Result
+import dev.inmo.tgbotapi.types.UserId
+import kotlinx.datetime.LocalDateTime
 
-data class ScheduledMessage(val course: Course, val date: LocalDateTime, val message: String)
+data class ScheduledMessage(
+  val id: ScheduledMessageId,
+  val timestamp: LocalDateTime,
+  val content: TelegramMessageContent,
+  val shortName: String,
+  val courseId: CourseId,
+  val isSent: Boolean,
+  val isDeleted: Boolean,
+  val adminId: AdminId,
+)
 
 interface ScheduledMessagesDistributor {
-  fun addMessage(message: ScheduledMessage)
+  fun sendScheduledMessage(
+    adminId: AdminId,
+    messageInfo: NewScheduledMessageInfo,
+  ): Result<ScheduledMessageId, EduPlatformError>
+
+  suspend fun resolveScheduledMessage(
+    scheduledMessageId: ScheduledMessageId
+  ): Result<ScheduledMessage, EduPlatformError>
+
+  suspend fun viewScheduledMessages(adminId: UserId, lastN: Int): List<ScheduledMessage>
+
+  suspend fun deleteScheduledMessage(
+    scheduledMessageId: ScheduledMessageId
+  ): Result<Unit, EduPlatformError>
 
   fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage>
 

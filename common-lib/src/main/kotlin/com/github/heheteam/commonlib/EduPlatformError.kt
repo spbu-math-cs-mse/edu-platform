@@ -14,6 +14,19 @@ data class NamedError(
   override val causedBy: EduPlatformError? = null,
 ) : EduPlatformError
 
+data class AggregateError(
+  val summary: String,
+  val causes: List<EduPlatformError>,
+  override val causedBy: EduPlatformError? = null,
+) : EduPlatformError {
+
+  override val shortDescription: String = summary
+
+  override val longDescription: String =
+    "$summary: encountered issues:\n" +
+      causes.joinToString("\n") { it.longDescription.prependIndent("  ") }
+}
+
 fun String.asNamedError(causedBy: EduPlatformError? = null) = NamedError(this, causedBy)
 
 fun Throwable.asEduPlatformError(): EduPlatformError {

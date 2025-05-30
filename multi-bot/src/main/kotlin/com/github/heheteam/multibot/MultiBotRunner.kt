@@ -27,9 +27,16 @@ import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
+import java.time.LocalDateTime
+import korlibs.time.fromSeconds
+import kotlin.time.Duration
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
+
+private const val HEARTBEAT_DELAY_SECONDS = 5
 
 class MultiBotRunner : CliktCommand() {
   private val studentBotToken: String by option().required().help("student bot token")
@@ -94,6 +101,14 @@ class MultiBotRunner : CliktCommand() {
       DeveloperOptions(presetStudent, presetTeacher)
     }
     runBlocking {
+      launch {
+        while (true) {
+          val timestamp = LocalDateTime.now().toKotlinLocalDateTime()
+          apis.studentApi.checkAndSentMessages(timestamp)
+          delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
+          println("tick $timestamp")
+        }
+      }
       launch { StudentRunner(studentBotToken, apis.studentApi, developerOptions).run() }
       launch {
         val stateRegister = StateRegister(apis.teacherApi)

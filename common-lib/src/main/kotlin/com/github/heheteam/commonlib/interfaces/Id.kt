@@ -58,3 +58,10 @@ fun Long.toAdminId() = AdminId(this)
 fun Long.toStudentId() = StudentId(this)
 
 fun Long.toTeacherId() = TeacherId(this)
+
+@Serializable
+data class ScheduledMessageId(val long: Long) {
+  override fun toString(): String = "$long"
+}
+
+fun Long.toScheduledMessageId() = ScheduledMessageId(this)

@@ -22,7 +22,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
-class QueryProblemForSolutionSendingState(
+class QueryProblemForSubmissionSendingState(
   override val context: User,
   override val userId: StudentId,
   private val selectedCourseId: CourseId,
@@ -46,7 +46,7 @@ class QueryProblemForSolutionSendingState(
         assignments.associateWith { service.getProblemsFromAssignment(it.id) },
       )
     val message =
-      bot.send(context, Dialogues.askProblem(), replyMarkup = buildProblemSendingSelector(problems))
+      bot.send(context, Dialogues.askProblem, replyMarkup = buildProblemSendingSelector(problems))
     sentMessage.add(message)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       when (val callbackData = dataCallbackQuery.data) {
@@ -69,7 +69,7 @@ class QueryProblemForSolutionSendingState(
   }
 
   override fun computeNewState(service: StudentApi, input: Problem?): Pair<State, Unit> {
-    return if (input != null) SendSolutionState(context, userId, input) to Unit
+    return if (input != null) SendSubmissionState(context, userId, input) to Unit
     else {
       MenuState(context, userId) to Unit
     }

@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.interfaces.GradingEntry
-import com.github.heheteam.commonlib.logic.ui.createSolutionGradingKeyboard
+import com.github.heheteam.commonlib.logic.ui.createSubmissionGradingKeyboard
 import com.github.heheteam.commonlib.toTelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
@@ -25,67 +25,67 @@ import dev.inmo.tgbotapi.types.toChatId
 
 class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   TeacherBotTelegramController {
-  override suspend fun sendInitSolutionStatusMessageDM(
+  override suspend fun sendInitSubmissionStatusMessageDM(
     chatId: RawChatId,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   ): Result<TelegramMessageInfo, EduPlatformError> =
     runCatching {
-        val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+        val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
         val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
         teacherBot.editMessageReplyMarkup(
           message.chat,
           message.messageId,
-          replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+          replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
         )
         message.toTelegramMessageInfo()
       }
       .mapError { TelegramError(it) }
 
-  override suspend fun updateSolutionStatusMessageDM(
+  override suspend fun updateSubmissionStatusMessageDM(
     message: TelegramMessageInfo,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   ) {
-    val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+    val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
     teacherBot.edit(message.chatId.toChatId(), message.messageId, messageContent)
 
     teacherBot.editMessageReplyMarkup(
       message.chatId.toChatId(),
       message.messageId,
-      replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+      replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
     )
   }
 
-  override suspend fun sendInitSolutionStatusMessageInCourseGroupChat(
+  override suspend fun sendInitSubmissionStatusMessageInCourseGroupChat(
     chatId: RawChatId,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   ): Result<TelegramMessageInfo, EduPlatformError> =
     runCatching {
-        val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+        val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
         val message = teacherBot.sendMessage(chatId.toChatId(), messageContent)
         teacherBot.editMessageReplyMarkup(
           message.chat,
           message.messageId,
-          replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+          replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
         )
         message.toTelegramMessageInfo()
       }
       .mapError { TelegramError(it) }
 
-  override suspend fun updateSolutionStatusMessageInCourseGroupChat(
+  override suspend fun updateSubmissionStatusMessageInCourseGroupChat(
     message: TelegramMessageInfo,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   ) {
-    val messageContent = solutionStatusInfoToMessageContent(solutionStatusMessageInfo)
+    val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
     teacherBot.edit(message.chatId.toChatId(), message.messageId, messageContent)
 
     teacherBot.editMessageReplyMarkup(
       message.chatId.toChatId(),
       message.messageId,
-      replyMarkup = createSolutionGradingKeyboard(solutionStatusMessageInfo.solutionId),
+      replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
     )
   }
 
-  override suspend fun sendSolution(chatId: RawChatId, content: TextWithMediaAttachments) {
+  override suspend fun sendSubmission(chatId: RawChatId, content: TextWithMediaAttachments) {
     teacherBot.sendTextWithMediaAttachments(chatId.toChatId(), content)
   }
 
@@ -111,17 +111,17 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
     }
   }
 
-  private fun solutionStatusInfoToMessageContent(
-    solutionStatusMessageInfo: SolutionStatusMessageInfo
+  private fun submissionStatusInfoToMessageContent(
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo
   ): String {
-    val student = solutionStatusMessageInfo.student
-    val responsibleTeacher = solutionStatusMessageInfo.responsibleTeacher
-    val gradingEntries = solutionStatusMessageInfo.gradingEntries
+    val student = submissionStatusMessageInfo.student
+    val responsibleTeacher = submissionStatusMessageInfo.responsibleTeacher
+    val gradingEntries = submissionStatusMessageInfo.gradingEntries
     return buildString {
       appendLine("(Ответьте на это сообщение или нажмите на кнопки внизу для проверки)")
-      appendLine("Отправка #${solutionStatusMessageInfo.solutionId.long}")
+      appendLine("Отправка #${submissionStatusMessageInfo.submissionId.long}")
       appendLine(
-        "Задача ${solutionStatusMessageInfo.assignmentDisplayName}:${solutionStatusMessageInfo.problemDisplayName}"
+        "Задача ${submissionStatusMessageInfo.assignmentDisplayName}:${submissionStatusMessageInfo.problemDisplayName}"
       )
       appendLine("Решение отправил ${student.name} ${student.surname} (id=${student.id})")
       if (responsibleTeacher != null)

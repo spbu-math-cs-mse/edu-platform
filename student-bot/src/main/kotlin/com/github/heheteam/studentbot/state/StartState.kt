@@ -19,9 +19,9 @@ class StartState(override val context: User) : BotState<StudentId?, String?, Stu
 
   override fun computeNewState(service: StudentApi, input: StudentId?): Pair<State, String?> =
     if (input != null) {
-      MenuState(context, input) to Dialogues.greetings()
+      MenuState(context, input) to Dialogues.greetings
     } else {
-      AskFirstNameState(context) to Dialogues.greetings()
+      AskFirstNameState(context) to Dialogues.greetings
     }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: String?) {

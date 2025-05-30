@@ -26,9 +26,9 @@ object CourseStatisticsFormatter {
       add(RegularTextSource("• Суммарный максимальный балл: ${stats.totalMaxScore}\n\n"))
 
       add(RegularTextSource("📝 Статистика решений:\n"))
-      add(RegularTextSource("• Всего посылок: ${stats.totalSolutions}\n"))
-      add(RegularTextSource("• Проверено задач: ${stats.checkedSolutions}\n"))
-      add(RegularTextSource("• Ожидают проверки: ${stats.uncheckedSolutions}\n\n"))
+      add(RegularTextSource("• Всего посылок: ${stats.totalSubmissions}\n"))
+      add(RegularTextSource("• Проверено задач: ${stats.checkedSubmissions}\n"))
+      add(RegularTextSource("• Ожидают проверки: ${stats.uncheckedSubmissions}\n\n"))
 
       if (stats.assignments.isNotEmpty()) {
         add(RegularTextSource("📝 Серии заданий:\n"))

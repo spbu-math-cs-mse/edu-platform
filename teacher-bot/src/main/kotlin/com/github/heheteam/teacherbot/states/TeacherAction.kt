@@ -1,24 +1,24 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Grade
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.SubmissionAssessment
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.MessageContent
 
 sealed interface TeacherAction
 
-data class GradingFromButton(val solutionId: SolutionId, val grade: Grade) : TeacherAction
+data class GradingFromButton(val submissionId: SubmissionId, val grade: Grade) : TeacherAction
 
 data class GradingFromReply(
-  val solutionId: SolutionId,
-  val solutionAssessment: SolutionAssessment,
+  val submissionId: SubmissionId,
+  val submissionAssessment: SubmissionAssessment,
 ) : TeacherAction
 
 data class ConfirmSending(
-  val solutionId: SolutionId,
-  val solutionAssessment: SolutionAssessment,
+  val submissionId: SubmissionId,
+  val submissionAssessment: SubmissionAssessment,
   val messageToDeleteOnConfirm: ContentMessage<MessageContent>?,
 ) : TeacherAction
 

@@ -1,29 +1,29 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.michaelbull.result.coroutines.coroutineBinding
 
 internal class StudentNewGradeNotifierImpl(
   private val studentBotTelegramController: StudentBotTelegramController,
   private val problemStorage: ProblemStorage,
-  private val solutionDistributor: SolutionDistributor,
+  private val submissionDistributor: SubmissionDistributor,
 ) : StudentNewGradeNotifier {
   override suspend fun notifyStudentOnNewAssessment(
-    solutionId: SolutionId,
-    assessment: SolutionAssessment,
+    submissionId: SubmissionId,
+    assessment: SubmissionAssessment,
   ) {
     coroutineBinding {
-      val solution = solutionDistributor.resolveSolution(solutionId).bind()
-      val problem = problemStorage.resolveProblem(solution.problemId).bind()
+      val submission = submissionDistributor.resolveSubmission(submissionId).bind()
+      val problem = problemStorage.resolveProblem(submission.problemId).bind()
 
       studentBotTelegramController.notifyStudentOnNewAssessment(
-        solution.chatId,
-        solution.messageId,
-        solution.studentId,
+        submission.chatId,
+        submission.messageId,
+        submission.studentId,
         problem,
         assessment,
       )

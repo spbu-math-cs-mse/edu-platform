@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Config
-import com.github.heheteam.commonlib.Solution
+import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -9,8 +9,8 @@ import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseTelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.database.FirstTeacherResolver
@@ -18,7 +18,7 @@ import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
-import com.github.heheteam.commonlib.decorators.SolutionDistributorDecorator
+import com.github.heheteam.commonlib.decorators.SubmissionDistributorDecorator
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
@@ -27,13 +27,13 @@ import com.github.heheteam.commonlib.interfaces.PersonalDeadlineStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
 import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
-import com.github.heheteam.commonlib.logic.ui.NewSolutionTeacherNotifier
+import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
@@ -78,7 +78,8 @@ class ApiFabric(
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database, problemStorage)
-    val databaseSolutionDistributor: SolutionDistributor = DatabaseSolutionDistributor(database)
+    val databaseSubmissionDistributor: SubmissionDistributor =
+      DatabaseSubmissionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
@@ -92,8 +93,8 @@ class ApiFabric(
         databaseCourseStorage,
         databaseAssignmentStorage,
         problemStorage,
-        databaseSolutionDistributor,
-        AcademicWorkflowLogic(databaseSolutionDistributor, databaseGradeTable),
+        databaseSubmissionDistributor,
+        AcademicWorkflowLogic(databaseSubmissionDistributor, databaseGradeTable),
       )
     val studentStorage = DatabaseStudentStorage(database)
 
@@ -101,9 +102,9 @@ class ApiFabric(
       CourseStorageDecorator(databaseCourseStorage, ratingRecorder, courseTokenService)
     val gradeTable = GradeTableDecorator(databaseGradeTable, ratingRecorder)
     val assignmentStorage = AssignmentStorageDecorator(databaseAssignmentStorage, ratingRecorder)
-    val solutionDistributor =
-      SolutionDistributorDecorator(databaseSolutionDistributor, ratingRecorder)
-    val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
+    val submissionDistributor =
+      SubmissionDistributorDecorator(databaseSubmissionDistributor, ratingRecorder)
+    val academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     val adminStorage = DatabaseAdminStorage(database)
     if (initDatabase) {
       fillWithSamples(
@@ -136,7 +137,7 @@ class ApiFabric(
     }
 
     val tgTechnicalMessagesStorage =
-      DatabaseTelegramTechnicalMessagesStorage(database, solutionDistributor)
+      DatabaseTelegramTechnicalMessagesStorage(database, submissionDistributor)
     val menuMessageUpdaterService =
       MenuMessageUpdaterImpl(tgTechnicalMessagesStorage, teacherBotTelegramController)
     val uiController =
@@ -144,11 +145,11 @@ class ApiFabric(
         StudentNewGradeNotifierImpl(
           studentBotTelegramController,
           problemStorage,
-          solutionDistributor,
+          submissionDistributor,
         ),
         TelegramMessagesJournalUpdater(
           gradeTable,
-          solutionDistributor,
+          submissionDistributor,
           problemStorage,
           assignmentStorage,
           studentStorage,
@@ -156,7 +157,7 @@ class ApiFabric(
           tgTechnicalMessagesStorage,
           teacherBotTelegramController,
         ),
-        solutionDistributor,
+        submissionDistributor,
         teacherBotTelegramController,
         tgTechnicalMessagesStorage,
       )
@@ -170,7 +171,7 @@ class ApiFabric(
             problemStorage,
             assignmentStorage,
             courseStorage,
-            solutionDistributor,
+            submissionDistributor,
           )
       }
     val academicWorkflowService =
@@ -199,17 +200,17 @@ class ApiFabric(
         teacherStorage,
         assignmentStorage,
         problemStorage,
-        solutionDistributor,
+        submissionDistributor,
         personalDeadlinesService,
         courseTokenService,
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
-    val newSolutionTeacherNotifier =
-      NewSolutionTeacherNotifier(
+    val newSubmissionTeacherNotifier =
+      NewSubmissionTeacherNotifier(
         tgTechnicalMessagesStorage,
         teacherBotTelegramController,
-        solutionDistributor,
+        submissionDistributor,
         problemStorage,
         assignmentStorage,
         studentStorage,
@@ -218,8 +219,8 @@ class ApiFabric(
         courseStorage,
       )
 
-    botEventBus.subscribeToNewSolutionEvent { solution: Solution ->
-      newSolutionTeacherNotifier.notifyNewSolution(solution)
+    botEventBus.subscribeToNewSubmissionEvent { submission: Submission ->
+      newSubmissionTeacherNotifier.notifyNewSubmission(submission)
     }
 
     val teacherApi =

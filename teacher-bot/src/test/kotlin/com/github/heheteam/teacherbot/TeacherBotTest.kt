@@ -5,8 +5,8 @@ import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.ProblemId
@@ -35,7 +35,7 @@ class TeacherBotTest {
       config.databaseConfig.login,
       config.databaseConfig.password,
     )
-  private val solutionDistributor = DatabaseSolutionDistributor(database)
+  private val submissionDistributor = DatabaseSubmissionDistributor(database)
   private val courseStorage = DatabaseCourseStorage(database)
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
@@ -78,8 +78,8 @@ class TeacherBotTest {
   }
 
   @Test
-  fun `teacher gets user solution TEXT`() {
-    solutionDistributor.inputSolution(
+  fun `teacher gets user submission TEXT`() {
+    submissionDistributor.inputSubmission(
       studentId,
       RawChatId(0),
       MessageId(0),
@@ -88,11 +88,11 @@ class TeacherBotTest {
       LocalDateTime.now(),
       teacherId,
     )
-    val solution = solutionDistributor.querySolution(teacherId).value!!
+    val submission = submissionDistributor.querySubmission(teacherId).value!!
 
-    assertEquals(studentId, solution.studentId)
-    assertEquals(TextWithMediaAttachments(text = "text"), solution.content)
-    assertEquals(MessageId(0), solution.messageId)
-    assertEquals(RawChatId(0), solution.chatId)
+    assertEquals(studentId, submission.studentId)
+    assertEquals(TextWithMediaAttachments(text = "text"), submission.content)
+    assertEquals(MessageId(0), submission.messageId)
+    assertEquals(RawChatId(0), submission.chatId)
   }
 }

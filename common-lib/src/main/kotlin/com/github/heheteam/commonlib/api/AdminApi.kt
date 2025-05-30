@@ -14,10 +14,10 @@ import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
@@ -40,7 +40,7 @@ internal constructor(
   private val teacherStorage: TeacherStorage,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
-  private val solutionDistributor: SolutionDistributor,
+  private val submissionDistributor: SubmissionDistributor,
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val tokenStorage: CourseTokenStorage,
 ) {
@@ -109,17 +109,19 @@ internal constructor(
 
     var totalProblems = 0
     var totalMaxScore = 0
-    var totalSolutions = 0
-    var checkedSolutions = 0
+    var totalSubmissions = 0
+    var checkedSubmissions = 0
     assignments.forEach { assignment ->
       val problems = problemStorage.getProblemsFromAssignment(assignment.id)
       totalProblems += problems.size
       totalMaxScore += problems.sumOf { it.maxScore }
       problems.forEach { problem ->
-        val solutions = solutionDistributor.getSolutionsForProblem(problem.id)
-        totalSolutions += solutions.size
-        checkedSolutions +=
-          solutions.count { solutionId -> solutionDistributor.isSolutionAssessed(solutionId) }
+        val submissions = submissionDistributor.getSubmissionsForProblem(problem.id)
+        totalSubmissions += submissions.size
+        checkedSubmissions +=
+          submissions.count { submissionId ->
+            submissionDistributor.isSubmissionAssessed(submissionId)
+          }
       }
     }
 
@@ -129,9 +131,9 @@ internal constructor(
       assignmentsCount = assignments.size,
       totalProblems = totalProblems,
       totalMaxScore = totalMaxScore,
-      totalSolutions = totalSolutions,
-      checkedSolutions = checkedSolutions,
-      uncheckedSolutions = totalSolutions - checkedSolutions,
+      totalSubmissions = totalSubmissions,
+      checkedSubmissions = checkedSubmissions,
+      uncheckedSubmissions = totalSubmissions - checkedSubmissions,
       students = students,
       teachers = teachers,
       assignments = assignments,

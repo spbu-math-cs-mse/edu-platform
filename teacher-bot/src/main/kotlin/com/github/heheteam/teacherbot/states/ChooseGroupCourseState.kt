@@ -43,7 +43,7 @@ class ChooseGroupCourseState(override val context: Chat) :
         .toResultOr { CourseIdError.BadInteger }
         .flatMap { service.resolveCourse(it).mapError { CourseIdError.UnresolvedCourse } }
     return courseOrError.mapBoth(
-      success = { ListeningForSolutionsGroupState(context, it.id) },
+      success = { ListeningForSubmissionsGroupState(context, it.id) },
       failure = { ChooseGroupCourseState(context) },
     ) to courseOrError
   }

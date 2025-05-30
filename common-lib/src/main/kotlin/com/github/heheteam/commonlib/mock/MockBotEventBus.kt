@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.mock
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import dev.inmo.tgbotapi.types.MessageId
@@ -14,13 +14,13 @@ class MockBotEventBus : BotEventBus {
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     problem: Problem,
   ) {
     // Do nothing
   }
 
-  override fun publishNewSolutionEvent(solution: Solution) {
+  override fun publishNewSubmissionEvent(submission: Submission) {
     // Do nothing
   }
 
@@ -32,12 +32,12 @@ class MockBotEventBus : BotEventBus {
     // Do nothing
   }
 
-  override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
+  override fun subscribeToNewSubmissionEvent(handler: suspend (Submission) -> Unit) {
     // Do nothing
   }
 
   override fun subscribeToGradeEvents(
-    handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
+    handler: suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
   ) {
     // Do nothing
   }

@@ -5,8 +5,8 @@ import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.database.reset
@@ -16,8 +16,8 @@ import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach
 
 class StudentBotTest {
   private lateinit var courseStorage: CourseStorage
-  private lateinit var solutionDistributor: SolutionDistributor
+  private lateinit var submissionDistributor: SubmissionDistributor
   private lateinit var studentApi: StudentApi
   private lateinit var courseIds: List<CourseId>
   private lateinit var gradeTable: GradeTable
@@ -58,14 +58,14 @@ class StudentBotTest {
   fun setup() {
     reset(database)
     courseStorage = DatabaseCourseStorage(database)
-    solutionDistributor = DatabaseSolutionDistributor(database)
+    submissionDistributor = DatabaseSubmissionDistributor(database)
     studentStorage = DatabaseStudentStorage(database)
     studentStorage = DatabaseStudentStorage(database)
     teacherStorage = DatabaseTeacherStorage(database)
     problemStorage = DatabaseProblemStorage(database)
     assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
     gradeTable = DatabaseGradeTable(database)
-    academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
+    academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
 
     courseIds = (1..4).map { courseStorage.createCourse("course $it") }
 
@@ -80,7 +80,7 @@ class StudentBotTest {
           problemStorage,
           assignmentStorage,
           courseStorage,
-          solutionDistributor,
+          submissionDistributor,
         ),
         mockBotEventBus,
         mockUiController,

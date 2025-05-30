@@ -8,7 +8,7 @@ import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
 object Keyboards {
-  const val SEND_SOLUTION = "sendSolution"
+  const val SEND_SOLUTION = "sendSubmission"
   const val RETURN_BACK = "back"
   const val PROBLEM_ID = "problemId"
   const val CHECK_GRADES = "checkGrades"

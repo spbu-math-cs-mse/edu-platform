@@ -31,7 +31,7 @@ data class ParentId(val long: Long) {
 }
 
 @Serializable
-data class SolutionId(val long: Long) {
+data class SubmissionId(val long: Long) {
   override fun toString(): String = "$long"
 }
 
@@ -51,7 +51,7 @@ fun Long.toAssignmentId() = AssignmentId(this)
 
 fun Long.toProblemId() = ProblemId(this)
 
-fun Long.toSolutionId() = SolutionId(this)
+fun Long.toSubmissionId() = SubmissionId(this)
 
 fun Long.toAdminId() = AdminId(this)
 

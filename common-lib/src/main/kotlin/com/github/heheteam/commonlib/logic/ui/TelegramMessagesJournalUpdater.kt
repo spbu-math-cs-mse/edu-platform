@@ -4,23 +4,22 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.SolutionDistributor
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
-import com.github.heheteam.commonlib.telegram.SolutionStatusMessageInfo
+import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.get
 
 @Suppress("LongParameterList") // will go away with refactoring after tests are there
 class TelegramMessagesJournalUpdater
 internal constructor(
   private val gradeTable: GradeTable,
-  private val solutionDistributor: SolutionDistributor,
+  private val submissionDistributor: SubmissionDistributor,
   private val problemStorage: ProblemStorage,
   private val assignmentStorage: AssignmentStorage,
   private val studentStorage: StudentStorage,
@@ -28,39 +27,39 @@ internal constructor(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val teacherBotTelegramController: TeacherBotTelegramController,
 ) : JournalUpdater {
-  override suspend fun updateJournalDisplaysForSolution(solutionId: SolutionId) {
+  override suspend fun updateJournalDisplaysForSubmission(submissionId: SubmissionId) {
     coroutineBinding {
-      val solutionStatusMessageInfo = extractSolutionStatusMessageInfo(solutionId).bind()
-      val groupTechnicalMessage = technicalMessageStorage.resolveGroupMessage(solutionId).bind()
-      teacherBotTelegramController.updateSolutionStatusMessageInCourseGroupChat(
+      val submissionStatusMessageInfo = extractSubmissionStatusMessageInfo(submissionId).bind()
+      val groupTechnicalMessage = technicalMessageStorage.resolveGroupMessage(submissionId).bind()
+      teacherBotTelegramController.updateSubmissionStatusMessageInCourseGroupChat(
         groupTechnicalMessage,
-        solutionStatusMessageInfo,
+        submissionStatusMessageInfo,
       )
     }
     coroutineBinding {
-      val solutionStatusMessageInfo = extractSolutionStatusMessageInfo(solutionId).bind()
+      val submissionStatusMessageInfo = extractSubmissionStatusMessageInfo(submissionId).bind()
       val personalTechnicalMessage =
-        technicalMessageStorage.resolvePersonalMessage(solutionId).bind()
-      teacherBotTelegramController.updateSolutionStatusMessageDM(
+        technicalMessageStorage.resolvePersonalMessage(submissionId).bind()
+      teacherBotTelegramController.updateSubmissionStatusMessageDM(
         personalTechnicalMessage,
-        solutionStatusMessageInfo,
+        submissionStatusMessageInfo,
       )
     }
   }
 
-  private fun extractSolutionStatusMessageInfo(
-    solutionId: SolutionId
-  ): Result<SolutionStatusMessageInfo, ResolveError<out Any>> {
+  private fun extractSubmissionStatusMessageInfo(
+    submissionId: SubmissionId
+  ): Result<SubmissionStatusMessageInfo, ResolveError<out Any>> {
     return binding {
-      val gradingEntries = gradeTable.getGradingsForSolution(solutionId)
-      val solution = solutionDistributor.resolveSolution(solutionId).bind()
-      val problem = problemStorage.resolveProblem(solution.problemId).bind()
+      val gradingEntries = gradeTable.getGradingsForSubmission(submissionId)
+      val submission = submissionDistributor.resolveSubmission(submissionId).bind()
+      val problem = problemStorage.resolveProblem(submission.problemId).bind()
       val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-      val student = studentStorage.resolveStudent(solution.studentId).bind()
+      val student = studentStorage.resolveStudent(submission.studentId).bind()
       val responsibleTeacher =
-        solution.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).bind() }
-      SolutionStatusMessageInfo(
-        solutionId,
+        submission.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).bind() }
+      SubmissionStatusMessageInfo(
+        submissionId,
         assignment.description,
         problem.number,
         student,

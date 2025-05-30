@@ -20,16 +20,16 @@ import kotlinx.coroutines.flow.first
 class DeveloperStartState(override val context: User) : BotState<AdminId?, String, AdminApi> {
   override suspend fun readUserInput(bot: BehaviourContext, service: AdminApi): AdminId? {
     bot.sendSticker(context, Dialogues.greetingSticker)
-    bot.send(context, Dialogues.devAskForId())
+    bot.send(context, Dialogues.devAskForId)
     return bot.waitTextMessageWithUser(context.id).first().content.text.toLongOrNull()?.toAdminId()
   }
 
   override fun computeNewState(service: AdminApi, input: AdminId?): Pair<State, String> =
     binding {
-        val adminId = input.toResultOr { Dialogues.devIdIsNotLong() }.bind()
-        service.loginById(adminId).mapError { Dialogues.devIdNotFound() }.bind()
+        val adminId = input.toResultOr { Dialogues.devIdIsNotLong }.bind()
+        service.loginById(adminId).mapError { Dialogues.devIdNotFound }.bind()
         service.updateTgId(adminId, context.id)
-        Pair(MenuState(context), Dialogues.greetings())
+        Pair(MenuState(context), Dialogues.greetings)
       }
       .getOrElse { Pair(DeveloperStartState(context), it) }
 

@@ -1,8 +1,11 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.SubmissionAssessment
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 
 interface StudentMovedDeadlineNotifier {
-  suspend fun notifyStudentOnMovedDeadline(solutionId: SolutionId, assessment: SolutionAssessment)
+  suspend fun notifyStudentOnMovedDeadline(
+    submissionId: SubmissionId,
+    assessment: SubmissionAssessment,
+  )
 }

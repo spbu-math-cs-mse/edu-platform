@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.notifications
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.StudentId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -14,9 +14,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 
 class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventBus {
-  private val newSolutionHandlers = mutableListOf<suspend (Solution) -> Unit>()
+  private val newSubmissionHandlers = mutableListOf<suspend (Submission) -> Unit>()
   private val newGradeHandlers =
-    mutableListOf<suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit>()
+    mutableListOf<
+      suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
+    >()
 
   private val newDeadlineRequestHandlers =
     mutableListOf<suspend (StudentId, LocalDateTime) -> Unit>()
@@ -26,7 +28,7 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     problem: Problem,
   ) =
     newGradeHandlers.forEach {
@@ -35,8 +37,8 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
       }
     }
 
-  override fun publishNewSolutionEvent(solution: Solution) =
-    newSolutionHandlers.forEach { runBlocking { it.invoke(solution) } }
+  override fun publishNewSubmissionEvent(submission: Submission) =
+    newSubmissionHandlers.forEach { runBlocking { it.invoke(submission) } }
 
   override fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime) {
     newDeadlineRequestHandlers.forEach { runBlocking { it.invoke(studentId, newDeadline) } }
@@ -46,12 +48,12 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
     movingDeadlineHandlers.forEach { runBlocking { it.invoke(chatId, newDeadline) } }
   }
 
-  override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
-    newSolutionHandlers.add(handler)
+  override fun subscribeToNewSubmissionEvent(handler: suspend (Submission) -> Unit) {
+    newSubmissionHandlers.add(handler)
   }
 
   override fun subscribeToGradeEvents(
-    handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
+    handler: suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
   ) {
     newGradeHandlers.add(handler)
   }

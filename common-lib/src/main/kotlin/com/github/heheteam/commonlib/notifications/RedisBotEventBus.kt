@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.notifications
 
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.Solution
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.interfaces.StudentId
 import dev.inmo.kslog.common.KSLog
@@ -34,7 +34,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     studentId: StudentId,
     chatId: RawChatId,
     messageId: MessageId,
-    assessment: SolutionAssessment,
+    assessment: SubmissionAssessment,
     problem: Problem,
   ) {
     val simpleEvent =
@@ -50,8 +50,8 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     jedis.publish(channel, event)
   }
 
-  override fun publishNewSolutionEvent(solution: Solution) {
-    val simpleEvent = NewSolutionEvent(solution)
+  override fun publishNewSubmissionEvent(submission: Submission) {
+    val simpleEvent = NewSubmissionEvent(submission)
     val event = Json.encodeToString(simpleEvent)
     jedis.publish(channel, event)
   }
@@ -68,7 +68,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     jedis.publish(movingDeadlineChannel, event)
   }
 
-  override fun subscribeToNewSolutionEvent(handler: suspend (Solution) -> Unit) {
+  override fun subscribeToNewSubmissionEvent(handler: suspend (Submission) -> Unit) {
     val subscriberJedis = Jedis(redisHost, redisPort)
 
     CoroutineScope(Dispatchers.IO).launch {
@@ -77,9 +77,10 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
           object : JedisPubSub() {
             override fun onMessage(channel: String, message: String) {
               val simpleEvent =
-                kotlin.runCatching { Json.decodeFromString<NewSolutionEvent>(message) }.getOrNull()
-                  ?: return
-              runBlocking { handler(simpleEvent.solution) }
+                kotlin
+                  .runCatching { Json.decodeFromString<NewSubmissionEvent>(message) }
+                  .getOrNull() ?: return
+              runBlocking { handler(simpleEvent.submission) }
             }
           },
           channel,
@@ -92,7 +93,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
   }
 
   override fun subscribeToGradeEvents(
-    handler: suspend (StudentId, RawChatId, MessageId, SolutionAssessment, Problem) -> Unit
+    handler: suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
   ) {
     val subscriberJedis = Jedis(redisHost, redisPort)
 
@@ -109,7 +110,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
                   StudentId(simpleEvent.studentId),
                   RawChatId(simpleEvent.chatId),
                   MessageId(simpleEvent.messageId),
-                  SolutionAssessment(simpleEvent.grade, simpleEvent.comment),
+                  SubmissionAssessment(simpleEvent.grade, simpleEvent.comment),
                   simpleEvent.problem,
                 )
               }
@@ -188,7 +189,7 @@ class RedisBotEventBus(private val redisHost: String, private val redisPort: Int
     val problem: Problem,
   )
 
-  @Serializable private data class NewSolutionEvent(val solution: Solution)
+  @Serializable private data class NewSubmissionEvent(val submission: Submission)
 
   @Serializable
   private data class NewDeadlineRequestEvent(val studentId: Long, val newDeadline: LocalDateTime)

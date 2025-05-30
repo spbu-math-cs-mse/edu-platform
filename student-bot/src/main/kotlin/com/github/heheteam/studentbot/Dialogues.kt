@@ -14,7 +14,7 @@ object Dialogues {
   val nerdSticker =
     InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")
 
-  fun greetings(): String =
+  const val greetings: String =
     "Привет! Я бот-помощник для записи на курсы.\n" +
       "Я помогу тебе:\n" +
       "• Записаться на интересующие курсы\n" +
@@ -25,7 +25,7 @@ object Dialogues {
   fun niceToMeetYou(firstName: String, lastName: String): String =
     "Приятно познакомиться, $firstName $lastName!\n"
 
-  fun askFirstName(): String = "Как я могу к тебе обращаться? Напиши свое имя."
+  const val askFirstName: String = "Как я могу к тебе обращаться? Напиши свое имя."
 
   fun askLastName(firstName: String): String =
     "Отлично, $firstName, введи свою фамилию \uD83D\uDC47"
@@ -33,25 +33,25 @@ object Dialogues {
   fun askGrade(firstName: String, lastName: String): String =
     "Рад знакомству, $firstName $lastName!\nВ каком классе ты учишься?"
 
-  fun menu(): String = "\u2705 Главное меню"
+  const val menu: String = "\u2705 Главное меню"
 
-  fun devAskForId(): String = "Введите свой id:"
+  const val devAskForId: String = "Введите свой id:"
 
-  fun devIdNotFound(): String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  const val devIdNotFound: String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
 
-  fun devIdIsNotLong(): String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
+  const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 
-  fun askCourseForSolution(): String = "Выбери курс для отправки решения:"
+  const val askCourseForSubmission: String = "Выбери курс для отправки решения:"
 
-  fun askProblem(): String = "Выбери задачу:"
+  const val askProblem: String = "Выбери задачу:"
 
-  fun tellSolutionIsSent(): String = "Решение отправлено на проверку!"
+  const val tellSubmissionIsSent: String = "Решение отправлено на проверку!"
 
-  fun tellValidSolutionTypes(): String =
+  const val tellValidSubmissionTypes: String =
     "Отправь фото, файл или напиши решение текстом, и я отошлю его на проверку!"
 
-  fun tellSolutionTypeIsInvalid(): String =
-    "Данный формат не подходит, попробуй другой!\n" + tellValidSolutionTypes()
+  const val tellSubmissionTypeIsInvalid: String =
+    "Данный формат не подходит, попробуй другой!\n" + tellValidSubmissionTypes
 
-  fun tellToApplyForCourses(): String = "Сначала запишитесь на курсы!"
+  const val tellToApplyForCourses: String = "Сначала запишитесь на курсы!"
 }

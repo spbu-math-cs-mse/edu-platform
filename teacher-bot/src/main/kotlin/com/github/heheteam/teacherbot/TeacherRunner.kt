@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
-import com.github.heheteam.teacherbot.states.ListeningForSolutionsGroupState
+import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
 import com.github.heheteam.teacherbot.states.StartState
@@ -85,7 +85,7 @@ class TeacherRunner(
 class StateRegister(private val teacherApi: TeacherApi) {
   fun registerTeacherStates(context: DefaultBehaviourContextWithFSM<State>, botToken: String) {
     with(context) {
-      strictlyOn<ListeningForSolutionsGroupState> { state ->
+      strictlyOn<ListeningForSubmissionsGroupState> { state ->
         state.lateinitTeacherBotToken = botToken
         state.handle(this, teacherApi)
       }

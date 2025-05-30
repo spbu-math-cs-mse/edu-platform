@@ -3,11 +3,11 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
@@ -27,12 +27,18 @@ internal constructor(
   fun setCourseGroup(courseId: CourseId, chatId: RawChatId): Result<Unit, ResolveError<CourseId>> =
     courseStorage.setCourseGroup(courseId, chatId)
 
-  fun assessSolution(
-    solutionId: SolutionId,
+  fun assessSubmission(
+    submissionId: SubmissionId,
     teacherId: TeacherId,
-    solutionAssessment: SolutionAssessment,
+    submissionAssessment: SubmissionAssessment,
     timestamp: LocalDateTime,
-  ) = academicWorkflowService.assessSolution(solutionId, teacherId, solutionAssessment, timestamp)
+  ) =
+    academicWorkflowService.assessSubmission(
+      submissionId,
+      teacherId,
+      submissionAssessment,
+      timestamp,
+    )
 
   fun tryLoginByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
     teacherStorage.resolveByTgId(tgId)

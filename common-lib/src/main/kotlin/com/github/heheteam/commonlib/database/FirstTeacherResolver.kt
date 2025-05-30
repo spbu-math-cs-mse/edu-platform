@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -18,11 +18,11 @@ internal class FirstTeacherResolver(
   val courseStorage: CourseStorage,
 ) : ResponsibleTeacherResolver {
   override fun resolveResponsibleTeacher(
-    solutionInputRequest: SolutionInputRequest
+    submissionInputRequest: SubmissionInputRequest
   ): Result<TeacherId, TeacherResolveError> {
     val result =
       binding {
-          val problem = problemStorage.resolveProblem(solutionInputRequest.problemId).bind()
+          val problem = problemStorage.resolveProblem(submissionInputRequest.problemId).bind()
           val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
           val teachers = courseStorage.getTeachers(assignment.courseId).sortedBy { it.id.long }
           teachers

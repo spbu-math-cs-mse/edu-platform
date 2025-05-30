@@ -20,11 +20,11 @@ import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
-import com.github.heheteam.studentbot.state.QueryCourseForSolutionSendingState
-import com.github.heheteam.studentbot.state.QueryProblemForSolutionSendingState
+import com.github.heheteam.studentbot.state.QueryCourseForSubmissionSendingState
+import com.github.heheteam.studentbot.state.QueryProblemForSubmissionSendingState
 import com.github.heheteam.studentbot.state.RandomActivityState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
-import com.github.heheteam.studentbot.state.SendSolutionState
+import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.michaelbull.result.mapBoth
@@ -44,7 +44,7 @@ internal class StateRegister(
       registerState<AskFirstNameState, StudentApi>(studentApi)
       registerState<AskLastNameState, StudentApi>(studentApi)
       registerState<DeveloperStartState, StudentApi>(studentApi)
-      registerSendSolutionState(botToken, studentApi)
+      registerSendSubmissionState(botToken, studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
       registerState<CheckDeadlinesState, StudentApi>(studentApi)
@@ -56,7 +56,7 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
-      registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
+      registerStateWithStudentId<QueryCourseForSubmissionSendingState, StudentApi>(
         studentApi,
         ::initializeHandlers,
       )
@@ -72,22 +72,22 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
-      registerStateWithStudentId<QueryCourseForSolutionSendingState, StudentApi>(
+      registerStateWithStudentId<QueryCourseForSubmissionSendingState, StudentApi>(
         studentApi,
         ::initializeHandlers,
       )
-      registerStateWithStudentId<QueryProblemForSolutionSendingState, StudentApi>(
+      registerStateWithStudentId<QueryProblemForSubmissionSendingState, StudentApi>(
         studentApi,
         ::initializeHandlers,
       )
     }
   }
 
-  private fun DefaultBehaviourContextWithFSM<State>.registerSendSolutionState(
+  private fun DefaultBehaviourContextWithFSM<State>.registerSendSubmissionState(
     botToken: String,
     studentApi: StudentApi,
   ) {
-    strictlyOn<SendSolutionState> { state ->
+    strictlyOn<SendSubmissionState> { state ->
       state.studentBotToken = botToken
       state.handle(this, studentApi)
     }

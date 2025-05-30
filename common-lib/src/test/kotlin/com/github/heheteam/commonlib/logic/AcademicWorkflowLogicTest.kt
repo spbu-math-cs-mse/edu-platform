@@ -1,24 +1,24 @@
 package com.github.heheteam.commonlib.logic
 
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.SolutionAssessment
-import com.github.heheteam.commonlib.SolutionInputRequest
+import com.github.heheteam.commonlib.SubmissionAssessment
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseSolutionDistributor
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
+import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ProblemId
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toGraded
 import com.github.heheteam.commonlib.loadConfig
@@ -51,10 +51,10 @@ class AcademicWorkflowLogicTest {
   private val gradeTable = DatabaseGradeTable(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
-  private val solutionDistributor = DatabaseSolutionDistributor(database)
+  private val submissionDistributor = DatabaseSubmissionDistributor(database)
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
-  private val academicWorkflowLogic = AcademicWorkflowLogic(solutionDistributor, gradeTable)
+  private val academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
 
   private lateinit var courseId: CourseId
   private lateinit var studentId: StudentId
@@ -62,8 +62,8 @@ class AcademicWorkflowLogicTest {
   private lateinit var assignmentId: AssignmentId
   private lateinit var timestamp: Instant
 
-  private val good = SolutionAssessment(1, TextWithMediaAttachments("comment"))
-  private val bad = SolutionAssessment(0, TextWithMediaAttachments("comment"))
+  private val good = SubmissionAssessment(1, TextWithMediaAttachments("comment"))
+  private val bad = SubmissionAssessment(0, TextWithMediaAttachments("comment"))
 
   private fun monotoneTime(): LocalDateTime {
     timestamp += Duration.fromMinutes(1.0)
@@ -94,12 +94,12 @@ class AcademicWorkflowLogicTest {
       ),
     )
 
-  private fun inputSolution(
+  private fun inputSubmission(
     academicWorkflowLogic: AcademicWorkflowLogic,
     problemId: ProblemId,
-  ): SolutionId =
-    academicWorkflowLogic.inputSolution(
-      SolutionInputRequest(
+  ): SubmissionId =
+    academicWorkflowLogic.inputSubmission(
+      SubmissionInputRequest(
         studentId,
         problemId,
         TextWithMediaAttachments(),
@@ -109,19 +109,19 @@ class AcademicWorkflowLogicTest {
       TeacherId(1L),
     )
 
-  private fun assessSolutionWithDefaultTeacher(
+  private fun assessSubmissionWithDefaultTeacher(
     academicWorkflowLogic: AcademicWorkflowLogic,
-    solutionId: SolutionId,
-    assessment: SolutionAssessment,
+    submissionId: SubmissionId,
+    assessment: SubmissionAssessment,
   ) {
-    academicWorkflowLogic.assessSolution(solutionId, teacherId, assessment, monotoneTime())
+    academicWorkflowLogic.assessSubmission(submissionId, teacherId, assessment, monotoneTime())
   }
 
   @Test
   fun `get gradings for assignment Unsent-Unchecked-Graded`() {
-    val solution1Id = inputSolution(academicWorkflowLogic, ProblemId(1))
-    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution1Id, good)
-    inputSolution(academicWorkflowLogic, ProblemId(2))
+    val submission1Id = inputSubmission(academicWorkflowLogic, ProblemId(1))
+    assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission1Id, good)
+    inputSubmission(academicWorkflowLogic, ProblemId(2))
     val performance =
       academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
         it.first.id to it.second
@@ -136,11 +136,11 @@ class AcademicWorkflowLogicTest {
   }
 
   @Test
-  fun `get gradings for assignment two solutions for one problem`() {
-    val solution1Id = inputSolution(academicWorkflowLogic, ProblemId(1))
-    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution1Id, good)
-    val solution2Id = inputSolution(academicWorkflowLogic, ProblemId(1))
-    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution2Id, bad)
+  fun `get gradings for assignment two submissions for one problem`() {
+    val submission1Id = inputSubmission(academicWorkflowLogic, ProblemId(1))
+    assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission1Id, good)
+    val submission2Id = inputSubmission(academicWorkflowLogic, ProblemId(1))
+    assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission2Id, bad)
 
     val performance =
       academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
@@ -157,10 +157,10 @@ class AcademicWorkflowLogicTest {
   }
 
   @Test
-  fun `get gradings for assignment two gradings of one solution`() {
-    val solution1Id = inputSolution(academicWorkflowLogic, ProblemId(1))
-    assessSolutionWithDefaultTeacher(academicWorkflowLogic, solution1Id, good)
-    academicWorkflowLogic.assessSolution(solution1Id, teacherId, bad, monotoneTime())
+  fun `get gradings for assignment two gradings of one submission`() {
+    val submission1Id = inputSubmission(academicWorkflowLogic, ProblemId(1))
+    assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission1Id, good)
+    academicWorkflowLogic.assessSubmission(submission1Id, teacherId, bad, monotoneTime())
 
     val performance =
       gradeTable.getStudentPerformance(studentId, assignmentId).map { it.first.id to it.second }

@@ -10,5 +10,5 @@ interface RatingRecorder {
 
   fun updateRating(problemId: ProblemId)
 
-  fun updateRating(solutionId: SolutionId)
+  fun updateRating(submissionId: SubmissionId)
 }

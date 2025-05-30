@@ -35,10 +35,10 @@ data class BindError<T, U>(
   override val shortDescription: String = "Error: can't bind $id1 to $id2"
 }
 
-sealed interface SolutionResolveError : EduPlatformError
+sealed interface SubmissionResolveError : EduPlatformError
 
 class TeacherDoesNotExist(val id: TeacherId, override val causedBy: EduPlatformError? = null) :
-  SolutionResolveError {
+  SubmissionResolveError {
   override val shortDescription: String = "Учитель id=$id не существует"
 }
 

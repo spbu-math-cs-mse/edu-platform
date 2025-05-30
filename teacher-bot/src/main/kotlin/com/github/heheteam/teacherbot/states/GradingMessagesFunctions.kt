@@ -1,9 +1,9 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Grade
-import com.github.heheteam.commonlib.SolutionAssessment
+import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.interfaces.SolutionId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
 import com.github.michaelbull.result.Err
@@ -16,7 +16,6 @@ import com.github.michaelbull.result.runCatching
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.utils.contentMessageOrNull
-import dev.inmo.tgbotapi.extensions.utils.extensions.raw.text
 import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
@@ -37,20 +36,20 @@ fun extractReplyText(commonMessage: CommonMessage<*>): Result<String, String> = 
   text
 }
 
-fun parseTechnicalMessageContent(text: String): Result<SolutionId, String> = binding {
+fun parseTechnicalMessageContent(text: String): Result<SubmissionId, String> = binding {
   val regex = Regex("Отправка #(\\d+)", option = RegexOption.DOT_MATCHES_ALL)
   val match = regex.find(text).toResultOr { "Not a submission message" }.bind()
-  val solutionIdString =
+  val submissionIdString =
     match.groups[1]?.value.toResultOr { "bad regex (no group number 1)" }.bind()
-  val solutionId =
-    solutionIdString
+  val submissionId =
+    submissionIdString
       .let { it.toLongOrNull().toResultOr { Unit } }
       .mapError { "Bad regex or failed submission format" }
       .bind()
-  SolutionId(solutionId)
+  SubmissionId(submissionId)
 }
 
-@Serializable data class GradingButtonContent(val solutionId: SolutionId, val grade: Grade)
+@Serializable data class GradingButtonContent(val submissionId: SubmissionId, val grade: Grade)
 
 fun tryProcessGradingByButtonPress(
   dataCallback: DataCallbackQuery,
@@ -59,10 +58,10 @@ fun tryProcessGradingByButtonPress(
 ) = binding {
   val gradingButtonContent =
     runCatching { Json.decodeFromString<GradingButtonContent>(dataCallback.data) }.bind()
-  teacherApi.assessSolution(
-    gradingButtonContent.solutionId,
+  teacherApi.assessSubmission(
+    gradingButtonContent.submissionId,
     teacherId,
-    SolutionAssessment(gradingButtonContent.grade),
+    SubmissionAssessment(gradingButtonContent.grade),
     java.time.LocalDateTime.now().toKotlinLocalDateTime(),
   )
 }
@@ -71,7 +70,7 @@ internal suspend fun extractAssessmentFromMessage(
   commonMessage: CommonMessage<*>,
   teacherBotToken: String,
   telegramBot: TelegramBot,
-): Result<SolutionAssessment, String> = coroutineBinding {
+): Result<SubmissionAssessment, String> = coroutineBinding {
   val content =
     extractTextWithMediaAttachments(commonMessage, teacherBotToken, telegramBot)
       .toResultOr { "Unsupported attachment type" }
@@ -83,5 +82,5 @@ internal suspend fun extractAssessmentFromMessage(
       comment.contains("[-]") -> Ok(0)
       else -> Err("message must contain [+] or [-] to be graded")
     }.bind()
-  SolutionAssessment(grade, content)
+  SubmissionAssessment(grade, content)
 }

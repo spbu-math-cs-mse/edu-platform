@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
 
-data class QueryCourseForSolutionSendingState(
+data class QueryCourseForSubmissionSendingState(
   override val context: User,
   override val userId: StudentId,
 ) : NavigationBotStateWithHandlersAndStudentId<StudentApi>() {
@@ -24,7 +24,7 @@ data class QueryCourseForSolutionSendingState(
     val coursesPicker = createCoursePicker(courses)
     return coursesPicker.map { course ->
       if (course != null) {
-        QueryProblemForSolutionSendingState(context, userId, course.id)
+        QueryProblemForSubmissionSendingState(context, userId, course.id)
       } else null
     }
   }

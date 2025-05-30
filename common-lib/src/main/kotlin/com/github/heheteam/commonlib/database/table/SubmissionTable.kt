@@ -7,12 +7,12 @@ import org.jetbrains.exposed.sql.json.json
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object SolutionTable : LongIdTable("solution") {
+object SubmissionTable : LongIdTable("submission") {
   val studentId = reference("studentId", StudentTable.id)
   val chatId = long("chatId")
   val messageId = long("messageId")
   val problemId = reference("problemId", ProblemTable.id)
   val timestamp = datetime("timestamp").defaultExpression(CurrentDateTime)
-  val solutionContent = json<TextWithMediaAttachments>("content", Json)
+  val submissionContent = json<TextWithMediaAttachments>("content", Json)
   val responsibleTeacher = reference("responsibleTeacher", TeacherTable.id).nullable()
 }

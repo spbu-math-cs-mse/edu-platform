@@ -7,27 +7,27 @@ import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
 
 interface TeacherBotTelegramController {
-  suspend fun sendInitSolutionStatusMessageDM(
+  suspend fun sendInitSubmissionStatusMessageDM(
     chatId: RawChatId,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   ): Result<TelegramMessageInfo, EduPlatformError>
 
-  suspend fun updateSolutionStatusMessageDM(
+  suspend fun updateSubmissionStatusMessageDM(
     message: TelegramMessageInfo,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   )
 
-  suspend fun sendInitSolutionStatusMessageInCourseGroupChat(
+  suspend fun sendInitSubmissionStatusMessageInCourseGroupChat(
     chatId: RawChatId,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   ): Result<TelegramMessageInfo, EduPlatformError>
 
-  suspend fun updateSolutionStatusMessageInCourseGroupChat(
+  suspend fun updateSubmissionStatusMessageInCourseGroupChat(
     message: TelegramMessageInfo,
-    solutionStatusMessageInfo: SolutionStatusMessageInfo,
+    submissionStatusMessageInfo: SubmissionStatusMessageInfo,
   )
 
-  suspend fun sendSolution(chatId: RawChatId, content: TextWithMediaAttachments)
+  suspend fun sendSubmission(chatId: RawChatId, content: TextWithMediaAttachments)
 
   suspend fun sendMenuMessage(
     chatId: RawChatId,

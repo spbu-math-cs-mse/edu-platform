@@ -5,8 +5,8 @@ import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.ProblemId
-import com.github.heheteam.commonlib.interfaces.SolutionId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -85,8 +85,8 @@ data class TextWithMediaAttachments(
 )
 
 @Serializable
-data class Solution(
-  val id: SolutionId,
+data class Submission(
+  val id: SubmissionId,
   val studentId: StudentId,
   val chatId: RawChatId,
   val messageId: MessageId,
@@ -106,7 +106,7 @@ data class Assignment(
 )
 
 @Serializable
-data class SolutionAssessment(
+data class SubmissionAssessment(
   val grade: Grade,
   val comment: TextWithMediaAttachments = TextWithMediaAttachments(),
 )
@@ -119,10 +119,10 @@ fun AccessibleMessage.toTelegramMessageInfo(): TelegramMessageInfo =
 data class MenuMessageInfo(val chatId: RawChatId, val messageId: MessageId? = null)
 
 @Serializable
-data class SolutionInputRequest(
+data class SubmissionInputRequest(
   val studentId: StudentId,
   val problemId: ProblemId,
-  val solutionContent: TextWithMediaAttachments,
+  val submissionContent: TextWithMediaAttachments,
   val telegramMessageInfo: TelegramMessageInfo,
   val timestamp: LocalDateTime,
 )

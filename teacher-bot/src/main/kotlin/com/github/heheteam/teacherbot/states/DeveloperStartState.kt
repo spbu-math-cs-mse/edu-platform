@@ -34,7 +34,7 @@ class DeveloperStartState(override val context: User) : BotState<TeacherId?, Str
     binding {
         val teacherId = input.toResultOr { Dialogues.devIdIsNotLong }.bind()
         service.loginById(teacherId).mapError { Dialogues.devIdNotFound }.bind()
-        Pair(MenuState(context, teacherId), Dialogues.greetings())
+        Pair(MenuState(context, teacherId), Dialogues.greetings)
       }
       .getOrElse { Pair(DeveloperStartState(context), it) }
 

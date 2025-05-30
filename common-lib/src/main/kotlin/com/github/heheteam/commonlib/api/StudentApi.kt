@@ -4,8 +4,8 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ResolveError
-import com.github.heheteam.commonlib.SolutionInputRequest
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -53,8 +53,8 @@ internal constructor(
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =
     courseStorage.addStudentToCourse(studentId, courseId)
 
-  fun inputSolution(solutionInputRequest: SolutionInputRequest) =
-    academicWorkflowService.sendSolution(solutionInputRequest)
+  fun inputSubmission(submissionInputRequest: SubmissionInputRequest) =
+    academicWorkflowService.sendSubmission(submissionInputRequest)
 
   fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
     problemStorage.getProblemsFromAssignment(assignmentId)

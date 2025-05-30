@@ -68,30 +68,30 @@ suspend fun TelegramBot.sendTextWithMediaAttachments(
   } else if (singleAttachment != null) {
     sendSingleMedia(singleAttachment, chatId, content, replyTo)
   } else {
-    sendSolutionAsGroupMedia(attachments, text, chatId, replyTo)
+    sendSubmissionAsGroupMedia(attachments, text, chatId, replyTo)
   }
 }
 
 private suspend fun TelegramBot.sendSingleMedia(
   singleAttachment: MediaAttachment,
   chatId: ChatId,
-  solutionContent: TextWithMediaAttachments,
+  submissionContent: TextWithMediaAttachments,
   replyTo: MessageId? = null,
 ): ContentMessage<MediaGroupPartContent> {
   val file = downloadFile(singleAttachment.downloadUrl, singleAttachment.uniqueString)
   return when (singleAttachment.kind) {
     AttachmentKind.PHOTO -> {
       if (replyTo == null) {
-        sendPhoto(chatId, file.asMultipartFile(), text = solutionContent.text)
+        sendPhoto(chatId, file.asMultipartFile(), text = submissionContent.text)
       } else {
-        replyWithPhoto(chatId, replyTo, file.asMultipartFile(), text = solutionContent.text)
+        replyWithPhoto(chatId, replyTo, file.asMultipartFile(), text = submissionContent.text)
       }
     }
     AttachmentKind.DOCUMENT -> {
       if (replyTo == null) {
-        sendDocument(chatId, file.asMultipartFile(), text = solutionContent.text)
+        sendDocument(chatId, file.asMultipartFile(), text = submissionContent.text)
       } else {
-        replyWithDocument(chatId, replyTo, file.asMultipartFile(), text = solutionContent.text)
+        replyWithDocument(chatId, replyTo, file.asMultipartFile(), text = submissionContent.text)
       }
     }
   }.also {
@@ -104,7 +104,7 @@ private suspend fun TelegramBot.sendSingleMedia(
 }
 
 @OptIn(RiskFeature::class)
-private suspend fun TelegramBot.sendSolutionAsGroupMedia(
+private suspend fun TelegramBot.sendSubmissionAsGroupMedia(
   attachments: List<MediaAttachment>,
   text: String,
   chatId: ChatId,

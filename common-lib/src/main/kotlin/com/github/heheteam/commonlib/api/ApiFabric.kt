@@ -9,6 +9,8 @@ import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesDistributor
+import com.github.heheteam.commonlib.database.DatabaseSentMessageLogStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
@@ -26,18 +28,17 @@ import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.PersonalDeadlineStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver
-import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
+import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryServiceImpl
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
-import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
@@ -82,8 +83,13 @@ class ApiFabric(
       DatabaseSubmissionDistributor(database)
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
-    val inMemoryScheduledMessagesDistributor: ScheduledMessagesDistributor =
-      InMemoryScheduledMessagesDistributor()
+    val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
+    val scheduledMessagesDistributor =
+      DatabaseScheduledMessagesDistributor(
+        database,
+        sentMessageLogStorage,
+        studentBotTelegramController,
+      )
     val personalDeadlineStorage: PersonalDeadlineStorage = DatabasePersonalDeadlineStorage(database)
     val courseTokenService = DatabaseCourseTokenStorage(database)
 
@@ -180,6 +186,14 @@ class ApiFabric(
     val personalDeadlinesService =
       PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
 
+    val scheduledMessageDeliveryService =
+      ScheduledMessageDeliveryServiceImpl(
+        scheduledMessagesDistributor,
+        courseStorage,
+        studentBotTelegramController,
+        sentMessageLogStorage,
+      )
+
     val studentApi =
       StudentApi(
         courseStorage,
@@ -189,11 +203,12 @@ class ApiFabric(
         personalDeadlinesService,
         studentStorage,
         courseTokenService,
+        scheduledMessageDeliveryService,
       )
 
     val adminApi =
       AdminApi(
-        inMemoryScheduledMessagesDistributor,
+        scheduledMessagesDistributor,
         courseStorage,
         adminStorage,
         studentStorage,

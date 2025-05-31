@@ -3,8 +3,11 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CourseStatistics
+import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
+import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
@@ -13,6 +16,7 @@ import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessage
+import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -26,6 +30,8 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.UserId
 import java.time.LocalDateTime
+import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.toKotlinLocalDateTime
 
 @Suppress(
   "LongParameterList",
@@ -44,13 +50,39 @@ internal constructor(
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val tokenStorage: CourseTokenStorage,
 ) {
-  fun addMessage(message: ScheduledMessage) = scheduledMessagesDistributor.addMessage(message)
+  fun sendScheduledMessage(
+    adminId: AdminId,
+    timestamp: LocalDateTime,
+    content: TelegramMessageContent,
+    shortName: String,
+    courseId: CourseId,
+  ): Result<ScheduledMessageId, EduPlatformError> = runBlocking {
+    val result =
+      scheduledMessagesDistributor.sendScheduledMessage(
+        adminId,
+        NewScheduledMessageInfo(timestamp, content, shortName, courseId),
+      )
+    result
+  }
+
+  suspend fun resolveScheduledMessage(
+    scheduledMessageId: ScheduledMessageId
+  ): Result<ScheduledMessage, EduPlatformError> =
+    scheduledMessagesDistributor.resolveScheduledMessage(scheduledMessageId)
+
+  suspend fun viewSentMessages(adminId: UserId, lastN: Int = 5): List<ScheduledMessage> =
+    scheduledMessagesDistributor.viewScheduledMessages(adminId, lastN)
+
+  suspend fun deleteScheduledMessage(
+    scheduledMessageId: ScheduledMessageId
+  ): Result<Unit, EduPlatformError> =
+    scheduledMessagesDistributor.deleteScheduledMessage(scheduledMessageId)
 
   fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
-    scheduledMessagesDistributor.getMessagesUpToDate(date)
+    scheduledMessagesDistributor.getMessagesUpToDate(date.toKotlinLocalDateTime())
 
   fun markMessagesUpToDateAsSent(date: LocalDateTime) =
-    scheduledMessagesDistributor.markMessagesUpToDateAsSent(date)
+    scheduledMessagesDistributor.markMessagesUpToDateAsSent(date.toKotlinLocalDateTime())
 
   fun moveAllDeadlinesForStudent(
     studentId: StudentId,

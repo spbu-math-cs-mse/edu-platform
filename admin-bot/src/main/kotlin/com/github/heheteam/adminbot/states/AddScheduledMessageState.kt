@@ -4,8 +4,9 @@ import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.interfaces.ScheduledMessage
+import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.micro_utils.fsm.common.State
@@ -53,7 +54,13 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(cor
         "Курс: " +
         state.course.name
     }
-    core.addMessage(ScheduledMessage(state.course, LocalDateTime.of(date, time), text))
+    core.sendScheduledMessage(
+      0L.toAdminId(),
+      LocalDateTime.of(date, time),
+      TelegramMessageContent(text),
+      "short default name",
+      state.course.id,
+    )
     MenuState(state.context)
   }
 }

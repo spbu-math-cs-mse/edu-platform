@@ -61,24 +61,6 @@ class AdminBotTest {
     reset(database)
   }
 
-  //  @Test
-  //  fun scheduledMessagesDistributorTest() {
-  //    val date1 = LocalDateTime.now()
-  //    val date2 = date1.plusDays(1)
-  //    val message1 = ScheduledMessage(course, date1.minusHours(1), "message 1")
-  //    val message2 = ScheduledMessage(course, date2.minusHours(1), "message 2")
-  //
-  //    assertEquals(listOf(), core.getMessagesUpToDate(date1))
-  //    assertEquals(listOf(), core.getMessagesUpToDate(date2))
-  //    core.addMessage(message1)
-  //    core.addMessage(message2)
-  //    assertEquals(listOf(message1), core.getMessagesUpToDate(date1))
-  //    assertEquals(listOf(message1, message2), core.getMessagesUpToDate(date2))
-  //    core.markMessagesUpToDateAsSent(date1)
-  //    assertEquals(listOf(), core.getMessagesUpToDate(date1))
-  //    assertEquals(listOf(message2), core.getMessagesUpToDate(date2))
-  //  }
-
   @Test
   fun coursesTableTest() {
     val courseName = "course 1"

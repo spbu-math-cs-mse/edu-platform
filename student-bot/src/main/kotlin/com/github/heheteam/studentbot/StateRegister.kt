@@ -125,19 +125,12 @@ internal class StateRegister(
         studentApi
           .registerForCourseWithToken(token, studentId)
           .mapBoth(
-            success = { courseId ->
-              val course = studentApi.getStudentCourses(studentId).first { it.id == courseId }
-              bot.send(
-                context,
-                "Вы успешно записались на курс ${course.name}, используя токен $token",
-              )
-              NewState(MenuState(context, studentId))
+            success = { course ->
+              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
-            failure = { error ->
-              bot.send(context, error.toReadableString())
-              NewState(MenuState(context, studentId))
-            },
+            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
           )
+        NewState(MenuState(context, studentId))
       }
     } else {
       Unhandled

@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.studentbot.Dialogues
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -18,7 +19,14 @@ class StartState(override val context: User, private val token: String?) :
     val id = service.loginByTgId(context.id).get()?.id
     if (id != null) {
       if (token != null) {
-        service.registerForCourseWithTokenAndSendFeedback(bot, context, token, id)
+        service
+          .registerForCourseWithToken(token, id)
+          .mapBoth(
+            success = { course ->
+              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
+            },
+            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
+          )
       }
     }
     return id

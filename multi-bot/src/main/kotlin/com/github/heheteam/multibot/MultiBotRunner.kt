@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.heheteam.adminbot.AdminRunner
+import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
@@ -35,7 +36,11 @@ class MultiBotRunner : CliktCommand() {
   private val useRedis: Boolean by option().boolean().default(false)
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
 
+  private val studentBotUsername: String by option().required().help("student bot username")
+
   override fun run() {
+    CourseStatisticsFormatter.studentBotUsername = studentBotUsername
+
     val config = loadConfig()
     val database =
       Database.connect(

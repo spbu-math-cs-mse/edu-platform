@@ -8,6 +8,8 @@ import dev.inmo.tgbotapi.types.message.textsources.bold
 import dev.inmo.tgbotapi.utils.RiskFeature
 
 object CourseStatisticsFormatter {
+  lateinit var studentBotUsername: String
+
   @Suppress("LongMethod")
   @OptIn(RiskFeature::class)
   fun format(courseName: String, stats: CourseStatistics, token: String?): List<TextSource> =
@@ -58,7 +60,7 @@ object CourseStatisticsFormatter {
 
       if (!token.isNullOrBlank()) {
         add(RegularTextSource("\nСсылка для записи:\n"))
-        add(URLTextSource("https://t.me/Student123456bot?start=$token"))
+        add(URLTextSource("https://t.me/$studentBotUsername?start=$token"))
       }
     }
 }

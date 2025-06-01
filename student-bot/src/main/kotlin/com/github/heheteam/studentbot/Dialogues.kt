@@ -1,5 +1,7 @@
 package com.github.heheteam.studentbot
 
+import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.interfaces.TokenError
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {
@@ -54,4 +56,10 @@ object Dialogues {
     "Данный формат не подходит, попробуй другой!\n" + tellValidSubmissionTypes
 
   const val tellToApplyForCourses: String = "Сначала запишитесь на курсы!"
+
+  fun successfullyRegisteredForCourse(course: Course, token: String): String =
+    "Вы успешно записались на курс ${course.name}, используя токен $token"
+
+  fun failedToRegisterForCourse(error: TokenError): String =
+    "Не удалось записаться на курс.\n" + error.toReadableString()
 }

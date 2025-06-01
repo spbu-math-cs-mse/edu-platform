@@ -19,13 +19,10 @@ import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapBoth
-import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.UserId
-import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.datetime.LocalDateTime
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -93,37 +90,17 @@ internal constructor(
   ): Map<Assignment, List<Problem>> =
     personalDeadlinesService.calculateNewDeadlines(studentId, problems)
 
-  fun registerForCourseWithToken(
-    token: String,
-    studentId: StudentId,
-  ): Result<CourseId, TokenError> {
+  fun registerForCourseWithToken(token: String, studentId: StudentId): Result<Course, TokenError> {
     val courseIdResult = courseTokenStorage.getCourseIdByToken(token)
 
     return courseIdResult.mapBoth(
       success = { courseId ->
         courseStorage.addStudentToCourse(studentId, courseId)
-        courseTokenStorage.useToken(token, studentId).map { courseId }
+        courseTokenStorage.useToken(token, studentId)
+        val course = getStudentCourses(studentId).first { it.id == courseId }
+        Ok(course)
       },
       failure = { error -> Err(error) },
     )
-  }
-
-  suspend fun registerForCourseWithTokenAndSendFeedback(
-    bot: BehaviourContext,
-    context: User,
-    token: String,
-    studentId: StudentId,
-  ): Result<CourseId, TokenError> {
-    return registerForCourseWithToken(token, studentId).also {
-      it.mapBoth(
-        success = { courseId ->
-          val course = getStudentCourses(studentId).first { it.id == courseId }
-          bot.send(context, "Вы успешно записались на курс ${course.name}, используя токен $token")
-        },
-        failure = { error ->
-          bot.send(context, "Не удалось записаться на курс.\n" + error.toReadableString())
-        },
-      )
-    }
   }
 }

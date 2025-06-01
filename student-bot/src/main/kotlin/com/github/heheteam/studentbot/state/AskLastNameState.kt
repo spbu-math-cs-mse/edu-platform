@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -40,7 +41,14 @@ class AskLastNameState(
       val studentId = service.createStudent(firstName, lastName, context.id.chatId.long)
       bot.send(context, Dialogues.niceToMeetYou(firstName, lastName))
       if (token != null) {
-        service.registerForCourseWithTokenAndSendFeedback(bot, context, token, studentId)
+        service
+          .registerForCourseWithToken(token, studentId)
+          .mapBoth(
+            success = { course ->
+              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
+            },
+            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
+          )
       }
       NewState(MenuState(context, studentId))
     }

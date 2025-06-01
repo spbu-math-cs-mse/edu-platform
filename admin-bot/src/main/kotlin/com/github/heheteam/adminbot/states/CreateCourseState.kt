@@ -1,6 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
@@ -14,7 +15,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
-class CreateCourseState(override val context: User) :
+class CreateCourseState(override val context: User, val adminId: AdminId) :
   BotStateWithHandlers<String, String?, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
@@ -53,7 +54,7 @@ class CreateCourseState(override val context: User) :
             .get() ?: "Не удалось создать курс $input\n"
         }
       }
-    return Pair(MenuState(context), response)
+    return Pair(MenuState(context, adminId), response)
   }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String?) {

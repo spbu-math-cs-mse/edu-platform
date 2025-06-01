@@ -43,3 +43,9 @@ fun <T> buildColumnMenu(content: List<ButtonData<T>>): MenuKeyboardData<T> =
 
 fun <T> buildColumnMenu(vararg content: ButtonData<T>): MenuKeyboardData<T> =
   buildMenu(content.map { listOf(it) })
+
+fun createYesNoKeyboard(yesText: String, noText: String): MenuKeyboardData<Boolean> {
+  val yesButton = ButtonData(yesText, "yes_button") { true }
+  val noButton = ButtonData(noText, "no_button") { false }
+  return buildMenu(listOf(listOf(yesButton, noButton)))
+}

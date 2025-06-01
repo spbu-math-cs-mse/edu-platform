@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -73,20 +74,18 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
     course: Course,
     scheduledMessageId: ScheduledMessageId,
     replyMarkup: InlineKeyboardMarkup?,
-  ): Result<MessageId, EduPlatformError> =
-    runCatching {
-        val messageText =
-          "Сообщение от курса \"${course.name}\" (ID: ${course.id}), " +
-            "ID сообщения: ${scheduledMessageId.long}\n\n${content.text}"
-        val sentMessage =
-          studentBot.sendTextWithMediaAttachments(
-            chatId.toChatId(),
-            content.copy(text = messageText),
-            replyMarkup = replyMarkup,
-          )
-        sentMessage.messageId
-      }
-      .mapError { TelegramError(it) }
+  ): Result<MessageId, EduPlatformError> {
+    val messageText =
+      "Сообщение от курса \"${course.name}\" (ID: ${course.id}), " +
+        "ID сообщения: ${scheduledMessageId.long}\n\n${content.text}"
+    val sentMessage =
+      studentBot.sendTextWithMediaAttachments(
+        chatId.toChatId(),
+        content.copy(text = messageText),
+        replyMarkup = replyMarkup,
+      )
+    return sentMessage.map { it.messageId }
+  }
 
   override suspend fun deleteMessage(
     chatId: RawChatId,

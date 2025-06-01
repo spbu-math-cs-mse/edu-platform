@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.state.BotState
-import com.github.heheteam.commonlib.state.registerState
+import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
@@ -89,14 +89,14 @@ class StateRegister(private val teacherApi: TeacherApi) {
         state.lateinitTeacherBotToken = botToken
         state.handle(this, teacherApi)
       }
-      registerState<StartState, TeacherApi>(teacherApi)
-      registerState<DeveloperStartState, TeacherApi>(teacherApi)
+      registerStateForBotState<StartState, TeacherApi>(teacherApi)
+      registerStateForBotState<DeveloperStartState, TeacherApi>(teacherApi)
       strictlyOn<MenuState> { state ->
         state.teacherBotToken = botToken
         state.handle(this, teacherApi)
       }
-      registerState<PresetTeacherState, TeacherApi>(teacherApi)
-      registerState<ChooseGroupCourseState, TeacherApi>(teacherApi)
+      registerStateForBotState<PresetTeacherState, TeacherApi>(teacherApi)
+      registerStateForBotState<ChooseGroupCourseState, TeacherApi>(teacherApi)
     }
   }
 }

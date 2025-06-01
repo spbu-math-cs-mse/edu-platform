@@ -22,6 +22,6 @@ interface BotState<In, Out, HelperService> : State {
 inline fun <
   reified S : BotState<*, *, HelperService>,
   HelperService,
-> DefaultBehaviourContextWithFSM<State>.registerState(service: HelperService) {
+> DefaultBehaviourContextWithFSM<State>.registerStateForBotState(service: HelperService) {
   strictlyOn<S> { state -> state.handle(this, service) }
 }

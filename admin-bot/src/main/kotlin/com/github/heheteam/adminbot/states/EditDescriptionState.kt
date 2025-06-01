@@ -1,6 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.micro_utils.fsm.common.State
@@ -10,8 +11,12 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.newLine
 import kotlinx.coroutines.flow.first
 
-class EditDescriptionState(override val context: User, val course: Course, val courseName: String) :
-  BotState<String, String?, Unit> {
+class EditDescriptionState(
+  override val context: User,
+  val course: Course,
+  val courseName: String,
+  val adminId: AdminId,
+) : BotState<String, String?, Unit> {
   override suspend fun readUserInput(bot: BehaviourContext, service: Unit): String {
     bot.send(context) {
       +"Введите новое описание курса ${courseName}. Текущее описание:" + newLine + newLine
@@ -30,7 +35,7 @@ class EditDescriptionState(override val context: User, val course: Course, val c
           "Описание курса ${courseName} успешно обновлено"
         }
       }
-    return Pair(MenuState(context), response)
+    return Pair(MenuState(context, adminId), response)
   }
 
   override suspend fun sendResponse(bot: BehaviourContext, service: Unit, response: String?) {

@@ -52,13 +52,13 @@ internal constructor(
       studentsInCourse.mapNotNull { student ->
         sendMessageToStudentTg(student, scheduledMessage, course, timestamp).getError()
       }
+    scheduledMessagesDistributor.markMessagesUpToDateAsSent(timestamp)
     if (errors.isNotEmpty()) {
       Err(
           AggregateError("Errors while sending scheduled message id=${scheduledMessage.id}", errors)
         )
         .bind()
     }
-    scheduledMessagesDistributor.markMessagesUpToDateAsSent(timestamp)
   }
 
   private fun sendMessageToStudentTg(

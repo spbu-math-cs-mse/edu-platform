@@ -6,7 +6,7 @@ import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.interfaces.toAdminId
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import dev.inmo.micro_utils.fsm.common.State
@@ -26,7 +26,11 @@ import java.time.LocalTime
 import java.time.format.DateTimeParseException
 import kotlinx.coroutines.flow.first
 
-class AddScheduledMessageState(override val context: User, val course: Course) : State
+class AddScheduledMessageState(
+  override val context: User,
+  val course: Course,
+  val adminId: AdminId,
+) : State
 
 fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(core: AdminApi) {
   strictlyOn<AddScheduledMessageState> { state ->
@@ -35,11 +39,11 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(cor
     val text = message.content.text
 
     if (text == "/stop") {
-      return@strictlyOn MenuState(state.context)
+      return@strictlyOn MenuState(state.context, state.adminId)
     }
 
-    val date = queryDateFromUser(state) ?: return@strictlyOn MenuState(state.context)
-    val time = queryTimeFromUser(state) ?: return@strictlyOn MenuState(state.context)
+    val date = queryDateFromUser(state) ?: return@strictlyOn MenuState(state.context, state.adminId)
+    val time = queryTimeFromUser(state) ?: return@strictlyOn MenuState(state.context, state.adminId)
 
     send(state.context) {
       +"Сообщение успешно добавлено:" +
@@ -55,13 +59,13 @@ fun DefaultBehaviourContextWithFSM<State>.strictlyOnAddScheduledMessageState(cor
         state.course.name
     }
     core.sendScheduledMessage(
-      0L.toAdminId(),
+      state.adminId,
       LocalDateTime.of(date, time),
       TelegramMessageContent(text),
       "short default name",
       state.course.id,
     )
-    MenuState(state.context)
+    MenuState(state.context, state.adminId)
   }
 }
 

@@ -11,21 +11,25 @@ import com.github.ajalt.clikt.parameters.types.long
 import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
+import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
 import com.github.heheteam.teacherbot.StateRegister
 import com.github.heheteam.teacherbot.TeacherRunner
+import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import java.time.LocalDateTime
 import korlibs.time.fromSeconds
@@ -57,7 +61,9 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.login,
         config.databaseConfig.password,
       )
-    val googleSheetsService = GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
+    //    val googleSheetsService =
+    // GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
+    val googleSheetsService = GoogleSheetsServiceDummy()
     val studentBot =
       telegramBot(studentBotToken) {
         logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->
@@ -104,7 +110,10 @@ class MultiBotRunner : CliktCommand() {
       launch {
         while (true) {
           val timestamp = LocalDateTime.now().toKotlinLocalDateTime()
-          apis.studentApi.checkAndSentMessages(timestamp)
+          val result = apis.studentApi.checkAndSentMessages(timestamp)
+          result.mapError {
+            KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")
+          }
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
           println("tick $timestamp")
         }

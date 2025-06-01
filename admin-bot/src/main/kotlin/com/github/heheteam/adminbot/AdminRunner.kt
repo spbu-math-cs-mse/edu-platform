@@ -2,15 +2,20 @@ package com.github.heheteam.adminbot
 
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
+import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateAssignmentErrorState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
-import com.github.heheteam.adminbot.states.DeveloperStartState
+import com.github.heheteam.adminbot.states.DisplayRecentScheduledMessagesState
 import com.github.heheteam.adminbot.states.EditCourseState
-import com.github.heheteam.adminbot.states.EditDescriptionState
 import com.github.heheteam.adminbot.states.MenuState
+import com.github.heheteam.adminbot.states.PerformDeleteMessageState
 import com.github.heheteam.adminbot.states.QueryCourseForEditing
+import com.github.heheteam.adminbot.states.QueryCourseForViewingScheduledMessagesState
+import com.github.heheteam.adminbot.states.QueryFullTextConfirmationState
+import com.github.heheteam.adminbot.states.QueryMessageIdForDeletionState
+import com.github.heheteam.adminbot.states.QueryNumberOfRecentMessagesState
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
@@ -18,9 +23,9 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
+import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlingError
@@ -52,7 +57,7 @@ import kotlinx.datetime.LocalDateTime
 class AdminRunner(private val adminApi: AdminApi) {
   private inline fun <
     reified S : BotStateWithHandlers<*, *, AdminApi>
-  > DefaultBehaviourContextWithFSM<State>.registerState(
+  > DefaultBehaviourContextWithFSM<State>.registerStateForBotStateWithHandlers(
     noinline initUpdateHandlers:
       (
         UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
@@ -82,30 +87,39 @@ class AdminRunner(private val adminApi: AdminApi) {
         )
         command("start") {
           val user = it.from
-          if (user != null) startChain(DeveloperStartState(user))
+          if (user != null) startChain(MenuState(user, 0L.toAdminId()))
         }
 
-        registerState<MenuState>(::registerHandlers)
-        registerState<CreateCourseState>(::registerHandlers)
-        registerState<CreateAssignmentState>(::registerHandlers)
-        registerState<CreateAssignmentErrorState>(::registerHandlers)
-        registerState<AddStudentState>(::registerHandlers)
-        registerState<RemoveStudentState>(::registerHandlers)
-        registerState<AddTeacherState>(::registerHandlers)
-        registerState<RemoveTeacherState>(::registerHandlers)
-        registerState<QueryCourseForEditing>(::registerHandlers)
-        registerState<EditCourseState, Unit>(Unit, ::registerHandlers)
-        registerState<CourseInfoState, AdminApi>(adminApi, ::registerHandlers)
-
-        registerState<DeveloperStartState, AdminApi>(adminApi)
-        registerState<CourseInfoState, AdminApi>(adminApi)
-        registerState<EditDescriptionState, Unit>(Unit)
-        strictlyOnAddScheduledMessageState(adminApi)
+        registerAllStates()
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
       }
       .second
       .join()
+  }
+
+  private fun DefaultBehaviourContextWithFSM<State>.registerAllStates() {
+    registerStateForBotStateWithHandlers<MenuState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CreateAssignmentState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<RemoveStudentState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<AddTeacherState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<RemoveTeacherState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryCourseForEditing>(::registerHandlers)
+    registerStateForBotStateWithHandlers<EditCourseState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CourseInfoState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryCourseForViewingScheduledMessagesState>(
+      ::registerHandlers
+    )
+    registerStateForBotStateWithHandlers<QueryNumberOfRecentMessagesState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryFullTextConfirmationState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<DisplayRecentScheduledMessagesState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryMessageIdForDeletionState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<ConfirmDeleteMessageState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<PerformDeleteMessageState>(::registerHandlers)
+    strictlyOnAddScheduledMessageState(adminApi)
   }
 
   private fun registerHandlers(
@@ -125,7 +139,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
       if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context))
+        NewState(MenuState(context, 1L.toAdminId()))
       } else {
         Unhandled
       }

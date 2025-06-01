@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
@@ -18,7 +19,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
-abstract class QueryCourseState(override val context: User) :
+abstract class QueryCourseState(override val context: User, val adminId: AdminId) :
   BotStateWithHandlers<Course?, Unit, AdminApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -33,7 +34,7 @@ abstract class QueryCourseState(override val context: User) :
     sentMessages.add(message)
     updateHandlersController.addTextMessageHandler { maybeCommandMessage ->
       if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context))
+        NewState(MenuState(context, adminId))
       } else {
         Unhandled
       }

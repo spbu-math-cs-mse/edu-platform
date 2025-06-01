@@ -7,6 +7,7 @@ import com.github.heheteam.adminbot.AdminKeyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.AdminKeyboards.EDIT_COURSE
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
@@ -23,7 +24,8 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 
-class MenuState(override val context: User) : BotStateWithHandlers<State, Unit, AdminApi> {
+class MenuState(override val context: User, val adminId: AdminId) :
+  BotStateWithHandlers<State, Unit, AdminApi> {
 
   private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
 
@@ -47,13 +49,13 @@ class MenuState(override val context: User) : BotStateWithHandlers<State, Unit, 
 
     updateHandlersController.addDataCallbackHandler { callback ->
       when (callback.data) {
-        CREATE_COURSE -> NewState(CreateCourseState(context))
-        EDIT_COURSE -> NewState(QueryCourseForEditing(context))
-        CREATE_ASSIGNMENT -> NewState(QueryCourseForAssignmentCreation(context))
+        CREATE_COURSE -> NewState(CreateCourseState(context, adminId))
+        EDIT_COURSE -> NewState(QueryCourseForEditing(context, adminId))
+        CREATE_ASSIGNMENT -> NewState(QueryCourseForAssignmentCreation(context, adminId))
         COURSE_INFO -> {
           val courses = service.getCourses().map { it.value }
           bot.queryCourse(context, courses)?.let { course ->
-            NewState(CourseInfoState(context, course))
+            NewState(CourseInfoState(context, course, adminId))
           } ?: Unhandled
         }
 

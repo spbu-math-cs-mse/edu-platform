@@ -10,6 +10,7 @@ import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -26,8 +27,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
-class AddTeacherState(override val context: User, val course: Course, val courseName: String) :
-  BotStateWithHandlers<String, List<String>, AdminApi> {
+class AddTeacherState(
+  override val context: User,
+  val course: Course,
+  val courseName: String,
+  val adminId: AdminId,
+) : BotStateWithHandlers<String, List<String>, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -54,7 +59,7 @@ class AddTeacherState(override val context: User, val course: Course, val course
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override fun computeNewState(service: AdminApi, input: String): Pair<State, List<String>> {
     if (input == "/stop") {
-      return Pair(MenuState(context), emptyList())
+      return Pair(MenuState(context, adminId), emptyList())
     }
 
     val splitIds = input.split(",").map { it.trim() }
@@ -111,7 +116,7 @@ class AddTeacherState(override val context: User, val course: Course, val course
       goodIds.forEach { service.registerTeacherForCourse(TeacherId(it), course.id) }
     }
 
-    return Pair(MenuState(context), messages)
+    return Pair(MenuState(context, adminId), messages)
   }
 
   override suspend fun sendResponse(

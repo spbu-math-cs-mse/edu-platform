@@ -56,6 +56,9 @@ object AdminKeyboards {
     if (ratingUrl != null) row { urlButton("Кондуит", ratingUrl) }
     if (token != null) row { dataButton("Обновить токен", REGENERATE_TOKEN) }
     else row { dataButton("Создать токен", REGENERATE_TOKEN) }
+    row {
+      dataButton("Посмотреть запланированные сообщения", AdminKeyboards.VIEW_SCHEDULED_MESSAGES)
+    }
     row { dataButton("Назад", RETURN_BACK) }
   }
 

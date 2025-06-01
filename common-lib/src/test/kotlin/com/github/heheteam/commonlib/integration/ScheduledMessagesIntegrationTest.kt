@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.testdouble.StudentBotTelegramControllerTest
 import com.github.heheteam.commonlib.util.buildData
 import com.github.heheteam.commonlib.util.defaultInstant
 import com.github.heheteam.commonlib.util.defaultTimezone
-import dev.inmo.tgbotapi.types.UserId
 import io.mockk.clearAllMocks
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -53,7 +52,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
 
       checkAndSentMessages(at(0.seconds)).value
 
-      val sentMessages = viewRecordedMessages(UserId(admin.tgId), 3)
+      val sentMessages = viewRecordedMessages(adminId = admin.id, limit = 3)
       assertEquals(3, sentMessages.size)
       assertEquals(msg3Id, sentMessages[0].id)
       assertEquals(msg2Id, sentMessages[1].id)
@@ -157,6 +156,141 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
 
       val deletedMessage = resolveScheduledMessage(scheduledMessageId).value
       assertTrue(deletedMessage.isSent)
+    }
+  }
+
+  @Test
+  fun `scenario 5 - viewScheduledMessages filters by adminId`() {
+    buildData(createDefaultApis()) {
+      val admin1 = admin("Admin1", "Admin1", 100L)
+      val admin2 = admin("Admin2", "Admin2", 101L)
+      val course1 = course("Course1")
+      val course2 = course("Course2")
+
+      sendScheduledMessage(
+        admin1.id,
+        at(1.hours),
+        TelegramMessageContent("Msg A"),
+        "MsgA",
+        course1.id,
+      )
+      sendScheduledMessage(
+        admin2.id,
+        at(2.hours),
+        TelegramMessageContent("Msg B"),
+        "MsgB",
+        course2.id,
+      )
+      sendScheduledMessage(
+        admin1.id,
+        at(3.hours),
+        TelegramMessageContent("Msg C"),
+        "MsgC",
+        course1.id,
+      )
+
+      val messagesForAdmin1 = viewRecordedMessages(adminId = admin1.id, limit = 3)
+      assertEquals(2, messagesForAdmin1.size)
+      assertTrue(messagesForAdmin1.all { it.adminId == admin1.id })
+      assertEquals("MsgC", messagesForAdmin1[0].shortName)
+      assertEquals("MsgA", messagesForAdmin1[1].shortName)
+    }
+  }
+
+  @Test
+  fun `scenario 6 - viewScheduledMessages filters by courseId`() {
+    buildData(createDefaultApis()) {
+      val admin = admin("Admin1", "Admin1", 100L)
+      val course1 = course("Course1")
+      val course2 = course("Course2")
+
+      sendScheduledMessage(
+        admin.id,
+        at(1.hours),
+        TelegramMessageContent("Msg A"),
+        "MsgA",
+        course1.id,
+      )
+      sendScheduledMessage(
+        admin.id,
+        at(2.hours),
+        TelegramMessageContent("Msg B"),
+        "MsgB",
+        course2.id,
+      )
+      sendScheduledMessage(
+        admin.id,
+        at(3.hours),
+        TelegramMessageContent("Msg C"),
+        "MsgC",
+        course1.id,
+      )
+
+      val messagesForCourse1 = viewRecordedMessages(courseId = course1.id, limit = 3)
+      assertEquals(2, messagesForCourse1.size)
+      assertTrue(messagesForCourse1.all { it.courseId == course1.id })
+      assertEquals("MsgC", messagesForCourse1[0].shortName)
+      assertEquals("MsgA", messagesForCourse1[1].shortName)
+    }
+  }
+
+  @Test
+  fun `scenario 7 - viewScheduledMessages filters by adminId and courseId`() {
+    buildData(createDefaultApis()) {
+      val admin1 = admin("Admin1", "Admin1", 100L)
+      val admin2 = admin("Admin2", "Admin2", 101L)
+      val course1 = course("Course1")
+      val course2 = course("Course2")
+      val tgMsg = { s: String -> TelegramMessageContent(s) }
+      sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
+      sendScheduledMessage(admin1.id, at(4.hours), tgMsg("Msg D"), "MsgD", course2.id)
+
+      val messagesFiltered =
+        viewRecordedMessages(adminId = admin1.id, courseId = course1.id, limit = 3)
+      assertEquals(2, messagesFiltered.size)
+      assertTrue(messagesFiltered.all { it.adminId == admin1.id && it.courseId == course1.id })
+      assertEquals("MsgC", messagesFiltered[0].shortName)
+      assertEquals("MsgA", messagesFiltered[1].shortName)
+    }
+  }
+
+  @Test
+  fun `scenario 8 - viewScheduledMessages with no filters returns all messages`() {
+    buildData(createDefaultApis()) {
+      val admin1 = admin("Admin1", "Admin1", 100L)
+      val admin2 = admin("Admin2", "Admin2", 101L)
+      val course1 = course("Course1")
+      val course2 = course("Course2")
+
+      sendScheduledMessage(
+        admin1.id,
+        at(1.hours),
+        TelegramMessageContent("Msg A"),
+        "MsgA",
+        course1.id,
+      )
+      sendScheduledMessage(
+        admin2.id,
+        at(2.hours),
+        TelegramMessageContent("Msg B"),
+        "MsgB",
+        course2.id,
+      )
+      sendScheduledMessage(
+        admin1.id,
+        at(3.hours),
+        TelegramMessageContent("Msg C"),
+        "MsgC",
+        course1.id,
+      )
+
+      val allMessages = viewRecordedMessages(limit = 3)
+      assertEquals(3, allMessages.size)
+      assertEquals("MsgC", allMessages[0].shortName)
+      assertEquals("MsgB", allMessages[1].shortName)
+      assertEquals("MsgA", allMessages[2].shortName)
     }
   }
 }

@@ -1,38 +1,37 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.adminbot.states.AddScheduledMessageStartState
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
+import com.github.heheteam.adminbot.states.ConfirmScheduledMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateAssignmentErrorState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.DisplayRecentScheduledMessagesState
 import com.github.heheteam.adminbot.states.EditCourseState
+import com.github.heheteam.adminbot.states.EnterScheduledMessageDateManuallyState
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.states.PerformDeleteMessageState
 import com.github.heheteam.adminbot.states.QueryCourseForEditing
-import com.github.heheteam.adminbot.states.QueryCourseForViewingScheduledMessagesState
 import com.github.heheteam.adminbot.states.QueryFullTextConfirmationState
 import com.github.heheteam.adminbot.states.QueryMessageIdForDeletionState
 import com.github.heheteam.adminbot.states.QueryNumberOfRecentMessagesState
+import com.github.heheteam.adminbot.states.QueryScheduledMessageContentState
+import com.github.heheteam.adminbot.states.QueryScheduledMessageDateState
+import com.github.heheteam.adminbot.states.QueryScheduledMessageTimeState
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
-import com.github.heheteam.adminbot.states.strictlyOnAddScheduledMessageState
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.asNamedError
-import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ActionWrapper
-import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
-import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
@@ -47,7 +46,6 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
-import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,16 +108,18 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotStateWithHandlers<QueryCourseForEditing>(::registerHandlers)
     registerStateForBotStateWithHandlers<EditCourseState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CourseInfoState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<QueryCourseForViewingScheduledMessagesState>(
-      ::registerHandlers
-    )
     registerStateForBotStateWithHandlers<QueryNumberOfRecentMessagesState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryFullTextConfirmationState>(::registerHandlers)
     registerStateForBotStateWithHandlers<DisplayRecentScheduledMessagesState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryMessageIdForDeletionState>(::registerHandlers)
     registerStateForBotStateWithHandlers<ConfirmDeleteMessageState>(::registerHandlers)
     registerStateForBotStateWithHandlers<PerformDeleteMessageState>(::registerHandlers)
-    strictlyOnAddScheduledMessageState(adminApi)
+    registerStateForBotStateWithHandlers<AddScheduledMessageStartState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryScheduledMessageContentState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryScheduledMessageDateState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<EnterScheduledMessageDateManuallyState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryScheduledMessageTimeState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<ConfirmScheduledMessageState>(::registerHandlers)
   }
 
   private fun registerHandlers(
@@ -129,7 +129,6 @@ class AdminRunner(private val adminApi: AdminApi) {
   ) {
     addMenuCommandHandler(handlersController, context)
     addMoveDeadlinesHandler(handlersController, context)
-    addRecenntMessagesCommand(handlersController, context)
   }
 
   private fun addMenuCommandHandler(
@@ -140,51 +139,6 @@ class AdminRunner(private val adminApi: AdminApi) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
       if (maybeCommandMessage.content.text == "/menu") {
         NewState(MenuState(context, 1L.toAdminId()))
-      } else {
-        Unhandled
-      }
-    }
-  }
-
-  private fun addRecenntMessagesCommand(
-    handlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
-    context: User,
-  ) {
-    handlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/recent") {
-        val recent = adminApi.viewSentMessages(1L.toChatId())
-        val message =
-          "Recent messages:\n" +
-            recent.joinToString("\n\n") {
-              "id=${it.id} time=${it.timestamp} course=${it.courseId} isSent=${it.isSent} text:\n${it.content.text}"
-            }
-        ActionWrapper<BehaviourContext.() -> Unit> { runBlocking { send(context.id, message) } }
-      } else {
-        Unhandled
-      }
-    }
-
-    handlersController.addTextMessageHandler { maybeCommandMessage ->
-      val commandName = "/deleteMessage"
-      if (maybeCommandMessage.content.text.startsWith(commandName)) {
-        val arg = maybeCommandMessage.content.text.removePrefix(commandName).trim()
-        val left = arg.toIntOrNull()
-        if (left != null) {
-          ActionWrapper<BehaviourContext.() -> Unit> {
-            val result = runBlocking {
-              adminApi.deleteScheduledMessage(ScheduledMessageId(left.toLong()))
-            }
-            result.mapBoth(
-              success = { runBlocking { bot.send(context.id, "Успешно удалено") } },
-              failure = {
-                runBlocking { bot.send(context.id, "Ошибка: \n${it.toStackedString()}") }
-              },
-            )
-          }
-        } else {
-          HandlingError("Not a number: $arg".asNamedError())
-        }
       } else {
         Unhandled
       }

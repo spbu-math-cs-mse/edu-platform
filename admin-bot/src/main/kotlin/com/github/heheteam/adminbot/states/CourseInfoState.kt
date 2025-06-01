@@ -36,6 +36,9 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
           service.regenerateTokenForCourse(course.id)
           NewState(CourseInfoState(context, course, adminId))
         }
+        AdminKeyboards.VIEW_SCHEDULED_MESSAGES -> {
+          NewState(QueryNumberOfRecentMessagesState(context, adminId, course.id))
+        }
 
         else -> Unhandled
       }

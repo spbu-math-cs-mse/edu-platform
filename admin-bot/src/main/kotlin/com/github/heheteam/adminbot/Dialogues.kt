@@ -117,4 +117,26 @@ object Dialogues {
     "Некорректный формат ввода (3-ий аргумент в какой-то строчке ($maxScore) не является числом). Попробуйте ещё раз!"
 
   const val assignmentWasCreatedSuccessfully: String = "Серия успешно создана!"
+
+  const val addScheduledMessageStartSummary: String =
+    "Вы начали процесс добавления отложенного сообщения. " +
+      "Вам потребуется ввести текст сообщения, затем выбрать дату и время отправки. " +
+      "Первая строка вашего сообщения будет использоваться как краткое описание."
+
+  const val queryScheduledMessageContent: String =
+    "Введите текст сообщения. Первая строка будет использоваться как краткое описание."
+  const val scheduledMessageContentEmptyError: String = "Сообщение не может быть пустым."
+  const val queryScheduledMessageDate: String = "Выберите дату или введите её в формате дд.мм.гггг"
+  const val enterScheduledMessageDateManually: String =
+    "Введите дату в формате дд.мм.гггг или /stop, чтобы отменить операцию."
+  const val invalidDateFormat: String =
+    "Неправильный формат даты. Введите дату в формате дд.мм.гггг или /stop, чтобы отменить операцию."
+  const val invalidDateButtonFormat: String = "Неправильный формат даты из кнопки."
+  const val queryScheduledMessageTime: String =
+    "Введите время в формате чч:мм или /stop, чтобы отменить операцию."
+  const val invalidTimeFormat: String =
+    "Неправильный формат времени. Введите время в формате чч:мм или /stop, чтобы отменить операцию."
+  const val confirmScheduledMessage: String = "Подтвердите отправку сообщения:"
+  const val unknownCommand: String = "Неизвестная команда."
+  const val operationCancelled: String = "Операция отменена."
 }

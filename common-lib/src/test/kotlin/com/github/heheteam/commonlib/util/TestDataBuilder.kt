@@ -20,7 +20,6 @@ import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import dev.inmo.tgbotapi.types.UserId
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
@@ -174,8 +173,11 @@ class TestDataBuilder(private val apis: ApiCollection) {
   fun checkAndSentMessages(timestamp: LocalDateTime) =
     apis.studentApi.checkAndSentMessages(timestamp)
 
-  suspend fun viewRecordedMessages(userId: UserId, limit: Int) =
-    apis.adminApi.viewSentMessages(userId, limit)
+  suspend fun viewRecordedMessages(
+    adminId: AdminId? = null,
+    courseId: CourseId? = null,
+    limit: Int = 5,
+  ) = apis.adminApi.viewScheduledMessages(adminId, courseId, limit)
 
   suspend fun deleteScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.deleteScheduledMessage(scheduledMessageId)

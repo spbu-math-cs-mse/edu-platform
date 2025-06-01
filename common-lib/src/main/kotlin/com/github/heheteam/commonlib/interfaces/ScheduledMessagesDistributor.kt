@@ -4,7 +4,6 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.michaelbull.result.Result
-import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
 
 data class ScheduledMessage(
@@ -28,7 +27,11 @@ interface ScheduledMessagesDistributor {
     scheduledMessageId: ScheduledMessageId
   ): Result<ScheduledMessage, EduPlatformError>
 
-  suspend fun viewScheduledMessages(adminId: UserId, lastN: Int): List<ScheduledMessage>
+  suspend fun viewScheduledMessages(
+    adminId: AdminId?,
+    courseId: CourseId?,
+    lastN: Int,
+  ): List<ScheduledMessage>
 
   suspend fun deleteScheduledMessage(
     scheduledMessageId: ScheduledMessageId

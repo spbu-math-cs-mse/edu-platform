@@ -19,12 +19,12 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.runCatching
-import dev.inmo.tgbotapi.types.UserId
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -84,10 +84,17 @@ class DatabaseScheduledMessagesDistributor(
     } ?: Err(ResolveError(scheduledMessageId, "ScheduledMessage")).bind()
   }
 
-  override suspend fun viewScheduledMessages(adminId: UserId, lastN: Int): List<ScheduledMessage> =
+  override suspend fun viewScheduledMessages(
+    adminId: AdminId?,
+    courseId: CourseId?,
+    lastN: Int,
+  ): List<ScheduledMessage> =
     transaction(database) {
-      ScheduledMessageTable.selectAll()
-        //        .where { ScheduledMessageTable.adminId eq adminId.chatId.long }
+      val query = ScheduledMessageTable.selectAll()
+      adminId?.let { query.andWhere { ScheduledMessageTable.adminId eq it.long } }
+      courseId?.let { query.andWhere { ScheduledMessageTable.courseId eq it.long } }
+
+      query
         .orderBy(ScheduledMessageTable.timestamp to org.jetbrains.exposed.sql.SortOrder.DESC)
         .limit(lastN)
         .map {

@@ -31,7 +31,6 @@ import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.UserId
 import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.toKotlinLocalDateTime
 
 @Suppress(
   "LongParameterList",
@@ -70,19 +69,17 @@ internal constructor(
   ): Result<ScheduledMessage, EduPlatformError> =
     scheduledMessagesDistributor.resolveScheduledMessage(scheduledMessageId)
 
-  suspend fun viewSentMessages(adminId: UserId, lastN: Int = 5): List<ScheduledMessage> =
-    scheduledMessagesDistributor.viewScheduledMessages(adminId, lastN)
+  suspend fun viewScheduledMessages(
+    adminId: AdminId? = null,
+    courseId: CourseId? = null,
+    lastN: Int = 5,
+  ): List<ScheduledMessage> =
+    scheduledMessagesDistributor.viewScheduledMessages(adminId, courseId, lastN)
 
   suspend fun deleteScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<Unit, EduPlatformError> =
     scheduledMessagesDistributor.deleteScheduledMessage(scheduledMessageId)
-
-  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> =
-    scheduledMessagesDistributor.getMessagesUpToDate(date.toKotlinLocalDateTime())
-
-  fun markMessagesUpToDateAsSent(date: LocalDateTime) =
-    scheduledMessagesDistributor.markMessagesUpToDateAsSent(date.toKotlinLocalDateTime())
 
   fun moveAllDeadlinesForStudent(
     studentId: StudentId,

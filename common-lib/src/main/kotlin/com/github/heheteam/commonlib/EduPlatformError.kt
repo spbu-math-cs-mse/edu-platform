@@ -14,6 +14,11 @@ data class NamedError(
   override val causedBy: EduPlatformError? = null,
 ) : EduPlatformError
 
+data class OperationCancelledError(
+  override val shortDescription: String = "Операция отменена.",
+  override val causedBy: EduPlatformError? = null,
+) : EduPlatformError
+
 data class AggregateError(
   val summary: String,
   val causes: List<EduPlatformError>,

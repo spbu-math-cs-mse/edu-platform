@@ -11,7 +11,7 @@ data class ButtonData<T>(val text: String, val uniqueData: String, val getData: 
 
 // handler returns Err<Unit> when wrong button (with unhandled unique data) is pressed
 // handler does not delete the menu message, be warned!
-data class MenuKeyboardData<T>(
+data class MenuKeyboardData<out T>(
   val keyboard: InlineKeyboardMarkup,
   val handler: suspend (String) -> Result<T, Unit>,
 )

@@ -127,9 +127,11 @@ class ConfirmScheduledMessageState(
     service: AdminApi,
     response: EduPlatformError?,
   ) {
-    response?.let {
-      val errorMessage = bot.send(context, it.shortDescription)
+    if (response != null) {
+      val errorMessage = bot.send(context, response.shortDescription)
       sentMessages.add(errorMessage)
+    } else {
+      bot.send(context, "Успешно запланировано!")
     }
   }
 

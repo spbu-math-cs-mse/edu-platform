@@ -12,6 +12,7 @@ import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.loadConfig
@@ -29,7 +30,6 @@ import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
 import dev.inmo.kslog.common.error
-import dev.inmo.kslog.common.logger
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import java.time.LocalDateTime
 import korlibs.time.fromSeconds
@@ -51,6 +51,8 @@ class MultiBotRunner : CliktCommand() {
   private val presetTeacherId: Long? by option().long()
   private val useRedis: Boolean by option().boolean().default(false)
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
+  private val enableSheets: Boolean by
+    option("--enable-sheets").flag("--disable-sheets", default = true)
 
   override fun run() {
     val config = loadConfig()
@@ -61,9 +63,12 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.login,
         config.databaseConfig.password,
       )
-    //    val googleSheetsService =
-    // GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
-    val googleSheetsService = GoogleSheetsServiceDummy()
+    val googleSheetsService =
+      if (enableSheets) {
+        GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
+      } else {
+        GoogleSheetsServiceDummy()
+      }
     val studentBot =
       telegramBot(studentBotToken) {
         logger = KSLog { level: LogLevel, tag: String?, message: Any, throwable: Throwable? ->

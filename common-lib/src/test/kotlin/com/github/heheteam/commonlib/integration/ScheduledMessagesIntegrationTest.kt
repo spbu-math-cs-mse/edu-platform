@@ -234,6 +234,8 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
     }
   }
 
+  fun tgMsg(s: String) = TelegramMessageContent(s)
+
   @Test
   fun `scenario 7 - viewScheduledMessages filters by adminId and courseId`() {
     buildData(createDefaultApis()) {
@@ -241,7 +243,6 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val admin2 = admin("Admin2", "Admin2", 101L)
       val course1 = course("Course1")
       val course2 = course("Course2")
-      val tgMsg = { s: String -> TelegramMessageContent(s) }
       sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
       sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
       sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
@@ -264,33 +265,29 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1")
       val course2 = course("Course2")
 
-      sendScheduledMessage(
-        admin1.id,
-        at(1.hours),
-        TelegramMessageContent("Msg A"),
-        "MsgA",
-        course1.id,
-      )
-      sendScheduledMessage(
-        admin2.id,
-        at(2.hours),
-        TelegramMessageContent("Msg B"),
-        "MsgB",
-        course2.id,
-      )
-      sendScheduledMessage(
-        admin1.id,
-        at(3.hours),
-        TelegramMessageContent("Msg C"),
-        "MsgC",
-        course1.id,
-      )
+      sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
 
       val allMessages = viewRecordedMessages(limit = 3)
       assertEquals(3, allMessages.size)
       assertEquals("MsgC", allMessages[0].shortName)
       assertEquals("MsgB", allMessages[1].shortName)
       assertEquals("MsgA", allMessages[2].shortName)
+    }
+  }
+
+  @Test
+  fun `deleted message is seen in recent scheduled messages`() {
+    buildData(createDefaultApis()) {
+      val admin = admin("Admin2", "Admin2", 101L)
+      val course = course("Course2")
+      val msg = sendScheduledMessage(admin.id, at(2.hours), tgMsg("Msg B"), "MsgB", course.id).value
+      deleteScheduledMessage(msg)
+      val allMessages = viewRecordedMessages(limit = 3)
+      val single = allMessages.single()
+      assertEquals(msg, single.id)
+      assertEquals(true, single.isDeleted)
     }
   }
 }

@@ -62,9 +62,6 @@ class EditCourseState(
   private fun createEditCourseOptionsKeyboard(): MenuKeyboardData<State> {
     val editCourseKeyboard =
       buildColumnMenu(
-        ButtonData("Назад \uD83D\uDD19", AdminKeyboards.RETURN_BACK) {
-          MenuState(context, adminId)
-        },
         ButtonData("➕ Добавить учеников", AdminKeyboards.ADD_STUDENT) {
           AddStudentState(context, course, course.name, adminId)
         },
@@ -95,6 +92,7 @@ class EditCourseState(
         ButtonData("❌ Удалить запланированное сообщение", AdminKeyboards.DELETE_SCHEDULED_MESSAGE) {
           QueryMessageIdForDeletionState(context, adminId)
         },
+        ButtonData("Назад \uD83D\uDD19", AdminKeyboards.RETURN_BACK) { MenuState(context, adminId) },
       )
     return editCourseKeyboard
   }

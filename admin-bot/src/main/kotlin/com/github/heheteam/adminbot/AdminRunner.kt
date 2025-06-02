@@ -52,6 +52,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 
+private const val DEFAULT_ADMIN_ID = 0L
+
 class AdminRunner(private val adminApi: AdminApi) {
   private inline fun <
     reified S : BotStateWithHandlers<*, *, AdminApi>
@@ -85,7 +87,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         )
         command("start") {
           val user = it.from
-          if (user != null) startChain(MenuState(user, 0L.toAdminId()))
+          if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
         }
 
         registerAllStates()
@@ -138,7 +140,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
       if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context, 1L.toAdminId()))
+        NewState(MenuState(context, DEFAULT_ADMIN_ID.toAdminId()))
       } else {
         Unhandled
       }

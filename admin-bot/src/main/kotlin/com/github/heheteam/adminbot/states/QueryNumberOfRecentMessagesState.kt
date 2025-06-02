@@ -1,0 +1,60 @@
+package com.github.heheteam.adminbot.states
+
+import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.util.UserInput
+import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.send.sendMessage
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.utils.bold
+import dev.inmo.tgbotapi.utils.buildEntities
+
+private const val MAXIMUM_SCHEDULED_MSGS_DISPLAYED = 100
+
+data class QueryNumberOfRecentMessagesState(
+  override val context: User,
+  val adminId: AdminId,
+  val courseId: CourseId,
+) : BotStateWithHandlers<String, String, AdminApi> {
+
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: AdminApi,
+    updateHandlersController: UpdateHandlerManager<String>,
+  ) {
+    bot.sendMessage(
+      context.id,
+      buildEntities {
+        +"Введите количество последних запланированных сообщений для отображения (рекомендуется "
+        bold("5")
+        +"): "
+      },
+    )
+    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
+  }
+
+  override fun computeNewState(service: AdminApi, input: String): Pair<State, String> {
+    val number = input.toIntOrNull()
+    return if (number == null || number <= 0 || number > MAXIMUM_SCHEDULED_MSGS_DISPLAYED) {
+      QueryNumberOfRecentMessagesState(context, adminId, courseId) to
+        "Пожалуйста, введите число от 1 до 100."
+    } else {
+      QueryFullTextConfirmationState(context, adminId, courseId, number) to "Загрузка сообщений..."
+    }
+  }
+
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: String,
+    input: String,
+  ) {
+    bot.sendMessage(context.id, response)
+  }
+
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
+}

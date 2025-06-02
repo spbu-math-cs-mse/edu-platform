@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -16,6 +17,8 @@ import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 
 typealias Grade = Int
+
+typealias TelegramMessageContent = TextWithMediaAttachments
 
 data class Admin(
   val id: AdminId,
@@ -125,4 +128,20 @@ data class SubmissionInputRequest(
   val submissionContent: TextWithMediaAttachments,
   val telegramMessageInfo: TelegramMessageInfo,
   val timestamp: LocalDateTime,
+)
+
+data class NewScheduledMessageInfo(
+  val timestamp: java.time.LocalDateTime,
+  val content: TelegramMessageContent,
+  val shortName: String,
+  val courseId: CourseId,
+)
+
+data class SentMessageLog(
+  val logId: Long,
+  val scheduledMessageId: ScheduledMessageId,
+  val studentId: StudentId,
+  val sentTimestamp: LocalDateTime,
+  val telegramMessageId: MessageId,
+  val chatId: RawChatId,
 )

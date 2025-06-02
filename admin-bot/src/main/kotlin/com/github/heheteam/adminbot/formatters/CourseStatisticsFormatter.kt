@@ -58,7 +58,7 @@ object CourseStatisticsFormatter {
 
       if (!token.isNullOrBlank()) {
         add(RegularTextSource("\nСсылка для записи:\n"))
-        add(URLTextSource("https://t.me/Student123456bot?start=$token"))
+        add(URLTextSource("https://t.me/metametamoon_student_test_bot?start=$token"))
       }
     }
 }

@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.state
 
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
@@ -62,6 +63,9 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
 interface BotStateWithHandlersAndStudentId<In, Out, ApiService> :
   BotStateWithHandlersAndUserId<In, Out, ApiService, StudentId>
 
+interface BotStateWithHandlersAndAdminId<In, Out, ApiService> :
+  BotStateWithHandlersAndUserId<In, Out, ApiService, AdminId>
+
 inline fun <
   reified S : BotStateWithHandlersAndUserId<*, *, HelperService, StudentId>,
   HelperService,
@@ -99,7 +103,7 @@ inline fun <
   reified S : BotStateWithHandlersAndUserId<*, *, HelperService, UserId>,
   HelperService,
   UserId,
-> DefaultBehaviourContextWithFSM<State>.registerState(
+> DefaultBehaviourContextWithFSM<State>.registerStateForBotStateWithHandlersAndUserId(
   service: HelperService,
   noinline initUpdateHandlers:
     (UpdateHandlersController<() -> Unit, out Any?, Any>, context: User, userId: UserId) -> Unit =

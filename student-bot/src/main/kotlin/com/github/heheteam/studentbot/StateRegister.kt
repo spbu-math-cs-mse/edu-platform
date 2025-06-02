@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
+import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
@@ -40,15 +41,15 @@ internal class StateRegister(
   @Suppress("LongMethod") // ok, as it only initializes states
   fun registerStates(botToken: String) {
     with(bot) {
-      registerState<StartState, StudentApi>(studentApi)
-      registerState<AskFirstNameState, StudentApi>(studentApi)
+      registerStateForBotState<StartState, StudentApi>(studentApi)
+      registerStateForBotState<AskFirstNameState, StudentApi>(studentApi)
       registerState<AskLastNameState, StudentApi>(studentApi)
-      registerState<DeveloperStartState, StudentApi>(studentApi)
+      registerStateForBotState<DeveloperStartState, StudentApi>(studentApi)
       registerSendSubmissionState(botToken, studentApi)
       strictlyOnPresetStudentState(studentApi)
-      registerState<RescheduleDeadlinesState, StudentApi>(studentApi)
-      registerState<CheckDeadlinesState, StudentApi>(studentApi)
-      registerState<PetTheDachshundState, StudentApi>(studentApi)
+      registerStateForBotState<RescheduleDeadlinesState, StudentApi>(studentApi)
+      registerStateForBotState<CheckDeadlinesState, StudentApi>(studentApi)
+      registerStateForBotState<PetTheDachshundState, StudentApi>(studentApi)
       registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::initializeHandlers)

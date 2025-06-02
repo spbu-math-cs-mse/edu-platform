@@ -10,6 +10,7 @@ import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -25,8 +26,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
-class AddStudentState(override val context: User, val course: Course, val courseName: String) :
-  BotStateWithHandlers<String, List<String>, AdminApi> {
+class AddStudentState(
+  override val context: User,
+  val course: Course,
+  val courseName: String,
+  val adminId: AdminId,
+) : BotStateWithHandlers<String, List<String>, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -54,7 +59,7 @@ class AddStudentState(override val context: User, val course: Course, val course
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override fun computeNewState(service: AdminApi, input: String): Pair<State, List<String>> {
     if (input == "/stop") {
-      return Pair(MenuState(context), emptyList())
+      return Pair(MenuState(context, adminId), emptyList())
     }
 
     val splitIds = input.split(",").map { it.trim() }
@@ -109,13 +114,14 @@ class AddStudentState(override val context: User, val course: Course, val course
       goodIds.forEach { service.registerStudentForCourse(StudentId(it), course.id) }
     }
 
-    return Pair(MenuState(context), messages)
+    return Pair(MenuState(context, adminId), messages)
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: List<String>,
+    input: String,
   ) {
     response.forEach { msg -> bot.send(context, msg) }
   }

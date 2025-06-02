@@ -43,7 +43,12 @@ abstract class NavigationBotStateWithHandlers<Service> :
   override fun computeNewState(service: Service, input: State?): Pair<State, Unit> =
     if (input != null) input to Unit else menuState() to Unit
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: Service, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: Service,
+    response: Unit,
+    input: State?,
+  ) = Unit
 
   override suspend fun outro(bot: BehaviourContext, service: Service) {
     for (message in sentMessages) {

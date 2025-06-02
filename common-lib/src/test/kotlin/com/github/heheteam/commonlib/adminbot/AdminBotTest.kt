@@ -6,18 +6,18 @@ import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
+import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesDistributor
+import com.github.heheteam.commonlib.database.DatabaseSentMessageLogStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
-import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
-import com.github.heheteam.commonlib.mock.InMemoryScheduledMessagesDistributor
+import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import io.mockk.mockk
-import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -35,12 +35,14 @@ class AdminBotTest {
       config.databaseConfig.password,
     )
   private val core: AdminApi
+  private val studentBotController = mockk<StudentBotTelegramController>(relaxed = true)
 
   init {
     val problemStorage = DatabaseProblemStorage(database)
+    val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
     core =
       AdminApi(
-        InMemoryScheduledMessagesDistributor(),
+        DatabaseScheduledMessagesDistributor(database, sentMessageLogStorage, studentBotController),
         DatabaseCourseStorage(database),
         DatabaseAdminStorage(database),
         DatabaseStudentStorage(database),
@@ -53,30 +55,10 @@ class AdminBotTest {
       )
   }
 
-  private val course = Course(CourseId(1L), "")
-
   @BeforeTest
   @AfterTest
   fun setup() {
     reset(database)
-  }
-
-  @Test
-  fun scheduledMessagesDistributorTest() {
-    val date1 = LocalDateTime.now()
-    val date2 = date1.plusDays(1)
-    val message1 = ScheduledMessage(course, date1.minusHours(1), "message 1")
-    val message2 = ScheduledMessage(course, date2.minusHours(1), "message 2")
-
-    assertEquals(listOf(), core.getMessagesUpToDate(date1))
-    assertEquals(listOf(), core.getMessagesUpToDate(date2))
-    core.addMessage(message1)
-    core.addMessage(message2)
-    assertEquals(listOf(message1), core.getMessagesUpToDate(date1))
-    assertEquals(listOf(message1, message2), core.getMessagesUpToDate(date2))
-    core.markMessagesUpToDateAsSent(date1)
-    assertEquals(listOf(), core.getMessagesUpToDate(date1))
-    assertEquals(listOf(message2), core.getMessagesUpToDate(date2))
   }
 
   @Test

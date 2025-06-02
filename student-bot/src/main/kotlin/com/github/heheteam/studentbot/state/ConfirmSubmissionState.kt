@@ -52,7 +52,7 @@ class ConfirmSubmissionState(
         ButtonData("Нет (отменить отправку)", "no") { false },
       )
     submissionMessage =
-      bot.sendTextWithMediaAttachments(context.id, submissionInputRequest.submissionContent)
+      bot.sendTextWithMediaAttachments(context.id, submissionInputRequest.submissionContent).value
     confirmMessage =
       bot.sendMessage(
         context,

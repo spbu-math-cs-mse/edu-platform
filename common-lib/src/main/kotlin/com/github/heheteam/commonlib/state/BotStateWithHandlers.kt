@@ -29,7 +29,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
 
   fun computeNewState(service: ApiService, input: In): Pair<State, Out>
 
-  suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out)
+  suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out, input: In)
 
   suspend fun handle(
     bot: BehaviourContext,
@@ -55,7 +55,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
         is NewState -> return handlerResult.state.also { outro(bot, service) }
         is UserInput<In> -> {
           val (state, response) = computeNewState(service, handlerResult.input)
-          sendResponse(bot, service, response)
+          sendResponse(bot, service, response, handlerResult.input)
           outro(bot, service)
           return state
         }

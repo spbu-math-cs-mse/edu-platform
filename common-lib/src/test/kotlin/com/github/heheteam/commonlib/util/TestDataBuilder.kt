@@ -10,14 +10,19 @@ import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.ApiCollection
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
 
 data class MonotoneCounter(private var startValue: Long = 0) {
   fun next(): Long = ++startValue
@@ -146,7 +151,35 @@ class TestDataBuilder(private val apis: ApiCollection) {
   fun moveDeadlines(student: Student, newDeadline: LocalDateTime) {
     apis.adminApi.moveAllDeadlinesForStudent(student.id, newDeadline)
   }
+
+  fun sendScheduledMessage(
+    adminId: AdminId,
+    timestamp: LocalDateTime,
+    content: TelegramMessageContent,
+    shortName: String,
+    courseId: CourseId,
+  ) =
+    apis.adminApi.sendScheduledMessage(
+      adminId,
+      timestamp.toJavaLocalDateTime(),
+      content,
+      shortName,
+      courseId,
+    )
+
+  fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =
+    apis.adminApi.resolveScheduledMessage(scheduledMessageId)
+
+  fun checkAndSentMessages(timestamp: LocalDateTime) =
+    apis.studentApi.checkAndSentMessages(timestamp)
+
+  fun viewRecordedMessages(adminId: AdminId? = null, courseId: CourseId? = null, limit: Int = 5) =
+    apis.adminApi.viewScheduledMessages(adminId, courseId, limit)
+
+  suspend fun deleteScheduledMessage(scheduledMessageId: ScheduledMessageId) =
+    apis.adminApi.deleteScheduledMessage(scheduledMessageId)
 }
 
-fun buildData(apis: ApiCollection, block: TestDataBuilder.() -> Unit) =
-  TestDataBuilder(apis).apply(block)
+fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) = runBlocking {
+  TestDataBuilder(apis).block()
+}

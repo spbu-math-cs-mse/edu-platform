@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
@@ -33,6 +34,7 @@ import kotlinx.datetime.LocalDateTime
 
 class CreateAssignmentState(
   override val context: User,
+  val adminId: AdminId,
   private val course: Course,
   private var description: Pair<String, LocalDateTime?>? = null,
   private var problems: List<ProblemDescription>? = null,
@@ -79,7 +81,7 @@ class CreateAssignmentState(
 
     updateHandlersController.addDataCallbackHandler { callback ->
       if (callback.data == RETURN_BACK) {
-        NewState(MenuState(context))
+        NewState(MenuState(context, adminId))
       } else {
         Unhandled
       }
@@ -87,7 +89,7 @@ class CreateAssignmentState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
-        "/stop" -> NewState(MenuState(context))
+        "/stop" -> NewState(MenuState(context, adminId))
         else -> NewState(processDescriptionInput(message.content.text))
       }
     }
@@ -97,13 +99,13 @@ class CreateAssignmentState(
     return if (text.contains("\$")) {
       val tokens = text.split("\$")
       if (tokens.size != 2) {
-        CreateAssignmentErrorState(context, course, "too many dollar signs in query")
+        CreateAssignmentErrorState(context, course, "too many dollar signs in query", adminId)
       } else {
         val date = LocalDateTime.Formats.ISO.parseOrNull(tokens[1])
-        CreateAssignmentState(context, course, tokens[0] to date, null)
+        CreateAssignmentState(context, adminId, course, tokens[0] to date, null)
       }
     } else {
-      CreateAssignmentState(context, course, text to null, null)
+      CreateAssignmentState(context, adminId, course, text to null, null)
     }
   }
 
@@ -130,7 +132,7 @@ class CreateAssignmentState(
 
     updateHandlersController.addDataCallbackHandler { callback ->
       if (callback.data == RETURN_BACK) {
-        NewState(MenuState(context))
+        NewState(MenuState(context, adminId))
       } else {
         Unhandled
       }
@@ -138,8 +140,8 @@ class CreateAssignmentState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
-        "/menu" -> NewState(MenuState(context))
-        "/stop" -> NewState(MenuState(context))
+        "/menu" -> NewState(MenuState(context, adminId))
+        "/stop" -> NewState(MenuState(context, adminId))
         else -> NewState(processProblemsInput(message.content.text))
       }
     }
@@ -148,8 +150,8 @@ class CreateAssignmentState(
   private fun processProblemsInput(text: String): State {
     return parseProblemsDescriptions(text)
       .mapBoth(
-        { result -> CreateAssignmentState(context, course, description, result) },
-        { result -> CreateAssignmentErrorState(context, course, result) },
+        { result -> CreateAssignmentState(context, adminId, course, description, result) },
+        { result -> CreateAssignmentErrorState(context, course, result, adminId) },
       )
   }
 
@@ -164,12 +166,17 @@ class CreateAssignmentState(
       problems.orEmpty().map { it.copy(deadline = assignmentDescription.second) },
     )
     bot.send(context, Dialogues.assignmentWasCreatedSuccessfully)
-    NewState(MenuState(context))
+    NewState(MenuState(context, adminId))
   }
 
   override fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: State,
+  ) = Unit
 }
 
 fun parseProblemsDescriptions(

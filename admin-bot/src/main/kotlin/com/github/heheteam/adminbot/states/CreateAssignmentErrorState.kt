@@ -3,6 +3,7 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
@@ -22,6 +23,7 @@ class CreateAssignmentErrorState(
   override val context: User,
   private val course: Course,
   private val errorMessage: String,
+  val adminId: AdminId,
 ) : BotStateWithHandlers<State, Unit, AdminApi> {
 
   private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
@@ -36,7 +38,7 @@ class CreateAssignmentErrorState(
 
     updateHandlersController.addDataCallbackHandler { callback ->
       if (callback.data == AdminKeyboards.RETURN_BACK) {
-        NewState(CreateAssignmentState(context, course))
+        NewState(CreateAssignmentState(context, adminId, course))
       } else {
         Unhandled
       }
@@ -44,7 +46,7 @@ class CreateAssignmentErrorState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
-        "/stop" -> NewState(MenuState(context))
+        "/stop" -> NewState(MenuState(context, adminId))
         else -> Unhandled
       }
     }
@@ -52,7 +54,12 @@ class CreateAssignmentErrorState(
 
   override fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: State,
+  ) = Unit
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

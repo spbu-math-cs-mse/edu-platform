@@ -3,6 +3,10 @@ package com.github.heheteam.commonlib.util
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.MediaAttachment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
+import com.github.heheteam.commonlib.telegram.TelegramError
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -55,21 +59,24 @@ suspend fun TelegramBot.sendTextWithMediaAttachments(
   content: TextWithMediaAttachments,
   replyMarkup: InlineKeyboardMarkup? = null,
   replyTo: MessageId? = null,
-): ContentMessage<*> {
+): Result<ContentMessage<*>, TelegramError> {
   val attachments = content.attachments
   val text = content.text
   val singleAttachment = attachments.singleOrNull()
-  return if (attachments.isEmpty()) {
-    if (replyTo == null) {
-      sendMessage(chatId, text, replyMarkup = replyMarkup)
-    } else {
-      reply(chatId, replyTo, text, replyMarkup = replyMarkup)
+  return runCatching {
+      if (attachments.isEmpty()) {
+        if (replyTo == null) {
+          sendMessage(chatId, text, replyMarkup = replyMarkup)
+        } else {
+          reply(chatId, replyTo, text, replyMarkup = replyMarkup)
+        }
+      } else if (singleAttachment != null) {
+        sendSingleMedia(singleAttachment, chatId, content, replyTo)
+      } else {
+        sendSubmissionAsGroupMedia(attachments, text, chatId, replyTo)
+      }
     }
-  } else if (singleAttachment != null) {
-    sendSingleMedia(singleAttachment, chatId, content, replyTo)
-  } else {
-    sendSubmissionAsGroupMedia(attachments, text, chatId, replyTo)
-  }
+    .mapError { TelegramError(it) }
 }
 
 private suspend fun TelegramBot.sendSingleMedia(

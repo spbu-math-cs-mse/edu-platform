@@ -23,6 +23,7 @@ import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
+import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import io.mockk.mockk
@@ -43,7 +44,7 @@ class StudentBotTest {
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var academicWorkflowLogic: AcademicWorkflowLogic
   private lateinit var academicWorkflowService: AcademicWorkflowService
-
+  private lateinit var scheduledMessageDeliveryService: ScheduledMessageDeliveryService
   private val config = loadConfig()
 
   private val database =
@@ -58,17 +59,10 @@ class StudentBotTest {
   fun setup() {
     reset(database)
     courseStorage = DatabaseCourseStorage(database)
-    submissionDistributor = DatabaseSubmissionDistributor(database)
-    studentStorage = DatabaseStudentStorage(database)
-    studentStorage = DatabaseStudentStorage(database)
-    teacherStorage = DatabaseTeacherStorage(database)
-    problemStorage = DatabaseProblemStorage(database)
-    assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
-    gradeTable = DatabaseGradeTable(database)
+    initDatabaseStorages()
     academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
-
+    scheduledMessageDeliveryService = mockk<ScheduledMessageDeliveryService>(relaxed = true)
     courseIds = (1..4).map { courseStorage.createCourse("course $it") }
-
     val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
     val mockUiController = mockk<UiController>(relaxed = true)
     val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
@@ -85,7 +79,6 @@ class StudentBotTest {
         mockBotEventBus,
         mockUiController,
       )
-
     studentApi =
       StudentApi(
         courseStorage,
@@ -95,7 +88,18 @@ class StudentBotTest {
         mockPersonalDeadlinesService,
         studentStorage,
         mockCourseTokensService,
+        scheduledMessageDeliveryService,
       )
+  }
+
+  private fun initDatabaseStorages() {
+    submissionDistributor = DatabaseSubmissionDistributor(database)
+    studentStorage = DatabaseStudentStorage(database)
+    studentStorage = DatabaseStudentStorage(database)
+    teacherStorage = DatabaseTeacherStorage(database)
+    problemStorage = DatabaseProblemStorage(database)
+    assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
+    gradeTable = DatabaseGradeTable(database)
   }
 
   @Test

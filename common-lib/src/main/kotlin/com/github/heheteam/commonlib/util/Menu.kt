@@ -11,7 +11,7 @@ data class ButtonData<T>(val text: String, val uniqueData: String, val getData: 
 
 // handler returns Err<Unit> when wrong button (with unhandled unique data) is pressed
 // handler does not delete the menu message, be warned!
-data class MenuKeyboardData<T>(
+data class MenuKeyboardData<out T>(
   val keyboard: InlineKeyboardMarkup,
   val handler: suspend (String) -> Result<T, Unit>,
 )
@@ -43,3 +43,9 @@ fun <T> buildColumnMenu(content: List<ButtonData<T>>): MenuKeyboardData<T> =
 
 fun <T> buildColumnMenu(vararg content: ButtonData<T>): MenuKeyboardData<T> =
   buildMenu(content.map { listOf(it) })
+
+fun createYesNoKeyboard(yesText: String, noText: String): MenuKeyboardData<Boolean> {
+  val yesButton = ButtonData(yesText, "yes_button") { true }
+  val noButton = ButtonData(noText, "no_button") { false }
+  return buildMenu(listOf(listOf(yesButton, noButton)))
+}

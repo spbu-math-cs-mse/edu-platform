@@ -20,8 +20,12 @@ class AskLastNameState(override val context: User, private val firstName: String
     return MenuState(context, input) to Unit
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: TeacherApi, response: Unit) =
-    Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: TeacherApi,
+    response: Unit,
+    input: TeacherId,
+  ) = Unit
 
   override suspend fun outro(bot: BehaviourContext, service: TeacherApi) = Unit
 

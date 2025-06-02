@@ -171,7 +171,12 @@ class CreateAssignmentState(
 
   override fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: State,
+  ) = Unit
 }
 
 fun parseProblemsDescriptions(

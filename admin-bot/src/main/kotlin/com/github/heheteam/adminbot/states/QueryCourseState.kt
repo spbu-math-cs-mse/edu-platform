@@ -46,7 +46,12 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
     }
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: Course?,
+  ) = Unit
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

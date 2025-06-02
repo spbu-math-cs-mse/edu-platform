@@ -38,7 +38,12 @@ data class PerformDeleteMessageState(
     return MenuState(context, adminId) to "" // Always return to menu after attempt
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String) {
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: String,
+    input: Unit,
+  ) {
     // Response is sent in intro, so this can be empty.
   }
 

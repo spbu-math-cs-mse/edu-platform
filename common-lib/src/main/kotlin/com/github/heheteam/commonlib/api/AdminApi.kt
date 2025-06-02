@@ -64,12 +64,12 @@ internal constructor(
     result
   }
 
-  suspend fun resolveScheduledMessage(
+  fun resolveScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<ScheduledMessage, EduPlatformError> =
     scheduledMessagesDistributor.resolveScheduledMessage(scheduledMessageId)
 
-  suspend fun viewScheduledMessages(
+  fun viewScheduledMessages(
     adminId: AdminId? = null,
     courseId: CourseId? = null,
     lastN: Int = 5,

@@ -57,7 +57,12 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     return Pair(MenuState(context, adminId), response)
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String?) {
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: String?,
+    input: String,
+  ) {
     if (response != null) {
       bot.send(context, response)
     }

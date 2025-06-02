@@ -68,5 +68,10 @@ class MenuState(override val context: User, val adminId: AdminId) :
     return Pair(input, Unit)
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: State,
+  ) = Unit
 }

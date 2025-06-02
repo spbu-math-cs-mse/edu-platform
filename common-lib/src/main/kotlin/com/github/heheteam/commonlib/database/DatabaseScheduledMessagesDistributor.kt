@@ -56,7 +56,7 @@ class DatabaseScheduledMessagesDistributor(
         .mapError { DatabaseError(it) }
     }
 
-  override suspend fun resolveScheduledMessage(
+  override fun resolveScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<ScheduledMessage, EduPlatformError> = binding {
     val row =
@@ -84,7 +84,7 @@ class DatabaseScheduledMessagesDistributor(
     } ?: Err(ResolveError(scheduledMessageId, "ScheduledMessage")).bind()
   }
 
-  override suspend fun viewScheduledMessages(
+  override fun viewScheduledMessages(
     adminId: AdminId?,
     courseId: CourseId?,
     lastN: Int,

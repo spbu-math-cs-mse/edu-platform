@@ -23,11 +23,11 @@ interface ScheduledMessagesDistributor {
     messageInfo: NewScheduledMessageInfo,
   ): Result<ScheduledMessageId, EduPlatformError>
 
-  suspend fun resolveScheduledMessage(
+  fun resolveScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<ScheduledMessage, EduPlatformError>
 
-  suspend fun viewScheduledMessages(
+  fun viewScheduledMessages(
     adminId: AdminId?,
     courseId: CourseId?,
     lastN: Int,

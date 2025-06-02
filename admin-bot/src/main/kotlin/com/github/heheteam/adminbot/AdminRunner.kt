@@ -9,7 +9,6 @@ import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateAssignmentErrorState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
-import com.github.heheteam.adminbot.states.DisplayRecentScheduledMessagesState
 import com.github.heheteam.adminbot.states.EditCourseState
 import com.github.heheteam.adminbot.states.EnterScheduledMessageDateManuallyState
 import com.github.heheteam.adminbot.states.MenuState
@@ -112,7 +111,6 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotStateWithHandlers<CourseInfoState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryNumberOfRecentMessagesState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryFullTextConfirmationState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<DisplayRecentScheduledMessagesState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryMessageIdForDeletionState>(::registerHandlers)
     registerStateForBotStateWithHandlers<ConfirmDeleteMessageState>(::registerHandlers)
     registerStateForBotStateWithHandlers<PerformDeleteMessageState>(::registerHandlers)

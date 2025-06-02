@@ -86,5 +86,10 @@ class QueryScheduledMessageContentState(
     )
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: Result<ScheduledMessageTextField, EduPlatformError>,
+  ) = Unit
 }

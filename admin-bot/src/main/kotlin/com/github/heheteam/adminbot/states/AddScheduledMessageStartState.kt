@@ -58,5 +58,10 @@ class AddScheduledMessageStartState(
     return QueryScheduledMessageContentState(context, course, adminId)
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: Unit) = Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: Unit,
+    input: State,
+  ) = Unit
 }

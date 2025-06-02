@@ -126,6 +126,7 @@ class ConfirmScheduledMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     response: EduPlatformError?,
+    input: Result<Boolean, EduPlatformError>,
   ) {
     if (response != null) {
       val errorMessage = bot.send(context, response.shortDescription)

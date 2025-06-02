@@ -120,7 +120,6 @@ class MultiBotRunner : CliktCommand() {
             KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")
           }
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
-          println("tick $timestamp")
         }
       }
       launch { StudentRunner(studentBotToken, apis.studentApi, developerOptions).run() }

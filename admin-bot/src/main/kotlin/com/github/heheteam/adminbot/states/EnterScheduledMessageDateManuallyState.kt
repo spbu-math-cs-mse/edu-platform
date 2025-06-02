@@ -99,6 +99,7 @@ class EnterScheduledMessageDateManuallyState(
     bot: BehaviourContext,
     service: AdminApi,
     response: EduPlatformError?,
+    input: Result<LocalDate, EduPlatformError>,
   ) {
     response?.let {
       val errorMessage = bot.send(context, it.shortDescription)

@@ -54,7 +54,12 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
         },
       )
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String) {
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: String,
+    input: String,
+  ) {
     bot.sendMessage(context.id, response)
   }
 

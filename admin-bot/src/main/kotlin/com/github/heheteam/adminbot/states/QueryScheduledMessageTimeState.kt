@@ -108,6 +108,7 @@ class QueryScheduledMessageTimeState(
     bot: BehaviourContext,
     service: AdminApi,
     response: EduPlatformError?,
+    input: Result<LocalTime, EduPlatformError>,
   ) {
     response?.let {
       val errorMessage = bot.send(context, it.shortDescription)

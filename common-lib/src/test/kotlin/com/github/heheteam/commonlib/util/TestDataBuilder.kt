@@ -167,17 +167,14 @@ class TestDataBuilder(private val apis: ApiCollection) {
       courseId,
     )
 
-  suspend fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =
+  fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.resolveScheduledMessage(scheduledMessageId)
 
   fun checkAndSentMessages(timestamp: LocalDateTime) =
     apis.studentApi.checkAndSentMessages(timestamp)
 
-  suspend fun viewRecordedMessages(
-    adminId: AdminId? = null,
-    courseId: CourseId? = null,
-    limit: Int = 5,
-  ) = apis.adminApi.viewScheduledMessages(adminId, courseId, limit)
+  fun viewRecordedMessages(adminId: AdminId? = null, courseId: CourseId? = null, limit: Int = 5) =
+    apis.adminApi.viewScheduledMessages(adminId, courseId, limit)
 
   suspend fun deleteScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.deleteScheduledMessage(scheduledMessageId)

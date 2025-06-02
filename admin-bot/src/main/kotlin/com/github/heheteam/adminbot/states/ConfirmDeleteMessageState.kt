@@ -21,7 +21,6 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
-import dev.inmo.tgbotapi.types.message.textsources.bold
 import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
 
@@ -96,7 +95,12 @@ data class ConfirmDeleteMessageState(
     }
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: AdminApi, response: String) {
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: AdminApi,
+    response: String,
+    input: Boolean,
+  ) {
     confirmationMessage?.let {
       try {
         bot.delete(it)

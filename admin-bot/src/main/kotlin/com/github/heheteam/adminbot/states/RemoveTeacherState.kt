@@ -120,6 +120,7 @@ class RemoveTeacherState(
     bot: BehaviourContext,
     service: AdminApi,
     response: List<String>,
+    input: String,
   ) {
     response.forEach { msg -> bot.send(context, msg) }
   }

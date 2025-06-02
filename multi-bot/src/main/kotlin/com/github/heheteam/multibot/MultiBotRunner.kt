@@ -7,24 +7,19 @@ import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.boolean
-import com.github.ajalt.clikt.parameters.types.long
 import com.github.heheteam.adminbot.AdminRunner
+import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
-import com.github.heheteam.commonlib.interfaces.toStudentId
-import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.toStackedString
-import com.github.heheteam.commonlib.util.DeveloperOptions
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
-import com.github.heheteam.teacherbot.StateRegister
-import com.github.heheteam.teacherbot.TeacherRunner
 import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -47,14 +42,16 @@ class MultiBotRunner : CliktCommand() {
   private val teacherBotToken: String by option().required().help("teacher bot token")
   private val adminBotToken: String by option().required().help("admin bot token")
   private val parentBotToken: String by option().required().help("parent bot token")
-  private val presetStudentId: Long? by option().long()
-  private val presetTeacherId: Long? by option().long()
   private val useRedis: Boolean by option().boolean().default(false)
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
   private val enableSheets: Boolean by
     option("--enable-sheets").flag("--disable-sheets", default = true)
 
+  private val studentBotUsername: String by option().required().help("student bot username")
+
   override fun run() {
+    CourseStatisticsFormatter.studentBotUsername = studentBotUsername
+
     val config = loadConfig()
     val database =
       Database.connect(
@@ -106,12 +103,8 @@ class MultiBotRunner : CliktCommand() {
 
     val apis = apiFabric.createApis(initDatabase, useRedis, TeacherResolverKind.FIRST)
 
-    val developerOptions = run {
-      val presetStudent = presetStudentId?.toStudentId()
-      val presetTeacher = presetTeacherId?.toTeacherId()
-      DeveloperOptions(presetStudent, presetTeacher)
-    }
     runBlocking {
+      launch { StudentRunner(studentBotToken, apis.studentApi).run() }
       launch {
         while (true) {
           val timestamp = LocalDateTime.now().toKotlinLocalDateTime()
@@ -121,12 +114,6 @@ class MultiBotRunner : CliktCommand() {
           }
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
         }
-      }
-      launch { StudentRunner(studentBotToken, apis.studentApi, developerOptions).run() }
-      launch {
-        val stateRegister = StateRegister(apis.teacherApi)
-        val teacherRunner = TeacherRunner(teacherBotToken, stateRegister, developerOptions)
-        teacherRunner.execute()
       }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
       launch { parentRun(parentBotToken, apis.parentApi) }

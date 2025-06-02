@@ -2,7 +2,6 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
@@ -127,28 +126,14 @@ internal class StateRegister(
         studentApi
           .registerForCourseWithToken(token, studentId)
           .mapBoth(
-            success = { courseId ->
-              val course = studentApi.getStudentCourses(studentId).first { it.id == courseId }
-              bot.send(
-                context,
-                "Вы успешно записались на курс ${course.name}, используя токен $token",
-              )
-              NewState(MenuState(context, studentId))
+            success = { course ->
+              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
-            failure = { error ->
-              bot.send(context, tokenErrorToString(error))
-              NewState(MenuState(context, studentId))
-            },
+            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
           )
+        NewState(MenuState(context, studentId))
       }
     } else {
       Unhandled
-    }
-
-  private fun tokenErrorToString(error: TokenError): String =
-    when (error) {
-      is TokenError.TokenNotFound -> "Такого токена не существует"
-
-      is TokenError.TokenAlreadyUsed -> "Этот токен уже был использован"
     }
 }

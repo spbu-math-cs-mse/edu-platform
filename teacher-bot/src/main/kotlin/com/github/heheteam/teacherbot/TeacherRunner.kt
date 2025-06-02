@@ -1,9 +1,10 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.state.BotState
+import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
-import com.github.heheteam.commonlib.util.DeveloperOptions
+import com.github.heheteam.teacherbot.states.AskFirstNameState
+import com.github.heheteam.teacherbot.states.AskLastNameState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.DeveloperStartState
 import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
@@ -21,17 +22,12 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.extensions.utils.groupContentMessageOrNull
 import dev.inmo.tgbotapi.types.BotCommand
-import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class TeacherRunner(
-  private val botToken: String,
-  private val stateRegister: StateRegister,
-  private val developerOptions: DeveloperOptions? = DeveloperOptions(),
-) {
+class TeacherRunner(private val botToken: String, private val stateRegister: StateRegister) {
   suspend fun execute() {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
@@ -64,22 +60,10 @@ class TeacherRunner(
       sendMessage(groupContent.chat, "greetings!")
       startChain(ChooseGroupCourseState(groupContent.chat))
     } else if (user != null) {
-      val startingState = findStartState(user)
+      val startingState = StartState(user)
       startChain(startingState)
     }
   }
-
-  private fun findStartState(user: User): BotState<out Any?, out Any, out Any> =
-    if (developerOptions != null) {
-      val presetTeacher = developerOptions.presetTeacherId
-      if (presetTeacher != null) {
-        PresetTeacherState(user, presetTeacher)
-      } else {
-        DeveloperStartState(user)
-      }
-    } else {
-      StartState(user)
-    }
 }
 
 class StateRegister(private val teacherApi: TeacherApi) {
@@ -90,6 +74,10 @@ class StateRegister(private val teacherApi: TeacherApi) {
         state.handle(this, teacherApi)
       }
       registerStateForBotState<StartState, TeacherApi>(teacherApi)
+      registerStateForBotState<DeveloperStartState, TeacherApi>(teacherApi)
+      registerStateForBotState<StartState, TeacherApi>(teacherApi)
+      registerStateForBotState<AskFirstNameState, TeacherApi>(teacherApi)
+      registerState<AskLastNameState, TeacherApi>(teacherApi)
       registerStateForBotState<DeveloperStartState, TeacherApi>(teacherApi)
       strictlyOn<MenuState> { state ->
         state.teacherBotToken = botToken

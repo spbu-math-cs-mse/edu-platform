@@ -29,7 +29,7 @@ data class MonotoneCounter(private var startValue: Long = 0) {
   fun next(): Long = ++startValue
 }
 
-class TestDataBuilder(private val apis: ApiCollection) {
+class TestDataBuilder(internal val apis: ApiCollection) {
   private val clock = MonotoneDummyClock()
   private val defaultTimestamp = clock.next()
   private val chatIdCounter = MonotoneCounter()
@@ -180,6 +180,19 @@ class TestDataBuilder(private val apis: ApiCollection) {
 
   suspend fun deleteScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.deleteScheduledMessage(scheduledMessageId)
+
+  fun submissionInputRequest(
+    student: Student,
+    problem: Problem,
+    content: String,
+  ): SubmissionInputRequest =
+    SubmissionInputRequest(
+      studentId = student.id,
+      problemId = problem.id,
+      submissionContent = TextWithMediaAttachments(content),
+      telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
+      timestamp = defaultTimestamp,
+    )
 }
 
 fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) = runBlocking {

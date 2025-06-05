@@ -35,6 +35,7 @@ internal class UiControllerTelegramSender(
       studentNotifier.notifyStudentOnNewAssessment(submissionId, assessment)
     }
     runBlocking(Dispatchers.IO) { journalUpdater.updateJournalDisplaysForSubmission(submissionId) }
+      .onFailure { KSLog.error(it) }
     val teacherId =
       submissionDistributor.resolveSubmission(submissionId).get()?.responsibleTeacherId
     if (teacherId != null) {

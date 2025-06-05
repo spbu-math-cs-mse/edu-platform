@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
@@ -27,23 +28,23 @@ internal constructor(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val teacherBotTelegramController: TeacherBotTelegramController,
 ) : JournalUpdater {
-  override suspend fun updateJournalDisplaysForSubmission(submissionId: SubmissionId) {
-    coroutineBinding {
+  override suspend fun updateJournalDisplaysForSubmission(
+    submissionId: SubmissionId
+  ): Result<Unit, EduPlatformError> {
+    return coroutineBinding {
       val submissionStatusMessageInfo = extractSubmissionStatusMessageInfo(submissionId).bind()
       val groupTechnicalMessage = technicalMessageStorage.resolveGroupMessage(submissionId).bind()
-      teacherBotTelegramController.updateSubmissionStatusMessageInCourseGroupChat(
-        groupTechnicalMessage,
-        submissionStatusMessageInfo,
-      )
-    }
-    coroutineBinding {
-      val submissionStatusMessageInfo = extractSubmissionStatusMessageInfo(submissionId).bind()
+      teacherBotTelegramController
+        .updateSubmissionStatusMessageInCourseGroupChat(
+          groupTechnicalMessage,
+          submissionStatusMessageInfo,
+        )
+        .bind()
       val personalTechnicalMessage =
         technicalMessageStorage.resolvePersonalMessage(submissionId).bind()
-      teacherBotTelegramController.updateSubmissionStatusMessageDM(
-        personalTechnicalMessage,
-        submissionStatusMessageInfo,
-      )
+      teacherBotTelegramController
+        .updateSubmissionStatusMessageDM(personalTechnicalMessage, submissionStatusMessageInfo)
+        .bind()
     }
   }
 

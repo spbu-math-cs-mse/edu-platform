@@ -24,10 +24,10 @@ import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -146,7 +146,12 @@ internal class NewSubmissionTeacherNotifier(
     if (chat == null) {
       Err(SendToGroupSubmissionError(assignment.courseId)).bind<Nothing>()
     }
-    teacherBotTelegramController.sendSubmission(chat, submission.content)
+    teacherBotTelegramController
+      .sendSubmission(chat, submission.content)
+      .mapError { originalError ->
+        SendToGroupSubmissionError(assignment.courseId, causedBy = originalError)
+      }
+      .bind()
     val submissionStatusInfo =
       extractSubmissionStatusMessageInfo(submission.id)
         .mapError { FailedToResolveSubmission(submission) }
@@ -172,7 +177,12 @@ internal class NewSubmissionTeacherNotifier(
             .resolveTeacher(teacherId)
             .mapError { NoResponsibleTeacherFor(submission) }
             .bind()
-        teacherBotTelegramController.sendSubmission(teacher.tgId, submission.content)
+        teacherBotTelegramController
+          .sendSubmission(teacher.tgId, submission.content)
+          .mapError { originalError ->
+            SendToTeacherSubmissionError(teacherId, causedBy = originalError)
+          }
+          .bind()
         val submissionStatusInfo =
           extractSubmissionStatusMessageInfo(submission.id)
             .mapError { FailedToResolveSubmission(submission) }
@@ -214,11 +224,9 @@ internal class NewSubmissionTeacherNotifier(
   }
 
   private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {
-    menuMessages.map { menuMessage ->
-      try {
-        teacherBotTelegramController.deleteMessage(menuMessage)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Menu message has already been deleted:\n$e")
+    menuMessages.forEach { menuMessage ->
+      teacherBotTelegramController.deleteMessage(menuMessage).onFailure { error ->
+        KSLog.warning("Failed to delete menu message: $error")
       }
     }
   }

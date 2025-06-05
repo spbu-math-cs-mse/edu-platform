@@ -15,7 +15,7 @@ interface TeacherBotTelegramController {
   suspend fun updateSubmissionStatusMessageDM(
     message: TelegramMessageInfo,
     submissionStatusMessageInfo: SubmissionStatusMessageInfo,
-  )
+  ): Result<Unit, EduPlatformError>
 
   suspend fun sendInitSubmissionStatusMessageInCourseGroupChat(
     chatId: RawChatId,
@@ -25,14 +25,19 @@ interface TeacherBotTelegramController {
   suspend fun updateSubmissionStatusMessageInCourseGroupChat(
     message: TelegramMessageInfo,
     submissionStatusMessageInfo: SubmissionStatusMessageInfo,
-  )
+  ): Result<Unit, EduPlatformError>
 
-  suspend fun sendSubmission(chatId: RawChatId, content: TextWithMediaAttachments)
+  suspend fun sendSubmission(
+    chatId: RawChatId,
+    content: TextWithMediaAttachments,
+  ): Result<Unit, EduPlatformError>
 
   suspend fun sendMenuMessage(
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, EduPlatformError>
 
-  suspend fun deleteMessage(telegramMessageInfo: TelegramMessageInfo)
+  suspend fun deleteMessage(
+    telegramMessageInfo: TelegramMessageInfo
+  ): Result<Unit, EduPlatformError>
 }

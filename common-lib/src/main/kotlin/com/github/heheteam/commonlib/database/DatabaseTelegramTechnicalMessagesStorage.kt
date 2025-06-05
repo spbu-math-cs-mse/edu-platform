@@ -106,22 +106,25 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     }
   }
 
-  override fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo) {
-    transaction(database) {
-      val rowsUpdated =
-        TeacherMenuMessageTable.update({
-          TeacherMenuMessageTable.chatId eq telegramMessageInfo.chatId.long
-        }) {
-          it[messageId] = telegramMessageInfo.messageId.long
-          it[chatId] = telegramMessageInfo.chatId.long
-        }
-      if (rowsUpdated == 0) {
-        TeacherMenuMessageTable.insert {
-          it[messageId] = telegramMessageInfo.messageId.long
-          it[chatId] = telegramMessageInfo.chatId.long
+  override fun updateTeacherMenuMessage(
+    telegramMessageInfo: TelegramMessageInfo
+  ): Result<Unit, EduPlatformError> {
+    return transaction(database) {
+        val rowsUpdated =
+          TeacherMenuMessageTable.update({
+            TeacherMenuMessageTable.chatId eq telegramMessageInfo.chatId.long
+          }) {
+            it[messageId] = telegramMessageInfo.messageId.long
+            it[chatId] = telegramMessageInfo.chatId.long
+          }
+        if (rowsUpdated == 0) {
+          TeacherMenuMessageTable.insert {
+            it[messageId] = telegramMessageInfo.messageId.long
+            it[chatId] = telegramMessageInfo.chatId.long
+          }
         }
       }
-    }
+      .ok()
   }
 
   override fun resolveTeacherMenuMessage(

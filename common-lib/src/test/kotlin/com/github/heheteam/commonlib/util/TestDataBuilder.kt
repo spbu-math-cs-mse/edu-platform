@@ -17,6 +17,7 @@ import com.github.heheteam.commonlib.api.ApiCollection
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -120,9 +121,10 @@ class TestDataBuilder(private val apis: ApiCollection) {
         telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
         timestamp = defaultTimestamp,
       )
-    val submissionId = apis.studentApi.inputSubmission(submissionInputRequest).value
+    val submissionResult =
+      apis.studentApi.inputSubmission(submissionInputRequest) as SubmissionSendingResult.Success
     return Submission(
-      submissionId,
+      submissionResult.submissionId,
       submissionInputRequest.studentId,
       submissionInputRequest.telegramMessageInfo.chatId,
       submissionInputRequest.telegramMessageInfo.messageId,

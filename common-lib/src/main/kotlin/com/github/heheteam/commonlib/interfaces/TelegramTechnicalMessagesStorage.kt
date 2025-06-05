@@ -22,7 +22,9 @@ internal interface TelegramTechnicalMessagesStorage {
     submissionId: SubmissionId
   ): Result<TelegramMessageInfo, EduPlatformError>
 
-  fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo)
+  fun updateTeacherMenuMessage(
+    telegramMessageInfo: TelegramMessageInfo
+  ): Result<Unit, EduPlatformError>
 
   fun resolveTeacherMenuMessage(
     teacherId: TeacherId

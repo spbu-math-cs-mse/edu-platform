@@ -1,10 +1,9 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SubmissionInputRequest
-import com.github.heheteam.commonlib.TeacherResolveError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.SubmissionId
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ButtonData
@@ -13,7 +12,6 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
-import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -34,7 +32,7 @@ class ConfirmSubmissionState(
 ) :
   BotStateWithHandlersAndStudentId<
     Boolean,
-    Result<SubmissionId, TeacherResolveError>?,
+    SubmissionSendingResult?,
     StudentApi,
   > { // null Out implies the user did not confirm the submission
   private lateinit var submissionMessage: AccessibleMessage
@@ -68,7 +66,7 @@ class ConfirmSubmissionState(
   override fun computeNewState(
     service: StudentApi,
     input: Boolean,
-  ): Pair<State, Result<SubmissionId, TeacherResolveError>?> {
+  ): Pair<State, SubmissionSendingResult?> {
     val menuState = MenuState(context, submissionInputRequest.studentId)
     return menuState to
       if (input) {
@@ -81,7 +79,7 @@ class ConfirmSubmissionState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
-    response: Result<SubmissionId, TeacherResolveError>?,
+    response: SubmissionSendingResult?,
   ) {
     with(bot) {
       try {
@@ -95,12 +93,20 @@ class ConfirmSubmissionState(
         KSLog.warning("Failed to delete message", e)
       }
     }
-    response?.mapBoth(
-      success = { bot.send(context.id, "Решение ${it.long} успешно отправлено на проверку!") },
-      failure = {
-        bot.send(context.id, "Случилась ошибка при отправке решения\n" + it.toStackedString())
-      },
-    )
+    if (response != null) {
+      when (response) {
+        is SubmissionSendingResult.Failure ->
+          bot.send(
+            context.id,
+            "Случилась ошибка при отправке решения\n" + response.error.toStackedString(),
+          )
+        is SubmissionSendingResult.Success ->
+          bot.send(
+            context.id,
+            "Решение ${response.submissionId.long} успешно отправлено на проверку!",
+          )
+      }
+    }
   }
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit

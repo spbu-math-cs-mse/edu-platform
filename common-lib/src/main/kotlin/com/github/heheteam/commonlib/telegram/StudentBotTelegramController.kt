@@ -20,9 +20,12 @@ interface StudentBotTelegramController {
     studentId: StudentId,
     problem: Problem,
     assessment: SubmissionAssessment,
-  )
+  ): Result<Unit, EduPlatformError>
 
-  suspend fun notifyStudentOnDeadlineRescheduling(chatId: RawChatId, newDeadline: LocalDateTime)
+  suspend fun notifyStudentOnDeadlineRescheduling(
+    chatId: RawChatId,
+    newDeadline: LocalDateTime,
+  ): Result<Unit, EduPlatformError>
 
   suspend fun sendScheduledInformationalMessage(
     chatId: RawChatId,

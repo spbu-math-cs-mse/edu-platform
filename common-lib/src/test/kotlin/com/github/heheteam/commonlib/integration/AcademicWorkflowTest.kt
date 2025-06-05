@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
 import com.github.heheteam.commonlib.util.buildData
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import io.mockk.coEvery
@@ -27,7 +28,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   private fun mockNotifyStudentOnNewAssessment() =
     coEvery {
       studentBotController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
-    } returns Unit
+    } returns Unit.ok()
 
   private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue

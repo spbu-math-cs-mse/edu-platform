@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.googlesheets
 
-import com.github.heheteam.commonlib.CreateError
-import com.github.heheteam.commonlib.asEduPlatformError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -13,9 +12,8 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.util.toUrl
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.map
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
@@ -42,20 +40,17 @@ internal constructor(
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
-  override fun createRatingSpreadsheet(courseId: CourseId): Result<SpreadsheetId, CreateError> {
-    val course = courseStorage.resolveCourse(courseId).value
-    val spreadsheetId =
-      try {
-        googleSheetsService.createCourseSpreadsheet(course)
-      } catch (e: java.io.IOException) {
-        return Err(CreateError("Google Spreadheet", e.message, causedBy = e.asEduPlatformError()))
-      }
+  override fun createRatingSpreadsheet(
+    courseId: CourseId
+  ): Result<SpreadsheetId, EduPlatformError> = binding {
+    val course = courseStorage.resolveCourse(courseId).bind()
+    val spreadsheetId = googleSheetsService.createCourseSpreadsheet(course).bind()
     courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
     println(
       "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${course.name}\" (id: $courseId)"
     )
     updateRating(courseId)
-    return Ok(spreadsheetId)
+    return@binding spreadsheetId
   }
 
   override fun updateRating(courseId: CourseId) {

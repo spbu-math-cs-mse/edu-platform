@@ -92,7 +92,7 @@ class AcademicWorkflowLogicTest {
         ProblemDescription(3, "p2", "", 1),
         ProblemDescription(2, "p3", "", 1),
       ),
-    )
+    ).value
 
   private fun inputSubmission(
     academicWorkflowLogic: AcademicWorkflowLogic,

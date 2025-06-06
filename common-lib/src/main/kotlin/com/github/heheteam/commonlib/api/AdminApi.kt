@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CourseStatistics
+import com.github.heheteam.commonlib.DatabaseExceptionError
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ProblemDescription
@@ -10,6 +11,7 @@ import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
+import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -122,7 +124,8 @@ internal constructor(
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-  ) = assignmentStorage.createAssignment(courseId, description, problemsDescriptions)
+  ): Result<AssignmentId, DatabaseExceptionError> =
+    assignmentStorage.createAssignment(courseId, description, problemsDescriptions)
 
   fun createCourse(input: String): CourseId = courseStorage.createCourse(input)
 
@@ -134,7 +137,7 @@ internal constructor(
   fun getCourseStatistics(courseId: CourseId): CourseStatistics {
     val students = courseStorage.getStudents(courseId)
     val teachers = courseStorage.getTeachers(courseId)
-    val assignments = assignmentStorage.getAssignmentsForCourse(courseId)
+    val assignments = assignmentStorage.getAssignmentsForCourse(courseId).value
 
     var totalProblems = 0
     var totalMaxScore = 0
@@ -181,7 +184,7 @@ internal constructor(
   fun updateTgId(adminId: AdminId, newTgId: UserId): Result<Unit, ResolveError<AdminId>> =
     adminStorage.updateTgId(adminId, newTgId)
 
-  fun createAdmin(name: String, surname: String, tgId: Long): AdminId =
+  fun createAdmin(name: String, surname: String, tgId: Long): Result<AdminId, EduPlatformError> =
     adminStorage.createAdmin(name, surname, tgId)
 
   fun getTokenForCourse(courseId: CourseId): String? = tokenStorage.getTokenForCourse(courseId)

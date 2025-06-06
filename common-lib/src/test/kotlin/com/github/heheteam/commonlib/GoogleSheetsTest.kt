@@ -129,7 +129,7 @@ class GoogleSheetsTest {
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course1Id).value,
-      assignmentStorage.getAssignmentsForCourse(course1Id),
+      assignmentStorage.getAssignmentsForCourse(course1Id).value,
       problemStorage.getProblemsFromCourse(course1Id),
       courseStorage.getStudents(course1Id),
       gradeTable.getCourseRating(course1Id),
@@ -137,7 +137,7 @@ class GoogleSheetsTest {
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course2Id).value,
-      assignmentStorage.getAssignmentsForCourse(course2Id),
+      assignmentStorage.getAssignmentsForCourse(course2Id).value,
       problemStorage.getProblemsFromCourse(course2Id),
       courseStorage.getStudents(course2Id),
       gradeTable.getCourseRating(course2Id),

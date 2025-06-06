@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -16,6 +17,9 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
+import com.github.michaelbull.result.getOrElse
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -39,7 +43,11 @@ class QueryProblemForSubmissionSendingState(
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ) {
-    val assignments = service.getCourseAssignments(selectedCourseId)
+    val assignments =
+      service.getCourseAssignments(selectedCourseId).getOrElse {
+        logger.error("service.getCourseAssignments failed: ${it.toStackedString()}")
+        listOf()
+      }
     val problems =
       service.calculateRescheduledDeadlines(
         userId,

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.DatabaseError
+import com.github.heheteam.commonlib.DatabaseExceptionError
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ResolveError
@@ -53,7 +53,7 @@ class DatabaseScheduledMessagesDistributor(
             }
           id.value.toScheduledMessageId()
         }
-        .mapError { DatabaseError(it) }
+        .mapError { DatabaseExceptionError(it) }
     }
 
   override fun resolveScheduledMessage(
@@ -67,7 +67,7 @@ class DatabaseScheduledMessagesDistributor(
               .singleOrNull()
           }
         }
-        .mapError { DatabaseError(it) }
+        .mapError { DatabaseExceptionError(it) }
         .bind()
 
     row?.let {
@@ -122,7 +122,7 @@ class DatabaseScheduledMessagesDistributor(
             }
           }
         }
-        .mapError { DatabaseError(it) }
+        .mapError { DatabaseExceptionError(it) }
         .bind()
 
     if (updatedRows == 0) {

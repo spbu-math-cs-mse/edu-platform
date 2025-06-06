@@ -55,7 +55,7 @@ class DatabaseTest {
         courseId,
         "",
         (1..5).map { ProblemDescription(it, it.toString()) },
-      )
+      ).value
     return problemStorage.getProblemsFromAssignment(assignment)
   }
 
@@ -181,7 +181,7 @@ class DatabaseTest {
         initTeachers = true,
       )
     val someAssignment =
-      assignmentStorage.getAssignmentsForCourse(content.courses.realAnalysis).first()
+      assignmentStorage.getAssignmentsForCourse(content.courses.realAnalysis).value.first()
     val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).first()
     val someStudent = content.students[0]
     val teachers = content.teachers

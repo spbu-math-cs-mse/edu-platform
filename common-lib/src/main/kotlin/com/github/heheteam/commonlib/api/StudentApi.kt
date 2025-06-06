@@ -54,7 +54,7 @@ internal constructor(
   fun getStudentCourses(studentId: StudentId): List<Course> =
     courseStorage.getStudentCourses(studentId)
 
-  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
+  fun getCourseAssignments(courseId: CourseId): Result<List<Assignment>, EduPlatformError> =
     assignmentStorage.getAssignmentsForCourse(courseId)
 
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =

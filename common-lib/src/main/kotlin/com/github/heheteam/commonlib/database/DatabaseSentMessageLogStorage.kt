@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.DatabaseError
+import com.github.heheteam.commonlib.DatabaseExceptionError
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.SentMessageLog
 import com.github.heheteam.commonlib.database.table.SentMessageLogTable
@@ -31,7 +31,7 @@ class DatabaseSentMessageLogStorage(private val database: Database) : SentMessag
           }
           Unit
         }
-        .mapError { DatabaseError(it) }
+        .mapError { DatabaseExceptionError(it) }
     }
 
   override fun getSentMessageLogs(scheduledMessageId: ScheduledMessageId): List<SentMessageLog> =

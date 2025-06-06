@@ -23,6 +23,7 @@ data class QueryAssignmentForCheckingGradesState(
   override val context: User,
   override val userId: StudentId,
   val courseId: CourseId,
+  val assignments: List<Assignment>,
 ) :
   BotStateWithHandlersAndStudentId<
     Assignment?,
@@ -36,7 +37,6 @@ data class QueryAssignmentForCheckingGradesState(
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Assignment?, Any>,
   ) {
-    val assignments = service.getCourseAssignments(courseId)
     val coursesPicker = createAssignmentPicker(assignments)
     val selectCourseMessage =
       bot.sendMessage(context.id, "Выберите серию", replyMarkup = coursesPicker.keyboard)

@@ -70,7 +70,7 @@ internal constructor(
               googleSheetsService.updateRating(
                 spreadsheetId.long,
                 course,
-                assignmentStorage.getAssignmentsForCourse(courseId),
+                assignmentStorage.getAssignmentsForCourse(courseId).value,
                 problemStorage.getProblemsFromCourse(courseId),
                 courseStorage.getStudents(courseId),
                 academicWorkflowLogic.getCourseRating(courseId),

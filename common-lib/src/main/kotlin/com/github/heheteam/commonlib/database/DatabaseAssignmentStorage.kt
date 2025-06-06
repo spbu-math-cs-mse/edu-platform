@@ -1,6 +1,8 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.DatabaseExceptionError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.AssignmentTable
@@ -10,6 +12,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toCourseId
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -51,7 +54,7 @@ class DatabaseAssignmentStorage(
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
-  ): AssignmentId {
+  ): Result<AssignmentId, DatabaseExceptionError> {
     val assignId =
       transaction(database) {
           val serialNumber =
@@ -77,17 +80,21 @@ class DatabaseAssignmentStorage(
         problemDescription.deadline,
       )
     }
-    return assignId
+    return assignId.ok()
   }
 
-  override fun getAssignmentsForCourse(courseId: CourseId): List<Assignment> = transaction {
-    AssignmentTable.selectAll().where(AssignmentTable.courseId eq courseId.long).map {
-      Assignment(
-        it[AssignmentTable.id].value.toAssignmentId(),
-        it[AssignmentTable.serialNumber],
-        it[AssignmentTable.description],
-        it[AssignmentTable.courseId].value.toCourseId(),
-      )
-    }
-  }
+  override fun getAssignmentsForCourse(
+    courseId: CourseId
+  ): Result<List<Assignment>, EduPlatformError> =
+    transaction {
+        AssignmentTable.selectAll().where(AssignmentTable.courseId eq courseId.long).map {
+          Assignment(
+            it[AssignmentTable.id].value.toAssignmentId(),
+            it[AssignmentTable.serialNumber],
+            it[AssignmentTable.description],
+            it[AssignmentTable.courseId].value.toCourseId(),
+          )
+        }
+      }
+      .ok()
 }

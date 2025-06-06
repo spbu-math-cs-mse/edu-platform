@@ -24,8 +24,8 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
+import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
-import com.github.heheteam.commonlib.notifications.BotEventBus
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,10 +63,10 @@ class StudentBotTest {
     academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     scheduledMessageDeliveryService = mockk<ScheduledMessageDeliveryService>(relaxed = true)
     courseIds = (1..4).map { courseStorage.createCourse("course $it") }
-    val mockBotEventBus = mockk<BotEventBus>(relaxed = true)
     val mockUiController = mockk<UiController>(relaxed = true)
     val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
     val mockCourseTokensService = mockk<CourseTokenStorage>(relaxed = true)
+    val teacherNotifier = mockk<NewSubmissionTeacherNotifier>()
     academicWorkflowService =
       AcademicWorkflowService(
         academicWorkflowLogic,
@@ -76,8 +76,8 @@ class StudentBotTest {
           courseStorage,
           submissionDistributor,
         ),
-        mockBotEventBus,
         mockUiController,
+        teacherNotifier,
       )
     studentApi =
       StudentApi(

@@ -17,6 +17,7 @@ import com.github.heheteam.commonlib.api.ApiCollection
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -28,7 +29,7 @@ data class MonotoneCounter(private var startValue: Long = 0) {
   fun next(): Long = ++startValue
 }
 
-class TestDataBuilder(private val apis: ApiCollection) {
+class TestDataBuilder(internal val apis: ApiCollection) {
   private val clock = MonotoneDummyClock()
   private val defaultTimestamp = clock.next()
   private val chatIdCounter = MonotoneCounter()
@@ -120,9 +121,10 @@ class TestDataBuilder(private val apis: ApiCollection) {
         telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
         timestamp = defaultTimestamp,
       )
-    val submissionId = apis.studentApi.inputSubmission(submissionInputRequest).value
+    val submissionResult =
+      apis.studentApi.inputSubmission(submissionInputRequest) as SubmissionSendingResult.Success
     return Submission(
-      submissionId,
+      submissionResult.submissionId,
       submissionInputRequest.studentId,
       submissionInputRequest.telegramMessageInfo.chatId,
       submissionInputRequest.telegramMessageInfo.messageId,
@@ -178,6 +180,19 @@ class TestDataBuilder(private val apis: ApiCollection) {
 
   suspend fun deleteScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.deleteScheduledMessage(scheduledMessageId)
+
+  fun submissionInputRequest(
+    student: Student,
+    problem: Problem,
+    content: String,
+  ): SubmissionInputRequest =
+    SubmissionInputRequest(
+      studentId = student.id,
+      problemId = problem.id,
+      submissionContent = TextWithMediaAttachments(content),
+      telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
+      timestamp = defaultTimestamp,
+    )
 }
 
 fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) = runBlocking {

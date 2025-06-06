@@ -180,8 +180,27 @@ class ApiFabric(
             submissionDistributor,
           )
       }
+
+    val newSubmissionTeacherNotifier =
+      NewSubmissionTeacherNotifier(
+        tgTechnicalMessagesStorage,
+        teacherBotTelegramController,
+        submissionDistributor,
+        problemStorage,
+        assignmentStorage,
+        studentStorage,
+        databaseGradeTable,
+        teacherStorage,
+        courseStorage,
+      )
+
     val academicWorkflowService =
-      AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
+      AcademicWorkflowService(
+        academicWorkflowLogic,
+        teacherResolver,
+        uiController,
+        newSubmissionTeacherNotifier,
+      )
 
     val personalDeadlinesService =
       PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
@@ -221,18 +240,6 @@ class ApiFabric(
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
-    val newSubmissionTeacherNotifier =
-      NewSubmissionTeacherNotifier(
-        tgTechnicalMessagesStorage,
-        teacherBotTelegramController,
-        submissionDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        databaseGradeTable,
-        teacherStorage,
-        courseStorage,
-      )
 
     botEventBus.subscribeToNewSubmissionEvent { submission: Submission ->
       newSubmissionTeacherNotifier.notifyNewSubmission(submission)

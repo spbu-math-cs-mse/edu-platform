@@ -34,7 +34,7 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
     studentId: StudentId,
     problem: Problem,
     assessment: SubmissionAssessment,
-  ) {
+  ): Result<Unit, EduPlatformError> {
     val emoji =
       when {
         assessment.grade <= 0 -> "❌"
@@ -51,21 +51,27 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
         append("Комментарий преподавателя: ${assessment.comment.text}")
       }
     }
-    studentBot.sendTextWithMediaAttachments(
-      chatId.toChatId(),
-      assessment.comment.copy(text = messageText),
-      replyTo = messageToReplyTo,
-    )
+    return studentBot
+      .sendTextWithMediaAttachments(
+        chatId.toChatId(),
+        assessment.comment.copy(text = messageText),
+        replyTo = messageToReplyTo,
+      )
+      .map {}
   }
 
   override suspend fun notifyStudentOnDeadlineRescheduling(
     chatId: RawChatId,
     newDeadline: LocalDateTime,
-  ) {
-    studentBot.send(
-      chatId.toChatId(),
-      text = "Ваши дедлайны были продлены до ${newDeadline.format(deadlineFormat)}",
-    )
+  ): Result<Unit, EduPlatformError> {
+    return runCatching {
+        studentBot.send(
+          chatId.toChatId(),
+          text = "Ваши дедлайны были продлены до ${newDeadline.format(deadlineFormat)}",
+        )
+      }
+      .map {}
+      .mapError { TelegramError(it) }
   }
 
   override suspend fun sendScheduledInformationalMessage(

@@ -3,24 +3,11 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ForbiddenComment:EditDescriptionState.kt$EditDescriptionState$// course.name = answer TODO: implement this feature</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun assignmentWasCreatedSuccessfully(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun incorrectProblemDescriptionEmpty(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun noIdInInput(): String</ID>
-    <ID>LongMethod:AddScheduledMessageState.kt$private fun keyboardWithDates(): InlineKeyboardMarkup</ID>
-    <ID>MagicNumber:AddScheduledMessageState.kt$3</ID>
-    <ID>MagicNumber:AddScheduledMessageState.kt$4</ID>
-    <ID>MagicNumber:AddScheduledMessageState.kt$5</ID>
-    <ID>MagicNumber:AddScheduledMessageState.kt$6</ID>
     <ID>MagicNumber:CreateAssignmentState.kt$3</ID>
     <ID>MagicNumber:DateTime.kt$3</ID>
     <ID>MagicNumber:DateTime.kt$4</ID>
     <ID>MagicNumber:DateTime.kt$5</ID>
     <ID>MagicNumber:DateTime.kt$6</ID>
-    <ID>ReturnCount:AddScheduledMessageState.kt$private suspend fun BehaviourContext.queryDateFromUser( state: AddScheduledMessageState ): LocalDate?</ID>
     <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
     <ID>UnsafeCallOnNullableType:CreateAssignmentState.kt$CreateAssignmentState$description!!</ID>
   </CurrentIssues>

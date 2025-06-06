@@ -20,6 +20,7 @@ import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -59,7 +60,7 @@ internal constructor(
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =
     courseStorage.addStudentToCourse(studentId, courseId)
 
-  fun inputSubmission(submissionInputRequest: SubmissionInputRequest) =
+  fun inputSubmission(submissionInputRequest: SubmissionInputRequest): SubmissionSendingResult =
     academicWorkflowService.sendSubmission(submissionInputRequest)
 
   fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =

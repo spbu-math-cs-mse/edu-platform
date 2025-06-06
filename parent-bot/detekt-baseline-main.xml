@@ -3,19 +3,12 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ForbiddenComment:GivingFeedbackState.kt$// TODO: implement receiving feedback</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun acceptFeedback(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
     <ID>LoopWithTooManyJumpStatements:StartState.kt$while</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val giveFeedback = "Дать обратную связь"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val other = "Другое"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val parent = "Родитель"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val petDog = "Почесать таксе пузо"</ID>
     <ID>MayBeConst:Keyboards.kt$Keyboards$val returnBack = "Назад"</ID>
-    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
     <ID>UnsafeCallOnNullableType:StartState.kt$parentId!!</ID>
   </CurrentIssues>
 </SmellBaseline>

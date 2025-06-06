@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.TelegramMessageInfo
@@ -21,11 +22,14 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 @Suppress("LongParameterList") // fix after test exist
 internal class NewSubmissionTeacherNotifier(
@@ -39,33 +43,50 @@ internal class NewSubmissionTeacherNotifier(
   private val teacherStorage: TeacherStorage,
   private val courseStorage: CourseStorage,
 ) {
-  suspend fun notifyNewSubmission(submission: Submission): Result<Unit, SubmissionSendingError> =
-    coroutineBinding {
-      sendSubmissionToTeacherPersonally(submission)
-      sendSubmissionToGroup(submission)
-      val teacherId = submission.responsibleTeacherId
-      if (teacherId != null) {
-        updateMenuMessageInPersonalMessages(teacherId, submission)
+  suspend fun notifyNewSubmission(submission: Submission): NewSubmissionNotificationStatus =
+    coroutineScope {
+      val personalNotificationResult = async {
+        val sendingMessageResult = sendSubmissionToTeacherPersonally(submission).getError()
+        val teacherId = submission.responsibleTeacherId
+        val updatingMenuMessageResult =
+          if (teacherId != null) {
+            updateMenuMessageInPersonalMessages(teacherId, submission).getError()
+          } else {
+            null
+          }
+        TeacherNewSubmissionNotificationStatus(sendingMessageResult, updatingMenuMessageResult)
       }
-      val courseId = submissionDistributor.resolveSubmissionCourse(submission.id).get()
-      if (courseId != null) {
-        updateMenuMessageInGroup(courseId, submission)
+      val groupNotificationResult = async {
+        val sendingMessageStatus = sendSubmissionToGroup(submission).getError()
+        val courseId = submissionDistributor.resolveSubmissionCourse(submission.id).get()
+        val updatingMenuMessageResult =
+          if (courseId != null) {
+            updateMenuMessageInGroup(courseId, submission).getError()
+          } else null
+        GroupNewSubmissionNotificationStatus(sendingMessageStatus, updatingMenuMessageResult)
       }
+      return@coroutineScope NewSubmissionNotificationStatus(
+        personalNotificationResult.await(),
+        groupNotificationResult.await(),
+      )
     }
 
-  private suspend fun updateMenuMessageInGroup(courseId: CourseId, submission: Submission) {
-    coroutineBinding {
+  private suspend fun updateMenuMessageInGroup(
+    courseId: CourseId,
+    submission: Submission,
+  ): Result<Unit, EduPlatformError> {
+    return coroutineBinding {
       val menuMessages =
         telegramTechnicalMessageStorage
           .resolveGroupMenuMessage(courseId)
-          .mapError { FailedToResolveSubmission(submission) }
+          .mapError { FailedToResolveSubmission(submission, it) }
           .bind()
       deleteMenuMessages(menuMessages)
 
       val (chatId, messageId) =
         telegramTechnicalMessageStorage
           .resolveGroupFirstUncheckedSubmissionMessage(courseId)
-          .mapError { FailedToResolveSubmission(submission) }
+          .mapError { FailedToResolveSubmission(submission, it) }
           .bind()
       teacherBotTelegramController.sendMenuMessage(
         chatId,
@@ -77,8 +98,8 @@ internal class NewSubmissionTeacherNotifier(
   private suspend fun updateMenuMessageInPersonalMessages(
     teacherId: TeacherId,
     submission: Submission,
-  ) {
-    coroutineBinding {
+  ): Result<Unit, EduPlatformError> {
+    return coroutineBinding {
       val menuMessages =
         telegramTechnicalMessageStorage
           .resolveTeacherMenuMessage(teacherId)
@@ -97,9 +118,9 @@ internal class NewSubmissionTeacherNotifier(
           .mapError { FailedToResolveSubmission(submission) }
           .bind()
 
-      telegramTechnicalMessageStorage.updateTeacherMenuMessage(
-        TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
-      )
+      telegramTechnicalMessageStorage
+        .updateTeacherMenuMessage(TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId))
+        .bind()
     }
   }
 
@@ -125,7 +146,12 @@ internal class NewSubmissionTeacherNotifier(
     if (chat == null) {
       Err(SendToGroupSubmissionError(assignment.courseId)).bind<Nothing>()
     }
-    teacherBotTelegramController.sendSubmission(chat, submission.content)
+    teacherBotTelegramController
+      .sendSubmission(chat, submission.content)
+      .mapError { originalError ->
+        SendToGroupSubmissionError(assignment.courseId, causedBy = originalError)
+      }
+      .bind()
     val submissionStatusInfo =
       extractSubmissionStatusMessageInfo(submission.id)
         .mapError { FailedToResolveSubmission(submission) }
@@ -151,7 +177,12 @@ internal class NewSubmissionTeacherNotifier(
             .resolveTeacher(teacherId)
             .mapError { NoResponsibleTeacherFor(submission) }
             .bind()
-        teacherBotTelegramController.sendSubmission(teacher.tgId, submission.content)
+        teacherBotTelegramController
+          .sendSubmission(teacher.tgId, submission.content)
+          .mapError { originalError ->
+            SendToTeacherSubmissionError(teacherId, causedBy = originalError)
+          }
+          .bind()
         val submissionStatusInfo =
           extractSubmissionStatusMessageInfo(submission.id)
             .mapError { FailedToResolveSubmission(submission) }
@@ -193,11 +224,9 @@ internal class NewSubmissionTeacherNotifier(
   }
 
   private suspend fun deleteMenuMessages(menuMessages: List<TelegramMessageInfo>) {
-    menuMessages.map { menuMessage ->
-      try {
-        teacherBotTelegramController.deleteMessage(menuMessage)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Menu message has already been deleted:\n$e")
+    menuMessages.forEach { menuMessage ->
+      teacherBotTelegramController.deleteMessage(menuMessage).onFailure { error ->
+        KSLog.warning("Failed to delete menu message: $error")
       }
     }
   }

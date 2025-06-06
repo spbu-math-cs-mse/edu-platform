@@ -29,16 +29,12 @@ class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
     studentId: StudentId,
     problem: Problem,
     assessment: SubmissionAssessment,
-  ) {
-    // Not relevant for this test, do nothing
-  }
+  ): Result<Unit, EduPlatformError> = Ok(Unit)
 
   override suspend fun notifyStudentOnDeadlineRescheduling(
     chatId: RawChatId,
     newDeadline: LocalDateTime,
-  ) {
-    // Not relevant for this test, do nothing
-  }
+  ) = Ok(Unit)
 
   override suspend fun sendScheduledInformationalMessage(
     chatId: RawChatId,

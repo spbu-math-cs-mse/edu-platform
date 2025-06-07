@@ -54,7 +54,7 @@ class DatabaseTest {
       assignmentStorage
         .createAssignment(courseId, "", (1..5).map { ProblemDescription(it, it.toString()) })
         .value
-    return problemStorage.getProblemsFromAssignment(assignment)
+    return problemStorage.getProblemsFromAssignment(assignment).value
   }
 
   private fun inputSampleSubmission(
@@ -180,7 +180,7 @@ class DatabaseTest {
       )
     val someAssignment =
       assignmentStorage.getAssignmentsForCourse(content.courses.realAnalysis).value.first()
-    val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).first()
+    val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).value.first()
     val someStudent = content.students[0]
     val teachers = content.teachers
     val submission =

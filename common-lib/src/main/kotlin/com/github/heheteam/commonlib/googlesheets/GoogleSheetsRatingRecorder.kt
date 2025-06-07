@@ -74,7 +74,7 @@ internal constructor(
                 spreadsheetId.long,
                 course,
                 assignmentStorage.getAssignmentsForCourse(courseId).value,
-                problemStorage.getProblemsFromCourse(courseId),
+                problemStorage.getProblemsFromCourse(courseId).value,
                 courseStorage.getStudents(courseId).value,
                 academicWorkflowLogic.getCourseRating(courseId).value,
               )

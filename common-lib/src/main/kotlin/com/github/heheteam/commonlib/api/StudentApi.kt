@@ -63,7 +63,9 @@ internal constructor(
   fun inputSubmission(submissionInputRequest: SubmissionInputRequest): SubmissionSendingResult =
     academicWorkflowService.sendSubmission(submissionInputRequest)
 
-  fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
+  fun getProblemsFromAssignment(
+    assignmentId: AssignmentId
+  ): Result<List<Problem>, EduPlatformError> =
     problemStorage.getProblemsFromAssignment(assignmentId)
 
   fun loginByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> =
@@ -82,7 +84,9 @@ internal constructor(
    * Returns assignments and all of their problems with original deadlines. You might need to
    * calculate personal deadlines additionally.
    */
-  fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>> =
+  fun getProblemsWithAssignmentsFromCourse(
+    courseId: CourseId
+  ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
 
   fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =

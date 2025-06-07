@@ -58,7 +58,8 @@ class TeacherBotTest {
           listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
         )
         .value
-    problemId = problemStorage.createProblem(assignmentId, 1, "test problem 1", 1, "test problem")
+    val description = ProblemDescription(1, "test problem 1", "", 1)
+    problemId = problemStorage.createProblem(assignmentId, 1, description).value
   }
 
   companion object {

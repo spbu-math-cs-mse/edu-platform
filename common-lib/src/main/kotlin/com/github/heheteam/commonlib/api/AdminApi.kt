@@ -148,7 +148,7 @@ internal constructor(
     var totalSubmissions = 0
     var checkedSubmissions = 0
     assignments.forEach { assignment ->
-      val problems = problemStorage.getProblemsFromAssignment(assignment.id)
+      val problems = problemStorage.getProblemsFromAssignment(assignment.id).value
       totalProblems += problems.size
       totalMaxScore += problems.sumOf { it.maxScore }
       problems.forEach { problem ->

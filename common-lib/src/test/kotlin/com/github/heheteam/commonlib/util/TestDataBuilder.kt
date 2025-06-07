@@ -92,7 +92,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
         apis.adminApi.createAssignment(courseId, description, assignmentContext.problems).value
       val assignment =
         apis.studentApi.getCourseAssignments(courseId).value.first { it.id == assignmentId }
-      return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId)
+      return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId).value
     }
   }
 

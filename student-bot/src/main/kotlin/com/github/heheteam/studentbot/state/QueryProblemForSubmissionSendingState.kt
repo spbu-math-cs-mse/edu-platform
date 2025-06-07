@@ -56,7 +56,7 @@ class QueryProblemForSubmissionSendingState(
     val problems =
       service.calculateRescheduledDeadlines(
         userId,
-        assignments.associateWith { service.getProblemsFromAssignment(it.id) },
+        assignments.associateWith { service.getProblemsFromAssignment(it.id).value },
       )
     val message =
       bot.send(context, Dialogues.askProblem, replyMarkup = buildProblemSendingSelector(problems))

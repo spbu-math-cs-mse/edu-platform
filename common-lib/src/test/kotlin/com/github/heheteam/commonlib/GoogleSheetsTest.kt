@@ -130,7 +130,7 @@ class GoogleSheetsTest {
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id).value,
-      problemStorage.getProblemsFromCourse(course1Id),
+      problemStorage.getProblemsFromCourse(course1Id).value,
       courseStorage.getStudents(course1Id).value,
       gradeTable.getCourseRating(course1Id).value,
     )
@@ -138,7 +138,7 @@ class GoogleSheetsTest {
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id).value,
-      problemStorage.getProblemsFromCourse(course2Id),
+      problemStorage.getProblemsFromCourse(course2Id).value,
       courseStorage.getStudents(course2Id).value,
       gradeTable.getCourseRating(course2Id).value,
     )

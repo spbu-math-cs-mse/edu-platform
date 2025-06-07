@@ -49,7 +49,7 @@ internal constructor(
   ): List<Pair<Problem, ProblemGrade>> =
     academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
 
-  fun getAllCourses(): List<Course> = courseStorage.getCourses()
+  fun getAllCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 
   fun getStudentCourses(studentId: StudentId): List<Course> =
     courseStorage.getStudentCourses(studentId)

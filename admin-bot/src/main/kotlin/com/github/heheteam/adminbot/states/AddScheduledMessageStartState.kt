@@ -8,6 +8,8 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -40,7 +42,7 @@ class AddScheduledMessageStartState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.addScheduledMessageStartSummary)
     sentMessages.add(introMessage)
   }
@@ -64,4 +66,6 @@ class AddScheduledMessageStartState(
     response: Unit,
     input: State,
   ) = Unit
+
+  override fun defaultState(): State = MenuState(context, adminId)
 }

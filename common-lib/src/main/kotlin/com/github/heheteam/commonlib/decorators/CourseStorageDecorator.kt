@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.DeleteError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
@@ -51,7 +52,7 @@ internal class CourseStorageDecorator(
   ): Result<Unit, DeleteError<TeacherId>> =
     courseStorage.removeTeacherFromCourse(teacherId, courseId)
 
-  override fun getCourses(): List<Course> = courseStorage.getCourses()
+  override fun getCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 
   override fun getStudentCourses(studentId: StudentId): List<Course> =
     courseStorage.getStudentCourses(studentId)

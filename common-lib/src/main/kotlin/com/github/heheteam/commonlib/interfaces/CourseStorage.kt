@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.interfaces
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.DeleteError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
@@ -31,7 +32,7 @@ internal interface CourseStorage {
     courseId: CourseId,
   ): Result<Unit, DeleteError<TeacherId>>
 
-  fun getCourses(): List<Course>
+  fun getCourses(): Result<List<Course>, EduPlatformError>
 
   fun getStudentCourses(studentId: StudentId): List<Course>
 

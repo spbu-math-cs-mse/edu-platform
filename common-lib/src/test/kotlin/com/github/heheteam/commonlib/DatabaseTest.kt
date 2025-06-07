@@ -93,7 +93,7 @@ class DatabaseTest {
   fun `course distributor works`() {
     val sampleDescription = "sample description"
     val id = courseStorage.createCourse(sampleDescription)
-    val requiredId = courseStorage.getCourses().single().id
+    val requiredId = courseStorage.getCourses().value.single().id
     assertEquals(id, requiredId)
     val resolvedCourse = courseStorage.resolveCourse(requiredId)
     assertEquals(true, resolvedCourse.isOk)

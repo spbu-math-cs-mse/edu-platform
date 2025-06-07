@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.Keyboards
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.map
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.fsm.common.State
@@ -32,7 +33,7 @@ data class ApplyForCoursesState(override val context: User, override val userId:
     updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
   ): Result<Unit, EduPlatformError> = coroutineBinding {
     val studentCourses = service.getStudentCourses(userId).toSet()
-    val allCourses = service.getAllCourses().map { it to studentCourses.contains(it) }
+    val allCourses = service.getAllCourses().bind().map { it to studentCourses.contains(it) }
     val selectCourseMessage =
       bot.sendMessage(
         context.id,

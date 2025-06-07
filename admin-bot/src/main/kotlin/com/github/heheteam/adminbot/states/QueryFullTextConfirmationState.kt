@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
@@ -10,6 +11,8 @@ import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createYesNoKeyboard
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -30,11 +33,13 @@ data class QueryFullTextConfirmationState(
   val numberOfMessages: Int,
 ) : BotStateWithHandlers<Boolean, List<ScheduledMessage>, AdminApi> {
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val keyboard = createYesNoKeyboard("Да", "Нет")
     bot.sendMessage(
       context.id,

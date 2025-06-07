@@ -65,7 +65,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   fun course(name: String, setup: CourseContext.() -> Unit = {}): Course {
     val courseId = apis.adminApi.createCourse(name)
     CourseContext(courseId).apply(setup)
-    val course = apis.adminApi.getCourse(name)!!
+    val course = apis.adminApi.getCourse(name).value!!
     return course
   }
 

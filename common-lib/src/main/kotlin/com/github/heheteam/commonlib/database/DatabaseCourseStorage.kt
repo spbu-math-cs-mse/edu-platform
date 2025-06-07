@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.DeleteError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
@@ -20,6 +21,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.toRawChatId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -139,12 +141,13 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
       }
     }
 
-  override fun getCourses(): List<Course> =
+  override fun getCourses(): Result<List<Course>, EduPlatformError> =
     transaction(database) {
-      CourseTable.selectAll().map {
-        Course(it[CourseTable.id].value.toCourseId(), it[CourseTable.name])
+        CourseTable.selectAll().map {
+          Course(it[CourseTable.id].value.toCourseId(), it[CourseTable.name])
+        }
       }
-    }
+      .ok()
 
   override fun getStudentCourses(studentId: StudentId): List<Course> = transaction {
     CourseStudents.join(

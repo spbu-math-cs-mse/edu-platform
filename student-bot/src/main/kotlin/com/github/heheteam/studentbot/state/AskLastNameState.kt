@@ -4,11 +4,13 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -31,14 +33,17 @@ class AskLastNameState(
     input: StudentId,
   ) = Unit
 
+  override fun defaultState(): State {
+    return StartState(context, token)
+  }
+
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, StudentId, EduPlatformError>,
-  ) {
+    updateHandlersController: UpdateHandlerManager<StudentId>,
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text

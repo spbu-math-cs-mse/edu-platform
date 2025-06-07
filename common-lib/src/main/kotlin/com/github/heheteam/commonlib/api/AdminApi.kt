@@ -29,6 +29,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.UserId
 import java.time.LocalDateTime
@@ -90,13 +91,15 @@ internal constructor(
     personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
   }
 
-  fun courseExists(courseName: String): Boolean = getCourse(courseName) != null
+  fun courseExists(courseName: String): Boolean = getCourse(courseName).get() != null
 
-  fun getCourse(courseName: String): Course? =
-    courseStorage.getCourses().find { it.name == courseName }
+  fun getCourse(courseName: String): Result<Course?, EduPlatformError> =
+    courseStorage.getCourses().map { courses -> courses.find { it.name == courseName } }
 
-  fun getCourses(): Map<String, Course> =
-    courseStorage.getCourses().groupBy { it.name }.mapValues { it.value.first() }
+  fun getCourses(): Result<Map<String, Course>, EduPlatformError> =
+    courseStorage.getCourses().map { courses ->
+      courses.groupBy { it.name }.mapValues { it.value.first() }
+    }
 
   fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
 

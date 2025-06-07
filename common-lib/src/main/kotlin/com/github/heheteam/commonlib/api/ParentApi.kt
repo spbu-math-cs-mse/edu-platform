@@ -30,7 +30,7 @@ internal constructor(
   fun tryLoginByTelegramId(id: UserId): Result<Parent, ResolveError<UserId>> =
     parentStorage.resolveByTgId(id)
 
-  fun createParent(): ParentId = parentStorage.createParent()
+  fun createParent(): Result<ParentId, EduPlatformError> = parentStorage.createParent()
 
   fun tryLoginByParentId(parentId: ParentId): Result<Parent, ResolveError<ParentId>> =
     parentStorage.resolveParent(parentId)

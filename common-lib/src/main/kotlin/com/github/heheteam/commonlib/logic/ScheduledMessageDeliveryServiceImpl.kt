@@ -46,7 +46,7 @@ internal constructor(
   ): Result<Unit, EduPlatformError> = binding {
     val course = courseStorage.resolveCourse(scheduledMessage.courseId).bind()
 
-    val studentsInCourse = courseStorage.getStudents(scheduledMessage.courseId)
+    val studentsInCourse = courseStorage.getStudents(scheduledMessage.courseId).bind()
 
     val errors =
       studentsInCourse.mapNotNull { student ->

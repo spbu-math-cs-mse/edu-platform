@@ -21,11 +21,13 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.toRawChatId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.tgbotapi.types.RawChatId
@@ -149,33 +151,35 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
       }
       .ok()
 
-  override fun getStudentCourses(studentId: StudentId): List<Course> = transaction {
-    CourseStudents.join(
-        CourseTable,
-        JoinType.INNER,
-        onColumn = CourseTable.id,
-        otherColumn = CourseStudents.courseId,
-      )
-      .selectAll()
-      .where { CourseStudents.studentId eq studentId.long }
-      .map {
-        Course(it[CourseStudents.courseId].value.toCourseId(), it[CourseTable.name].toString())
-      }
-  }
+  override fun getStudentCourses(studentId: StudentId): Result<List<Course>, EduPlatformError> =
+    catchingTransaction(database) {
+      CourseStudents.join(
+          CourseTable,
+          JoinType.INNER,
+          onColumn = CourseTable.id,
+          otherColumn = CourseStudents.courseId,
+        )
+        .selectAll()
+        .where { CourseStudents.studentId eq studentId.long }
+        .map {
+          Course(it[CourseStudents.courseId].value.toCourseId(), it[CourseTable.name].toString())
+        }
+    }
 
-  override fun getTeacherCourses(teacherId: TeacherId): List<Course> = transaction {
-    CourseTeachers.join(
-        CourseTable,
-        JoinType.INNER,
-        onColumn = CourseTable.id,
-        otherColumn = CourseTeachers.courseId,
-      )
-      .selectAll()
-      .where { CourseTeachers.teacherId eq teacherId.long }
-      .map {
-        Course(it[CourseTeachers.courseId].value.toCourseId(), it[CourseTable.name].toString())
-      }
-  }
+  override fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, EduPlatformError> =
+    catchingTransaction(database) {
+      CourseTeachers.join(
+          CourseTable,
+          JoinType.INNER,
+          onColumn = CourseTable.id,
+          otherColumn = CourseTeachers.courseId,
+        )
+        .selectAll()
+        .where { CourseTeachers.teacherId eq teacherId.long }
+        .map {
+          Course(it[CourseTeachers.courseId].value.toCourseId(), it[CourseTable.name].toString())
+        }
+    }
 
   override fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>> =
     transaction(database) {
@@ -225,25 +229,27 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
       Ok(RawChatId(chatId))
     }
 
-  override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId): Unit =
-    transaction(database) {
+  override fun updateCourseSpreadsheetId(
+    courseId: CourseId,
+    spreadsheetId: SpreadsheetId,
+  ): Result<Unit, EduPlatformError> =
+    catchingTransaction(database) {
       CourseTable.update({ CourseTable.id eq courseId.long }) {
         it[CourseTable.spreadsheetId] = spreadsheetId.long
       }
     }
 
-  override fun createCourse(description: String): CourseId =
-    transaction(database) {
+  override fun createCourse(description: String): Result<CourseId, EduPlatformError> =
+    catchingTransaction(database) {
         CourseTable.insert {
           it[CourseTable.name] = description
           it[CourseTable.spreadsheetId] = null
         } get CourseTable.id
       }
-      .value
-      .toCourseId()
+      .map { it.value.toCourseId() }
 
-  override fun getStudents(courseId: CourseId): List<Student> =
-    transaction(database) {
+  override fun getStudents(courseId: CourseId): Result<List<Student>, EduPlatformError> =
+    catchingTransaction(database) {
       CourseStudents.join(
           StudentTable,
           JoinType.INNER,
@@ -262,8 +268,8 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
         }
     }
 
-  override fun getTeachers(courseId: CourseId): List<Teacher> =
-    transaction(database) {
+  override fun getTeachers(courseId: CourseId): Result<List<Teacher>, EduPlatformError> =
+    catchingTransaction(database) {
       CourseTeachers.join(
           TeacherTable,
           JoinType.INNER,

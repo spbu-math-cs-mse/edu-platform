@@ -62,7 +62,7 @@ class StudentBotTest {
     initDatabaseStorages()
     academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     scheduledMessageDeliveryService = mockk<ScheduledMessageDeliveryService>(relaxed = true)
-    courseIds = (1..4).map { courseStorage.createCourse("course $it") }
+    courseIds = (1..4).map { courseStorage.createCourse("course $it").value }
     val mockUiController = mockk<UiController>(relaxed = true)
     val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
     val mockCourseTokensService = mockk<CourseTokenStorage>(relaxed = true)
@@ -106,7 +106,7 @@ class StudentBotTest {
   fun `new student courses assignment test`() {
     val studentId = studentStorage.createStudent()
 
-    val studentCourses = studentApi.getStudentCourses(studentId)
+    val studentCourses = studentApi.getStudentCourses(studentId).value
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.long })
   }
 
@@ -117,7 +117,7 @@ class StudentBotTest {
     studentApi.applyForCourse(studentId, courseIds[0])
     studentApi.applyForCourse(studentId, courseIds[3])
 
-    val studentCourses = studentApi.getStudentCourses(studentId)
+    val studentCourses = studentApi.getStudentCourses(studentId).value
 
     assertEquals(
       listOf(courseIds[0], courseIds[3]),

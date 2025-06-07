@@ -49,7 +49,7 @@ internal constructor(
   fun loginById(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
     teacherStorage.resolveTeacher(teacherId)
 
-  fun getTeacherCourses(teacherId: TeacherId): List<Course> =
+  fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, EduPlatformError> =
     courseStorage.getTeacherCourses(teacherId)
 
   fun resolveCourse(it: CourseId): Result<Course, ResolveError<CourseId>> =

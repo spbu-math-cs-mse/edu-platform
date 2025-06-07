@@ -51,7 +51,7 @@ internal constructor(
 
   fun getAllCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 
-  fun getStudentCourses(studentId: StudentId): List<Course> =
+  fun getStudentCourses(studentId: StudentId): Result<List<Course>, EduPlatformError> =
     courseStorage.getStudentCourses(studentId)
 
   fun getCourseAssignments(courseId: CourseId): Result<List<Assignment>, EduPlatformError> =
@@ -104,7 +104,7 @@ internal constructor(
       success = { courseId ->
         courseStorage.addStudentToCourse(studentId, courseId)
         courseTokenStorage.useToken(token, studentId)
-        val course = getStudentCourses(studentId).first { it.id == courseId }
+        val course = getStudentCourses(studentId).value.first { it.id == courseId }
         Ok(course)
       },
       failure = { error -> Err(error) },

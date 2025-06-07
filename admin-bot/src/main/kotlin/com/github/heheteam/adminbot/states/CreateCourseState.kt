@@ -70,7 +70,7 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     if (sameNameCourse != null) {
       return CreateCourseResponse.CourseWithNameExists(input, sameNameCourse.id)
     }
-    val courseId = service.createCourse(input)
+    val courseId = service.createCourse(input).value
     return service
       .resolveCourseWithSpreadsheetId(courseId)
       .mapBoth(

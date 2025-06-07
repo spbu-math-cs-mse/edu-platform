@@ -13,7 +13,6 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
@@ -24,6 +23,7 @@ import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.PET_THE_DACHSHUND
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
@@ -48,11 +48,11 @@ data class MenuState(override val context: User, override val userId: StudentId)
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
-  ): Result<Unit, EduPlatformError> {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     service.updateTgId(userId, context.id)
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
 
-    val isNewUser = service.getStudentCourses(userId).isEmpty()
+    val isNewUser = service.getStudentCourses(userId).bind().isEmpty()
 
     val initialMessage =
       bot.send(context, text = Dialogues.menu, replyMarkup = Keyboards.menu(isNewUser))
@@ -60,7 +60,6 @@ data class MenuState(override val context: User, override val userId: StudentId)
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
     updateHandlersController.addTextMessageHandler { t -> bot.handleTextMessage(t, context) }
-    return Unit.ok()
   }
 
   private fun processKeyboardButtonPresses(

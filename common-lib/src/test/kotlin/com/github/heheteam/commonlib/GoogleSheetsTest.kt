@@ -52,8 +52,8 @@ class GoogleSheetsTest {
   //  @Ignore
   @Test
   fun `update rating works`() {
-    val course1Id = courseStorage.createCourse("course 1")
-    val course2Id = courseStorage.createCourse("course 2")
+    val course1Id = courseStorage.createCourse("course 1").value
+    val course2Id = courseStorage.createCourse("course 2").value
     val student1Id = studentStorage.createStudent()
     val student2Id = studentStorage.createStudent()
     val student3Id = studentStorage.createStudent()
@@ -131,7 +131,7 @@ class GoogleSheetsTest {
       courseStorage.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id).value,
       problemStorage.getProblemsFromCourse(course1Id),
-      courseStorage.getStudents(course1Id),
+      courseStorage.getStudents(course1Id).value,
       gradeTable.getCourseRating(course1Id),
     )
     googleSheetsService.updateRating(
@@ -139,7 +139,7 @@ class GoogleSheetsTest {
       courseStorage.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id).value,
       problemStorage.getProblemsFromCourse(course2Id),
-      courseStorage.getStudents(course2Id),
+      courseStorage.getStudents(course2Id).value,
       gradeTable.getCourseRating(course2Id),
     )
   }

@@ -106,10 +106,10 @@ internal constructor(
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
 
   fun studiesIn(id: StudentId, course: Course): Boolean =
-    courseStorage.getStudentCourses(id).any { it.id == course.id }
+    courseStorage.getStudentCourses(id).get()?.any { it.id == course.id } ?: false
 
   fun teachesIn(id: TeacherId, course: Course): Boolean =
-    courseStorage.getTeacherCourses(id).any { it.id == course.id }
+    courseStorage.getTeacherCourses(id).get()?.any { it.id == course.id } ?: false
 
   fun registerStudentForCourse(studentId: StudentId, courseId: CourseId) =
     courseStorage.addStudentToCourse(studentId, courseId)
@@ -130,7 +130,8 @@ internal constructor(
   ): Result<AssignmentId, DatabaseExceptionError> =
     assignmentStorage.createAssignment(courseId, description, problemsDescriptions)
 
-  fun createCourse(input: String): CourseId = courseStorage.createCourse(input)
+  fun createCourse(input: String): Result<CourseId, EduPlatformError> =
+    courseStorage.createCourse(input)
 
   fun resolveCourseWithSpreadsheetId(
     courseId: CourseId
@@ -138,8 +139,8 @@ internal constructor(
     courseStorage.resolveCourseWithSpreadsheetId(courseId)
 
   fun getCourseStatistics(courseId: CourseId): CourseStatistics {
-    val students = courseStorage.getStudents(courseId)
-    val teachers = courseStorage.getTeachers(courseId)
+    val students = courseStorage.getStudents(courseId).value
+    val teachers = courseStorage.getTeachers(courseId).value
     val assignments = assignmentStorage.getAssignmentsForCourse(courseId).value
 
     var totalProblems = 0

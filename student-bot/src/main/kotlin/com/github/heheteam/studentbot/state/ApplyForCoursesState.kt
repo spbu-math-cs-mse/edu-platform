@@ -32,7 +32,7 @@ data class ApplyForCoursesState(override val context: User, override val userId:
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
   ): Result<Unit, EduPlatformError> = coroutineBinding {
-    val studentCourses = service.getStudentCourses(userId).toSet()
+    val studentCourses = service.getStudentCourses(userId).bind().toSet()
     val allCourses = service.getAllCourses().bind().map { it to studentCourses.contains(it) }
     val selectCourseMessage =
       bot.sendMessage(

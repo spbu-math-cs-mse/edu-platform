@@ -10,7 +10,6 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
-import com.github.michaelbull.result.map
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -24,7 +23,7 @@ internal fun generateCourse(
   assignmentsPerCourse: Int = 2,
   problemsPerAssignment: Int = 5,
 ): CourseId {
-  val courseId = courseStorage.createCourse(name)
+  val courseId = courseStorage.createCourse(name).value
   (1..assignmentsPerCourse).map { assignNum ->
     assignmentStorage
       .createAssignment(

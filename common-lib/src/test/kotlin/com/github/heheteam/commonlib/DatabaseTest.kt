@@ -75,7 +75,7 @@ class DatabaseTest {
     )
 
   private fun createCourseWithTeacherAndStudent(): Triple<CourseId, TeacherId, StudentId> {
-    val courseId = courseStorage.createCourse("sample course")
+    val courseId = courseStorage.createCourse("sample course").value
     val teacherId = teacherStorage.createTeacher()
     val studentId = studentStorage.createStudent()
     courseStorage.addStudentToCourse(studentId, courseId)
@@ -92,7 +92,7 @@ class DatabaseTest {
   @Test
   fun `course distributor works`() {
     val sampleDescription = "sample description"
-    val id = courseStorage.createCourse(sampleDescription)
+    val id = courseStorage.createCourse(sampleDescription).value
     val requiredId = courseStorage.getCourses().value.single().id
     assertEquals(id, requiredId)
     val resolvedCourse = courseStorage.resolveCourse(requiredId)

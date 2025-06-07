@@ -65,12 +65,12 @@ class AdminBotTest {
   fun coursesTableTest() {
     val courseName = "course 1"
     assertEquals(false, core.courseExists(courseName))
-    assertEquals(null, core.getCourse(courseName))
-    assertEquals(mapOf(), core.getCourses())
+    assertEquals(null, core.getCourse(courseName).value)
+    assertEquals(mapOf(), core.getCourses().value)
 
     core.createCourse(courseName)
     assertEquals(true, core.courseExists(courseName))
-    assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName))
-    assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses())
+    assertEquals(Course(CourseId(1), courseName), core.getCourse(courseName).value)
+    assertEquals(mapOf(courseName to Course(CourseId(1), courseName)), core.getCourses().value)
   }
 }

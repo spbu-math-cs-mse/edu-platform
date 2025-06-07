@@ -3,9 +3,10 @@ package com.github.heheteam.commonlib.state
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -26,9 +27,8 @@ abstract class NavigationBotStateWithHandlers<Service> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, State?, EduPlatformError>,
-  ) {
+    updateHandlersController: UpdateHandlerManager<State?>,
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val keyboardData = createKeyboard(service)
     val introMessage =
       bot.sendMessage(context, introMessageContent, replyMarkup = keyboardData.keyboard)

@@ -24,7 +24,8 @@ internal class FirstTeacherResolver(
       binding {
           val problem = problemStorage.resolveProblem(submissionInputRequest.problemId).bind()
           val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-          val teachers = courseStorage.getTeachers(assignment.courseId).sortedBy { it.id.long }
+          val teachers =
+            courseStorage.getTeachers(assignment.courseId).bind().sortedBy { it.id.long }
           teachers
             .firstOrNull()
             ?.id

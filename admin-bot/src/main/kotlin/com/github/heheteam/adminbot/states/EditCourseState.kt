@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -11,6 +12,8 @@ import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.buildColumnMenu
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -31,6 +34,8 @@ class EditCourseState(
 
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {
       try {
@@ -45,7 +50,7 @@ class EditCourseState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val editCourseKeyboard = createEditCourseOptionsKeyboard()
 
     val message =

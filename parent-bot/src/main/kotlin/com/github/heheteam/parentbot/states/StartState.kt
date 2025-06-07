@@ -43,7 +43,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnStartState(
 
       // discard student class data
       waitDataCallbackQueryWithUser(state.context.id).first().data
-      parentId = parentApi.createParent()
+      parentId = parentApi.createParent().value
       editMessageReplyMarkup(askGradeMessage, replyMarkup = null)
     } else if (isDeveloperRun) {
       bot.send(state.context, Dialogues.devAskForId)

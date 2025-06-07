@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
@@ -20,8 +21,12 @@ import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toProblemId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
+import com.github.heheteam.commonlib.util.catchingTransaction
+import com.github.michaelbull.result.Result
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -36,8 +41,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     transaction(database) { SchemaUtils.create(AssessmentTable) }
   }
 
-  override fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?> =
-    transaction(database) {
+  override fun getStudentPerformance(
+    studentId: StudentId
+  ): Result<Map<ProblemId, Grade?>, EduPlatformError> =
+    catchingTransaction(database) {
       SubmissionTable.join(
           AssessmentTable,
           JoinType.LEFT,
@@ -64,8 +71,8 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
   override fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: AssignmentId,
-  ): List<Pair<Problem, ProblemGrade>> =
-    transaction(database) {
+  ): Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError> =
+    catchingTransaction(database) {
       SubmissionTable.join(
           AssessmentTable,
           JoinType.LEFT,
@@ -88,15 +95,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
           AssessmentTable.timestamp to SortOrder.ASC,
         )
         .associate {
-          Problem(
-            it[ProblemTable.id].value.toProblemId(),
-            it[ProblemTable.serialNumber],
-            it[ProblemTable.number],
-            it[ProblemTable.description],
-            it[ProblemTable.maxScore],
-            it[ProblemTable.assignmentId].value.toAssignmentId(),
-            it[ProblemTable.deadline],
-          ) to
+          createProblemFromDatabaseRow(it) to
             if (it.getOrNull(AssessmentTable.grade) != null) {
               ProblemGrade.Graded(it[AssessmentTable.grade])
             } else if (it.getOrNull(SubmissionTable.id) != null) {
@@ -110,8 +109,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         .map { it.first to it.second }
     }
 
-  override fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
-    transaction(database) {
+  override fun getCourseRating(
+    courseId: CourseId
+  ): Result<Map<StudentId, Map<ProblemId, Grade?>>, EduPlatformError> =
+    catchingTransaction(database) {
       SubmissionTable.join(
           AssessmentTable,
           JoinType.LEFT,
@@ -146,9 +147,9 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
     submissionId: SubmissionId,
     teacherId: TeacherId,
     assessment: SubmissionAssessment,
-    timestamp: kotlinx.datetime.LocalDateTime,
-  ) {
-    transaction(database) {
+    timestamp: LocalDateTime,
+  ): Result<Unit, EduPlatformError> =
+    catchingTransaction(database) {
       AssessmentTable.insert {
         it[AssessmentTable.submissionId] = submissionId.long
         it[AssessmentTable.teacherId] = teacherId.long
@@ -157,15 +158,11 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
         it[AssessmentTable.timestamp] = timestamp
       }
     }
-  }
 
-  override fun isChecked(submissionId: SubmissionId): Boolean =
-    !transaction(database) {
-      AssessmentTable.selectAll().where(AssessmentTable.submissionId eq submissionId.long).empty()
-    }
-
-  override fun getGradingsForSubmission(submissionId: SubmissionId): List<GradingEntry> =
-    transaction(database) {
+  override fun getGradingsForSubmission(
+    submissionId: SubmissionId
+  ): Result<List<GradingEntry>, EduPlatformError> =
+    catchingTransaction(database) {
       AssessmentTable.selectAll().where(AssessmentTable.submissionId eq submissionId.long).map {
         GradingEntry(
           it[AssessmentTable.teacherId].value.toTeacherId(),
@@ -175,3 +172,14 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
       }
     }
 }
+
+private fun createProblemFromDatabaseRow(row: ResultRow): Problem =
+  Problem(
+    row[ProblemTable.id].value.toProblemId(),
+    row[ProblemTable.serialNumber],
+    row[ProblemTable.number],
+    row[ProblemTable.description],
+    row[ProblemTable.maxScore],
+    row[ProblemTable.assignmentId].value.toAssignmentId(),
+    row[ProblemTable.deadline],
+  )

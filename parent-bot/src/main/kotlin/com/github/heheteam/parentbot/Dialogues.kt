@@ -56,6 +56,7 @@ object Dialogues {
     "Успеваемость ребенка $child:\n\n" +
       (core
         .getStudentPerformance(child.id)
+        .value
         .map { "Задача ${it.key} решена на ${it.value} баллов" }
         .joinToString("\n"))
 }

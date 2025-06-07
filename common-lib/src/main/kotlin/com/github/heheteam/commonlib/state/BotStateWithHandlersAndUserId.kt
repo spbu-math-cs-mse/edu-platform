@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -8,6 +9,8 @@ import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -20,16 +23,24 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
 
   suspend fun outro(bot: BehaviourContext, service: ApiService)
 
+  /**
+   * This function must print all the necessary information to the user (including the keyboard or
+   * another input query message) and register the callback handler
+   */
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
     updateHandlersController: UpdateHandlersController<() -> Unit, In, Any>,
-  )
+  ): Result<Unit, EduPlatformError>
 
   fun computeNewState(service: ApiService, input: In): Pair<State, Out>
 
+  /** The state to fallback to in case of an error */
+  fun defaultState(): State
+
   suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out)
 
+  @Suppress("ReturnCount") // still readable, so no problem
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
@@ -40,7 +51,15 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
   ): State {
     val updateHandlersController = UpdateHandlersController<() -> Unit, In, Any>()
     initUpdateHandlers(updateHandlersController, context, userId)
-    intro(bot, service, updateHandlersController)
+    val introError = intro(bot, service, updateHandlersController).getError()
+    if (introError != null) {
+      bot.send(
+        context,
+        "Случилась ошибка! Не волнуйтесь, разработчики уже в пути решения этой проблемы.\n" +
+          "Ошибка:${introError.shortDescription}",
+      )
+      return defaultState()
+    }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()

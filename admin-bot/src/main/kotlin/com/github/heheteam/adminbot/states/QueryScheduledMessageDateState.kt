@@ -15,6 +15,8 @@ import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.buildColumnMenu
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -71,14 +73,16 @@ class QueryScheduledMessageDateState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State?>,
-  ) {
-    super.intro(bot, service, updateHandlersController)
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    super.intro(bot, service, updateHandlersController).bind()
     error?.let {
       val errorMessage = bot.send(context, it.shortDescription)
       sentMessages.add(errorMessage)
     }
     updateHandlersController.addTextMessageHandler { message -> handleMessageCallback(message) }
   }
+
+  override fun defaultState(): State = MenuState(context, adminId)
 
   private fun handleMessageCallback(
     message: CommonMessage<TextContent>

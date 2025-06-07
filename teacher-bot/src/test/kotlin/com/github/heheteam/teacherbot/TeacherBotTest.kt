@@ -46,17 +46,20 @@ class TeacherBotTest {
   fun setUp() {
     reset(database)
     teacherId = teacherStorage.createTeacher()
-    studentId = studentStorage.createStudent()
-    val courseId = courseStorage.createCourse("test course")
+    studentId = studentStorage.createStudent().value
+    val courseId = courseStorage.createCourse("test course").value
     courseStorage.addTeacherToCourse(teacherId, courseId)
     courseStorage.addStudentToCourse(studentId, courseId)
     val assignmentId =
-      assignmentStorage.createAssignment(
-        courseId,
-        "test assignment",
-        listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
-      )
-    problemId = problemStorage.createProblem(assignmentId, 1, "test problem 1", 1, "test problem")
+      assignmentStorage
+        .createAssignment(
+          courseId,
+          "test assignment",
+          listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
+        )
+        .value
+    val description = ProblemDescription(1, "test problem 1", "", 1)
+    problemId = problemStorage.createProblem(assignmentId, 1, description).value
   }
 
   companion object {

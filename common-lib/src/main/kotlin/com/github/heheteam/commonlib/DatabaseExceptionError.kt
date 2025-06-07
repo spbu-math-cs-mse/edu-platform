@@ -49,7 +49,7 @@ data class TeacherResolveError(
   override val shortDescription: String = "Error identifying the teacher"
 }
 
-data class DatabaseError(
+data class DatabaseExceptionError(
   val exception: Throwable,
   override val causedBy: EduPlatformError? = null,
 ) : EduPlatformError {

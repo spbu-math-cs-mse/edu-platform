@@ -7,5 +7,7 @@ import com.github.michaelbull.result.Result
 interface SentMessageLogStorage {
   fun logSentMessage(log: SentMessageLog): Result<Unit, EduPlatformError>
 
-  fun getSentMessageLogs(scheduledMessageId: ScheduledMessageId): List<SentMessageLog>
+  fun getSentMessageLogs(
+    scheduledMessageId: ScheduledMessageId
+  ): Result<List<SentMessageLog>, EduPlatformError>
 }

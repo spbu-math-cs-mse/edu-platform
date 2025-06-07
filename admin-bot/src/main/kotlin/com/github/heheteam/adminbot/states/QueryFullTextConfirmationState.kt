@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
@@ -10,6 +11,8 @@ import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createYesNoKeyboard
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -28,13 +31,15 @@ data class QueryFullTextConfirmationState(
   val adminId: AdminId,
   val courseId: CourseId,
   val numberOfMessages: Int,
-) : BotStateWithHandlers<Boolean, List<ScheduledMessage>, AdminApi> {
+) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, EduPlatformError>, AdminApi> {
+
+  override fun defaultState(): State = MenuState(context, adminId)
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val keyboard = createYesNoKeyboard("Да", "Нет")
     bot.sendMessage(
       context.id,
@@ -54,7 +59,7 @@ data class QueryFullTextConfirmationState(
   override fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Pair<State, List<ScheduledMessage>> {
+  ): Pair<State, Result<List<ScheduledMessage>, EduPlatformError>> {
     val messages = service.viewScheduledMessages(null, courseId)
     return MenuState(context, adminId) to messages
   }
@@ -62,22 +67,27 @@ data class QueryFullTextConfirmationState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: List<ScheduledMessage>,
+    response: Result<List<ScheduledMessage>, EduPlatformError>,
     input: Boolean,
   ) {
-    val responseText =
-      if (response.isEmpty()) {
-        buildEntities { +"Для выбранного курса нет запланированных сообщений." }
-      } else {
-        buildEntities {
-          +"Последние запланированные сообщения для курса:\n\n"
-          response.forEach { message ->
-            formatSingleMessage(message, input)
-            +"\n\n"
+    response.mapBoth(
+      success = { messages ->
+        val responseText =
+          if (messages.isEmpty()) {
+            buildEntities { +"Для выбранного курса нет запланированных сообщений." }
+          } else {
+            buildEntities {
+              +"Последние запланированные сообщения для курса:\n\n"
+              messages.forEach { message ->
+                formatSingleMessage(message, input)
+                +"\n\n"
+              }
+            }
           }
-        }
-      }
-    bot.send(context.id, responseText)
+        bot.send(context.id, responseText)
+      },
+      failure = { bot.send(context.id, "Ошибка при запросе: ${it.shortDescription}") },
+    )
   }
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit

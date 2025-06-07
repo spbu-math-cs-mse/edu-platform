@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -12,6 +13,8 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -38,12 +41,13 @@ class ConfirmSubmissionState(
   private lateinit var submissionMessage: AccessibleMessage
   private lateinit var confirmMessage: AccessibleMessage
 
+  override fun defaultState(): State = MenuState(context, userId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, Any>,
-  ) {
-
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
         ButtonData("Да", "yes") { true },

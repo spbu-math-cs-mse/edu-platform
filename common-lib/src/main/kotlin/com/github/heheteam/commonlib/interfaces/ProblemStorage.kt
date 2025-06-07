@@ -1,11 +1,11 @@
 package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.michaelbull.result.Result
-import kotlinx.datetime.LocalDateTime
 
 interface ProblemStorage {
   fun resolveProblem(problemId: ProblemId): Result<Problem, ResolveError<ProblemId>>
@@ -13,15 +13,14 @@ interface ProblemStorage {
   fun createProblem(
     assignmentId: AssignmentId,
     serialNumber: Int,
-    number: String,
-    maxScore: Grade,
-    description: String,
-    deadline: LocalDateTime? = null,
-  ): ProblemId
+    problemDescription: ProblemDescription,
+  ): Result<ProblemId, EduPlatformError>
 
-  fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem>
+  fun getProblemsFromAssignment(assignmentId: AssignmentId): Result<List<Problem>, EduPlatformError>
 
-  fun getProblemsFromCourse(courseId: CourseId): List<Problem>
+  fun getProblemsFromCourse(courseId: CourseId): Result<List<Problem>, EduPlatformError>
 
-  fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>>
+  fun getProblemsWithAssignmentsFromCourse(
+    courseId: CourseId
+  ): Result<Map<Assignment, List<Problem>>, EduPlatformError>
 }

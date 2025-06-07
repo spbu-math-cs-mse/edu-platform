@@ -69,7 +69,7 @@ class DatabaseStartupTest {
 
     val transactionsTime = measureTimeMillis {
       transaction {
-        val course = courseStorage.getCourses().first()
+        val course = courseStorage.getCourses().value.first()
         courseStorage.getStudents(course.id)
         courseStorage.getTeachers(course.id)
         problemStorage.getProblemsFromCourse(course.id)

@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.MaybeEduPlatformError
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.michaelbull.result.Result
@@ -31,13 +32,13 @@ interface ScheduledMessagesDistributor {
     adminId: AdminId?,
     courseId: CourseId?,
     lastN: Int,
-  ): List<ScheduledMessage>
+  ): Result<List<ScheduledMessage>, EduPlatformError>
 
   suspend fun deleteScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<Unit, EduPlatformError>
 
-  fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage>
+  fun getMessagesUpToDate(date: LocalDateTime): Result<List<ScheduledMessage>, EduPlatformError>
 
-  fun markMessagesUpToDateAsSent(date: LocalDateTime)
+  fun markMessagesUpToDateAsSent(date: LocalDateTime): MaybeEduPlatformError
 }

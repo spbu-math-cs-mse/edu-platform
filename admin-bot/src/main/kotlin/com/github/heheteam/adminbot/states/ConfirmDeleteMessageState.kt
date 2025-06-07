@@ -6,11 +6,13 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createYesNoKeyboard
 import com.github.heheteam.commonlib.util.delete
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -33,12 +35,13 @@ data class ConfirmDeleteMessageState(
   private var confirmationMessage: AccessibleMessage? = null
   private var messageToConfirm: ScheduledMessage? = null
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, Boolean, EduPlatformError>,
-  ) {
+    updateHandlersController: UpdateHandlerManager<Boolean>,
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val result = service.resolveScheduledMessage(scheduledMessageId)
     result.mapBoth(
       success = { message ->

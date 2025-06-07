@@ -8,6 +8,7 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyDoesNotExistForStudent
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentRemoving
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -19,6 +20,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.combine
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -34,6 +36,8 @@ class RemoveStudentState(
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach { bot.delete(it) }
   }
@@ -42,7 +46,7 @@ class RemoveStudentState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val message =
       bot.send(context) {
         +"Введите ID учеников (через запятую), которых хотите убрать с курса $courseName, " +

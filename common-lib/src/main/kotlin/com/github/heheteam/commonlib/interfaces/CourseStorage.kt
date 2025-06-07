@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.interfaces
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.DeleteError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
@@ -31,11 +32,11 @@ internal interface CourseStorage {
     courseId: CourseId,
   ): Result<Unit, DeleteError<TeacherId>>
 
-  fun getCourses(): List<Course>
+  fun getCourses(): Result<List<Course>, EduPlatformError>
 
-  fun getStudentCourses(studentId: StudentId): List<Course>
+  fun getStudentCourses(studentId: StudentId): Result<List<Course>, EduPlatformError>
 
-  fun getTeacherCourses(teacherId: TeacherId): List<Course>
+  fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, EduPlatformError>
 
   fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>>
 
@@ -47,11 +48,14 @@ internal interface CourseStorage {
 
   fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>>
 
-  fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId)
+  fun updateCourseSpreadsheetId(
+    courseId: CourseId,
+    spreadsheetId: SpreadsheetId,
+  ): Result<Unit, EduPlatformError>
 
-  fun createCourse(description: String): CourseId
+  fun createCourse(description: String): Result<CourseId, EduPlatformError>
 
-  fun getStudents(courseId: CourseId): List<Student>
+  fun getStudents(courseId: CourseId): Result<List<Student>, EduPlatformError>
 
-  fun getTeachers(courseId: CourseId): List<Teacher>
+  fun getTeachers(courseId: CourseId): Result<List<Teacher>, EduPlatformError>
 }

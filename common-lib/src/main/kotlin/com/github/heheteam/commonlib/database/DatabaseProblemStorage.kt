@@ -1,8 +1,9 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Grade
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
@@ -13,10 +14,11 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toProblemId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import kotlinx.datetime.LocalDateTime
+import com.github.michaelbull.result.map
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -50,26 +52,24 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
   override fun createProblem(
     assignmentId: AssignmentId,
     serialNumber: Int,
-    number: String,
-    maxScore: Grade,
-    description: String,
-    deadline: LocalDateTime?,
-  ): ProblemId =
-    transaction(database) {
+    problemDescription: ProblemDescription,
+  ): Result<ProblemId, EduPlatformError> =
+    catchingTransaction(database) {
         ProblemTable.insertAndGetId {
           it[ProblemTable.serialNumber] = serialNumber
-          it[ProblemTable.number] = number
+          it[ProblemTable.number] = problemDescription.number
           it[ProblemTable.assignmentId] = assignmentId.long
-          it[ProblemTable.maxScore] = maxScore
-          it[ProblemTable.description] = description
-          it[ProblemTable.deadline] = deadline
+          it[ProblemTable.maxScore] = problemDescription.maxScore
+          it[ProblemTable.description] = problemDescription.description
+          it[ProblemTable.deadline] = problemDescription.deadline
         }
       }
-      .value
-      .toProblemId()
+      .map { it.value.toProblemId() }
 
-  override fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
-    transaction(database) {
+  override fun getProblemsFromAssignment(
+    assignmentId: AssignmentId
+  ): Result<List<Problem>, EduPlatformError> =
+    catchingTransaction(database) {
       ProblemTable.selectAll().where(ProblemTable.assignmentId eq assignmentId.long).map {
         Problem(
           it[ProblemTable.id].value.toProblemId(),
@@ -83,8 +83,8 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
       }
     }
 
-  override fun getProblemsFromCourse(courseId: CourseId): List<Problem> =
-    transaction(database) {
+  override fun getProblemsFromCourse(courseId: CourseId): Result<List<Problem>, EduPlatformError> =
+    catchingTransaction(database) {
       ProblemTable.join(
           AssignmentTable,
           JoinType.INNER,
@@ -108,8 +108,8 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
 
   override fun getProblemsWithAssignmentsFromCourse(
     courseId: CourseId
-  ): Map<Assignment, List<Problem>> =
-    transaction(database) {
+  ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
+    catchingTransaction(database) {
       ProblemTable.join(
           AssignmentTable,
           JoinType.INNER,

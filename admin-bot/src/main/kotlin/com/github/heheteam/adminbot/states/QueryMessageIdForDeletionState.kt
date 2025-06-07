@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
@@ -7,7 +8,9 @@ import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.micro_utils.fsm.common.State
@@ -20,11 +23,13 @@ import kotlinx.coroutines.runBlocking
 data class QueryMessageIdForDeletionState(override val context: User, val adminId: AdminId) :
   BotStateWithHandlers<String, String, AdminApi> {
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     bot.sendMessage(
       context.id,
       buildEntities { +"Введите ID сообщения, которое вы хотите удалить:" },

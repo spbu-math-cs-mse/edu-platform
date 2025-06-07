@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.BindError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.asEduPlatformError
@@ -10,10 +11,12 @@ import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.toStudentId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.heheteam.commonlib.util.toRawChatId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.types.UserId
@@ -49,39 +52,44 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       Err(BindError(studentId, parentId, causedBy = e.asEduPlatformError()))
     }
 
-  override fun getChildren(parentId: ParentId): List<Student> {
+  override fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> = binding {
     val ids =
-      transaction(database) {
+      catchingTransaction(database) {
           ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long)
         }
+        .bind()
         .map { it[ParentStudents.studentId].value }
-    return transaction(database) {
-      return@transaction ids.map { studentId ->
-        StudentTable.selectAll()
-          .where(StudentTable.id eq studentId)
-          .map {
-            Student(
-              studentId.toStudentId(),
-              it[StudentTable.name],
-              it[StudentTable.name],
-              it[StudentTable.tgId].toRawChatId(),
-            )
-          }
-          .single()
+    catchingTransaction(database) {
+        ids.map { studentId ->
+          StudentTable.selectAll()
+            .where(StudentTable.id eq studentId)
+            .map {
+              Student(
+                studentId.toStudentId(),
+                it[StudentTable.name],
+                it[StudentTable.name],
+                it[StudentTable.tgId].toRawChatId(),
+              )
+            }
+            .single()
+        }
       }
-    }
+      .bind()
   }
 
-  override fun createStudent(name: String, surname: String, tgId: Long): StudentId =
-    transaction(database) {
+  override fun createStudent(
+    name: String,
+    surname: String,
+    tgId: Long,
+  ): Result<StudentId, EduPlatformError> =
+    catchingTransaction(database) {
         StudentTable.insert {
           it[StudentTable.name] = name
           it[StudentTable.surname] = surname
           it[StudentTable.tgId] = tgId
         } get StudentTable.id
       }
-      .value
-      .toStudentId()
+      .map { it.value.toStudentId() }
 
   override fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
     transaction(database) {

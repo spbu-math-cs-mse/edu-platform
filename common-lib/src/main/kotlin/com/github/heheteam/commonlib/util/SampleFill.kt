@@ -23,19 +23,21 @@ internal fun generateCourse(
   assignmentsPerCourse: Int = 2,
   problemsPerAssignment: Int = 5,
 ): CourseId {
-  val courseId = courseStorage.createCourse(name)
+  val courseId = courseStorage.createCourse(name).value
   (1..assignmentsPerCourse).map { assignNum ->
-    assignmentStorage.createAssignment(
-      courseId,
-      "assignment $courseId.$assignNum",
-      (0..<problemsPerAssignment).map {
-        val timeZone = TimeZone.currentSystemDefault()
-        val deadline =
-          if (it % 2 == 0) (Clock.System.now() + 2.minutes).toLocalDateTime(timeZone) else null
-        val number = "${it / 2 + 1}" + ('a' + it % 2)
-        ProblemDescription(it, number, "", 1, deadline)
-      },
-    )
+    assignmentStorage
+      .createAssignment(
+        courseId,
+        "assignment $courseId.$assignNum",
+        (0..<problemsPerAssignment).map {
+          val timeZone = TimeZone.currentSystemDefault()
+          val deadline =
+            if (it % 2 == 0) (Clock.System.now() + 2.minutes).toLocalDateTime(timeZone) else null
+          val number = "${it / 2 + 1}" + ('a' + it % 2)
+          ProblemDescription(it, number, "", 1, deadline)
+        },
+      )
+      .value
   }
   return courseId
 }
@@ -65,7 +67,7 @@ internal fun fillWithSamples(
 ): ContentFill {
   reset(database)
   // Admins
-  listOf("Кабан" to "Кабаныч").map { adminStorage.createAdmin(it.first, it.second) }
+  listOf("Кабан" to "Кабаныч").map { adminStorage.createAdmin(it.first, it.second).value }
 
   val realAnalysis = generateCourse("Начала мат. анализа", courseStorage, assignmentStorage)
   val probTheory = generateCourse("Теория вероятностей", courseStorage, assignmentStorage)
@@ -111,6 +113,6 @@ private fun createStudent(studentStorage: StudentStorage): List<StudentId> {
         "Андрей" to "Михайлов",
         "Николай" to "Васильев",
       )
-      .map { studentStorage.createStudent(it.first, it.second) }
+      .map { studentStorage.createStudent(it.first, it.second).value }
   return students
 }

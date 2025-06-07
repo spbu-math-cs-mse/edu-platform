@@ -10,8 +10,8 @@ import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.interfaces.SentMessageLogStorage
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
+import com.github.heheteam.commonlib.util.raiseError
 import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.getError
@@ -25,20 +25,23 @@ internal constructor(
   private val studentBotTelegramController: StudentBotTelegramController,
   private val sentMessageLogStorage: SentMessageLogStorage,
 ) : ScheduledMessageDeliveryService {
-  override fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> {
-    val messagesToSend = scheduledMessagesDistributor.getMessagesUpToDate(timestamp)
-    val allErrors =
-      messagesToSend.mapNotNull { scheduledMessage ->
-        sendSingleMessage(scheduledMessage, timestamp).getError()
+  override fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
+    binding {
+      val messagesToSend = scheduledMessagesDistributor.getMessagesUpToDate(timestamp).bind()
+      val allErrors =
+        messagesToSend.mapNotNull { scheduledMessage ->
+          sendSingleMessage(scheduledMessage, timestamp).getError()
+        }
+      if (allErrors.isNotEmpty()) {
+        raiseError(
+          AggregateError(
+            "Errors while sending after messages after timestamp $timestamp",
+            allErrors,
+          )
+        )
       }
-    return if (allErrors.isNotEmpty()) {
-      Err(
-        AggregateError("Errors while sending after messages after timestamp $timestamp", allErrors)
-      )
-    } else {
-      Ok(Unit)
+      Unit
     }
-  }
 
   private fun sendSingleMessage(
     scheduledMessage: ScheduledMessage,
@@ -46,7 +49,7 @@ internal constructor(
   ): Result<Unit, EduPlatformError> = binding {
     val course = courseStorage.resolveCourse(scheduledMessage.courseId).bind()
 
-    val studentsInCourse = courseStorage.getStudents(scheduledMessage.courseId)
+    val studentsInCourse = courseStorage.getStudents(scheduledMessage.courseId).bind()
 
     val errors =
       studentsInCourse.mapNotNull { student ->

@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.interfaces
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Teacher
 import com.github.michaelbull.result.Result
@@ -14,7 +15,7 @@ internal interface TeacherStorage {
 
   fun resolveTeacher(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>>
 
-  fun getTeachers(): List<Teacher>
+  fun getTeachers(): Result<List<Teacher>, EduPlatformError>
 
   fun resolveByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>>
 

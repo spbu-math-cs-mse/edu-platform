@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -37,6 +38,8 @@ class EnterScheduledMessageDateManuallyState(
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {
       try {
@@ -51,7 +54,7 @@ class EnterScheduledMessageDateManuallyState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<LocalDate, EduPlatformError>>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.enterScheduledMessageDateManually)
     sentMessages.add(introMessage)
 

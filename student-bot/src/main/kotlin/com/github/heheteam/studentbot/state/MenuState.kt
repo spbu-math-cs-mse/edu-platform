@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.toStudentId
@@ -12,6 +13,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
@@ -21,6 +23,7 @@ import com.github.heheteam.studentbot.Keyboards.FREE_ACTIVITY
 import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.PET_THE_DACHSHUND
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
+import com.github.michaelbull.result.Result
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
@@ -39,11 +42,13 @@ data class MenuState(override val context: User, override val userId: StudentId)
   BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, userId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, Any>,
-  ) {
+  ): Result<Unit, EduPlatformError> {
     service.updateTgId(userId, context.id)
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
 
@@ -55,6 +60,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
     updateHandlersController.addTextMessageHandler { t -> bot.handleTextMessage(t, context) }
+    return Unit.ok()
   }
 
   private fun processKeyboardButtonPresses(

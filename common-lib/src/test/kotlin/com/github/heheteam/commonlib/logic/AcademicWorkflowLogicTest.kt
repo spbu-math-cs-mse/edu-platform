@@ -84,15 +84,17 @@ class AcademicWorkflowLogicTest {
   }
 
   private fun createAssignment(courseId: CourseId): AssignmentId =
-    assignmentStorage.createAssignment(
-      courseId,
-      "assignment",
-      listOf(
-        ProblemDescription(1, "p1", "", 1),
-        ProblemDescription(3, "p2", "", 1),
-        ProblemDescription(2, "p3", "", 1),
-      ),
-    ).value
+    assignmentStorage
+      .createAssignment(
+        courseId,
+        "assignment",
+        listOf(
+          ProblemDescription(1, "p1", "", 1),
+          ProblemDescription(3, "p2", "", 1),
+          ProblemDescription(2, "p3", "", 1),
+        ),
+      )
+      .value
 
   private fun inputSubmission(
     academicWorkflowLogic: AcademicWorkflowLogic,

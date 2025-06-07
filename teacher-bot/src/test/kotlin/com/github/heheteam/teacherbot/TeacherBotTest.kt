@@ -51,11 +51,13 @@ class TeacherBotTest {
     courseStorage.addTeacherToCourse(teacherId, courseId)
     courseStorage.addStudentToCourse(studentId, courseId)
     val assignmentId =
-      assignmentStorage.createAssignment(
-        courseId,
-        "test assignment",
-        listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
-      ).value
+      assignmentStorage
+        .createAssignment(
+          courseId,
+          "test assignment",
+          listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
+        )
+        .value
     problemId = problemStorage.createProblem(assignmentId, 1, "test problem 1", 1, "test problem")
   }
 

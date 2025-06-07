@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.MenuKeyboardData
@@ -7,6 +8,8 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -22,13 +25,17 @@ abstract class NavigationBotStateWithHandlersAndUserId<Service, UserId> :
 
   abstract fun menuState(): State
 
+  override fun defaultState(): State {
+    return menuState()
+  }
+
   val sentMessages: MutableList<AccessibleMessage> = mutableListOf()
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
     updateHandlersController: UpdateHandlersController<() -> Unit, State?, Any>,
-  ) {
+  ): Result<Unit, EduPlatformError> {
     val keyboardData = createKeyboard(service)
     val introMessage =
       bot.sendMessage(context, introMessageContent, replyMarkup = keyboardData.keyboard)
@@ -38,6 +45,7 @@ abstract class NavigationBotStateWithHandlersAndUserId<Service, UserId> :
         .handler(dataCallbackQuery.data)
         .mapBoth(success = { UserInput(it) }, failure = { Unhandled })
     }
+    return Unit.ok()
   }
 
   override fun computeNewState(service: Service, input: State?): Pair<State, Unit> =

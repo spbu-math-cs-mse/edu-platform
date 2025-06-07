@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -17,6 +18,8 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.getOrElse
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
@@ -38,11 +41,13 @@ class QueryProblemForSubmissionSendingState(
   > { // null means user chose back button
   private val sentMessage = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, userId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val assignments =
       service.getCourseAssignments(selectedCourseId).getOrElse {
         logger.error("service.getCourseAssignments failed: ${it.toStackedString()}")

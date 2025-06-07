@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
@@ -15,6 +16,8 @@ import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.back
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
@@ -31,11 +34,13 @@ data class SendSubmissionState(
 ) : BotStateWithHandlersAndStudentId<SubmissionInputRequest?, SubmissionInputRequest?, StudentApi> {
   lateinit var studentBotToken: String
 
+  override fun defaultState(): State = MenuState(context, userId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, SubmissionInputRequest?, Any>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     bot.send(context, Dialogues.tellValidSubmissionTypes, replyMarkup = back())
     updateHandlersController.addTextMessageHandler { message ->
       bot.parseSentSubmission(message, studentBotToken)

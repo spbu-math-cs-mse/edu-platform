@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
@@ -8,6 +9,8 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.Keyboards
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.fsm.common.State
@@ -21,11 +24,13 @@ data class RandomActivityState(override val context: User, override val userId: 
   BotStateWithHandlersAndStudentId<Unit, Unit, StudentApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, userId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val selectCourseMessage =
       bot.sendMessage(context.id, "Что-то бесплатное", replyMarkup = Keyboards.back())
     sentMessages.add(selectCourseMessage)

@@ -31,7 +31,7 @@ data class QueryFullTextConfirmationState(
   val adminId: AdminId,
   val courseId: CourseId,
   val numberOfMessages: Int,
-) : BotStateWithHandlers<Boolean, List<ScheduledMessage>, AdminApi> {
+) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, EduPlatformError>, AdminApi> {
 
   override fun defaultState(): State = MenuState(context, adminId)
 
@@ -59,7 +59,7 @@ data class QueryFullTextConfirmationState(
   override fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Pair<State, List<ScheduledMessage>> {
+  ): Pair<State, Result<List<ScheduledMessage>, EduPlatformError>> {
     val messages = service.viewScheduledMessages(null, courseId)
     return MenuState(context, adminId) to messages
   }
@@ -67,22 +67,27 @@ data class QueryFullTextConfirmationState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: List<ScheduledMessage>,
+    response: Result<List<ScheduledMessage>, EduPlatformError>,
     input: Boolean,
   ) {
-    val responseText =
-      if (response.isEmpty()) {
-        buildEntities { +"Для выбранного курса нет запланированных сообщений." }
-      } else {
-        buildEntities {
-          +"Последние запланированные сообщения для курса:\n\n"
-          response.forEach { message ->
-            formatSingleMessage(message, input)
-            +"\n\n"
+    response.mapBoth(
+      success = { messages ->
+        val responseText =
+          if (messages.isEmpty()) {
+            buildEntities { +"Для выбранного курса нет запланированных сообщений." }
+          } else {
+            buildEntities {
+              +"Последние запланированные сообщения для курса:\n\n"
+              messages.forEach { message ->
+                formatSingleMessage(message, input)
+                +"\n\n"
+              }
+            }
           }
-        }
-      }
-    bot.send(context.id, responseText)
+        bot.send(context.id, responseText)
+      },
+      failure = { bot.send(context.id, "Ошибка при запросе: ${it.shortDescription}") },
+    )
   }
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit

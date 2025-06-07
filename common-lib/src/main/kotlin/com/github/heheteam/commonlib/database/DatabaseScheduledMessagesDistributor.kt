@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.DatabaseExceptionError
 import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.MaybeEduPlatformError
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.ScheduledMessageTable
@@ -13,6 +14,7 @@ import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.interfaces.SentMessageLogStorage
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -88,8 +90,8 @@ class DatabaseScheduledMessagesDistributor(
     adminId: AdminId?,
     courseId: CourseId?,
     lastN: Int,
-  ): List<ScheduledMessage> =
-    transaction(database) {
+  ): Result<List<ScheduledMessage>, EduPlatformError> =
+    catchingTransaction(database) {
       val query = ScheduledMessageTable.selectAll()
       adminId?.let { query.andWhere { ScheduledMessageTable.adminId eq it.long } }
       courseId?.let { query.andWhere { ScheduledMessageTable.courseId eq it.long } }
@@ -128,7 +130,7 @@ class DatabaseScheduledMessagesDistributor(
     if (updatedRows == 0) {
       Err(ResolveError(scheduledMessageId, "ScheduledMessage")).bind()
     } else {
-      val sentLogs = sentMessageLogStorage.getSentMessageLogs(scheduledMessageId)
+      val sentLogs = sentMessageLogStorage.getSentMessageLogs(scheduledMessageId).bind()
       sentLogs.forEach { log ->
         runBlocking {
             studentBotTelegramController.deleteMessage(log.chatId, log.telegramMessageId)
@@ -143,8 +145,10 @@ class DatabaseScheduledMessagesDistributor(
     }
   }
 
-  override fun getMessagesUpToDate(date: LocalDateTime): List<ScheduledMessage> {
-    return transaction(database) {
+  override fun getMessagesUpToDate(
+    date: LocalDateTime
+  ): Result<List<ScheduledMessage>, EduPlatformError> {
+    return catchingTransaction(database) {
       ScheduledMessageTable.selectAll()
         .where {
           (ScheduledMessageTable.timestamp lessEq date) and
@@ -166,8 +170,8 @@ class DatabaseScheduledMessagesDistributor(
     }
   }
 
-  override fun markMessagesUpToDateAsSent(date: LocalDateTime): Unit =
-    transaction(database) {
+  override fun markMessagesUpToDateAsSent(date: LocalDateTime): MaybeEduPlatformError =
+    catchingTransaction(database) {
       ScheduledMessageTable.update({
         (ScheduledMessageTable.timestamp lessEq date) and
           (ScheduledMessageTable.isSent eq false) and

@@ -77,8 +77,11 @@ internal constructor(
   fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>> =
     studentStorage.updateTgId(studentId, newTgId)
 
-  fun createStudent(name: String, surname: String, tgId: Long): StudentId =
-    studentStorage.createStudent(name, surname, tgId)
+  fun createStudent(
+    name: String,
+    surname: String,
+    tgId: Long,
+  ): Result<StudentId, EduPlatformError> = studentStorage.createStudent(name, surname, tgId)
 
   /**
    * Returns assignments and all of their problems with original deadlines. You might need to

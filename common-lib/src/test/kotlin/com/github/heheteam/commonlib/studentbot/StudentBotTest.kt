@@ -104,7 +104,7 @@ class StudentBotTest {
 
   @Test
   fun `new student courses assignment test`() {
-    val studentId = studentStorage.createStudent()
+    val studentId = studentStorage.createStudent().value
 
     val studentCourses = studentApi.getStudentCourses(studentId).value
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.long })
@@ -112,7 +112,7 @@ class StudentBotTest {
 
   @Test
   fun `new student courses handling test`() {
-    val studentId = studentStorage.createStudent()
+    val studentId = studentStorage.createStudent().value
 
     studentApi.applyForCourse(studentId, courseIds[0])
     studentApi.applyForCourse(studentId, courseIds[3])

@@ -167,7 +167,7 @@ internal class NewSubmissionTeacherNotifier(
 
   private suspend fun sendSubmissionToTeacherPersonally(
     submission: Submission
-  ): Result<Unit, SubmissionSendingError> =
+  ): Result<Unit, EduPlatformError> =
     coroutineBinding {
         val teacherId =
           submission.responsibleTeacherId.toResultOr { NoResponsibleTeacherFor(submission) }.bind()
@@ -191,10 +191,9 @@ internal class NewSubmissionTeacherNotifier(
             .sendInitSubmissionStatusMessageDM(teacher.tgId, submissionStatusInfo)
             .mapError { SendToTeacherSubmissionError(teacherId) }
             .bind()
-        telegramTechnicalMessageStorage.registerPersonalSubmissionPublication(
-          submission.id,
-          personalTechnicalMessage,
-        )
+        telegramTechnicalMessageStorage
+          .registerPersonalSubmissionPublication(submission.id, personalTechnicalMessage)
+          .bind()
       }
       .also { println("Returned $it") }
 

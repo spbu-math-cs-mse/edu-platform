@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.BindError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.michaelbull.result.Result
@@ -12,13 +13,13 @@ interface StudentStorage {
     parentId: ParentId,
   ): Result<Unit, BindError<StudentId, ParentId>>
 
-  fun getChildren(parentId: ParentId): List<Student>
+  fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError>
 
   fun createStudent(
     name: String = "defaultName",
     surname: String = "defaultSurname",
     tgId: Long = 0L,
-  ): StudentId
+  ): Result<StudentId, EduPlatformError>
 
   fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>>
 

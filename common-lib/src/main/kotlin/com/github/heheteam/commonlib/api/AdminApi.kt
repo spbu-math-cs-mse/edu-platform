@@ -76,7 +76,7 @@ internal constructor(
     adminId: AdminId? = null,
     courseId: CourseId? = null,
     lastN: Int = 5,
-  ): List<ScheduledMessage> =
+  ): Result<List<ScheduledMessage>, EduPlatformError> =
     scheduledMessagesDistributor.viewScheduledMessages(adminId, courseId, lastN)
 
   suspend fun deleteScheduledMessage(
@@ -152,11 +152,11 @@ internal constructor(
       totalProblems += problems.size
       totalMaxScore += problems.sumOf { it.maxScore }
       problems.forEach { problem ->
-        val submissions = submissionDistributor.getSubmissionsForProblem(problem.id)
+        val submissions = submissionDistributor.getSubmissionsForProblem(problem.id).value
         totalSubmissions += submissions.size
         checkedSubmissions +=
           submissions.count { submissionId ->
-            submissionDistributor.isSubmissionAssessed(submissionId)
+            submissionDistributor.isSubmissionAssessed(submissionId).value
           }
       }
     }

@@ -75,7 +75,7 @@ class AcademicWorkflowLogicTest {
   fun setup() {
     reset(database)
     courseId = courseStorage.createCourse("course 1").value
-    studentId = studentStorage.createStudent()
+    studentId = studentStorage.createStudent().value
     courseStorage.addStudentToCourse(studentId, courseId)
     teacherId = teacherStorage.createTeacher()
     courseStorage.addTeacherToCourse(teacherId, courseId)

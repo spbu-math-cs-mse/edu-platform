@@ -22,7 +22,8 @@ internal constructor(
   private val gradeTable: GradeTable,
   private val parentStorage: ParentStorage,
 ) {
-  fun getChildren(parentId: ParentId): List<Student> = studentStorage.getChildren(parentId)
+  fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> =
+    studentStorage.getChildren(parentId)
 
   fun getStudentPerformance(studentId: StudentId): Result<Map<ProblemId, Grade>, EduPlatformError> =
     gradeTable.getStudentPerformance(studentId).map { it.mapNotNullValues() }

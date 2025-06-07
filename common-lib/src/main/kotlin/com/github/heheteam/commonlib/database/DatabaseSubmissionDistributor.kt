@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.SubmissionInputRequest
@@ -21,6 +22,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toSubmissionId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -227,15 +229,17 @@ class DatabaseSubmissionDistributor(val database: Database) : SubmissionDistribu
         .firstOrNull()
     }
 
-  override fun getSubmissionsForProblem(problemId: ProblemId): List<SubmissionId> =
-    transaction(database) {
+  override fun getSubmissionsForProblem(
+    problemId: ProblemId
+  ): Result<List<SubmissionId>, EduPlatformError> =
+    catchingTransaction(database) {
       SubmissionTable.selectAll()
         .where { SubmissionTable.problemId eq problemId.long }
         .map { row -> SubmissionId(row[SubmissionTable.id].value) }
     }
 
-  override fun isSubmissionAssessed(submissionId: SubmissionId): Boolean =
-    transaction(database) {
+  override fun isSubmissionAssessed(submissionId: SubmissionId): Result<Boolean, EduPlatformError> =
+    catchingTransaction(database) {
       AssessmentTable.select(AssessmentTable.id)
         .where { AssessmentTable.submissionId eq submissionId.long }
         .any()

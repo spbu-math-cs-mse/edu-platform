@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.studentbot.Dialogues
@@ -47,19 +48,14 @@ class AskLastNameState(
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
-      val studentId = service.createStudent(firstName, lastName, context.id.chatId.long)
-      bot.send(context, Dialogues.niceToMeetYou(firstName, lastName))
-      if (token != null) {
-        service
-          .registerForCourseWithToken(token, studentId)
-          .mapBoth(
-            success = { course ->
-              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
-            },
-            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
-          )
-      }
-      NewState(MenuState(context, studentId))
+      val maybeStudentId = service.createStudent(firstName, lastName, context.id.chatId.long)
+      maybeStudentId.mapBoth(
+        success = { studentId ->
+          greetUser(lastName, service, studentId, bot)
+          NewState(MenuState(context, studentId))
+        },
+        failure = { HandlingError(it) },
+      )
     }
     updateHandlersController.addDataCallbackHandler { callback ->
       if (callback.data == Keyboards.RETURN_BACK) {
@@ -67,6 +63,25 @@ class AskLastNameState(
       } else {
         Unhandled
       }
+    }
+  }
+
+  private suspend fun greetUser(
+    lastName: String,
+    service: StudentApi,
+    studentId: StudentId,
+    bot: BehaviourContext,
+  ) {
+    bot.send(context, Dialogues.niceToMeetYou(firstName, lastName))
+    if (token != null) {
+      service
+        .registerForCourseWithToken(token, studentId)
+        .mapBoth(
+          success = { course ->
+            bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
+          },
+          failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
+        )
     }
   }
 }

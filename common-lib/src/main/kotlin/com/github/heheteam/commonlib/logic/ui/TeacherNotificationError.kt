@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.logic.ui
 import com.github.heheteam.commonlib.EduPlatformError
 
 data class TeacherNewSubmissionNotificationStatus(
-  val teacherDirectMessagingSendError: SubmissionSendingError? = null,
+  val teacherDirectMessagingSendError: EduPlatformError? = null,
   val teacherMenuUpdateError: EduPlatformError? = null,
 ) {
   fun isSuccess() = teacherMenuUpdateError == null && teacherDirectMessagingSendError == null

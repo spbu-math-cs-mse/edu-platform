@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.decorators
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.SubmissionInputRequest
@@ -62,9 +63,11 @@ internal class SubmissionDistributorDecorator(
     submissionInputRequest: SubmissionInputRequest
   ): TeacherId? = submissionDistributor.resolveResponsibleTeacher(submissionInputRequest)
 
-  override fun getSubmissionsForProblem(problemId: ProblemId): List<SubmissionId> =
+  override fun getSubmissionsForProblem(
+    problemId: ProblemId
+  ): Result<List<SubmissionId>, EduPlatformError> =
     submissionDistributor.getSubmissionsForProblem(problemId)
 
-  override fun isSubmissionAssessed(submissionId: SubmissionId): Boolean =
+  override fun isSubmissionAssessed(submissionId: SubmissionId): Result<Boolean, EduPlatformError> =
     submissionDistributor.isSubmissionAssessed(submissionId)
 }

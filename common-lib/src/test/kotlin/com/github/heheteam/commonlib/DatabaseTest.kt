@@ -77,7 +77,7 @@ class DatabaseTest {
   private fun createCourseWithTeacherAndStudent(): Triple<CourseId, TeacherId, StudentId> {
     val courseId = courseStorage.createCourse("sample course").value
     val teacherId = teacherStorage.createTeacher()
-    val studentId = studentStorage.createStudent()
+    val studentId = studentStorage.createStudent().value
     courseStorage.addStudentToCourse(studentId, courseId)
     courseStorage.addTeacherToCourse(teacherId, courseId)
     return Triple(courseId, teacherId, studentId)

@@ -48,7 +48,10 @@ internal interface CourseStorage {
 
   fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>>
 
-  fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId): Result<Unit, EduPlatformError>
+  fun updateCourseSpreadsheetId(
+    courseId: CourseId,
+    spreadsheetId: SpreadsheetId,
+  ): Result<Unit, EduPlatformError>
 
   fun createCourse(description: String): Result<CourseId, EduPlatformError>
 

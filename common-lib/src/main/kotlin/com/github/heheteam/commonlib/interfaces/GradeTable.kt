@@ -1,9 +1,11 @@
 package com.github.heheteam.commonlib.interfaces
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.ProblemGrade.Graded
+import com.github.michaelbull.result.Result
 import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
@@ -27,20 +29,20 @@ fun Int.toGraded() = Graded(this)
 
 internal interface GradeTable {
   // maps student problem ids to grades
-  fun getStudentPerformance(studentId: StudentId): Map<ProblemId, Grade?>
+  fun getStudentPerformance(studentId: StudentId): Result<Map<ProblemId, Grade?>, EduPlatformError>
 
   /**
    * Retrieves the grades of a student for the specified assignments.
    *
    * @param studentId The unique identifier of the student.
    * @param assignmentId An identifier of the assignment to fetch grades for.
-   * @return A map where each problem ID is associated with its corresponding grade. A grade is
-   *   `null` if the submission has not been checked.
+   * @return A Result containing either a list of problem-grade pairs or an error if the operation
+   *   fails.
    */
   fun getStudentPerformance(
     studentId: StudentId,
     assignmentId: AssignmentId,
-  ): List<Pair<Problem, ProblemGrade>>
+  ): Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>
 
   /**
    * Retrieves the grades for all students in the specified course.
@@ -49,16 +51,18 @@ internal interface GradeTable {
    * @return A map where each student ID is associated with a map of problem IDs to their
    *   corresponding grades. A grade is `null` if the submission has not been checked.
    */
-  fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>>
+  fun getCourseRating(
+    courseId: CourseId
+  ): Result<Map<StudentId, Map<ProblemId, Grade?>>, EduPlatformError>
 
   fun recordSubmissionAssessment(
     submissionId: SubmissionId,
     teacherId: TeacherId,
     assessment: SubmissionAssessment,
     timestamp: kotlinx.datetime.LocalDateTime = LocalDateTime.now().toKotlinLocalDateTime(),
-  )
+  ): Result<Unit, EduPlatformError>
 
-  fun isChecked(submissionId: SubmissionId): Boolean
-
-  fun getGradingsForSubmission(submissionId: SubmissionId): List<GradingEntry>
+  fun getGradingsForSubmission(
+    submissionId: SubmissionId
+  ): Result<List<GradingEntry>, EduPlatformError>
 }

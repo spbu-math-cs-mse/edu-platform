@@ -16,7 +16,12 @@ import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.runCatching
+import dev.inmo.kslog.common.logger
+import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -30,7 +35,7 @@ data class QueryAssignmentForCheckingGradesState(
 ) :
   BotStateWithHandlersAndStudentId<
     Assignment?,
-    Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?,
+    Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?,
     StudentApi,
   > {
   private val sentMessages = mutableListOf<AccessibleMessage>()
@@ -57,24 +62,32 @@ data class QueryAssignmentForCheckingGradesState(
   override fun computeNewState(
     service: StudentApi,
     input: Assignment?,
-  ): Pair<MenuState, Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?> =
+  ): Pair<State, Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?> =
     if (input != null) {
       val gradedProblems = service.getGradingForAssignment(input.id, userId)
       MenuState(context, userId) to (input to gradedProblems)
     } else {
-      MenuState(context, userId) to null
+      MenuState(context, userId) to input
     }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
-    response: Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?,
+    response: Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?,
   ) {
     if (response != null) {
-      bot.respondWithGrades(response.first, response.second)
+      val grades = response.second
+      grades.mapBoth(
+        success = { gradedProblems -> bot.respondWithGrades(response.first, gradedProblems) },
+        failure = {
+          val errorMessage = "Ошибка! Не получилось запросить ваши оценки"
+          bot.send(context, text = errorMessage)
+        },
+      )
     }
     for (message in sentMessages) {
-      bot.delete(message)
+      runCatching { bot.delete(message) }
+        .mapError { logger.warning("Message $message delete failed", it) }
     }
   }
 

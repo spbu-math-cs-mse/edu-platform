@@ -163,7 +163,7 @@ class DatabaseTest {
       gradeTable.recordSubmissionAssessment(submission, teacher, assessment, timestamp)
       expected.add(GradingEntry(teacher, assessment, timestamp))
     }
-    val gradingEntries = gradeTable.getGradingsForSubmission(submission)
+    val gradingEntries = gradeTable.getGradingsForSubmission(submission).value
     assertEquals(expected, gradingEntries.toSet())
   }
 

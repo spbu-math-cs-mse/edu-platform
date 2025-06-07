@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionNotificationStatus
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapBoth
 import kotlinx.coroutines.runBlocking
@@ -76,7 +77,7 @@ internal class AcademicWorkflowService(
   fun getGradingsForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): List<Pair<Problem, ProblemGrade>> {
+  ): Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError> {
     return academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId)
   }
 }

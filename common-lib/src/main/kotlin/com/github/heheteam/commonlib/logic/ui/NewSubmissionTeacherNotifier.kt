@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
@@ -201,9 +200,9 @@ internal class NewSubmissionTeacherNotifier(
 
   private fun extractSubmissionStatusMessageInfo(
     submissionId: SubmissionId
-  ): Result<SubmissionStatusMessageInfo, ResolveError<out Any>> {
+  ): Result<SubmissionStatusMessageInfo, EduPlatformError> {
     val result = binding {
-      val gradingEntries = gradeTable.getGradingsForSubmission(submissionId)
+      val gradingEntries = gradeTable.getGradingsForSubmission(submissionId).bind()
       val submission = submissionDistributor.resolveSubmission(submissionId).bind()
       val problem = problemStorage.resolveProblem(submission.problemId).bind()
       val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()

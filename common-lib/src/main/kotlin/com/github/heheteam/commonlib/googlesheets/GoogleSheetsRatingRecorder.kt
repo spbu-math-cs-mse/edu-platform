@@ -76,7 +76,7 @@ internal constructor(
                 assignmentStorage.getAssignmentsForCourse(courseId).value,
                 problemStorage.getProblemsFromCourse(courseId),
                 courseStorage.getStudents(courseId).value,
-                academicWorkflowLogic.getCourseRating(courseId),
+                academicWorkflowLogic.getCourseRating(courseId).value,
               )
             }
           }

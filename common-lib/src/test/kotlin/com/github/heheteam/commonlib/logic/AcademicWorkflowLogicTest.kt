@@ -125,7 +125,7 @@ class AcademicWorkflowLogicTest {
     assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission1Id, good)
     inputSubmission(academicWorkflowLogic, ProblemId(2))
     val performance =
-      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
+      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).value.map {
         it.first.id to it.second
       }
     val expected =
@@ -145,7 +145,7 @@ class AcademicWorkflowLogicTest {
     assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission2Id, bad)
 
     val performance =
-      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
+      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).value.map {
         it.first.id to it.second
       }
 
@@ -165,7 +165,9 @@ class AcademicWorkflowLogicTest {
     academicWorkflowLogic.assessSubmission(submission1Id, teacherId, bad, monotoneTime())
 
     val performance =
-      gradeTable.getStudentPerformance(studentId, assignmentId).map { it.first.id to it.second }
+      gradeTable.getStudentPerformance(studentId, assignmentId).value.map {
+        it.first.id to it.second
+      }
 
     assertEquals(ProblemId(1) to 0.toGraded(), performance[0])
   }

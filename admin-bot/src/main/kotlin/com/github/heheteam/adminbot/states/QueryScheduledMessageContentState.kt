@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -42,12 +43,14 @@ class QueryScheduledMessageContentState(
     }
   }
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController:
       UpdateHandlerManager<Result<ScheduledMessageTextField, EduPlatformError>>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.queryScheduledMessageContent)
     sentMessages.add(introMessage)
 

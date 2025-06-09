@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
@@ -43,6 +44,8 @@ class CreateAssignmentState(
   private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
   private var lastMessageId: MessageId? = null
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {
       try {
@@ -57,7 +60,7 @@ class CreateAssignmentState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     when {
       description == null -> handleAssignmentDescription(bot, updateHandlersController)
       problems == null -> handleProblemsDescription(bot, updateHandlersController)

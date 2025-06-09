@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Admin
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.AdminTable
 import com.github.heheteam.commonlib.database.table.ParentStudents
@@ -34,7 +35,11 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
     }
   }
 
-  override fun createAdmin(name: String, surname: String, tgId: Long): AdminId =
+  override fun createAdmin(
+    name: String,
+    surname: String,
+    tgId: Long,
+  ): Result<AdminId, EduPlatformError> =
     transaction(database) {
         AdminTable.insert {
           it[AdminTable.name] = name
@@ -44,6 +49,7 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
       }
       .value
       .toAdminId()
+      .let { Ok(it) }
 
   override fun resolveAdmin(adminId: AdminId): Result<Admin, ResolveError<AdminId>> =
     transaction(database) {
@@ -93,15 +99,16 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
     }
   }
 
-  override fun getAdmins(): List<Admin> =
+  override fun getAdmins(): Result<List<Admin>, EduPlatformError> =
     transaction(database) {
-      AdminTable.selectAll().map {
-        Admin(
-          it[AdminTable.id].value.toAdminId(),
-          it[AdminTable.name],
-          it[AdminTable.surname],
-          it[AdminTable.tgId].toRawChatId(),
-        )
+        AdminTable.selectAll().map {
+          Admin(
+            it[AdminTable.id].value.toAdminId(),
+            it[AdminTable.name],
+            it[AdminTable.surname],
+            it[AdminTable.tgId].toRawChatId(),
+          )
+        }
       }
-    }
+      .let { Ok(it) }
 }

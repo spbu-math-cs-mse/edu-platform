@@ -40,7 +40,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
 
   fun admin(name: String, surname: String, tgId: Long = defaultChatId): Admin =
     binding {
-        val adminId = apis.adminApi.createAdmin(name, surname, tgId)
+        val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
         val admin = apis.adminApi.loginById(adminId).bind()
         admin
       }
@@ -48,7 +48,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
 
   fun student(name: String, surname: String, tgId: Long = defaultChatId): Student =
     binding {
-        val studentId = apis.studentApi.createStudent(name, surname, tgId)
+        val studentId = apis.studentApi.createStudent(name, surname, tgId).value
         val student = apis.studentApi.loginById(studentId).bind()
         student
       }
@@ -63,9 +63,9 @@ class TestDataBuilder(internal val apis: ApiCollection) {
       .value
 
   fun course(name: String, setup: CourseContext.() -> Unit = {}): Course {
-    val courseId = apis.adminApi.createCourse(name)
+    val courseId = apis.adminApi.createCourse(name).value
     CourseContext(courseId).apply(setup)
-    val course = apis.adminApi.getCourse(name)!!
+    val course = apis.adminApi.getCourse(name).value!!
     return course
   }
 
@@ -89,10 +89,10 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     ): Pair<Assignment, List<Problem>> {
       val assignmentContext = AssignmentContext().apply(setup)
       val assignmentId =
-        apis.adminApi.createAssignment(courseId, description, assignmentContext.problems)
+        apis.adminApi.createAssignment(courseId, description, assignmentContext.problems).value
       val assignment =
-        apis.studentApi.getCourseAssignments(courseId).first { it.id == assignmentId }
-      return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId)
+        apis.studentApi.getCourseAssignments(courseId).value.first { it.id == assignmentId }
+      return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId).value
     }
   }
 

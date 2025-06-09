@@ -60,6 +60,7 @@ data class Problem(
   val deadline: LocalDateTime? = null,
 )
 
+/** Depicts the problem in isolation of its assignment */
 data class ProblemDescription(
   val serialNumber: Int,
   val number: String,

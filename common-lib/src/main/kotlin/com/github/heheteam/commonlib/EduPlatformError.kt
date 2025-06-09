@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+import com.github.michaelbull.result.Result
 import dev.inmo.micro_utils.common.joinTo
 
 interface EduPlatformError {
@@ -52,3 +53,5 @@ fun EduPlatformError.toStackedString(): String {
     } else ""
   return "Error: ${this.shortDescription}\n" + stackMessagePart
 }
+
+typealias MaybeEduPlatformError = Result<Unit, EduPlatformError>

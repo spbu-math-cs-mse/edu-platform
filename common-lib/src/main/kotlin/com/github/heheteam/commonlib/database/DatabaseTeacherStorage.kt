@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.database.table.ParentStudents
@@ -8,6 +9,7 @@ import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.interfaces.toTeacherId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -56,8 +58,8 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
       )
     }
 
-  override fun getTeachers(): List<Teacher> =
-    transaction(database) {
+  override fun getTeachers(): Result<List<Teacher>, EduPlatformError> =
+    catchingTransaction(database) {
       TeacherTable.selectAll().map {
         Teacher(
           TeacherId(it[TeacherTable.id].value),

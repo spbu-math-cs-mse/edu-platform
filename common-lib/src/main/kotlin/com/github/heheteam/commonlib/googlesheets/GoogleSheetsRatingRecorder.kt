@@ -17,6 +17,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.CoroutineScope
@@ -48,9 +49,11 @@ internal constructor(
       try {
         googleSheetsService.createCourseSpreadsheet(course)
       } catch (e: java.io.IOException) {
-        return Err(CreateError("Google Spreadheet", e.message, causedBy = e.asEduPlatformError()))
+        return Err(CreateError("Google Spreadsheet", e.message, causedBy = e.asEduPlatformError()))
       }
-    courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
+    courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId).mapError {
+      return Err(CreateError("Google Spreadsheet", it.shortDescription, causedBy = it))
+    }
     println(
       "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${course.name}\" (id: $courseId)"
     )
@@ -70,10 +73,10 @@ internal constructor(
               googleSheetsService.updateRating(
                 spreadsheetId.long,
                 course,
-                assignmentStorage.getAssignmentsForCourse(courseId),
-                problemStorage.getProblemsFromCourse(courseId),
-                courseStorage.getStudents(courseId),
-                academicWorkflowLogic.getCourseRating(courseId),
+                assignmentStorage.getAssignmentsForCourse(courseId).value,
+                problemStorage.getProblemsFromCourse(courseId).value,
+                courseStorage.getStudents(courseId).value,
+                academicWorkflowLogic.getCourseRating(courseId).value,
               )
             }
           }

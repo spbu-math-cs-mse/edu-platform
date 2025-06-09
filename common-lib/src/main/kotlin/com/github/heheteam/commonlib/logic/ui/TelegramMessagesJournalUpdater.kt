@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
 import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
@@ -50,9 +49,9 @@ internal constructor(
 
   private fun extractSubmissionStatusMessageInfo(
     submissionId: SubmissionId
-  ): Result<SubmissionStatusMessageInfo, ResolveError<out Any>> {
+  ): Result<SubmissionStatusMessageInfo, EduPlatformError> {
     return binding {
-      val gradingEntries = gradeTable.getGradingsForSubmission(submissionId)
+      val gradingEntries = gradeTable.getGradingsForSubmission(submissionId).bind()
       val submission = submissionDistributor.resolveSubmission(submissionId).bind()
       val problem = problemStorage.resolveProblem(submission.problemId).bind()
       val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()

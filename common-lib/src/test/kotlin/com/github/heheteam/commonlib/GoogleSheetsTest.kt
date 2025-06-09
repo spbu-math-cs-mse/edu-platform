@@ -52,11 +52,11 @@ class GoogleSheetsTest {
   //  @Ignore
   @Test
   fun `update rating works`() {
-    val course1Id = courseStorage.createCourse("course 1")
-    val course2Id = courseStorage.createCourse("course 2")
-    val student1Id = studentStorage.createStudent()
-    val student2Id = studentStorage.createStudent()
-    val student3Id = studentStorage.createStudent()
+    val course1Id = courseStorage.createCourse("course 1").value
+    val course2Id = courseStorage.createCourse("course 2").value
+    val student1Id = studentStorage.createStudent().value
+    val student2Id = studentStorage.createStudent().value
+    val student3Id = studentStorage.createStudent().value
     courseStorage.addStudentToCourse(student1Id, course1Id)
     courseStorage.addStudentToCourse(student1Id, course2Id)
     courseStorage.addStudentToCourse(student2Id, course1Id)
@@ -129,18 +129,18 @@ class GoogleSheetsTest {
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course1Id).value,
-      assignmentStorage.getAssignmentsForCourse(course1Id),
-      problemStorage.getProblemsFromCourse(course1Id),
-      courseStorage.getStudents(course1Id),
-      gradeTable.getCourseRating(course1Id),
+      assignmentStorage.getAssignmentsForCourse(course1Id).value,
+      problemStorage.getProblemsFromCourse(course1Id).value,
+      courseStorage.getStudents(course1Id).value,
+      gradeTable.getCourseRating(course1Id).value,
     )
     googleSheetsService.updateRating(
       config.googleSheetsConfig.spreadsheetId,
       courseStorage.resolveCourse(course2Id).value,
-      assignmentStorage.getAssignmentsForCourse(course2Id),
-      problemStorage.getProblemsFromCourse(course2Id),
-      courseStorage.getStudents(course2Id),
-      gradeTable.getCourseRating(course2Id),
+      assignmentStorage.getAssignmentsForCourse(course2Id).value,
+      problemStorage.getProblemsFromCourse(course2Id).value,
+      courseStorage.getStudents(course2Id).value,
+      gradeTable.getCourseRating(course2Id).value,
     )
   }
 }

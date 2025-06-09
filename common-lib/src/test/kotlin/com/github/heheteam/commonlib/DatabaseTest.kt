@@ -51,12 +51,10 @@ class DatabaseTest {
 
   private fun createAssignment(courseId: CourseId): List<Problem> {
     val assignment =
-      assignmentStorage.createAssignment(
-        courseId,
-        "",
-        (1..5).map { ProblemDescription(it, it.toString()) },
-      )
-    return problemStorage.getProblemsFromAssignment(assignment)
+      assignmentStorage
+        .createAssignment(courseId, "", (1..5).map { ProblemDescription(it, it.toString()) })
+        .value
+    return problemStorage.getProblemsFromAssignment(assignment).value
   }
 
   private fun inputSampleSubmission(
@@ -77,9 +75,9 @@ class DatabaseTest {
     )
 
   private fun createCourseWithTeacherAndStudent(): Triple<CourseId, TeacherId, StudentId> {
-    val courseId = courseStorage.createCourse("sample course")
+    val courseId = courseStorage.createCourse("sample course").value
     val teacherId = teacherStorage.createTeacher()
-    val studentId = studentStorage.createStudent()
+    val studentId = studentStorage.createStudent().value
     courseStorage.addStudentToCourse(studentId, courseId)
     courseStorage.addTeacherToCourse(teacherId, courseId)
     return Triple(courseId, teacherId, studentId)
@@ -94,8 +92,8 @@ class DatabaseTest {
   @Test
   fun `course distributor works`() {
     val sampleDescription = "sample description"
-    val id = courseStorage.createCourse(sampleDescription)
-    val requiredId = courseStorage.getCourses().single().id
+    val id = courseStorage.createCourse(sampleDescription).value
+    val requiredId = courseStorage.getCourses().value.single().id
     assertEquals(id, requiredId)
     val resolvedCourse = courseStorage.resolveCourse(requiredId)
     assertEquals(true, resolvedCourse.isOk)
@@ -165,7 +163,7 @@ class DatabaseTest {
       gradeTable.recordSubmissionAssessment(submission, teacher, assessment, timestamp)
       expected.add(GradingEntry(teacher, assessment, timestamp))
     }
-    val gradingEntries = gradeTable.getGradingsForSubmission(submission)
+    val gradingEntries = gradeTable.getGradingsForSubmission(submission).value
     assertEquals(expected, gradingEntries.toSet())
   }
 
@@ -181,8 +179,8 @@ class DatabaseTest {
         initTeachers = true,
       )
     val someAssignment =
-      assignmentStorage.getAssignmentsForCourse(content.courses.realAnalysis).first()
-    val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).first()
+      assignmentStorage.getAssignmentsForCourse(content.courses.realAnalysis).value.first()
+    val someProblem = problemStorage.getProblemsFromAssignment(someAssignment.id).value.first()
     val someStudent = content.students[0]
     val teachers = content.teachers
     val submission =

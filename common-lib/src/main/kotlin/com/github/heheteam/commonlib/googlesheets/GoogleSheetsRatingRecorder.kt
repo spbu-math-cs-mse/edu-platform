@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib.googlesheets
 
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -43,13 +42,15 @@ internal constructor(
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
-  override fun createRatingSpreadsheet(course: Course): Result<SpreadsheetId, EduPlatformError> =
-    binding {
-      val spreadsheetId = googleSheetsService.createCourseSpreadsheet(course).bind()
-      courseStorage.updateCourseSpreadsheetId(course.id, spreadsheetId)
-      updateRating(course.id)
-      return@binding spreadsheetId
-    }
+  override fun createRatingSpreadsheet(
+    courseId: CourseId,
+    courseName: String,
+  ): Result<SpreadsheetId, EduPlatformError> = binding {
+    val spreadsheetId = googleSheetsService.createCourseSpreadsheet(courseName).bind()
+    courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
+    updateRating(courseId)
+    return@binding spreadsheetId
+  }
 
   override fun updateRating(courseId: CourseId) {
     scope.launch {

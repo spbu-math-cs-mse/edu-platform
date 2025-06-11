@@ -14,8 +14,11 @@ import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.info
 import dev.inmo.tgbotapi.types.RawChatId
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
@@ -85,7 +88,10 @@ internal class CourseStorageDecorator(
   override fun createCourse(description: String): Result<CourseId, EduPlatformError> = binding {
     val courseId = courseStorage.createCourse(description).bind()
     tokenStorage.createToken(courseId)
-    ratingRecorder.createRatingSpreadsheet(Course(courseId, description)).bind()
+    val spreadsheetId = ratingRecorder.createRatingSpreadsheet(courseId, description).bind()
+    KSLog.info(
+      "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${description}\" (id: $courseId)"
+    )
     courseId
   }
 

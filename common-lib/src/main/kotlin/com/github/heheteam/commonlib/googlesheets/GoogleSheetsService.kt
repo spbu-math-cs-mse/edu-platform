@@ -12,7 +12,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result
 
 interface GoogleSheetsService {
-  fun createCourseSpreadsheet(course: Course): Result<SpreadsheetId, EduPlatformError>
+  fun createCourseSpreadsheet(courseName: String): Result<SpreadsheetId, EduPlatformError>
 
   fun updateRating(
     courseSpreadsheetId: String,

@@ -16,7 +16,9 @@ import com.github.michaelbull.result.Result
 class GoogleSheetsServiceDummy : GoogleSheetsService {
   var next = 0L
 
-  override fun createCourseSpreadsheet(course: Course): Result<SpreadsheetId, EduPlatformError> {
+  override fun createCourseSpreadsheet(
+    courseName: String
+  ): Result<SpreadsheetId, EduPlatformError> {
     return SpreadsheetId(next++.toString()).ok()
   }
 

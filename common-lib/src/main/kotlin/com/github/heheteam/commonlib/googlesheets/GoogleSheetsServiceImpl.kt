@@ -70,53 +70,54 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
         .build()
   }
 
-  override fun createCourseSpreadsheet(course: Course): Result<SpreadsheetId, EduPlatformError> =
-    binding {
-      val spreadsheetProperties = SpreadsheetProperties().setTitle(course.name)
-      val spreadsheet = Spreadsheet().setProperties(spreadsheetProperties)
-      val createdSpreadsheet =
-        runCatching { apiClient.spreadsheets().create(spreadsheet).execute() }
-          .mapError { CreateSpreadsheetError(course.name, it) }
-          .bind()
-
-      val permission =
-        Permission().apply {
-          this.type = "anyone"
-          this.role = "reader"
-        }
-
-      runCatching {
-          driveClient.permissions().create(createdSpreadsheet.spreadsheetId, permission).execute()
-        }
-        .mapError { SetupPermissionsError(course.name, it) }
+  override fun createCourseSpreadsheet(
+    courseName: String
+  ): Result<SpreadsheetId, EduPlatformError> = binding {
+    val spreadsheetProperties = SpreadsheetProperties().setTitle(courseName)
+    val spreadsheet = Spreadsheet().setProperties(spreadsheetProperties)
+    val createdSpreadsheet =
+      runCatching { apiClient.spreadsheets().create(spreadsheet).execute() }
+        .mapError { CreateSpreadsheetError(courseName, it) }
         .bind()
 
-      val addSheetRequest =
-        AddSheetRequest().setProperties(SheetProperties().setTitle(RATING_SHEET_TITLE))
+    val permission =
+      Permission().apply {
+        this.type = "anyone"
+        this.role = "reader"
+      }
 
-      val defaultSheetId = createdSpreadsheet.sheets.first().properties.sheetId
-      val deleteDefaultSheetRequest = DeleteSheetRequest().setSheetId(defaultSheetId)
+    runCatching {
+        driveClient.permissions().create(createdSpreadsheet.spreadsheetId, permission).execute()
+      }
+      .mapError { SetupPermissionsError(courseName, it) }
+      .bind()
 
-      val batchUpdateRequest =
-        BatchUpdateSpreadsheetRequest()
-          .setRequests(
-            listOf(
-              Request().setAddSheet(addSheetRequest),
-              Request().setDeleteSheet(deleteDefaultSheetRequest),
-            )
+    val addSheetRequest =
+      AddSheetRequest().setProperties(SheetProperties().setTitle(RATING_SHEET_TITLE))
+
+    val defaultSheetId = createdSpreadsheet.sheets.first().properties.sheetId
+    val deleteDefaultSheetRequest = DeleteSheetRequest().setSheetId(defaultSheetId)
+
+    val batchUpdateRequest =
+      BatchUpdateSpreadsheetRequest()
+        .setRequests(
+          listOf(
+            Request().setAddSheet(addSheetRequest),
+            Request().setDeleteSheet(deleteDefaultSheetRequest),
           )
+        )
 
-      runCatching {
-          apiClient
-            .spreadsheets()
-            .batchUpdate(createdSpreadsheet.spreadsheetId, batchUpdateRequest)
-            .execute()
-        }
-        .mapError { CreateSheetError(course.name, it) }
-        .bind()
+    runCatching {
+        apiClient
+          .spreadsheets()
+          .batchUpdate(createdSpreadsheet.spreadsheetId, batchUpdateRequest)
+          .execute()
+      }
+      .mapError { CreateSheetError(courseName, it) }
+      .bind()
 
-      return@binding SpreadsheetId(createdSpreadsheet.spreadsheetId)
-    }
+    return@binding SpreadsheetId(createdSpreadsheet.spreadsheetId)
+  }
 
   override fun updateRating(
     courseSpreadsheetId: String,

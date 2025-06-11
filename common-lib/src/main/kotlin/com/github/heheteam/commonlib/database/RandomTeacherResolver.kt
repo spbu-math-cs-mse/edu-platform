@@ -31,7 +31,7 @@ internal class RandomTeacherResolver(
         // Resolve random
         val problem = problemStorage.resolveProblem(submissionInputRequest.problemId).bind()
         val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-        val teachers = courseStorage.getTeachers(assignment.courseId).shuffled()
+        val teachers = courseStorage.getTeachers(assignment.courseId).bind().shuffled()
         println(teachers)
         teachers
           .firstOrNull()

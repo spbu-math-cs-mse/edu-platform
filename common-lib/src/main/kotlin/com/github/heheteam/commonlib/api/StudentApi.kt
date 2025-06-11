@@ -20,6 +20,7 @@ import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -45,24 +46,26 @@ internal constructor(
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): List<Pair<Problem, ProblemGrade>> =
+  ): Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError> =
     academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
 
-  fun getAllCourses(): List<Course> = courseStorage.getCourses()
+  fun getAllCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 
-  fun getStudentCourses(studentId: StudentId): List<Course> =
+  fun getStudentCourses(studentId: StudentId): Result<List<Course>, EduPlatformError> =
     courseStorage.getStudentCourses(studentId)
 
-  fun getCourseAssignments(courseId: CourseId): List<Assignment> =
+  fun getCourseAssignments(courseId: CourseId): Result<List<Assignment>, EduPlatformError> =
     assignmentStorage.getAssignmentsForCourse(courseId)
 
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =
     courseStorage.addStudentToCourse(studentId, courseId)
 
-  fun inputSubmission(submissionInputRequest: SubmissionInputRequest) =
+  fun inputSubmission(submissionInputRequest: SubmissionInputRequest): SubmissionSendingResult =
     academicWorkflowService.sendSubmission(submissionInputRequest)
 
-  fun getProblemsFromAssignment(assignmentId: AssignmentId): List<Problem> =
+  fun getProblemsFromAssignment(
+    assignmentId: AssignmentId
+  ): Result<List<Problem>, EduPlatformError> =
     problemStorage.getProblemsFromAssignment(assignmentId)
 
   fun loginByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> =
@@ -74,14 +77,19 @@ internal constructor(
   fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>> =
     studentStorage.updateTgId(studentId, newTgId)
 
-  fun createStudent(name: String, surname: String, tgId: Long): StudentId =
-    studentStorage.createStudent(name, surname, tgId)
+  fun createStudent(
+    name: String,
+    surname: String,
+    tgId: Long,
+  ): Result<StudentId, EduPlatformError> = studentStorage.createStudent(name, surname, tgId)
 
   /**
    * Returns assignments and all of their problems with original deadlines. You might need to
    * calculate personal deadlines additionally.
    */
-  fun getProblemsWithAssignmentsFromCourse(courseId: CourseId): Map<Assignment, List<Problem>> =
+  fun getProblemsWithAssignmentsFromCourse(
+    courseId: CourseId
+  ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
 
   fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
@@ -103,7 +111,7 @@ internal constructor(
       success = { courseId ->
         courseStorage.addStudentToCourse(studentId, courseId)
         courseTokenStorage.useToken(token, studentId)
-        val course = getStudentCourses(studentId).first { it.id == courseId }
+        val course = getStudentCourses(studentId).value.first { it.id == courseId }
         Ok(course)
       },
       failure = { error -> Err(error) },

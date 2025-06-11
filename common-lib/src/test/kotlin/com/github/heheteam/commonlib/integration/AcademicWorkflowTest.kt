@@ -2,13 +2,19 @@ package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
+import com.github.heheteam.commonlib.telegram.TelegramError
 import com.github.heheteam.commonlib.util.buildData
+import com.github.heheteam.commonlib.util.ok
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getError
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.test.Test
+import kotlin.test.assertIs
 
 class AcademicWorkflowTest : IntegrationTestEnvironment() {
   private fun mockSendInitSubmissionStatusMessageDM(
@@ -27,7 +33,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   private fun mockNotifyStudentOnNewAssessment() =
     coEvery {
       studentBotController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
-    } returns Unit
+    } returns Unit.ok()
 
   private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
@@ -64,6 +70,50 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
           )
         }
       }
+    }
+  }
+
+  @Test
+  fun `student api inputSubmission propagates telegram errors`() {
+    coEvery { teacherBotController.sendSubmission(any(), any()) } returns
+      Err(TelegramError(RuntimeException("Simulated Telegram error during sendSubmission")))
+    mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
+    mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+    mockSendMenuMessage(Ok(messageInfoNum(1)))
+
+    buildData(createDefaultApis()) {
+      val student = student("Student1", "Student1")
+      val teacher = teacher("Teacher1", "Teacher1")
+
+      course("Course1") {
+        withStudent(student)
+        withTeacher(teacher)
+        val (_, problems) = assignment("Assignment1") { problem("Problem1", 10) }
+
+        val submissionInputRequest =
+          submissionInputRequest(student, problems.first(), "Submission1")
+        val result = apis.studentApi.inputSubmission(submissionInputRequest)
+
+        assertIs<SubmissionSendingResult.Success>(result)
+        assertIs<EduPlatformError>(
+          result.newSubmissionNotificationStatus.teacherNewSubmissionNotificationStatus
+            .teacherDirectMessagingSendError
+        )
+      }
+    }
+  }
+
+  @Test
+  fun `teacher api updateTeacherMenuMessage propagates telegram errors`() {
+    mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
+    mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
+    coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns
+      Err(TelegramError(RuntimeException("Simulated Telegram error during sendMenuMessage")))
+
+    buildData(createDefaultApis()) {
+      val teacher = teacher("Teacher1", "Teacher1")
+      val result = apis.teacherApi.updateTeacherMenuMessage(teacher.id)
+      assertIs<EduPlatformError>(result.getError())
     }
   }
 

@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -47,6 +48,8 @@ class ConfirmScheduledMessageState(
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {
       try {
@@ -61,7 +64,7 @@ class ConfirmScheduledMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<Boolean, EduPlatformError>>,
-  ) {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val confirmationMessage =
       bot.send(
         context,

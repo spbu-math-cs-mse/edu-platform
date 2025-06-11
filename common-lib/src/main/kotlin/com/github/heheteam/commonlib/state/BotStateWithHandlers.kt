@@ -7,6 +7,8 @@ import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -25,11 +27,13 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     bot: BehaviourContext,
     service: ApiService,
     updateHandlersController: UpdateHandlerManager<In>,
-  )
+  ): Result<Unit, EduPlatformError>
 
   fun computeNewState(service: ApiService, input: In): Pair<State, Out>
 
   suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out, input: In)
+
+  fun defaultState(): State
 
   suspend fun handle(
     bot: BehaviourContext,
@@ -44,7 +48,11 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     val updateHandlersController =
       UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>()
     initUpdateHandlers(updateHandlersController, context)
-    intro(bot, service, updateHandlersController)
+    val error = intro(bot, service, updateHandlersController).getError()
+    if (error != null) {
+      bot.send(context, "Случилась ошибка! Разработчики уже бегут ее решать")
+      return defaultState()
+    }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<BehaviourContext.() -> Unit> -> handlerResult.action.invoke(bot)

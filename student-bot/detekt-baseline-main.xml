@@ -1,17 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askCourseForSolution(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askFirstName(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun askProblem(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devAskForId(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdIsNotLong(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun devIdNotFound(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun menu(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellSolutionIsSent(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellToApplyForCourses(): String</ID>
-    <ID>FunctionOnlyReturningConstant:Dialogues.kt$Dialogues$fun tellValidSolutionTypes(): String</ID>
-    <ID>TooManyFunctions:Dialogues.kt$Dialogues</ID>
-  </CurrentIssues>
+  <CurrentIssues></CurrentIssues>
 </SmellBaseline>

@@ -47,6 +47,10 @@ import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import org.jetbrains.exposed.sql.Database
 
 data class ApiCollection(
@@ -133,13 +137,20 @@ class ApiFabric(
     }
 
     botEventBus.subscribeToNewDeadlineRequest { studentId, newDeadline ->
-      adminStorage.getAdmins().forEach { admin ->
-        adminBotTelegramController.notifyAdminOnNewMovingDeadlinesRequest(
-          admin.tgId,
-          studentId,
-          newDeadline,
-        )
-      }
+      adminStorage
+        .getAdmins()
+        .onSuccess { admins ->
+          admins.forEach { admin ->
+            adminBotTelegramController.notifyAdminOnNewMovingDeadlinesRequest(
+              admin.tgId,
+              studentId,
+              newDeadline,
+            )
+          }
+        }
+        .onFailure { error ->
+          logger.error("Failed to get admins for new deadline request: $error")
+        }
     }
 
     val tgTechnicalMessagesStorage =
@@ -180,8 +191,27 @@ class ApiFabric(
             submissionDistributor,
           )
       }
+
+    val newSubmissionTeacherNotifier =
+      NewSubmissionTeacherNotifier(
+        tgTechnicalMessagesStorage,
+        teacherBotTelegramController,
+        submissionDistributor,
+        problemStorage,
+        assignmentStorage,
+        studentStorage,
+        databaseGradeTable,
+        teacherStorage,
+        courseStorage,
+      )
+
     val academicWorkflowService =
-      AcademicWorkflowService(academicWorkflowLogic, teacherResolver, botEventBus, uiController)
+      AcademicWorkflowService(
+        academicWorkflowLogic,
+        teacherResolver,
+        uiController,
+        newSubmissionTeacherNotifier,
+      )
 
     val personalDeadlinesService =
       PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
@@ -221,18 +251,6 @@ class ApiFabric(
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
-    val newSubmissionTeacherNotifier =
-      NewSubmissionTeacherNotifier(
-        tgTechnicalMessagesStorage,
-        teacherBotTelegramController,
-        submissionDistributor,
-        problemStorage,
-        assignmentStorage,
-        studentStorage,
-        databaseGradeTable,
-        teacherStorage,
-        courseStorage,
-      )
 
     botEventBus.subscribeToNewSubmissionEvent { submission: Submission ->
       newSubmissionTeacherNotifier.notifyNewSubmission(submission)

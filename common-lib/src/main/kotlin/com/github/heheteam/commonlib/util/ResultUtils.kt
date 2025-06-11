@@ -1,6 +1,12 @@
 package com.github.heheteam.commonlib.util
 
+import com.github.michaelbull.result.BindingScope
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 
 fun <T> T.ok(): Result<T, Nothing> = Ok(this)
+
+fun <ErrorT> BindingScope<ErrorT>.raiseError(err: ErrorT): Nothing {
+  Err(err).bind()
+}

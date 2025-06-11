@@ -13,12 +13,14 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.combine
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -35,6 +37,8 @@ class AddStudentState(
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach { bot.delete(it) }
   }
@@ -42,9 +46,8 @@ class AddStudentState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, String, EduPlatformError>,
-  ) {
+    updateHandlersController: UpdateHandlerManager<String>,
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val introMessage =
       bot.send(
         context,

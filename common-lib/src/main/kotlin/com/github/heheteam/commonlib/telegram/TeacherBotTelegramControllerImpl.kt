@@ -9,12 +9,12 @@ import com.github.heheteam.commonlib.logic.ui.createSubmissionGradingKeyboard
 import com.github.heheteam.commonlib.toTelegramMessageInfo
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.TelegramBot
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
@@ -44,16 +44,19 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun updateSubmissionStatusMessageDM(
     message: TelegramMessageInfo,
     submissionStatusMessageInfo: SubmissionStatusMessageInfo,
-  ) {
-    val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
-    teacherBot.edit(message.chatId.toChatId(), message.messageId, messageContent)
+  ): Result<Unit, EduPlatformError> =
+    runCatching {
+        val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
+        teacherBot.edit(message.chatId.toChatId(), message.messageId, messageContent)
 
-    teacherBot.editMessageReplyMarkup(
-      message.chatId.toChatId(),
-      message.messageId,
-      replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
-    )
-  }
+        teacherBot.editMessageReplyMarkup(
+          message.chatId.toChatId(),
+          message.messageId,
+          replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
+        )
+      }
+      .mapError { TelegramError(it) }
+      .map { Unit }
 
   override suspend fun sendInitSubmissionStatusMessageInCourseGroupChat(
     chatId: RawChatId,
@@ -74,20 +77,25 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   override suspend fun updateSubmissionStatusMessageInCourseGroupChat(
     message: TelegramMessageInfo,
     submissionStatusMessageInfo: SubmissionStatusMessageInfo,
-  ) {
-    val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
-    teacherBot.edit(message.chatId.toChatId(), message.messageId, messageContent)
+  ): Result<Unit, EduPlatformError> =
+    runCatching {
+        val messageContent = submissionStatusInfoToMessageContent(submissionStatusMessageInfo)
+        teacherBot.edit(message.chatId.toChatId(), message.messageId, messageContent)
 
-    teacherBot.editMessageReplyMarkup(
-      message.chatId.toChatId(),
-      message.messageId,
-      replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
-    )
-  }
+        teacherBot.editMessageReplyMarkup(
+          message.chatId.toChatId(),
+          message.messageId,
+          replyMarkup = createSubmissionGradingKeyboard(submissionStatusMessageInfo.submissionId),
+        )
+      }
+      .mapError { TelegramError(it) }
+      .map { Unit }
 
-  override suspend fun sendSubmission(chatId: RawChatId, content: TextWithMediaAttachments) {
-    teacherBot.sendTextWithMediaAttachments(chatId.toChatId(), content)
-  }
+  override suspend fun sendSubmission(
+    chatId: RawChatId,
+    content: TextWithMediaAttachments,
+  ): Result<Unit, EduPlatformError> =
+    teacherBot.sendTextWithMediaAttachments(chatId.toChatId(), content).map { Unit }
 
   override suspend fun sendMenuMessage(
     chatId: RawChatId,
@@ -103,13 +111,17 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
       }
       .mapError { "".asNamedError() }
 
-  override suspend fun deleteMessage(telegramMessageInfo: TelegramMessageInfo) {
-    try {
-      teacherBot.delete(telegramMessageInfo.chatId.toChatId(), telegramMessageInfo.messageId)
-    } catch (e: CommonRequestException) {
-      KSLog.warning("Failed to delete message", e)
-    }
-  }
+  override suspend fun deleteMessage(
+    telegramMessageInfo: TelegramMessageInfo
+  ): Result<Unit, EduPlatformError> =
+    runCatching {
+        teacherBot.delete(telegramMessageInfo.chatId.toChatId(), telegramMessageInfo.messageId)
+      }
+      .mapError {
+        KSLog.warning("Failed to delete message", it)
+        TelegramError(it)
+      }
+      .map { Unit }
 
   private fun submissionStatusInfoToMessageContent(
     submissionStatusMessageInfo: SubmissionStatusMessageInfo

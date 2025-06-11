@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.MaybeEduPlatformError
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.asNamedError
@@ -14,6 +15,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
@@ -45,28 +47,26 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   override fun registerGroupSubmissionPublication(
     submissionId: SubmissionId,
     telegramMessageInfo: TelegramMessageInfo,
-  ) {
-    transaction(database) {
+  ): MaybeEduPlatformError =
+    catchingTransaction(database) {
       SubmissionGroupMessagesTable.insert {
         it[SubmissionGroupMessagesTable.submissionId] = submissionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
     }
-  }
 
   override fun registerPersonalSubmissionPublication(
     submissionId: SubmissionId,
     telegramMessageInfo: TelegramMessageInfo,
-  ) {
-    transaction(database) {
+  ): MaybeEduPlatformError =
+    catchingTransaction(database) {
       SubmissionPersonalMessagesTable.insert {
         it[SubmissionPersonalMessagesTable.submissionId] = submissionId.long
         it[messageId] = telegramMessageInfo.messageId.long
         it[chatId] = telegramMessageInfo.chatId.long
       }
     }
-  }
 
   override fun resolveGroupMessage(
     submissionId: SubmissionId
@@ -106,22 +106,25 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
     }
   }
 
-  override fun updateTeacherMenuMessage(telegramMessageInfo: TelegramMessageInfo) {
-    transaction(database) {
-      val rowsUpdated =
-        TeacherMenuMessageTable.update({
-          TeacherMenuMessageTable.chatId eq telegramMessageInfo.chatId.long
-        }) {
-          it[messageId] = telegramMessageInfo.messageId.long
-          it[chatId] = telegramMessageInfo.chatId.long
-        }
-      if (rowsUpdated == 0) {
-        TeacherMenuMessageTable.insert {
-          it[messageId] = telegramMessageInfo.messageId.long
-          it[chatId] = telegramMessageInfo.chatId.long
+  override fun updateTeacherMenuMessage(
+    telegramMessageInfo: TelegramMessageInfo
+  ): Result<Unit, EduPlatformError> {
+    return transaction(database) {
+        val rowsUpdated =
+          TeacherMenuMessageTable.update({
+            TeacherMenuMessageTable.chatId eq telegramMessageInfo.chatId.long
+          }) {
+            it[messageId] = telegramMessageInfo.messageId.long
+            it[chatId] = telegramMessageInfo.chatId.long
+          }
+        if (rowsUpdated == 0) {
+          TeacherMenuMessageTable.insert {
+            it[messageId] = telegramMessageInfo.messageId.long
+            it[chatId] = telegramMessageInfo.chatId.long
+          }
         }
       }
-    }
+      .ok()
   }
 
   override fun resolveTeacherMenuMessage(

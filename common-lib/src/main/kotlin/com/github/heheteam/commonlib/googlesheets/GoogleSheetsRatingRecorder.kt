@@ -66,10 +66,10 @@ internal constructor(
                   .updateRating(
                     spreadsheetId.long,
                     course,
-                    assignmentStorage.getAssignmentsForCourse(courseId),
-                    problemStorage.getProblemsFromCourse(courseId),
-                    courseStorage.getStudents(courseId),
-                    academicWorkflowLogic.getCourseRating(courseId),
+                    assignmentStorage.getAssignmentsForCourse(courseId).bind(),
+                    problemStorage.getProblemsFromCourse(courseId).bind(),
+                    courseStorage.getStudents(courseId).bind(),
+                    academicWorkflowLogic.getCourseRating(courseId).bind(),
                   )
                   .bind()
               }

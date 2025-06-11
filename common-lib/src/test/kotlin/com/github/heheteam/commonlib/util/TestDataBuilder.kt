@@ -17,6 +17,7 @@ import com.github.heheteam.commonlib.api.ApiCollection
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
+import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -28,7 +29,7 @@ data class MonotoneCounter(private var startValue: Long = 0) {
   fun next(): Long = ++startValue
 }
 
-class TestDataBuilder(private val apis: ApiCollection) {
+class TestDataBuilder(internal val apis: ApiCollection) {
   private val clock = MonotoneDummyClock()
   private val defaultTimestamp = clock.next()
   private val chatIdCounter = MonotoneCounter()
@@ -39,7 +40,7 @@ class TestDataBuilder(private val apis: ApiCollection) {
 
   fun admin(name: String, surname: String, tgId: Long = defaultChatId): Admin =
     binding {
-        val adminId = apis.adminApi.createAdmin(name, surname, tgId)
+        val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
         val admin = apis.adminApi.loginById(adminId).bind()
         admin
       }
@@ -47,7 +48,7 @@ class TestDataBuilder(private val apis: ApiCollection) {
 
   fun student(name: String, surname: String, tgId: Long = defaultChatId): Student =
     binding {
-        val studentId = apis.studentApi.createStudent(name, surname, tgId)
+        val studentId = apis.studentApi.createStudent(name, surname, tgId).value
         val student = apis.studentApi.loginById(studentId).bind()
         student
       }
@@ -62,9 +63,9 @@ class TestDataBuilder(private val apis: ApiCollection) {
       .value
 
   fun course(name: String, setup: CourseContext.() -> Unit = {}): Course {
-    val courseId = apis.adminApi.createCourse(name)
+    val courseId = apis.adminApi.createCourse(name).value
     CourseContext(courseId).apply(setup)
-    val course = apis.adminApi.getCourse(name)!!
+    val course = apis.adminApi.getCourse(name).value!!
     return course
   }
 
@@ -88,10 +89,10 @@ class TestDataBuilder(private val apis: ApiCollection) {
     ): Pair<Assignment, List<Problem>> {
       val assignmentContext = AssignmentContext().apply(setup)
       val assignmentId =
-        apis.adminApi.createAssignment(courseId, description, assignmentContext.problems)
+        apis.adminApi.createAssignment(courseId, description, assignmentContext.problems).value
       val assignment =
-        apis.studentApi.getCourseAssignments(courseId).first { it.id == assignmentId }
-      return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId)
+        apis.studentApi.getCourseAssignments(courseId).value.first { it.id == assignmentId }
+      return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId).value
     }
   }
 
@@ -120,9 +121,10 @@ class TestDataBuilder(private val apis: ApiCollection) {
         telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
         timestamp = defaultTimestamp,
       )
-    val submissionId = apis.studentApi.inputSubmission(submissionInputRequest).value
+    val submissionResult =
+      apis.studentApi.inputSubmission(submissionInputRequest) as SubmissionSendingResult.Success
     return Submission(
-      submissionId,
+      submissionResult.submissionId,
       submissionInputRequest.studentId,
       submissionInputRequest.telegramMessageInfo.chatId,
       submissionInputRequest.telegramMessageInfo.messageId,
@@ -178,6 +180,19 @@ class TestDataBuilder(private val apis: ApiCollection) {
 
   suspend fun deleteScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.deleteScheduledMessage(scheduledMessageId)
+
+  fun submissionInputRequest(
+    student: Student,
+    problem: Problem,
+    content: String,
+  ): SubmissionInputRequest =
+    SubmissionInputRequest(
+      studentId = student.id,
+      problemId = problem.id,
+      submissionContent = TextWithMediaAttachments(content),
+      telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
+      timestamp = defaultTimestamp,
+    )
 }
 
 fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) = runBlocking {

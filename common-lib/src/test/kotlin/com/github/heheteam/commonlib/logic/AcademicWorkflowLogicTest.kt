@@ -74,8 +74,8 @@ class AcademicWorkflowLogicTest {
   @AfterTest
   fun setup() {
     reset(database)
-    courseId = courseStorage.createCourse("course 1")
-    studentId = studentStorage.createStudent()
+    courseId = courseStorage.createCourse("course 1").value
+    studentId = studentStorage.createStudent().value
     courseStorage.addStudentToCourse(studentId, courseId)
     teacherId = teacherStorage.createTeacher()
     courseStorage.addTeacherToCourse(teacherId, courseId)
@@ -84,15 +84,17 @@ class AcademicWorkflowLogicTest {
   }
 
   private fun createAssignment(courseId: CourseId): AssignmentId =
-    assignmentStorage.createAssignment(
-      courseId,
-      "assignment",
-      listOf(
-        ProblemDescription(1, "p1", "", 1),
-        ProblemDescription(3, "p2", "", 1),
-        ProblemDescription(2, "p3", "", 1),
-      ),
-    )
+    assignmentStorage
+      .createAssignment(
+        courseId,
+        "assignment",
+        listOf(
+          ProblemDescription(1, "p1", "", 1),
+          ProblemDescription(3, "p2", "", 1),
+          ProblemDescription(2, "p3", "", 1),
+        ),
+      )
+      .value
 
   private fun inputSubmission(
     academicWorkflowLogic: AcademicWorkflowLogic,
@@ -123,7 +125,7 @@ class AcademicWorkflowLogicTest {
     assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission1Id, good)
     inputSubmission(academicWorkflowLogic, ProblemId(2))
     val performance =
-      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
+      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).value.map {
         it.first.id to it.second
       }
     val expected =
@@ -143,7 +145,7 @@ class AcademicWorkflowLogicTest {
     assessSubmissionWithDefaultTeacher(academicWorkflowLogic, submission2Id, bad)
 
     val performance =
-      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).map {
+      academicWorkflowLogic.getGradingsForAssignment(assignmentId, studentId).value.map {
         it.first.id to it.second
       }
 
@@ -163,7 +165,9 @@ class AcademicWorkflowLogicTest {
     academicWorkflowLogic.assessSubmission(submission1Id, teacherId, bad, monotoneTime())
 
     val performance =
-      gradeTable.getStudentPerformance(studentId, assignmentId).map { it.first.id to it.second }
+      gradeTable.getStudentPerformance(studentId, assignmentId).value.map {
+        it.first.id to it.second
+      }
 
     assertEquals(ProblemId(1) to 0.toGraded(), performance[0])
   }

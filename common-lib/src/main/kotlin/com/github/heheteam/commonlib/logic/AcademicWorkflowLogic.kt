@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.logic
 
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
@@ -13,6 +14,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.michaelbull.result.Result
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 
@@ -41,17 +43,19 @@ internal constructor(
     teacherId: TeacherId,
     assessment: SubmissionAssessment,
     timestamp: LocalDateTime,
-  ) {
-    gradeTable.recordSubmissionAssessment(submissionId, teacherId, assessment, timestamp)
+  ): Result<Unit, EduPlatformError> {
+    return gradeTable.recordSubmissionAssessment(submissionId, teacherId, assessment, timestamp)
   }
 
   fun getGradingsForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): List<Pair<Problem, ProblemGrade>> {
+  ): Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError> {
     return gradeTable.getStudentPerformance(studentId, assignmentId)
   }
 
-  fun getCourseRating(courseId: CourseId): Map<StudentId, Map<ProblemId, Grade?>> =
+  fun getCourseRating(
+    courseId: CourseId
+  ): Result<Map<StudentId, Map<ProblemId, Grade?>>, EduPlatformError> =
     gradeTable.getCourseRating(courseId)
 }

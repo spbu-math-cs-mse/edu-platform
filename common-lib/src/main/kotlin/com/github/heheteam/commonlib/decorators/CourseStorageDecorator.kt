@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.DeleteError
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
@@ -13,11 +14,8 @@ import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
-import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.mapBoth
-import dev.inmo.kslog.common.KSLog
-import dev.inmo.kslog.common.info
+import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.RawChatId
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
@@ -54,12 +52,12 @@ internal class CourseStorageDecorator(
   ): Result<Unit, DeleteError<TeacherId>> =
     courseStorage.removeTeacherFromCourse(teacherId, courseId)
 
-  override fun getCourses(): List<Course> = courseStorage.getCourses()
+  override fun getCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 
-  override fun getStudentCourses(studentId: StudentId): List<Course> =
+  override fun getStudentCourses(studentId: StudentId): Result<List<Course>, EduPlatformError> =
     courseStorage.getStudentCourses(studentId)
 
-  override fun getTeacherCourses(teacherId: TeacherId): List<Course> =
+  override fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, EduPlatformError> =
     courseStorage.getTeacherCourses(teacherId)
 
   override fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>> =
@@ -78,25 +76,22 @@ internal class CourseStorageDecorator(
   override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
     courseStorage.resolveCourseGroup(courseId)
 
-  override fun updateCourseSpreadsheetId(courseId: CourseId, spreadsheetId: SpreadsheetId) =
+  override fun updateCourseSpreadsheetId(
+    courseId: CourseId,
+    spreadsheetId: SpreadsheetId,
+  ): Result<Unit, EduPlatformError> =
     courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
 
-  override fun createCourse(description: String): CourseId =
-    courseStorage.createCourse(description).also { courseId ->
-      tokenStorage.createToken(courseId)
-      ratingRecorder
-        .createRatingSpreadsheet(Course(courseId, description))
-        .mapBoth(
-          success = { spreadsheetId ->
-            KSLog.info(
-              "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${description}\" (id: $courseId)"
-            )
-          },
-          failure = { err -> println(err) },
-        )
-    }
+  override fun createCourse(description: String): Result<CourseId, EduPlatformError> = binding {
+    val courseId = courseStorage.createCourse(description).bind()
+    tokenStorage.createToken(courseId)
+    ratingRecorder.createRatingSpreadsheet(Course(courseId, description)).bind()
+    courseId
+  }
 
-  override fun getStudents(courseId: CourseId): List<Student> = courseStorage.getStudents(courseId)
+  override fun getStudents(courseId: CourseId): Result<List<Student>, EduPlatformError> =
+    courseStorage.getStudents(courseId)
 
-  override fun getTeachers(courseId: CourseId): List<Teacher> = courseStorage.getTeachers(courseId)
+  override fun getTeachers(courseId: CourseId): Result<List<Teacher>, EduPlatformError> =
+    courseStorage.getTeachers(courseId)
 }

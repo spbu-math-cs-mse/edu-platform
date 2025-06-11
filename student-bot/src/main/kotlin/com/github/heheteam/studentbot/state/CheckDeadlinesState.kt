@@ -1,10 +1,13 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -24,9 +27,12 @@ class CheckDeadlinesState(
   override val context: User,
   private val studentId: StudentId,
   private val course: Course,
-) : BotState<Unit, Unit, StudentApi> {
-  override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi) {
-    val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id)
+) : BotState<Result<Unit, EduPlatformError>, Result<Unit, EduPlatformError>, StudentApi> {
+  override suspend fun readUserInput(
+    bot: BehaviourContext,
+    service: StudentApi,
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id).bind()
     val problemsWithPersonalDeadlines =
       service.calculateRescheduledDeadlines(studentId, problemsByAssignments)
     val messageText =
@@ -65,10 +71,16 @@ class CheckDeadlinesState(
       )
     }
 
-  override fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> {
-    return MenuState(context, studentId) to Unit
+  override fun computeNewState(
+    service: StudentApi,
+    input: Result<Unit, EduPlatformError>,
+  ): Pair<State, Result<Unit, EduPlatformError>> {
+    return MenuState(context, studentId) to input
   }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
-    Unit
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: StudentApi,
+    response: Result<Unit, EduPlatformError>,
+  ) = Unit
 }

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.DatabaseError
+import com.github.heheteam.commonlib.DatabaseExceptionError
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.SentMessageLog
 import com.github.heheteam.commonlib.database.table.SentMessageLogTable
@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.SentMessageLogStorage
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.toStudentId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
@@ -31,11 +32,13 @@ class DatabaseSentMessageLogStorage(private val database: Database) : SentMessag
           }
           Unit
         }
-        .mapError { DatabaseError(it) }
+        .mapError { DatabaseExceptionError(it) }
     }
 
-  override fun getSentMessageLogs(scheduledMessageId: ScheduledMessageId): List<SentMessageLog> =
-    transaction(database) {
+  override fun getSentMessageLogs(
+    scheduledMessageId: ScheduledMessageId
+  ): Result<List<SentMessageLog>, EduPlatformError> =
+    catchingTransaction(database) {
       SentMessageLogTable.selectAll()
         .where { SentMessageLogTable.scheduledMessageId eq scheduledMessageId.long }
         .map {

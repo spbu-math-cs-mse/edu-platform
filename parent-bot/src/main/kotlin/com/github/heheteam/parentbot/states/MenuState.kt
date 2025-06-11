@@ -21,7 +21,7 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(parentApi: Pare
       bot.send(
         state.context,
         Dialogues.menu,
-        replyMarkup = Keyboards.menu(parentApi.getChildren(parentId)),
+        replyMarkup = Keyboards.menu(parentApi.getChildren(parentId).value),
       )
 
     when (val command = waitDataCallbackQueryWithUser(state.context.id).first().data) {
@@ -41,7 +41,8 @@ fun DefaultBehaviourContextWithFSM<BotState>.strictlyOnMenuState(parentApi: Pare
       else -> {
         bot.delete(stickerMessage)
         bot.delete(menuMessage)
-        val child = parentApi.getChildren(parentId).first { it.id == StudentId(command.toLong()) }
+        val child =
+          parentApi.getChildren(parentId).value.first { it.id == StudentId(command.toLong()) }
         return@strictlyOn ChildPerformanceState(state.context, child, state.parentId)
       }
     }

@@ -13,8 +13,11 @@ import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.getError
+import com.github.michaelbull.result.mapBoth
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.info
 import dev.inmo.tgbotapi.types.RawChatId
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
@@ -79,9 +82,18 @@ internal class CourseStorageDecorator(
     courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
 
   override fun createCourse(description: String): CourseId =
-    courseStorage.createCourse(description).also {
-      tokenStorage.createToken(it)
-      ratingRecorder.createRatingSpreadsheet(it).getError()?.also { err -> println(err) }
+    courseStorage.createCourse(description).also { courseId ->
+      tokenStorage.createToken(courseId)
+      ratingRecorder
+        .createRatingSpreadsheet(Course(courseId, description))
+        .mapBoth(
+          success = { spreadsheetId ->
+            KSLog.info(
+              "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${description}\" (id: $courseId)"
+            )
+          },
+          failure = { err -> println(err) },
+        )
     }
 
   override fun getStudents(courseId: CourseId): List<Student> = courseStorage.getStudents(courseId)

@@ -1,10 +1,11 @@
 package com.github.heheteam.commonlib.interfaces
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.michaelbull.result.Result
 
 interface RatingRecorder {
-  fun createRatingSpreadsheet(courseId: CourseId): Result<SpreadsheetId, EduPlatformError>
+  fun createRatingSpreadsheet(course: Course): Result<SpreadsheetId, EduPlatformError>
 
   fun updateRating(courseId: CourseId)
 

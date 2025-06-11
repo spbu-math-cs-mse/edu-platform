@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.googlesheets
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -11,10 +12,12 @@ import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
-import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
-import com.github.michaelbull.result.map
+import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapError
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.CoroutineScope
@@ -40,41 +43,41 @@ internal constructor(
   private val courseMutexes = ConcurrentHashMap<CourseId, Mutex>()
   private val willBeUpdated = ConcurrentHashMap<CourseId, Boolean>()
 
-  override fun createRatingSpreadsheet(
-    courseId: CourseId
-  ): Result<SpreadsheetId, EduPlatformError> = binding {
-    val course = courseStorage.resolveCourse(courseId).bind()
-    val spreadsheetId = googleSheetsService.createCourseSpreadsheet(course).bind()
-    courseStorage.updateCourseSpreadsheetId(courseId, spreadsheetId)
-    println(
-      "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${course.name}\" (id: $courseId)"
-    )
-    updateRating(courseId)
-    return@binding spreadsheetId
-  }
+  override fun createRatingSpreadsheet(course: Course): Result<SpreadsheetId, EduPlatformError> =
+    binding {
+      val spreadsheetId = googleSheetsService.createCourseSpreadsheet(course).bind()
+      courseStorage.updateCourseSpreadsheetId(course.id, spreadsheetId)
+      updateRating(course.id)
+      return@binding spreadsheetId
+    }
 
   override fun updateRating(courseId: CourseId) {
     scope.launch {
-      val mutex = courseMutexes.computeIfAbsent(courseId) { Mutex() }
-      if (!willBeUpdated.computeIfAbsent(courseId) { false }) {
-        willBeUpdated.replace(courseId, true)
-        mutex.withLock {
-          willBeUpdated.replace(courseId, false)
-          val elapsedTime = measureTimeMillis {
-            courseStorage.resolveCourseWithSpreadsheetId(courseId).map { (course, spreadsheetId) ->
-              googleSheetsService.updateRating(
-                spreadsheetId.long,
-                course,
-                assignmentStorage.getAssignmentsForCourse(courseId),
-                problemStorage.getProblemsFromCourse(courseId),
-                courseStorage.getStudents(courseId),
-                academicWorkflowLogic.getCourseRating(courseId),
-              )
+      coroutineBinding {
+          val mutex = courseMutexes.computeIfAbsent(courseId) { Mutex() }
+          if (!willBeUpdated.computeIfAbsent(courseId) { false }) {
+            willBeUpdated.replace(courseId, true)
+            mutex.withLock {
+              willBeUpdated.replace(courseId, false)
+              val elapsedTime = measureTimeMillis {
+                val (course, spreadsheetId) =
+                  courseStorage.resolveCourseWithSpreadsheetId(courseId).bind()
+                googleSheetsService
+                  .updateRating(
+                    spreadsheetId.long,
+                    course,
+                    assignmentStorage.getAssignmentsForCourse(courseId),
+                    problemStorage.getProblemsFromCourse(courseId),
+                    courseStorage.getStudents(courseId),
+                    academicWorkflowLogic.getCourseRating(courseId),
+                  )
+                  .bind()
+              }
+              delay(DELAY_IN_MILLISECONDS - elapsedTime)
             }
           }
-          delay(DELAY_IN_MILLISECONDS - elapsedTime)
         }
-      }
+        .mapError { error -> KSLog.error(error) }
     }
   }
 

@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
 import com.github.heheteam.commonlib.database.reset
-import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
@@ -25,7 +25,7 @@ open class IntegrationTestEnvironment {
       config.databaseConfig.password,
     )
 
-  protected val googleSheetsService = mockk<GoogleSheetsService>(relaxed = true)
+  protected val googleSheetsService = GoogleSheetsServiceDummy()
   protected open val studentBotController = mockk<StudentBotTelegramController>(relaxed = true)
   protected val teacherBotController = mockk<TeacherBotTelegramController>(relaxed = true)
   protected val adminBotController = mockk<AdminBotTelegramController>(relaxed = true)

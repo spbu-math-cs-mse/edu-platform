@@ -3,9 +3,9 @@ package com.github.heheteam.commonlib.integration
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
-import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController

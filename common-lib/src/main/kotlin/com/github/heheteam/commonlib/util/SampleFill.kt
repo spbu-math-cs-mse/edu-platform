@@ -67,7 +67,7 @@ internal fun fillWithSamples(
 ): ContentFill {
   reset(database)
   // Admins
-  listOf("Кабан" to "Кабаныч").map { adminStorage.createAdmin(it.first, it.second).value }
+  //  listOf("Кабан" to "Кабаныч").map { adminStorage.createAdmin(it.first, it.second).value }
 
   val realAnalysis = generateCourse("Начала мат. анализа", courseStorage, assignmentStorage)
   val probTheory = generateCourse("Теория вероятностей", courseStorage, assignmentStorage)

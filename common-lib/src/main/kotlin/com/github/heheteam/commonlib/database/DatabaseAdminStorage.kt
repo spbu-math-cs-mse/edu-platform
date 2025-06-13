@@ -1,15 +1,18 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Admin
+import com.github.heheteam.commonlib.AdminIsNotWhitelistedError
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.AdminTable
+import com.github.heheteam.commonlib.database.table.AdminWhitelistTable
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.toAdminId
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.toRawChatId
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -35,21 +38,33 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
     }
   }
 
+  override fun addTgIdToWhitelist(tgId: Long): Result<Unit, EduPlatformError> =
+    transaction(database) {
+      AdminWhitelistTable.insert { it[AdminWhitelistTable.tgId] = tgId }
+      Ok(Unit)
+    }
+
   override fun createAdmin(
     name: String,
     surname: String,
     tgId: Long,
   ): Result<AdminId, EduPlatformError> =
     transaction(database) {
-        AdminTable.insert {
+      if (
+        AdminWhitelistTable.selectAll().where { AdminWhitelistTable.tgId eq tgId }.count() == 0L
+      ) {
+        return@transaction Err(AdminIsNotWhitelistedError(tgId))
+      }
+
+      (AdminTable.insert {
           it[AdminTable.name] = name
           it[AdminTable.surname] = surname
           it[AdminTable.tgId] = tgId
-        } get AdminTable.id
-      }
-      .value
-      .toAdminId()
-      .let { Ok(it) }
+        } get AdminTable.id)
+        .value
+        .toAdminId()
+        .ok()
+    }
 
   override fun resolveAdmin(adminId: AdminId): Result<Admin, ResolveError<AdminId>> =
     transaction(database) {

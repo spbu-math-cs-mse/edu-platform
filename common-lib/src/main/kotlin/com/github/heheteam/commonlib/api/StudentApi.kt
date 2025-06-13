@@ -40,7 +40,7 @@ internal constructor(
   private val courseTokenStorage: CourseTokenStorage,
   private val scheduledMessageDeliveryService: ScheduledMessageDeliveryService, // New dependency
 ) {
-  fun checkAndSentMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
+  fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
     scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
 
   fun getGradingForAssignment(

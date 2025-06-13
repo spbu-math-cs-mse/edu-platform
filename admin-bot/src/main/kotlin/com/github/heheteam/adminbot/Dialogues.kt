@@ -14,6 +14,17 @@ object Dialogues {
   val nerdSticker =
     InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")
 
+  const val askFirstName: String = "Как я могу к вам обращаться? Напишите ваше имя."
+
+  fun askLastName(firstName: String): String =
+    "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"
+
+  fun niceToMeetYou(firstName: String, lastName: String): String =
+    "Приятно познакомиться, $firstName $lastName!\n"
+
+  fun notFoundInWhitelist(tgId: Long) =
+    "Ваш id не был добавлен в систему. Попросите администратора добавить вас по id $tgId. "
+
   const val greetings: String =
     "Привет! Я бот-помощник для управления образовательным процессом.\n" +
       "Я помогу тебе:\n" +

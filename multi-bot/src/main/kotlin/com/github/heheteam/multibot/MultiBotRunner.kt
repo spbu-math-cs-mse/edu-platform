@@ -11,15 +11,17 @@ import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
-import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
+import com.github.heheteam.teacherbot.StateRegister
+import com.github.heheteam.teacherbot.TeacherRunner
 import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -38,21 +40,21 @@ import org.jetbrains.exposed.sql.Database
 private const val HEARTBEAT_DELAY_SECONDS = 5
 
 class MultiBotRunner : CliktCommand() {
-  private val studentBotToken: String by option().required().help("student bot token")
-  private val teacherBotToken: String by option().required().help("teacher bot token")
-  private val adminBotToken: String by option().required().help("admin bot token")
-  private val parentBotToken: String by option().required().help("parent bot token")
+  private val configPath: String by option().required().help("path to the config file")
   private val useRedis: Boolean by option().boolean().default(false)
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
   private val enableSheets: Boolean by
     option("--enable-sheets").flag("--disable-sheets", default = true)
 
-  private val studentBotUsername: String by option().required().help("student bot username")
-
   override fun run() {
-    CourseStatisticsFormatter.studentBotUsername = studentBotUsername
+    val config = loadConfig(configPath)
+    val studentBotToken = config.botConfig.studentBotToken
+    val teacherBotToken = config.botConfig.teacherBotToken
+    val adminBotToken = config.botConfig.adminBotToken
+    val parentBotToken = config.botConfig.parentBotToken
 
-    val config = loadConfig()
+    CourseStatisticsFormatter.studentBotUsername = config.botConfig.studentBotUsername
+
     val database =
       Database.connect(
         config.databaseConfig.url,
@@ -60,6 +62,7 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.login,
         config.databaseConfig.password,
       )
+
     val googleSheetsService =
       if (enableSheets) {
         GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
@@ -101,19 +104,30 @@ class MultiBotRunner : CliktCommand() {
         adminBotTelegramController,
       )
 
-    val apis = apiFabric.createApis(initDatabase, useRedis, TeacherResolverKind.FIRST)
+    val apis =
+      apiFabric.createApis(
+        initDatabase,
+        useRedis,
+        TeacherResolverKind.FIRST,
+        config.botConfig.adminIds,
+      )
 
     runBlocking {
       launch { StudentRunner(studentBotToken, apis.studentApi).run() }
       launch {
         while (true) {
           val timestamp = LocalDateTime.now().toKotlinLocalDateTime()
-          val result = apis.studentApi.checkAndSentMessages(timestamp)
+          val result = apis.studentApi.checkAndSendMessages(timestamp)
           result.mapError {
             KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")
           }
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
         }
+      }
+      launch {
+        val stateRegister = StateRegister(apis.teacherApi)
+        val teacherRunner = TeacherRunner(teacherBotToken, stateRegister)
+        teacherRunner.execute()
       }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
       launch { parentRun(parentBotToken, apis.parentApi) }

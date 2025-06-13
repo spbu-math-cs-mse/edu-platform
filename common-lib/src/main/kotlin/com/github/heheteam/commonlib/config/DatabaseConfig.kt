@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.config
 
 data class DatabaseConfig(
   val url: String,

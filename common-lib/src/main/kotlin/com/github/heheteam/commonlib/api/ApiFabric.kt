@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.Config
 import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.config.Config
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -78,6 +78,7 @@ class ApiFabric(
     initDatabase: Boolean,
     useRedis: Boolean,
     teacherResolverKind: TeacherResolverKind,
+    adminIds: List<Long>,
   ): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
@@ -116,6 +117,7 @@ class ApiFabric(
       SubmissionDistributorDecorator(databaseSubmissionDistributor, ratingRecorder)
     val academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     val adminStorage = DatabaseAdminStorage(database)
+
     if (initDatabase) {
       fillWithSamples(
         courseStorage,
@@ -126,6 +128,8 @@ class ApiFabric(
         database,
       )
     }
+
+    adminIds.forEach { adminStorage.addTgIdToWhitelist(it) }
 
     val parentStorage = MockParentStorage()
     val botEventBus: BotEventBus =

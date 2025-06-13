@@ -37,7 +37,7 @@ open class IntegrationTestEnvironment {
   protected fun createDefaultApis() =
     ApiFabric(
         database,
-      googleSheetsService,
+        googleSheetsService,
         studentBotController,
         teacherBotController,
         adminBotController,

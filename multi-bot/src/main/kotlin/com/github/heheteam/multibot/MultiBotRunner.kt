@@ -91,7 +91,7 @@ class MultiBotRunner : CliktCommand() {
     val apiFabric =
       ApiFabric(
         database,
-          googleSheetsService,
+        googleSheetsService,
         studentBotTelegramController,
         teacherBotTelegramController,
         adminBotTelegramController,

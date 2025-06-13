@@ -13,6 +13,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.BeforeEach
@@ -33,7 +34,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 2 - message visibility via viewSentMessages`() {
+  fun `scenario 2 - message visibility via viewSentMessages`() = runTest {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course1 = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
@@ -65,7 +66,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 3 - message resolution before delivery`() {
+  fun `scenario 3 - message resolution before delivery`() = runTest {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
@@ -94,7 +95,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 3 - message resolution after delivery`() {
+  fun `scenario 3 - message resolution after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
@@ -126,7 +127,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 4 - message deletion and student message cleanup`() {
+  fun `scenario 4 - message deletion and student message cleanup`() = runTest {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val student1 = student("Student1", "Student1", 200L)
@@ -160,7 +161,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 5 - viewScheduledMessages filters by adminId`() {
+  fun `scenario 5 - viewScheduledMessages filters by adminId`() = runTest {
     buildData(createDefaultApis()) {
       val admin1 = admin("Admin1", "Admin1", 100L)
       val admin2 = admin("Admin2", "Admin2", 101L)
@@ -198,7 +199,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 6 - viewScheduledMessages filters by courseId`() {
+  fun `scenario 6 - viewScheduledMessages filters by courseId`() = runTest {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course1 = course("Course1")
@@ -237,7 +238,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   fun tgMsg(s: String) = TelegramMessageContent(s)
 
   @Test
-  fun `scenario 7 - viewScheduledMessages filters by adminId and courseId`() {
+  fun `scenario 7 - viewScheduledMessages filters by adminId and courseId`() = runTest {
     buildData(createDefaultApis()) {
       val admin1 = admin("Admin1", "Admin1", 100L)
       val admin2 = admin("Admin2", "Admin2", 101L)
@@ -258,7 +259,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scenario 8 - viewScheduledMessages with no filters returns all messages`() {
+  fun `scenario 8 - viewScheduledMessages with no filters returns all messages`() = runTest {
     buildData(createDefaultApis()) {
       val admin1 = admin("Admin1", "Admin1", 100L)
       val admin2 = admin("Admin2", "Admin2", 101L)
@@ -278,7 +279,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `deleted message is seen in recent scheduled messages`() {
+  fun `deleted message is seen in recent scheduled messages`() = runTest {
     buildData(createDefaultApis()) {
       val admin = admin("Admin2", "Admin2", 101L)
       val course = course("Course2")

@@ -37,16 +37,12 @@ open class IntegrationTestEnvironment {
   protected fun createDefaultApis() =
     ApiFabric(
         database,
-        config,
-        googleSheetsService,
+      googleSheetsService,
         studentBotController,
         teacherBotController,
         adminBotController,
       )
-      .createApis(
-        initDatabase = false,
-          teacherResolverKind = TeacherResolverKind.FIRST,
-      )
+      .createApis(initDatabase = false, teacherResolverKind = TeacherResolverKind.FIRST)
 
   @BeforeEach
   fun setup() {

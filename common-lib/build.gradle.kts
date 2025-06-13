@@ -8,7 +8,8 @@ val postgresDriverVersion: String by project
 dependencies {
 
     testImplementation("io.mockk:mockk:1.14.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    testImplementation(libs.kotlin.coro.core)
+    testImplementation(libs.kotlin.coro.test)
     testImplementation(kotlin("test"))
     implementation(libs.tgbotapi)
     implementation(libs.exposed.core)

@@ -21,7 +21,6 @@ import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 
@@ -199,6 +198,6 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     )
 }
 
-fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) = runBlocking {
+suspend fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) {
   TestDataBuilder(apis).block()
 }

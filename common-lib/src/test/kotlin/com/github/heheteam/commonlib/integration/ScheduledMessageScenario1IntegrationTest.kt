@@ -20,6 +20,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.BeforeEach
@@ -99,7 +100,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scheduled message is initially not sent`() {
+  fun `scheduled message is initially not sent`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
       val scheduledTimestamp = at(1.minutes)
@@ -111,7 +112,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scheduled message is marked as sent after delivery`() {
+  fun `scheduled message is marked as sent after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
       val scheduledTimestamp = at(1.minutes)
@@ -130,7 +131,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `students receive scheduled message after delivery`() {
+  fun `students receive scheduled message after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
       val scheduledTimestamp = at(1.minutes)

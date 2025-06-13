@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.Config
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
@@ -66,17 +65,13 @@ enum class TeacherResolverKind {
 
 class ApiFabric(
   private val database: Database,
-  private val config: Config,
   private val googleSheetsService: GoogleSheetsService,
   private val studentBotTelegramController: StudentBotTelegramController,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val adminBotTelegramController: AdminBotTelegramController,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
-  fun createApis(
-    initDatabase: Boolean,
-    teacherResolverKind: TeacherResolverKind,
-  ): ApiCollection {
+  fun createApis(initDatabase: Boolean, teacherResolverKind: TeacherResolverKind): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =

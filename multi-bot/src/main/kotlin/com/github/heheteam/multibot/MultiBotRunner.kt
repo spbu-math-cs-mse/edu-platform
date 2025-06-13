@@ -1,7 +1,6 @@
 package com.github.heheteam.multibot
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
@@ -92,8 +91,7 @@ class MultiBotRunner : CliktCommand() {
     val apiFabric =
       ApiFabric(
         database,
-        config,
-        googleSheetsService,
+          googleSheetsService,
         studentBotTelegramController,
         teacherBotTelegramController,
         adminBotTelegramController,

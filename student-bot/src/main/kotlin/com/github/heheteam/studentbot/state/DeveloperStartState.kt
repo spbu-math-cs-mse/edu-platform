@@ -30,7 +30,10 @@ class DeveloperStartState(override val context: User) : BotState<StudentId?, Str
       ?.toStudentId()
   }
 
-  override suspend fun computeNewState(service: StudentApi, input: StudentId?): Pair<State, String> =
+  override suspend fun computeNewState(
+    service: StudentApi,
+    input: StudentId?,
+  ): Pair<State, String> =
     binding {
         val studentId = input.toResultOr { Dialogues.devIdIsNotLong }.bind()
         service.loginById(studentId).mapError { Dialogues.devIdNotFound }.bind()

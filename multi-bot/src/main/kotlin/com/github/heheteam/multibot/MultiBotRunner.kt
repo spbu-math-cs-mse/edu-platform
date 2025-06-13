@@ -20,6 +20,8 @@ import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
+import com.github.heheteam.teacherbot.StateRegister
+import com.github.heheteam.teacherbot.TeacherRunner
 import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.LogLevel
@@ -115,6 +117,7 @@ class MultiBotRunner : CliktCommand() {
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
         }
       }
+      launch { TeacherRunner(teacherBotToken, StateRegister(apis.teacherApi)).run() }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
       launch { parentRun(parentBotToken, apis.parentApi) }
     }

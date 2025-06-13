@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 class TeacherRunner(private val botToken: String, private val stateRegister: StateRegister) {
-  suspend fun execute() {
+  suspend fun run() {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
         CoroutineScope(Dispatchers.IO),

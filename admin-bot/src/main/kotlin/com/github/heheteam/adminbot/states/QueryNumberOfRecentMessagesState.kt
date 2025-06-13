@@ -42,7 +42,7 @@ data class QueryNumberOfRecentMessagesState(
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
-  override fun computeNewState(service: AdminApi, input: String): Pair<State, String> {
+  override suspend fun computeNewState(service: AdminApi, input: String): Pair<State, String> {
     val number = input.toIntOrNull()
     return if (number == null || number <= 0 || number > MAXIMUM_SCHEDULED_MSGS_DISPLAYED) {
       QueryNumberOfRecentMessagesState(context, adminId, courseId) to

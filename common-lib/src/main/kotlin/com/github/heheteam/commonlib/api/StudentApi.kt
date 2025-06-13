@@ -40,7 +40,7 @@ internal constructor(
   private val courseTokenStorage: CourseTokenStorage,
   private val scheduledMessageDeliveryService: ScheduledMessageDeliveryService, // New dependency
 ) {
-  fun checkAndSentMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
+  suspend fun checkAndSentMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
     scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
 
   fun getGradingForAssignment(
@@ -60,8 +60,9 @@ internal constructor(
   fun applyForCourse(studentId: StudentId, courseId: CourseId) =
     courseStorage.addStudentToCourse(studentId, courseId)
 
-  fun inputSubmission(submissionInputRequest: SubmissionInputRequest): SubmissionSendingResult =
-    academicWorkflowService.sendSubmission(submissionInputRequest)
+  suspend fun inputSubmission(
+    submissionInputRequest: SubmissionInputRequest
+  ): SubmissionSendingResult = academicWorkflowService.sendSubmission(submissionInputRequest)
 
   fun getProblemsFromAssignment(
     assignmentId: AssignmentId
@@ -92,7 +93,7 @@ internal constructor(
   ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
 
-  fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
+  suspend fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
     personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline)
 
   fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =

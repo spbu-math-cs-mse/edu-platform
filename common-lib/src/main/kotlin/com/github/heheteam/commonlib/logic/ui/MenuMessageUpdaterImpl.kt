@@ -12,40 +12,39 @@ import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class MenuMessageUpdaterImpl
 internal constructor(
   private val technicalMessageStorage: TelegramTechnicalMessagesStorage,
   private val teacherBotTelegramController: TeacherBotTelegramController,
 ) : MenuMessageUpdater {
-  override fun updateMenuMessageInPersonalChat(
+  override suspend fun updateMenuMessageInPersonalChat(
     teacherId: TeacherId
-  ): Result<Unit, EduPlatformError> =
-    runBlocking(Dispatchers.IO) {
-      return@runBlocking coroutineBinding {
-        val menuMessages = technicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
-        deleteMenuMessages(menuMessages)
-        val (chatId, messageId) =
-          technicalMessageStorage.resolveTeacherFirstUncheckedSubmissionMessage(teacherId).bind()
-        val menuMessage =
-          if (messageId != null) {
-              teacherBotTelegramController.sendMenuMessage(
-                chatId,
-                TelegramMessageInfo(chatId, messageId),
-              )
-            } else {
-              teacherBotTelegramController.sendMenuMessage(chatId, null)
-            }
-            .bind()
-        technicalMessageStorage.updateTeacherMenuMessage(
-          TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
-        )
-      }
-    }
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    val menuMessages = technicalMessageStorage.resolveTeacherMenuMessage(teacherId).bind()
+    deleteMenuMessages(menuMessages)
+    val (chatId, messageId) =
+      technicalMessageStorage.resolveTeacherFirstUncheckedSubmissionMessage(teacherId).bind()
+    val menuMessage =
+      if (messageId != null) {
+          teacherBotTelegramController.sendMenuMessage(
+            chatId,
+            TelegramMessageInfo(chatId, messageId),
+          )
+        } else {
+          teacherBotTelegramController.sendMenuMessage(chatId, null)
+        }
+        .bind()
+    technicalMessageStorage.updateTeacherMenuMessage(
+      TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)
+    )
+  }
 
-  override fun updateMenuMessageInGroupChat(courseId: CourseId): Result<Unit, EduPlatformError> =
-    runBlocking(Dispatchers.IO) {
+  override suspend fun updateMenuMessageInGroupChat(
+    courseId: CourseId
+  ): Result<Unit, EduPlatformError> =
+    withContext(Dispatchers.IO) {
       coroutineBinding {
         val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
         deleteMenuMessages(menuMessages)

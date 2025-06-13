@@ -65,8 +65,7 @@ data class ConfirmDeleteMessageState(
           context.id,
           "Не удалось найти сообщение с ID ${scheduledMessageId.long} или оно уже удалено.",
         )
-        // Transition to MenuState immediately if message not found
-        computeNewState(service, false) // Simulate 'No' to go to MenuState
+        computeNewState(service, false)
       },
     )
   }
@@ -90,7 +89,7 @@ data class ConfirmDeleteMessageState(
     +"Вы уверены, что хотите удалить это сообщение?"
   }
 
-  override fun computeNewState(service: AdminApi, input: Boolean): Pair<State, String> {
+  override suspend fun computeNewState(service: AdminApi, input: Boolean): Pair<State, String> {
     return if (input) {
       PerformDeleteMessageState(context, adminId, scheduledMessageId) to "Удаление сообщения..."
     } else {

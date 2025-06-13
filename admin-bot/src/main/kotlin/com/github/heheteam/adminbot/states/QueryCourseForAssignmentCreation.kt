@@ -9,7 +9,7 @@ import dev.inmo.tgbotapi.types.chat.User
 
 data class QueryCourseForAssignmentCreation(override val context: User, val adminIdPrime: AdminId) :
   QueryCourseState(context, adminIdPrime), BotStateWithHandlers<Course?, Unit, AdminApi> {
-  override fun computeNewState(service: AdminApi, input: Course?): Pair<State, Unit> =
+  override suspend fun computeNewState(service: AdminApi, input: Course?): Pair<State, Unit> =
     if (input != null) CreateAssignmentState(context, adminId, input) to Unit
     else {
       MenuState(context, adminId) to Unit

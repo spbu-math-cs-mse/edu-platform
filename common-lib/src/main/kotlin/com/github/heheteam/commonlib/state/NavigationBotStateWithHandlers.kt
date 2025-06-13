@@ -40,7 +40,7 @@ abstract class NavigationBotStateWithHandlers<Service> :
     }
   }
 
-  override fun computeNewState(service: Service, input: State?): Pair<State, Unit> =
+  override suspend fun computeNewState(service: Service, input: State?): Pair<State, Unit> =
     if (input != null) input to Unit else menuState() to Unit
 
   override suspend fun sendResponse(

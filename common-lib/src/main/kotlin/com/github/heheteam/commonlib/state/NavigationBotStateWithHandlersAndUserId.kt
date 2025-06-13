@@ -2,7 +2,6 @@ package com.github.heheteam.commonlib.state
 
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -47,7 +46,7 @@ abstract class NavigationBotStateWithHandlersAndUserId<Service, UserId> :
     }
   }
 
-  override fun computeNewState(service: Service, input: State?): Pair<State, Unit> =
+  override suspend fun computeNewState(service: Service, input: State?): Pair<State, Unit> =
     if (input != null) input to Unit else menuState() to Unit
 
   override suspend fun sendResponse(bot: BehaviourContext, service: Service, response: Unit) = Unit
@@ -61,6 +60,3 @@ abstract class NavigationBotStateWithHandlersAndUserId<Service, UserId> :
 
 abstract class NavigationBotStateWithHandlersAndStudentId<Service> :
   NavigationBotStateWithHandlersAndUserId<Service, StudentId>()
-
-abstract class NavigationBotStateWithHandlersAndTeacherId<Service> :
-  NavigationBotStateWithHandlersAndUserId<Service, TeacherId>()

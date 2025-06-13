@@ -16,7 +16,7 @@ class PresetTeacherState(override val context: User, private val teacherId: Teac
   State, BotState<Unit, Result<List<Course>, EduPlatformError>, TeacherApi> {
   override suspend fun readUserInput(bot: BehaviourContext, service: TeacherApi) = Unit
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: TeacherApi,
     input: Unit,
   ): Pair<State, Result<List<Course>, EduPlatformError>> {

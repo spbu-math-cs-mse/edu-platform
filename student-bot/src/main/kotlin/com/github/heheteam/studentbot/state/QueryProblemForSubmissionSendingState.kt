@@ -81,7 +81,7 @@ class QueryProblemForSubmissionSendingState(
     return UserInput(problem)
   }
 
-  override fun computeNewState(service: StudentApi, input: Problem?): Pair<State, Unit> {
+  override suspend fun computeNewState(service: StudentApi, input: Problem?): Pair<State, Unit> {
     return if (input != null) SendSubmissionState(context, userId, input) to Unit
     else {
       MenuState(context, userId) to Unit

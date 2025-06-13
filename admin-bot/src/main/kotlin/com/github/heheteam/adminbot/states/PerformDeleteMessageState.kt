@@ -39,7 +39,7 @@ data class PerformDeleteMessageState(
     )
   }
 
-  override fun computeNewState(service: AdminApi, input: Unit): Pair<State, String> {
+  override suspend fun computeNewState(service: AdminApi, input: Unit): Pair<State, String> {
     return MenuState(context, adminId) to "" // Always return to menu after attempt
   }
 

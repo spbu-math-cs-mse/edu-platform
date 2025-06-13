@@ -83,7 +83,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
     }
   }
 
-  override fun computeNewState(service: StudentApi, input: State): Pair<State, Unit> {
+  override suspend fun computeNewState(service: StudentApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 

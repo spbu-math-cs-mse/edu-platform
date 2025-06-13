@@ -43,7 +43,7 @@ data class RandomActivityState(override val context: User, override val userId: 
     }
   }
 
-  override fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
+  override suspend fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
     MenuState(context, userId) to Unit
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) {

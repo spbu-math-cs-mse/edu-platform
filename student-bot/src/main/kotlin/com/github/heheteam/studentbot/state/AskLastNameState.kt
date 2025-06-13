@@ -23,7 +23,7 @@ class AskLastNameState(
   private val firstName: String,
   private val token: String?,
 ) : BotStateWithHandlers<StudentId, Unit, StudentApi> {
-  override fun computeNewState(service: StudentApi, input: StudentId): Pair<State, Unit> {
+  override suspend fun computeNewState(service: StudentApi, input: StudentId): Pair<State, Unit> {
     return MenuState(context, input) to Unit
   }
 

@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.Config
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
@@ -42,7 +41,6 @@ import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
-import com.github.heheteam.commonlib.notifications.RedisBotEventBus
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -67,18 +65,13 @@ enum class TeacherResolverKind {
 
 class ApiFabric(
   private val database: Database,
-  private val config: Config,
   private val googleSheetsService: GoogleSheetsService,
   private val studentBotTelegramController: StudentBotTelegramController,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val adminBotTelegramController: AdminBotTelegramController,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
-  fun createApis(
-    initDatabase: Boolean,
-    useRedis: Boolean,
-    teacherResolverKind: TeacherResolverKind,
-  ): ApiCollection {
+  fun createApis(initDatabase: Boolean, teacherResolverKind: TeacherResolverKind): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
@@ -128,9 +121,7 @@ class ApiFabric(
     }
 
     val parentStorage = MockParentStorage()
-    val botEventBus: BotEventBus =
-      if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
-      else ObserverBus()
+    val botEventBus: BotEventBus = ObserverBus()
 
     botEventBus.subscribeToMovingDeadlineEvents { chatId, newDeadline ->
       studentBotTelegramController.notifyStudentOnDeadlineRescheduling(chatId, newDeadline)

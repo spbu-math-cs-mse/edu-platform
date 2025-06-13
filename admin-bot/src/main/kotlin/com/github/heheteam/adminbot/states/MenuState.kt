@@ -69,7 +69,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
     }
   }
 
-  override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
+  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 

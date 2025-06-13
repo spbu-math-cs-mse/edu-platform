@@ -26,13 +26,12 @@ class EditDescriptionState(
     return message.content.text
   }
 
-  override fun computeNewState(service: Unit, input: String): Pair<State, String?> {
+  override suspend fun computeNewState(service: Unit, input: String): Pair<State, String?> {
     val response =
       when {
         input == "/stop" -> null
         else -> {
-          //        course.name = answer TODO: implement this feature
-          "Описание курса ${courseName} успешно обновлено"
+          "Описание курса ${courseName} не обновлено, операция пока не поддержана"
         }
       }
     return Pair(MenuState(context, adminId), response)

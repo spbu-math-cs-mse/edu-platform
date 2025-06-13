@@ -1,12 +1,10 @@
 package com.github.heheteam.multibot
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
@@ -44,7 +42,6 @@ class MultiBotRunner : CliktCommand() {
   private val teacherBotToken: String by option().required().help("teacher bot token")
   private val adminBotToken: String by option().required().help("admin bot token")
   private val parentBotToken: String by option().required().help("parent bot token")
-  private val useRedis: Boolean by option().boolean().default(false)
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
   private val enableSheets: Boolean by
     option("--enable-sheets").flag("--disable-sheets", default = true)
@@ -96,14 +93,13 @@ class MultiBotRunner : CliktCommand() {
     val apiFabric =
       ApiFabric(
         database,
-        config,
         googleSheetsService,
         studentBotTelegramController,
         teacherBotTelegramController,
         adminBotTelegramController,
       )
 
-    val apis = apiFabric.createApis(initDatabase, useRedis, TeacherResolverKind.FIRST)
+    val apis = apiFabric.createApis(initDatabase, TeacherResolverKind.FIRST)
 
     runBlocking {
       launch { StudentRunner(studentBotToken, apis.studentApi).run() }

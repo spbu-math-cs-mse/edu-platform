@@ -59,7 +59,7 @@ data class QueryAssignmentForCheckingGradesState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: StudentApi,
     input: Assignment?,
   ): Pair<State, Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?> =

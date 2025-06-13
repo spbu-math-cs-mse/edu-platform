@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
-import com.github.heheteam.commonlib.util.AnyMessageHandler
+import com.github.heheteam.commonlib.util.AnyMessageSuspendableHandler
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.delete
@@ -47,7 +47,6 @@ import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 
@@ -95,7 +94,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
 
   private fun createMessagesHandlers(
     bot: TelegramBot
-  ): List<AnyMessageHandler<TeacherAction, MessageError>> =
+  ): List<AnyMessageSuspendableHandler<TeacherAction, MessageError>> =
     listOf(
       { tryHandleSetIdCommand(it) },
       { tryHandleMenuCommand(it) },
@@ -204,22 +203,20 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     } else null
   }
 
-  private fun tryParseGradingReplyWithoutChecking(
+  private suspend fun tryParseGradingReplyWithoutChecking(
     commonMessage: CommonMessage<*>,
     teacherBotToken: String,
     telegramBot: TelegramBot,
-  ): Result<HandlerResult<TeacherAction>, MessageError> = runBlocking {
-    coroutineBinding {
-      val technicalMessageText =
-        extractReplyText(commonMessage).mapError { NotReplyOrReplyNotToTextMessage }.bind()
-      val submissionId =
-        parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSubmission }.bind()
-      val assessment =
-        extractAssessmentFromMessage(commonMessage, teacherBotToken, telegramBot)
-          .mapError { BadAssessment(it) }
-          .bind()
-      ActionWrapper(GradingFromReply(submissionId, assessment))
-    }
+  ): Result<HandlerResult<TeacherAction>, MessageError> = coroutineBinding {
+    val technicalMessageText =
+      extractReplyText(commonMessage).mapError { NotReplyOrReplyNotToTextMessage }.bind()
+    val submissionId =
+      parseTechnicalMessageContent(technicalMessageText).mapError { ReplyNotToSubmission }.bind()
+    val assessment =
+      extractAssessmentFromMessage(commonMessage, teacherBotToken, telegramBot)
+        .mapError { BadAssessment(it) }
+        .bind()
+    ActionWrapper(GradingFromReply(submissionId, assessment))
   }
 }
 

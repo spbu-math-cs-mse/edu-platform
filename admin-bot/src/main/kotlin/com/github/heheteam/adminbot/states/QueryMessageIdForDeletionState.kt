@@ -18,7 +18,6 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.buildEntities
-import kotlinx.coroutines.runBlocking
 
 data class QueryMessageIdForDeletionState(override val context: User, val adminId: AdminId) :
   BotStateWithHandlers<String, String, AdminApi> {
@@ -37,14 +36,13 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
-  override fun computeNewState(service: AdminApi, input: String): Pair<State, String> =
+  override suspend fun computeNewState(service: AdminApi, input: String): Pair<State, String> =
     binding {
         val messageIdLong =
           input.toLongOrNull().toResultOr { NamedError("Invalid message ID format") }.bind()
         val scheduledMessageId = messageIdLong.toScheduledMessageId()
 
-        // Check if the message exists and is not already deleted
-        val message = runBlocking { service.resolveScheduledMessage(scheduledMessageId) }.bind()
+        val message = service.resolveScheduledMessage(scheduledMessageId).bind()
         if (message.isDeleted) {
           return@binding MenuState(context, adminId) to "Сообщение с таким ID уже удалено."
         }

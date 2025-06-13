@@ -93,7 +93,7 @@ class ConfirmScheduledMessageState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: Result<Boolean, EduPlatformError>,
   ): Pair<State, EduPlatformError?> {

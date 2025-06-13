@@ -4,5 +4,8 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 
 interface UiController {
-  fun updateUiOnSubmissionAssessment(submissionId: SubmissionId, assessment: SubmissionAssessment)
+  suspend fun updateUiOnSubmissionAssessment(
+    submissionId: SubmissionId,
+    assessment: SubmissionAssessment,
+  )
 }

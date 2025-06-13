@@ -45,8 +45,7 @@ open class IntegrationTestEnvironment {
       )
       .createApis(
         initDatabase = false,
-        useRedis = false,
-        teacherResolverKind = TeacherResolverKind.FIRST,
+          teacherResolverKind = TeacherResolverKind.FIRST,
       )
 
   @BeforeEach

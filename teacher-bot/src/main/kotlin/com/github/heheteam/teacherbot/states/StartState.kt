@@ -17,7 +17,7 @@ class StartState(override val context: User) : BotState<TeacherId?, String?, Tea
     return service.loginByTgId(context.id).get()?.id
   }
 
-  override fun computeNewState(service: TeacherApi, input: TeacherId?): Pair<State, String?> =
+  override suspend fun computeNewState(service: TeacherApi, input: TeacherId?): Pair<State, String?> =
     if (input != null) {
       MenuState(context, input) to Dialogues.greetings
     } else {

@@ -7,7 +7,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 interface BotState<In, Out, HelperService> : State {
   suspend fun readUserInput(bot: BehaviourContext, service: HelperService): In
 
-  fun computeNewState(service: HelperService, input: In): Pair<State, Out>
+  suspend fun computeNewState(service: HelperService, input: In): Pair<State, Out>
 
   suspend fun sendResponse(bot: BehaviourContext, service: HelperService, response: Out)
 

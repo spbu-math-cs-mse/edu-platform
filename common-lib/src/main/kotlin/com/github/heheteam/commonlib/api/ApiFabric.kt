@@ -42,7 +42,6 @@ import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
 import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
-import com.github.heheteam.commonlib.notifications.RedisBotEventBus
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -76,7 +75,6 @@ class ApiFabric(
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
   fun createApis(
     initDatabase: Boolean,
-    useRedis: Boolean,
     teacherResolverKind: TeacherResolverKind,
   ): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
@@ -128,9 +126,7 @@ class ApiFabric(
     }
 
     val parentStorage = MockParentStorage()
-    val botEventBus: BotEventBus =
-      if (useRedis) RedisBotEventBus(config.redisConfig.host, config.redisConfig.port)
-      else ObserverBus()
+    val botEventBus: BotEventBus = ObserverBus()
 
     botEventBus.subscribeToMovingDeadlineEvents { chatId, newDeadline ->
       studentBotTelegramController.notifyStudentOnDeadlineRescheduling(chatId, newDeadline)

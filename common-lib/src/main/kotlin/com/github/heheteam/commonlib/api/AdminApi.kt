@@ -80,7 +80,7 @@ internal constructor(
   ): Result<Unit, EduPlatformError> =
     scheduledMessagesDistributor.deleteScheduledMessage(scheduledMessageId)
 
-  fun moveAllDeadlinesForStudent(
+  suspend fun moveAllDeadlinesForStudent(
     studentId: StudentId,
     newDeadline: kotlinx.datetime.LocalDateTime,
   ) {

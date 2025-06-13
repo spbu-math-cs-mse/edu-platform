@@ -24,7 +24,7 @@ class DeveloperStartState(override val context: User, val adminId: AdminId? = 1L
     return bot.waitTextMessageWithUser(context.id).first().content.text.toLongOrNull()?.toAdminId()
   }
 
-  override fun computeNewState(service: AdminApi, input: AdminId?): Pair<State, String> =
+  override suspend fun computeNewState(service: AdminApi, input: AdminId?): Pair<State, String> =
     binding {
         val adminId = input.toResultOr { Dialogues.devIdIsNotLong }.bind()
         //        service.loginById(adminId).mapError { Dialogues.devIdNotFound }.bind()

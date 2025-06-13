@@ -15,7 +15,7 @@ data class RescheduleDeadlinesState(override val context: User, val userId: Stud
     bot.send(context, "Отправляю запрос на перенос дедлайнов...")
   }
 
-  override fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> {
+  override suspend fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> {
     val newDeadline =
       java.time.ZonedDateTime.now().plusMinutes(2).toLocalDateTime().toKotlinLocalDateTime()
     service.requestReschedulingDeadlines(userId, newDeadline)

@@ -150,11 +150,11 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     return assessment
   }
 
-  fun movingDeadlinesRequest(student: Student, newDeadline: LocalDateTime) {
+  suspend fun movingDeadlinesRequest(student: Student, newDeadline: LocalDateTime) {
     apis.studentApi.requestReschedulingDeadlines(student.id, newDeadline)
   }
 
-  fun moveDeadlines(student: Student, newDeadline: LocalDateTime) {
+  suspend fun moveDeadlines(student: Student, newDeadline: LocalDateTime) {
     apis.adminApi.moveAllDeadlinesForStudent(student.id, newDeadline)
   }
 

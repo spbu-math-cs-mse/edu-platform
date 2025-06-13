@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 
 class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventBus {
@@ -37,15 +36,15 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
       }
     }
 
-  override fun publishNewSubmissionEvent(submission: Submission) =
-    newSubmissionHandlers.forEach { runBlocking { it.invoke(submission) } }
+  override suspend fun publishNewSubmissionEvent(submission: Submission) =
+    newSubmissionHandlers.forEach { it.invoke(submission) }
 
-  override fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime) {
-    newDeadlineRequestHandlers.forEach { runBlocking { it.invoke(studentId, newDeadline) } }
+  override suspend fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime) {
+    newDeadlineRequestHandlers.forEach { it.invoke(studentId, newDeadline) }
   }
 
-  override fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime) {
-    movingDeadlineHandlers.forEach { runBlocking { it.invoke(chatId, newDeadline) } }
+  override suspend fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime) {
+    movingDeadlineHandlers.forEach { it.invoke(chatId, newDeadline) }
   }
 
   override fun subscribeToNewSubmissionEvent(handler: suspend (Submission) -> Unit) {

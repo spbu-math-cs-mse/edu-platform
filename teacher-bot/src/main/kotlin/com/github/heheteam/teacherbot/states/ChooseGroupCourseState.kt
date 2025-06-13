@@ -34,7 +34,7 @@ class ChooseGroupCourseState(override val context: Chat) :
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: TeacherApi,
     input: CourseId?,
   ): Pair<State, Result<Course, CourseIdError>> {

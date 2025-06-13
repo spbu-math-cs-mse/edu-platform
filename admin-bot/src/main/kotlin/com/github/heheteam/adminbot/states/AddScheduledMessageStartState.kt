@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.michaelbull.result.Result
@@ -47,7 +48,7 @@ class AddScheduledMessageStartState(
     sentMessages.add(introMessage)
   }
 
-  override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
+  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
     return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit)
   }
 
@@ -55,7 +56,7 @@ class AddScheduledMessageStartState(
     bot: BehaviourContext,
     service: AdminApi,
     initUpdateHandlers:
-      (UpdateHandlersController<BehaviourContext.() -> Unit, State, EduPlatformError>, User) -> Unit,
+      (UpdateHandlersController<SuspendableBotAction, State, EduPlatformError>, User) -> Unit,
   ): State {
     return QueryScheduledMessageContentState(context, course, adminId)
   }

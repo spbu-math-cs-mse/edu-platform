@@ -67,7 +67,7 @@ class ConfirmSubmissionState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: StudentApi,
     input: Boolean,
   ): Pair<State, SubmissionSendingResult?> {

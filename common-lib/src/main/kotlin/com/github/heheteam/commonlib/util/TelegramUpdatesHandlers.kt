@@ -38,3 +38,6 @@ typealias TextMessageHandler<T, Err> =
   (CommonMessage<TextContent>) -> Result<HandlerResult<T>, Err>?
 
 typealias AnyMessageHandler<T, Err> = (CommonMessage<*>) -> Result<HandlerResult<T>, Err>?
+
+typealias AnyMessageSuspendableHandler<T, Err> =
+  suspend (CommonMessage<*>) -> Result<HandlerResult<T>, Err>?

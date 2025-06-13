@@ -46,7 +46,7 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: String,
   ): Pair<State, CreateCourseResponse?> {

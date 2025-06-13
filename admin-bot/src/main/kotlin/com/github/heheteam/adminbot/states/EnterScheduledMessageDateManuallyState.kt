@@ -77,7 +77,7 @@ class EnterScheduledMessageDateManuallyState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: Result<LocalDate, EduPlatformError>,
   ): Pair<State, EduPlatformError?> {

@@ -72,7 +72,7 @@ class QueryScheduledMessageContentState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: Result<ScheduledMessageTextField, EduPlatformError>,
   ): Pair<State, Unit> {

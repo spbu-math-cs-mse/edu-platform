@@ -62,9 +62,9 @@ class TestDataBuilder(internal val apis: ApiCollection) {
       }
       .value
 
-  fun course(name: String, setup: CourseContext.() -> Unit = {}): Course {
+  suspend fun course(name: String, setup: suspend CourseContext.() -> Unit = {}): Course {
     val courseId = apis.adminApi.createCourse(name).value
-    CourseContext(courseId).apply(setup)
+    setup.invoke(CourseContext(courseId))
     val course = apis.adminApi.getCourse(name).value!!
     return course
   }
@@ -112,7 +112,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     }
   }
 
-  fun submission(student: Student, problem: Problem, content: String): Submission {
+  suspend fun submission(student: Student, problem: Problem, content: String): Submission {
     val submissionInputRequest =
       SubmissionInputRequest(
         studentId = student.id,
@@ -135,7 +135,11 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     )
   }
 
-  fun assessment(teacher: Teacher, submission: Submission, grade: Int): SubmissionAssessment {
+  suspend fun assessment(
+    teacher: Teacher,
+    submission: Submission,
+    grade: Int,
+  ): SubmissionAssessment {
     val assessment = SubmissionAssessment(grade, TextWithMediaAttachments())
     apis.teacherApi.assessSubmission(
       submissionId = submission.id,
@@ -172,7 +176,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.resolveScheduledMessage(scheduledMessageId)
 
-  fun checkAndSentMessages(timestamp: LocalDateTime) =
+  suspend fun checkAndSentMessages(timestamp: LocalDateTime) =
     apis.studentApi.checkAndSentMessages(timestamp)
 
   fun viewRecordedMessages(adminId: AdminId? = null, courseId: CourseId? = null, limit: Int = 5) =

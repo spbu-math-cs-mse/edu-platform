@@ -18,10 +18,10 @@ import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.runCatching
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
@@ -37,7 +37,7 @@ class DatabaseScheduledMessagesDistributor(
   private val sentMessageLogStorage: SentMessageLogStorage,
   private val studentBotTelegramController: StudentBotTelegramController,
 ) : ScheduledMessagesDistributor {
-  override fun sendScheduledMessage(
+  override fun storeScheduledMessage(
     adminId: AdminId,
     messageInfo: NewScheduledMessageInfo,
   ): Result<ScheduledMessageId, EduPlatformError> =
@@ -115,7 +115,7 @@ class DatabaseScheduledMessagesDistributor(
 
   override suspend fun deleteScheduledMessage(
     scheduledMessageId: ScheduledMessageId
-  ): Result<Unit, EduPlatformError> = binding {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val updatedRows =
       runCatching {
           transaction(database) {
@@ -132,15 +132,13 @@ class DatabaseScheduledMessagesDistributor(
     } else {
       val sentLogs = sentMessageLogStorage.getSentMessageLogs(scheduledMessageId).bind()
       sentLogs.forEach { log ->
-        runBlocking {
-            studentBotTelegramController.deleteMessage(log.chatId, log.telegramMessageId)
-          }
-          .onFailure { error ->
-            println(
-              "Failed to delete Telegram message for scheduled message " +
-                "${scheduledMessageId.long}, log ${log.logId}: ${error.shortDescription}"
-            )
-          }
+        studentBotTelegramController.deleteMessage(log.chatId, log.telegramMessageId).onFailure {
+          error ->
+          println(
+            "Failed to delete Telegram message for scheduled message " +
+              "${scheduledMessageId.long}, log ${log.logId}: ${error.shortDescription}"
+          )
+        }
       }
     }
   }

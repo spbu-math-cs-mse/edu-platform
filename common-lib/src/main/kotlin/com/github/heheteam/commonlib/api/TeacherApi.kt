@@ -27,7 +27,7 @@ internal constructor(
   fun setCourseGroup(courseId: CourseId, chatId: RawChatId): Result<Unit, ResolveError<CourseId>> =
     courseStorage.setCourseGroup(courseId, chatId)
 
-  fun assessSubmission(
+  suspend fun assessSubmission(
     submissionId: SubmissionId,
     teacherId: TeacherId,
     submissionAssessment: SubmissionAssessment,
@@ -58,9 +58,9 @@ internal constructor(
   fun updateTgId(teacherId: TeacherId, id: UserId): Result<Unit, ResolveError<TeacherId>> =
     teacherStorage.updateTgId(teacherId, id)
 
-  fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, EduPlatformError> =
+  suspend fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, EduPlatformError> =
     menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
 
-  fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, EduPlatformError> =
+  suspend fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, EduPlatformError> =
     menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
 }

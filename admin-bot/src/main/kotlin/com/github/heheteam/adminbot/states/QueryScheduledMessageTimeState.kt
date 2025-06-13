@@ -79,7 +79,7 @@ class QueryScheduledMessageTimeState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: Result<LocalTime, EduPlatformError>,
   ): Pair<State, EduPlatformError?> {

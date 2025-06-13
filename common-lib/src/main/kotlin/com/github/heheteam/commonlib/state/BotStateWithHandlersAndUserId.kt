@@ -33,7 +33,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
     updateHandlersController: UpdateHandlersController<() -> Unit, In, Any>,
   ): Result<Unit, EduPlatformError>
 
-  fun computeNewState(service: ApiService, input: In): Pair<State, Out>
+  suspend fun computeNewState(service: ApiService, input: In): Pair<State, Out>
 
   /** The state to fallback to in case of an error */
   fun defaultState(): State

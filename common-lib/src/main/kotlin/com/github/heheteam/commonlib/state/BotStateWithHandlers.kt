@@ -15,8 +15,10 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
 
+typealias SuspendableBotAction = suspend BehaviourContext.() -> Unit
+
 typealias UpdateHandlerManager<In> =
-  UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>
+  UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>
 
 interface BotStateWithHandlers<In, Out, ApiService> : State {
   override val context: User
@@ -29,7 +31,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     updateHandlersController: UpdateHandlerManager<In>,
   ): Result<Unit, EduPlatformError>
 
-  fun computeNewState(service: ApiService, input: In): Pair<State, Out>
+  suspend fun computeNewState(service: ApiService, input: In): Pair<State, Out>
 
   suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out, input: In)
 
@@ -40,13 +42,13 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     service: ApiService,
     initUpdateHandlers:
       (
-        UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>, context: User,
+        UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>, context: User,
       ) -> Unit =
       { _, _ ->
       },
   ): State {
     val updateHandlersController =
-      UpdateHandlersController<BehaviourContext.() -> Unit, In, EduPlatformError>()
+      UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>()
     initUpdateHandlers(updateHandlersController, context)
     val error = intro(bot, service, updateHandlersController).getError()
     if (error != null) {
@@ -55,7 +57,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
-        is ActionWrapper<BehaviourContext.() -> Unit> -> handlerResult.action.invoke(bot)
+        is ActionWrapper<SuspendableBotAction> -> handlerResult.action.invoke(bot)
         is HandlingError<EduPlatformError> -> {
           bot.send(context.id, handlerResult.error.toStackedString())
         }
@@ -79,8 +81,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
-      context: User,
+      UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>, context: User,
     ) -> Unit =
     { _, _ ->
     },

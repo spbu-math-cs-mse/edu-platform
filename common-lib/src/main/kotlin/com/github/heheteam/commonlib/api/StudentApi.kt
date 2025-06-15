@@ -19,7 +19,7 @@ import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
-import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
+import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -38,9 +38,9 @@ internal constructor(
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val studentStorage: StudentStorage,
   private val courseTokenStorage: CourseTokenStorage,
-  private val scheduledMessageDeliveryService: ScheduledMessageDeliveryService, // New dependency
+  private val scheduledMessageDeliveryService: ScheduledMessageService, // New dependency
 ) {
-  suspend fun checkAndSentMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
+  suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
     scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
 
   fun getGradingForAssignment(

@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesDistributor
+import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesStorage
 import com.github.heheteam.commonlib.database.DatabaseSentMessageLogStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
+import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import io.mockk.mockk
 import kotlin.test.AfterTest
@@ -40,10 +41,16 @@ class AdminBotTest {
   init {
     val problemStorage = DatabaseProblemStorage(database)
     val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
+    val courseStorage = DatabaseCourseStorage(database)
     core =
       AdminApi(
-        DatabaseScheduledMessagesDistributor(database, sentMessageLogStorage, studentBotController),
-        DatabaseCourseStorage(database),
+        ScheduledMessageService(
+          DatabaseScheduledMessagesStorage(database),
+          sentMessageLogStorage,
+          courseStorage,
+          studentBotController,
+        ),
+        courseStorage,
         DatabaseAdminStorage(database),
         DatabaseStudentStorage(database),
         DatabaseTeacherStorage(database),

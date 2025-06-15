@@ -106,7 +106,7 @@ class MultiBotRunner : CliktCommand() {
       launch {
         while (true) {
           val timestamp = LocalDateTime.now().toKotlinLocalDateTime()
-          val result = apis.studentApi.checkAndSentMessages(timestamp)
+          val result = apis.studentApi.checkAndSendMessages(timestamp)
           result.mapError {
             KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")
           }

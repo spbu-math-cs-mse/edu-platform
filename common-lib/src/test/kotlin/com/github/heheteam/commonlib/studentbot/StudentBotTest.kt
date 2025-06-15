@@ -23,7 +23,7 @@ import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
-import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
+import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
 import io.mockk.mockk
@@ -44,7 +44,7 @@ class StudentBotTest {
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var academicWorkflowLogic: AcademicWorkflowLogic
   private lateinit var academicWorkflowService: AcademicWorkflowService
-  private lateinit var scheduledMessageDeliveryService: ScheduledMessageDeliveryService
+  private lateinit var scheduledMessageService: ScheduledMessageService
   private val config = loadConfig()
 
   private val database =
@@ -61,7 +61,7 @@ class StudentBotTest {
     courseStorage = DatabaseCourseStorage(database)
     initDatabaseStorages()
     academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
-    scheduledMessageDeliveryService = mockk<ScheduledMessageDeliveryService>(relaxed = true)
+    scheduledMessageService = mockk<ScheduledMessageService>(relaxed = true)
     courseIds = (1..4).map { courseStorage.createCourse("course $it").value }
     val mockUiController = mockk<UiController>(relaxed = true)
     val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
@@ -88,7 +88,7 @@ class StudentBotTest {
         mockPersonalDeadlinesService,
         studentStorage,
         mockCourseTokensService,
-        scheduledMessageDeliveryService,
+        scheduledMessageService,
       )
   }
 

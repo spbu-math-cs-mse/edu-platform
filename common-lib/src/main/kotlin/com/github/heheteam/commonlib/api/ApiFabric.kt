@@ -8,7 +8,7 @@ import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
-import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesDistributor
+import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesStorage
 import com.github.heheteam.commonlib.database.DatabaseSentMessageLogStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
@@ -32,7 +32,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
-import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryServiceImpl
+import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
@@ -81,10 +81,11 @@ class ApiFabric(
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
-    val scheduledMessagesDistributor =
-      DatabaseScheduledMessagesDistributor(
-        database,
+    val scheduledMessageService =
+      ScheduledMessageService(
+        DatabaseScheduledMessagesStorage(database),
         sentMessageLogStorage,
+        databaseCourseStorage,
         studentBotTelegramController,
       )
     val personalDeadlineStorage: PersonalDeadlineStorage = DatabasePersonalDeadlineStorage(database)
@@ -207,14 +208,6 @@ class ApiFabric(
     val personalDeadlinesService =
       PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
 
-    val scheduledMessageDeliveryService =
-      ScheduledMessageDeliveryServiceImpl(
-        scheduledMessagesDistributor,
-        courseStorage,
-        studentBotTelegramController,
-        sentMessageLogStorage,
-      )
-
     val studentApi =
       StudentApi(
         courseStorage,
@@ -224,12 +217,12 @@ class ApiFabric(
         personalDeadlinesService,
         studentStorage,
         courseTokenService,
-        scheduledMessageDeliveryService,
+        scheduledMessageService,
       )
 
     val adminApi =
       AdminApi(
-        scheduledMessagesDistributor,
+        scheduledMessageService,
         courseStorage,
         adminStorage,
         studentStorage,

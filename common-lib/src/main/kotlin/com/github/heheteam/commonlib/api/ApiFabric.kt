@@ -33,6 +33,7 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
+import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
@@ -211,14 +212,13 @@ class ApiFabric(
 
     val studentApi =
       StudentApi(
-        courseStorage,
-        problemStorage,
-        assignmentStorage,
         academicWorkflowService,
         personalDeadlinesService,
+        scheduledMessageService,
+        StudentViewService(courseStorage, problemStorage, assignmentStorage),
+        courseStorage,
         studentStorage,
         courseTokenService,
-        scheduledMessageService,
       )
 
     val adminApi =

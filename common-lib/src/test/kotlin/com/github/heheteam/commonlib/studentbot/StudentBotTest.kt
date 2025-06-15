@@ -24,6 +24,7 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
+import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
 import io.mockk.mockk
@@ -81,14 +82,13 @@ class StudentBotTest {
       )
     studentApi =
       StudentApi(
-        courseStorage,
-        problemStorage,
-        assignmentStorage,
         academicWorkflowService,
         mockPersonalDeadlinesService,
+        scheduledMessageService,
+        StudentViewService(courseStorage, problemStorage, assignmentStorage),
+        courseStorage,
         studentStorage,
         mockCourseTokensService,
-        scheduledMessageService,
       )
   }
 

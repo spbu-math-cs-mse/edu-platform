@@ -84,26 +84,14 @@ internal constructor(
     tgId: Long,
   ): Result<StudentId, EduPlatformError> = studentStorage.createStudent(name, surname, tgId)
 
-  /**
-   * Returns assignments and all of their problems with original deadlines. You might need to
-   * calculate personal deadlines additionally.
-   */
-  fun getProblemsWithAssignmentsFromCourse(
-    courseId: CourseId
-  ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
-    problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
-
   suspend fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
     personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline)
 
   fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =
     personalDeadlinesService.calculateNewDeadlines(studentId, problems)
 
-  fun calculateRescheduledDeadlines(
-    studentId: StudentId,
-    problems: Map<Assignment, List<Problem>>,
-  ): Map<Assignment, List<Problem>> =
-    personalDeadlinesService.calculateNewDeadlines(studentId, problems)
+  fun getActiveProblems(studentId: StudentId, courseId: CourseId) =
+    personalDeadlinesService.getActiveProblems(studentId, courseId)
 
   fun registerForCourseWithToken(token: String, studentId: StudentId): Result<Course, TokenError> {
     val courseIdResult = courseTokenStorage.getCourseIdByToken(token)

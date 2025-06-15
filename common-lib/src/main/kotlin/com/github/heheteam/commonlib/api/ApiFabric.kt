@@ -206,7 +206,7 @@ class ApiFabric(
       )
 
     val personalDeadlinesService =
-      PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
+      PersonalDeadlinesService(studentStorage, problemStorage, personalDeadlineStorage, botEventBus)
 
     val studentApi =
       StudentApi(

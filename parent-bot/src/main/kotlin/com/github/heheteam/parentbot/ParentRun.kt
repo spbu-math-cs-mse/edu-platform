@@ -1,6 +1,7 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.api.ParentApi
+import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
 import com.github.heheteam.parentbot.states.StartState
 import com.github.heheteam.parentbot.states.strictlyOnChildPerformanceState
 import com.github.heheteam.parentbot.states.strictlyOnGivingFeedbackState
@@ -40,6 +41,11 @@ suspend fun parentRun(botToken: String, parentApi: ParentApi) {
 
       command("start") {
         val user = it.from
+        if (user != null) {
+          startChain(StartState(user))
+        }
+      }
+      startStateOnUnhandledUpdate { user ->
         if (user != null) {
           startChain(StartState(user))
         }

@@ -32,6 +32,7 @@ import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
@@ -84,6 +85,9 @@ class AdminRunner(private val adminApi: AdminApi) {
         )
         command("start") {
           val user = it.from
+          if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
+        }
+        startStateOnUnhandledUpdate { user ->
           if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
         }
 

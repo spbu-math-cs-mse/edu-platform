@@ -19,10 +19,11 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
+import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onContentMessage
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
-import dev.inmo.tgbotapi.extensions.utils.groupContentMessageOrNull
+import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
 import dev.inmo.tgbotapi.types.BotCommand
-import dev.inmo.tgbotapi.types.message.content.TextMessage
+import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +45,7 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
           listOf(BotCommand("start", "Start bot"), BotCommand("menu", "Resend menu message"))
         )
         command("start") { startFsm(it) }
+        onContentMessage { startFsm(it) }
         stateRegister.registerTeacherStates(this, botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
@@ -53,12 +55,11 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
   }
 
   @OptIn(RiskFeature::class)
-  private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(it: TextMessage) {
+  private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(it: AccessibleMessage) {
     val user = it.from
-    val groupContent = it.groupContentMessageOrNull()
-    if (groupContent != null) {
-      sendMessage(groupContent.chat, "greetings!")
-      startChain(ChooseGroupCourseState(groupContent.chat))
+    if (it.chat.groupChatOrNull() != null) {
+      sendMessage(it.chat, "greetings!")
+      startChain(ChooseGroupCourseState(it.chat))
     } else if (user != null) {
       val startingState = StartState(user)
       startChain(startingState)

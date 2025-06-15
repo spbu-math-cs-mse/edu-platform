@@ -81,9 +81,10 @@ class ApiFabric(
     val databaseGradeTable: GradeTable = DatabaseGradeTable(database)
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
+    val scheduledMessagesStorage = DatabaseScheduledMessagesStorage(database)
     val scheduledMessageService =
       ScheduledMessageService(
-        DatabaseScheduledMessagesStorage(database),
+        scheduledMessagesStorage,
         sentMessageLogStorage,
         databaseCourseStorage,
         studentBotTelegramController,

@@ -38,7 +38,7 @@ internal constructor(
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val studentStorage: StudentStorage,
   private val courseTokenStorage: CourseTokenStorage,
-  private val scheduledMessageDeliveryService: ScheduledMessageService, // New dependency
+  private val scheduledMessageDeliveryService: ScheduledMessageService,
 ) {
   suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
     scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
@@ -56,9 +56,6 @@ internal constructor(
 
   fun getCourseAssignments(courseId: CourseId): Result<List<Assignment>, EduPlatformError> =
     assignmentStorage.getAssignmentsForCourse(courseId)
-
-  fun applyForCourse(studentId: StudentId, courseId: CourseId) =
-    courseStorage.addStudentToCourse(studentId, courseId)
 
   suspend fun inputSubmission(
     submissionInputRequest: SubmissionInputRequest

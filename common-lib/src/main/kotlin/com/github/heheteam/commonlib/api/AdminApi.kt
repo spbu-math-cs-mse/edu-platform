@@ -10,13 +10,13 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
-import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
@@ -49,7 +49,7 @@ internal constructor(
   private val problemStorage: ProblemStorage,
   private val submissionDistributor: SubmissionDistributor,
   private val personalDeadlinesService: PersonalDeadlinesService,
-  private val tokenStorage: CourseTokenStorage,
+  private val tokenStorage: CourseTokenService,
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,

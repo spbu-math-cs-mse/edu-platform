@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.studentbot.Dialogues
 import com.github.michaelbull.result.get
@@ -25,7 +26,10 @@ class StartState(override val context: User, private val token: String?) :
             success = { course ->
               bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
-            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
+            failure = { error ->
+              if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
+              else bot.send(context, "Ошибка: ${error.shortDescription}")
+            },
           )
       }
     }

@@ -7,9 +7,9 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
-import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -25,7 +25,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 internal class CourseStorageDecorator(
   private val courseStorage: CourseStorage,
   private val ratingRecorder: RatingRecorder,
-  private val tokenStorage: CourseTokenStorage,
+  private val courseTokenService: CourseTokenService,
 ) : CourseStorage {
   override fun addStudentToCourse(
     studentId: StudentId,
@@ -87,7 +87,7 @@ internal class CourseStorageDecorator(
 
   override fun createCourse(description: String): Result<CourseId, EduPlatformError> = binding {
     val courseId = courseStorage.createCourse(description).bind()
-    tokenStorage.createToken(courseId)
+    courseTokenService.createToken(courseId)
     val spreadsheetId = ratingRecorder.createRatingSpreadsheet(courseId, description).bind()
     KSLog.info(
       "Created spreadsheet ${spreadsheetId.toUrl()} for course \"${description}\" (id: $courseId)"

@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.adminbot
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -13,7 +14,6 @@ import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -58,7 +58,7 @@ class AdminBotTest {
         problemStorage,
         DatabaseSubmissionDistributor(database),
         mockk<PersonalDeadlinesService>(relaxed = true),
-        mockk<CourseTokenStorage>(relaxed = true),
+        mockk<CourseTokenService>(relaxed = true),
       )
   }
 

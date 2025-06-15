@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Submission
+import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -91,7 +92,8 @@ class ApiFabric(
         studentBotTelegramController,
       )
     val personalDeadlineStorage: PersonalDeadlineStorage = DatabasePersonalDeadlineStorage(database)
-    val courseTokenService = DatabaseCourseTokenStorage(database)
+    val courseTokenService =
+      CourseTokenService(DatabaseCourseTokenStorage(database), databaseCourseStorage)
 
     val ratingRecorder =
       GoogleSheetsRatingRecorder(
@@ -216,7 +218,6 @@ class ApiFabric(
         personalDeadlinesService,
         scheduledMessageService,
         StudentViewService(courseStorage, problemStorage, assignmentStorage),
-        courseStorage,
         studentStorage,
         courseTokenService,
       )

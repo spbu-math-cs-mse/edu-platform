@@ -7,23 +7,18 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.SubmissionInputRequest
+import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.CourseStorage
-import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
-import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
 
@@ -34,9 +29,8 @@ internal constructor(
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val scheduledMessageDeliveryService: ScheduledMessageService,
   private val studentViewService: StudentViewService,
-  private val courseStorage: CourseStorage,
   private val studentStorage: StudentStorage,
-  private val courseTokenStorage: CourseTokenStorage,
+  private val courseTokenService: CourseTokenService,
 ) {
   suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
     scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
@@ -88,17 +82,8 @@ internal constructor(
   fun getActiveProblems(studentId: StudentId, courseId: CourseId) =
     personalDeadlinesService.getActiveProblems(studentId, courseId)
 
-  fun registerForCourseWithToken(token: String, studentId: StudentId): Result<Course, TokenError> {
-    val courseIdResult = courseTokenStorage.getCourseIdByToken(token)
-
-    return courseIdResult.mapBoth(
-      success = { courseId ->
-        courseStorage.addStudentToCourse(studentId, courseId)
-        courseTokenStorage.useToken(token, studentId)
-        val course = getStudentCourses(studentId).value.first { it.id == courseId }
-        Ok(course)
-      },
-      failure = { error -> Err(error) },
-    )
-  }
+  fun registerForCourseWithToken(
+    token: String,
+    studentId: StudentId,
+  ): Result<Course, EduPlatformError> = courseTokenService.registerStudentForToken(studentId, token)
 }

@@ -32,9 +32,7 @@ class CheckDeadlinesState(
     bot: BehaviourContext,
     service: StudentApi,
   ): Result<Unit, EduPlatformError> = coroutineBinding {
-    val problemsByAssignments = service.getProblemsWithAssignmentsFromCourse(course.id).bind()
-    val problemsWithPersonalDeadlines =
-      service.calculateRescheduledDeadlines(studentId, problemsByAssignments)
+    val problemsWithPersonalDeadlines = service.getActiveProblems(studentId, course.id).bind()
     val messageText =
       buildEntities(" ") {
         problemsWithPersonalDeadlines

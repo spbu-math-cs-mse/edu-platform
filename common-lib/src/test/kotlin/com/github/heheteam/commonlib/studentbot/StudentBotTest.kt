@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -13,7 +14,6 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
-import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentStorage
@@ -23,7 +23,8 @@ import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
-import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryService
+import com.github.heheteam.commonlib.logic.ScheduledMessageService
+import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
 import io.mockk.mockk
@@ -44,7 +45,7 @@ class StudentBotTest {
   private lateinit var assignmentStorage: AssignmentStorage
   private lateinit var academicWorkflowLogic: AcademicWorkflowLogic
   private lateinit var academicWorkflowService: AcademicWorkflowService
-  private lateinit var scheduledMessageDeliveryService: ScheduledMessageDeliveryService
+  private lateinit var scheduledMessageService: ScheduledMessageService
   private val config = loadConfig()
 
   private val database =
@@ -61,11 +62,11 @@ class StudentBotTest {
     courseStorage = DatabaseCourseStorage(database)
     initDatabaseStorages()
     academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
-    scheduledMessageDeliveryService = mockk<ScheduledMessageDeliveryService>(relaxed = true)
+    scheduledMessageService = mockk<ScheduledMessageService>(relaxed = true)
     courseIds = (1..4).map { courseStorage.createCourse("course $it").value }
     val mockUiController = mockk<UiController>(relaxed = true)
     val mockPersonalDeadlinesService = mockk<PersonalDeadlinesService>(relaxed = true)
-    val mockCourseTokensService = mockk<CourseTokenStorage>(relaxed = true)
+    val mockCourseTokensService = mockk<CourseTokenService>(relaxed = true)
     val teacherNotifier = mockk<NewSubmissionTeacherNotifier>()
     academicWorkflowService =
       AcademicWorkflowService(
@@ -81,14 +82,12 @@ class StudentBotTest {
       )
     studentApi =
       StudentApi(
-        courseStorage,
-        problemStorage,
-        assignmentStorage,
         academicWorkflowService,
         mockPersonalDeadlinesService,
+        scheduledMessageService,
+        StudentViewService(courseStorage, problemStorage, assignmentStorage),
         studentStorage,
         mockCourseTokensService,
-        scheduledMessageDeliveryService,
       )
   }
 
@@ -108,21 +107,5 @@ class StudentBotTest {
 
     val studentCourses = studentApi.getStudentCourses(studentId).value
     assertEquals(listOf(), studentCourses.map { it.id }.sortedBy { it.long })
-  }
-
-  @Test
-  fun `new student courses handling test`() {
-    val studentId = studentStorage.createStudent().value
-
-    studentApi.applyForCourse(studentId, courseIds[0])
-    studentApi.applyForCourse(studentId, courseIds[3])
-
-    val studentCourses = studentApi.getStudentCourses(studentId).value
-
-    assertEquals(
-      listOf(courseIds[0], courseIds[3]),
-      studentCourses.map { it.id }.sortedBy { it.long },
-    )
-    assertEquals(listOf("course 1", "course 4"), studentCourses.map { it.name }.toList())
   }
 }

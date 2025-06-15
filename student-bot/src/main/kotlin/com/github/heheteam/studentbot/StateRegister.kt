@@ -2,6 +2,7 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
@@ -129,7 +130,10 @@ internal class StateRegister(
             success = { course ->
               bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
-            failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
+            failure = { error ->
+              if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
+              else bot.send(context, "Ошибка: ${error.shortDescription}")
+            },
           )
         NewState(MenuState(context, studentId))
       }

@@ -146,3 +146,14 @@ data class SentMessageLog(
   val telegramMessageId: MessageId,
   val chatId: RawChatId,
 )
+
+data class ScheduledMessage(
+  val id: ScheduledMessageId,
+  val timestamp: LocalDateTime,
+  val content: TelegramMessageContent,
+  val shortName: String,
+  val courseId: CourseId,
+  val isSent: Boolean,
+  val isDeleted: Boolean,
+  val adminId: AdminId,
+)

@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.integration
 
+import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
-import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.testdouble.StudentBotTelegramControllerTestDouble
 import com.github.heheteam.commonlib.util.buildData
 import com.github.heheteam.commonlib.util.defaultInstant

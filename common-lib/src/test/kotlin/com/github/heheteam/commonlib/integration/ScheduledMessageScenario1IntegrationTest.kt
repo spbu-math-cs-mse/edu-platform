@@ -3,9 +3,9 @@ package com.github.heheteam.commonlib.integration
 import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.TelegramMessageContent
-import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.testdouble.StudentBotTelegramControllerTestDouble
 import com.github.heheteam.commonlib.util.TestDataBuilder
 import com.github.heheteam.commonlib.util.buildData

@@ -1,0 +1,16 @@
+{
+  "googleSheetsConfig": {
+    "serviceAccountKey": "google_api_key.json",
+    "spreadsheetId": "1uP0XqbRCac9rFiBslD5tRVDMLvYbzCLM_W6t_BAhxes"
+  },
+  "databaseConfig": {
+    "url": "jdbc:postgresql://localhost:5432/postgres",
+    "driver": "org.postgresql.Driver",
+    "login": "postgres",
+    "password": "postgres"
+  },
+  "redisConfig" : {
+    "host": "localhost",
+    "port": "6379"
+  }
+}

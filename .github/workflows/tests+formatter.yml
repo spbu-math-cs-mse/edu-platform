@@ -28,13 +28,25 @@ jobs:
   run-backend-tests:
     runs-on: ubuntu-latest
     needs: setup-environment
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Load Config Files from Secrets
         env:
-          CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
+          CONFIG_FILE: ${{ secrets.POSTGRES_CONFIG_FILE }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
           echo $CONFIG_FILE > common-lib/src/main/resources/config.json

@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.test.Test
 import kotlin.test.assertIs
+import kotlinx.coroutines.test.runTest
 
 class AcademicWorkflowTest : IntegrationTestEnvironment() {
   private fun mockSendInitSubmissionStatusMessageDM(
@@ -39,7 +40,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
 
   @Test
-  fun `telegram notifications are sent on new submission`() {
+  fun `telegram notifications are sent on new submission`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
     mockSendMenuMessage(Ok(messageInfoNum(1)))
@@ -74,7 +75,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `student api inputSubmission propagates telegram errors`() {
+  fun `student api inputSubmission propagates telegram errors`() = runTest {
     coEvery { teacherBotController.sendSubmission(any(), any()) } returns
       Err(TelegramError(RuntimeException("Simulated Telegram error during sendSubmission")))
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
@@ -104,7 +105,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `teacher api updateTeacherMenuMessage propagates telegram errors`() {
+  fun `teacher api updateTeacherMenuMessage propagates telegram errors`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
     coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns
@@ -118,7 +119,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `telegram notifications are sent on new assessment`() {
+  fun `telegram notifications are sent on new assessment`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
     mockSendMenuMessage(Ok(messageInfoNum(1)))

@@ -33,7 +33,6 @@ import com.github.michaelbull.result.get
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.UserId
 import java.time.LocalDateTime
-import kotlinx.coroutines.runBlocking
 
 @Suppress(
   "LongParameterList",
@@ -58,14 +57,11 @@ internal constructor(
     content: TelegramMessageContent,
     shortName: String,
     courseId: CourseId,
-  ): Result<ScheduledMessageId, EduPlatformError> = runBlocking {
-    val result =
-      scheduledMessagesDistributor.sendScheduledMessage(
-        adminId,
-        NewScheduledMessageInfo(timestamp, content, shortName, courseId),
-      )
-    result
-  }
+  ): Result<ScheduledMessageId, EduPlatformError> =
+    scheduledMessagesDistributor.storeScheduledMessage(
+      adminId,
+      NewScheduledMessageInfo(timestamp, content, shortName, courseId),
+    )
 
   fun resolveScheduledMessage(
     scheduledMessageId: ScheduledMessageId
@@ -84,7 +80,7 @@ internal constructor(
   ): Result<Unit, EduPlatformError> =
     scheduledMessagesDistributor.deleteScheduledMessage(scheduledMessageId)
 
-  fun moveAllDeadlinesForStudent(
+  suspend fun moveAllDeadlinesForStudent(
     studentId: StudentId,
     newDeadline: kotlinx.datetime.LocalDateTime,
   ) {

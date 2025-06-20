@@ -20,7 +20,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.BeforeEach
@@ -60,7 +60,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
    *
    * @return [TestScenarioData] containing the initialized entities.
    */
-  fun TestDataBuilder.setupCommonScheduledMessageTestContext(): TestScenarioData {
+  suspend fun TestDataBuilder.setupCommonScheduledMessageTestContext(): TestScenarioData {
     val admin = admin("Admin1", "Admin1", 100L)
     val student1 = student("Student1", "Student1", 200L)
     val student2 = student("Student2", "Student2", 201L)
@@ -86,10 +86,10 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
         shortName = shortName,
         courseId = context.course.id,
       )
-    return runBlocking { resolveScheduledMessage(scheduledMessageIdResult.value).value }
+    return resolveScheduledMessage(scheduledMessageIdResult.value).value
   }
 
-  fun TestDataBuilder.triggerMessageDelivery(
+  suspend fun TestDataBuilder.triggerMessageDelivery(
     deliveryTimestamp: LocalDateTime
   ): Result<Unit, EduPlatformError> {
     return checkAndSentMessages(deliveryTimestamp)
@@ -100,7 +100,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scheduled message is initially not sent`() {
+  fun `scheduled message is initially not sent`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
       val scheduledTimestamp = at(1.minutes)
@@ -112,7 +112,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `scheduled message is marked as sent after delivery`() {
+  fun `scheduled message is marked as sent after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
       val scheduledTimestamp = at(1.minutes)
@@ -131,7 +131,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `students receive scheduled message after delivery`() {
+  fun `students receive scheduled message after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
       val scheduledTimestamp = at(1.minutes)

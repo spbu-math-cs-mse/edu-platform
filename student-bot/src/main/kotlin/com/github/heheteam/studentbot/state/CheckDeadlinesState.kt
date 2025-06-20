@@ -71,7 +71,7 @@ class CheckDeadlinesState(
       )
     }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: StudentApi,
     input: Result<Unit, EduPlatformError>,
   ): Pair<State, Result<Unit, EduPlatformError>> {

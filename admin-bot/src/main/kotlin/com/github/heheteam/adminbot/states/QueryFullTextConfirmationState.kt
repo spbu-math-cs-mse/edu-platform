@@ -56,7 +56,7 @@ data class QueryFullTextConfirmationState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
   ): Pair<State, Result<List<ScheduledMessage>, EduPlatformError>> {

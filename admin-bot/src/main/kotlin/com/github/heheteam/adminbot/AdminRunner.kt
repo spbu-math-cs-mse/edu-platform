@@ -32,6 +32,7 @@ import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
@@ -43,7 +44,6 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
 import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
@@ -53,7 +53,6 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.RiskFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 
 private const val DEFAULT_ADMIN_ID = 0L
@@ -64,8 +63,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   > DefaultBehaviourContextWithFSM<State>.registerStateForBotStateWithHandlers(
     noinline initUpdateHandlers:
       (
-        UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
-        context: User,
+        UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>, context: User,
       ) -> Unit =
       { _, _ ->
       }
@@ -131,8 +129,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun registerHandlers(
-    handlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>,
     context: User,
   ) {
     addMenuCommandHandler(handlersController, context)
@@ -140,8 +137,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun addMenuCommandHandler(
-    handlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>,
     context: User,
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
@@ -154,23 +150,19 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun addMoveDeadlinesHandler(
-    handlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, out Any?, EduPlatformError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>,
     context: User,
   ) {
     handlersController.addDataCallbackHandler { dataCallbackQuery ->
       if (dataCallbackQuery.data.startsWith(AdminKeyboards.MOVE_DEADLINES)) {
         ActionWrapper {
-          println(dataCallbackQuery.data)
           val args = dataCallbackQuery.data.drop(AdminKeyboards.MOVE_DEADLINES.length).split(' ')
           val studentId = args.getOrNull(1)?.toLongOrNull()?.toStudentId()
           val dateTimeString = args.getOrNull(2)
           if (studentId == null) {
             KSLog.error("Unexpected data callback query \"${dataCallbackQuery.data}\"")
           } else if (dateTimeString == null) {
-            runBlocking(Dispatchers.IO) {
-              send(context, "Дедлайн ученика с id ${studentId.long} не перенесен")
-            }
+            send(context, "Дедлайн ученика с id ${studentId.long} не перенесен")
           } else {
             val newDeadline =
               try {
@@ -180,9 +172,7 @@ class AdminRunner(private val adminApi: AdminApi) {
                 return@ActionWrapper
               }
             adminApi.moveAllDeadlinesForStudent(studentId, newDeadline)
-            runBlocking(Dispatchers.IO) {
-              send(context, "Дедлайн ученика с id ${studentId.long} успешно перенесен!")
-            }
+            send(context, "Дедлайн ученика с id ${studentId.long} успешно перенесен!")
           }
         }
       } else {

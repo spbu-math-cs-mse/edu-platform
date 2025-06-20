@@ -15,7 +15,7 @@ data class PetTheDachshundState(override val context: User, val userId: StudentI
     bot.sendMessage(context.id, listOf("Гаф", "Мяу").random())
   }
 
-  override fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
+  override suspend fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
     MenuState(context, userId) to Unit
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =

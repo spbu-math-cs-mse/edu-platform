@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.OperationCancelledError
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
@@ -44,7 +45,12 @@ class ConfirmScheduledMessageState(
   val scheduledMessageTextField: ScheduledMessageTextField,
   val date: LocalDate,
   val time: LocalTime,
-) : BotStateWithHandlers<Result<Boolean, EduPlatformError>, EduPlatformError?, AdminApi> {
+) :
+  BotStateWithHandlers<
+    Result<Boolean, EduPlatformError>,
+    Result<ScheduledMessageId?, EduPlatformError>,
+    AdminApi,
+  > {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -93,33 +99,31 @@ class ConfirmScheduledMessageState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: AdminApi,
     input: Result<Boolean, EduPlatformError>,
-  ): Pair<State, EduPlatformError?> {
+  ): Pair<State, Result<ScheduledMessageId?, EduPlatformError>> {
     return input.mapBoth(
       success = { confirmed ->
         if (confirmed) {
-          service.sendScheduledMessage(
-            adminId,
-            LocalDateTime.of(date, time),
-            TelegramMessageContent(scheduledMessageTextField.content),
-            scheduledMessageTextField.shortDescription,
-            course.id,
-          )
-          Pair(MenuState(context, adminId), null)
+          val scheduledMessage =
+            service.sendScheduledMessage(
+              adminId,
+              LocalDateTime.of(date, time),
+              TelegramMessageContent(scheduledMessageTextField.content),
+              scheduledMessageTextField.shortDescription,
+              course.id,
+            )
+          Pair(MenuState(context, adminId), scheduledMessage)
         } else {
-          Pair(
-            MenuState(context, adminId),
-            null,
-          ) // Should not happen with current logic, but for completeness
+          Pair(MenuState(context, adminId), Ok(null))
         }
       },
       failure = { error ->
         if (error is OperationCancelledError) {
-          Pair(MenuState(context, adminId), null)
+          Pair(MenuState(context, adminId), Ok(null))
         } else {
-          Pair(this, error)
+          Pair(this, Err(error))
         }
       },
     )
@@ -128,15 +132,19 @@ class ConfirmScheduledMessageState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: EduPlatformError?,
+    response: Result<ScheduledMessageId?, EduPlatformError>,
     input: Result<Boolean, EduPlatformError>,
   ) {
-    if (response != null) {
-      val errorMessage = bot.send(context, response.shortDescription)
-      sentMessages.add(errorMessage)
-    } else {
-      bot.send(context, "Успешно запланировано!")
-    }
+    response.mapBoth(
+      success = { scheduledMessageId ->
+        if (scheduledMessageId == null) {
+          bot.send(context, "Операция отменена")
+        } else {
+          bot.send(context, "Ваше сообщение id=${scheduledMessageId.long} успешно отправлено!")
+        }
+      },
+      failure = { error -> "Случилась ошибка при отправке. Ошибка: ${error.shortDescription}" },
+    )
   }
 
   private fun confirmationKeyboard(): InlineKeyboardMarkup {

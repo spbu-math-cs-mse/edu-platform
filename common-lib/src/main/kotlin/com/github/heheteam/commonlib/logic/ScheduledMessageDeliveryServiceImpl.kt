@@ -13,9 +13,8 @@ import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.util.raiseError
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.getError
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 
 class ScheduledMessageDeliveryServiceImpl
@@ -25,28 +24,26 @@ internal constructor(
   private val studentBotTelegramController: StudentBotTelegramController,
   private val sentMessageLogStorage: SentMessageLogStorage,
 ) : ScheduledMessageDeliveryService {
-  override fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
-    binding {
-      val messagesToSend = scheduledMessagesDistributor.getMessagesUpToDate(timestamp).bind()
-      val allErrors =
-        messagesToSend.mapNotNull { scheduledMessage ->
-          sendSingleMessage(scheduledMessage, timestamp).getError()
-        }
-      if (allErrors.isNotEmpty()) {
-        raiseError(
-          AggregateError(
-            "Errors while sending after messages after timestamp $timestamp",
-            allErrors,
-          )
-        )
+  override suspend fun checkAndSendMessages(
+    timestamp: LocalDateTime
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    val messagesToSend = scheduledMessagesDistributor.getMessagesUpToDate(timestamp).bind()
+    val allErrors =
+      messagesToSend.mapNotNull { scheduledMessage ->
+        sendSingleMessage(scheduledMessage, timestamp).getError()
       }
-      Unit
+    if (allErrors.isNotEmpty()) {
+      raiseError(
+        AggregateError("Errors while sending after messages after timestamp $timestamp", allErrors)
+      )
     }
+    Unit
+  }
 
-  private fun sendSingleMessage(
+  private suspend fun sendSingleMessage(
     scheduledMessage: ScheduledMessage,
     timestamp: LocalDateTime,
-  ): Result<Unit, EduPlatformError> = binding {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val course = courseStorage.resolveCourse(scheduledMessage.courseId).bind()
 
     val studentsInCourse = courseStorage.getStudents(scheduledMessage.courseId).bind()
@@ -64,21 +61,20 @@ internal constructor(
     }
   }
 
-  private fun sendMessageToStudentTg(
+  private suspend fun sendMessageToStudentTg(
     student: Student,
     scheduledMessage: ScheduledMessage,
     course: Course,
     timestamp: LocalDateTime,
-  ): Result<Unit, EduPlatformError> = binding {
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
     val sentMessage =
-      runBlocking {
-          studentBotTelegramController.sendScheduledInformationalMessage(
-            student.tgId,
-            scheduledMessage.content,
-            course,
-            scheduledMessage.id,
-          )
-        }
+      studentBotTelegramController
+        .sendScheduledInformationalMessage(
+          student.tgId,
+          scheduledMessage.content,
+          course,
+          scheduledMessage.id,
+        )
         .bind()
     sentMessageLogStorage
       .logSentMessage(

@@ -17,7 +17,6 @@ import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapBoth
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 
 sealed interface SubmissionSendingResult {
@@ -35,7 +34,9 @@ internal class AcademicWorkflowService(
   private val uiController: UiController,
   private val newSubmissionTeacherNotifier: NewSubmissionTeacherNotifier,
 ) {
-  fun sendSubmission(submissionInputRequest: SubmissionInputRequest): SubmissionSendingResult {
+  suspend fun sendSubmission(
+    submissionInputRequest: SubmissionInputRequest
+  ): SubmissionSendingResult {
     val maybeSubmissionIdAndTeacher = binding {
       val teacher =
         responsibleTeacherResolver.resolveResponsibleTeacher(submissionInputRequest).bind()
@@ -55,16 +56,15 @@ internal class AcademicWorkflowService(
             teacher,
             submissionInputRequest.timestamp,
           )
-        val notificationStatus = runBlocking {
-          newSubmissionTeacherNotifier.notifyNewSubmission(submission)
-        }
+        val notificationStatus = newSubmissionTeacherNotifier.notifyNewSubmission(submission)
+
         SubmissionSendingResult.Success(submissionId, notificationStatus)
       },
       failure = { SubmissionSendingResult.Failure(it) },
     )
   }
 
-  fun assessSubmission(
+  suspend fun assessSubmission(
     submissionId: SubmissionId,
     teacherId: TeacherId,
     assessment: SubmissionAssessment,

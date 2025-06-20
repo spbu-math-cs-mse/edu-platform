@@ -50,7 +50,7 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     }
   }
 
-  override fun computeNewState(service: AdminApi, input: Unit): Pair<State, Unit> =
+  override suspend fun computeNewState(service: AdminApi, input: Unit): Pair<State, Unit> =
     Pair(MenuState(context, adminId), Unit)
 
   override suspend fun sendResponse(

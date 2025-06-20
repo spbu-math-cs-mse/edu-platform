@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlers
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
@@ -86,7 +87,7 @@ class QueryScheduledMessageDateState(
 
   private fun handleMessageCallback(
     message: CommonMessage<TextContent>
-  ): HandlerResultWithUserInputOrUnhandled<BehaviourContext.() -> Unit, State?, EduPlatformError> {
+  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, State?, EduPlatformError> {
     val text = message.content.text
     return if (text == "/stop") {
       NewState(menuState())

@@ -21,7 +21,6 @@ import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 
@@ -62,9 +61,9 @@ class TestDataBuilder(internal val apis: ApiCollection) {
       }
       .value
 
-  fun course(name: String, setup: CourseContext.() -> Unit = {}): Course {
+  suspend fun course(name: String, setup: suspend CourseContext.() -> Unit = {}): Course {
     val courseId = apis.adminApi.createCourse(name).value
-    CourseContext(courseId).apply(setup)
+    setup.invoke(CourseContext(courseId))
     val course = apis.adminApi.getCourse(name).value!!
     return course
   }
@@ -112,7 +111,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     }
   }
 
-  fun submission(student: Student, problem: Problem, content: String): Submission {
+  suspend fun submission(student: Student, problem: Problem, content: String): Submission {
     val submissionInputRequest =
       SubmissionInputRequest(
         studentId = student.id,
@@ -135,7 +134,11 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     )
   }
 
-  fun assessment(teacher: Teacher, submission: Submission, grade: Int): SubmissionAssessment {
+  suspend fun assessment(
+    teacher: Teacher,
+    submission: Submission,
+    grade: Int,
+  ): SubmissionAssessment {
     val assessment = SubmissionAssessment(grade, TextWithMediaAttachments())
     apis.teacherApi.assessSubmission(
       submissionId = submission.id,
@@ -146,11 +149,11 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     return assessment
   }
 
-  fun movingDeadlinesRequest(student: Student, newDeadline: LocalDateTime) {
+  suspend fun movingDeadlinesRequest(student: Student, newDeadline: LocalDateTime) {
     apis.studentApi.requestReschedulingDeadlines(student.id, newDeadline)
   }
 
-  fun moveDeadlines(student: Student, newDeadline: LocalDateTime) {
+  suspend fun moveDeadlines(student: Student, newDeadline: LocalDateTime) {
     apis.adminApi.moveAllDeadlinesForStudent(student.id, newDeadline)
   }
 
@@ -172,7 +175,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.resolveScheduledMessage(scheduledMessageId)
 
-  fun checkAndSentMessages(timestamp: LocalDateTime) =
+  suspend fun checkAndSentMessages(timestamp: LocalDateTime) =
     apis.studentApi.checkAndSendMessages(timestamp)
 
   fun viewRecordedMessages(adminId: AdminId? = null, courseId: CourseId? = null, limit: Int = 5) =
@@ -195,6 +198,6 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     )
 }
 
-fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) = runBlocking {
+suspend fun buildData(apis: ApiCollection, block: suspend TestDataBuilder.() -> Unit) {
   TestDataBuilder(apis).block()
 }

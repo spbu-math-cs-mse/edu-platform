@@ -102,7 +102,7 @@ class EditCourseState(
     return editCourseKeyboard
   }
 
-  override fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
+  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
     return Pair(input, Unit)
   }
 

@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
@@ -71,7 +72,7 @@ class CreateAssignmentState(
   private suspend fun handleAssignmentDescription(
     bot: BehaviourContext,
     updateHandlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, State, EduPlatformError>,
+      UpdateHandlersController<SuspendableBotAction, State, EduPlatformError>,
   ) {
     val msg =
       bot.send(
@@ -115,7 +116,7 @@ class CreateAssignmentState(
   private suspend fun handleProblemsDescription(
     bot: BehaviourContext,
     updateHandlersController:
-      UpdateHandlersController<BehaviourContext.() -> Unit, State, EduPlatformError>,
+      UpdateHandlersController<SuspendableBotAction, State, EduPlatformError>,
   ) {
     lastMessageId?.let {
       try {
@@ -172,7 +173,7 @@ class CreateAssignmentState(
     NewState(MenuState(context, adminId))
   }
 
-  override fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
+  override suspend fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

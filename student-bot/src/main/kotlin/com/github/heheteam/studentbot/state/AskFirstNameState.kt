@@ -18,7 +18,7 @@ class AskFirstNameState(override val context: User, private val token: String?) 
     return firstName
   }
 
-  override fun computeNewState(service: StudentApi, input: String): Pair<State, Unit> {
+  override suspend fun computeNewState(service: StudentApi, input: String): Pair<State, Unit> {
     return AskLastNameState(context, input, token) to Unit
   }
 

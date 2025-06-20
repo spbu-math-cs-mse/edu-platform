@@ -17,8 +17,6 @@ import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 internal class UiControllerTelegramSender(
   private val studentNotifier: StudentNewGradeNotifier,
@@ -27,26 +25,21 @@ internal class UiControllerTelegramSender(
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
 ) : UiController {
-  override fun updateUiOnSubmissionAssessment(
+  override suspend fun updateUiOnSubmissionAssessment(
     submissionId: SubmissionId,
     assessment: SubmissionAssessment,
   ) {
-    runBlocking(Dispatchers.IO) {
-      studentNotifier.notifyStudentOnNewAssessment(submissionId, assessment)
-    }
-    runBlocking(Dispatchers.IO) { journalUpdater.updateJournalDisplaysForSubmission(submissionId) }
-      .onFailure { KSLog.error(it) }
+    studentNotifier.notifyStudentOnNewAssessment(submissionId, assessment)
+    journalUpdater.updateJournalDisplaysForSubmission(submissionId).onFailure { KSLog.error(it) }
     val teacherId =
       submissionDistributor.resolveSubmission(submissionId).get()?.responsibleTeacherId
     if (teacherId != null) {
-      runBlocking(Dispatchers.IO) { updateMenuMessageInPersonalMessages(teacherId) }
-        .onFailure { KSLog.error(it) }
+      updateMenuMessageInPersonalMessages(teacherId).onFailure { KSLog.error(it) }
     }
 
     val courseId = submissionDistributor.resolveSubmissionCourse(submissionId).get()
     if (courseId != null) {
-      runBlocking(Dispatchers.IO) { updateMenuMessageInGroup(courseId) }
-        .onFailure { KSLog.error(it) }
+      updateMenuMessageInGroup(courseId).onFailure { KSLog.error(it) }
     }
   }
 

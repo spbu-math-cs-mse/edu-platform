@@ -13,7 +13,7 @@ internal class PersonalDeadlinesService(
   private val personalDeadlineStorage: PersonalDeadlineStorage,
   private val botEventBus: BotEventBus,
 ) {
-  fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) {
+  suspend fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) {
     botEventBus.publishNewDeadlineRequest(studentId, newDeadline)
   }
 
@@ -23,7 +23,7 @@ internal class PersonalDeadlinesService(
    *
    * @param studentId
    */
-  fun moveDeadlinesForStudent(studentId: StudentId, newDeadline: LocalDateTime) {
+  suspend fun moveDeadlinesForStudent(studentId: StudentId, newDeadline: LocalDateTime) {
     personalDeadlineStorage.updateDeadlineForStudent(studentId, newDeadline)
     val student = studentStorage.resolveStudent(studentId).value
     botEventBus.publishMovingDeadlineEvent(student.tgId, newDeadline)

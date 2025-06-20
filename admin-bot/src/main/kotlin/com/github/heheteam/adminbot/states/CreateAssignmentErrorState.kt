@@ -57,7 +57,7 @@ class CreateAssignmentErrorState(
     }
   }
 
-  override fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
+  override suspend fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

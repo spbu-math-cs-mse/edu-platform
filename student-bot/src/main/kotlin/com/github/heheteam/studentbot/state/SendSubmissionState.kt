@@ -61,7 +61,7 @@ data class SendSubmissionState(
     }
   }
 
-  override fun computeNewState(
+  override suspend fun computeNewState(
     service: StudentApi,
     input: SubmissionInputRequest?,
   ): Pair<State, SubmissionInputRequest?> {

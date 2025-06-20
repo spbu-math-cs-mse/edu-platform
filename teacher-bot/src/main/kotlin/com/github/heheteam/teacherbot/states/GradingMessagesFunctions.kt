@@ -51,11 +51,11 @@ fun parseTechnicalMessageContent(text: String): Result<SubmissionId, String> = b
 
 @Serializable data class GradingButtonContent(val submissionId: SubmissionId, val grade: Grade)
 
-fun tryProcessGradingByButtonPress(
+suspend fun tryProcessGradingByButtonPress(
   dataCallback: DataCallbackQuery,
   teacherApi: TeacherApi,
   teacherId: TeacherId = TeacherId(1L),
-) = binding {
+) = coroutineBinding {
   val gradingButtonContent =
     runCatching { Json.decodeFromString<GradingButtonContent>(dataCallback.data) }.bind()
   teacherApi.assessSubmission(

@@ -1,6 +1,4 @@
-plugins {
-  id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
-}
+plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0" }
 
 rootProject.name = "edu-platform"
 
@@ -11,7 +9,7 @@ include(
   ":teacher-bot",
   ":admin-bot",
   ":multi-bot",
-  ":crossbot-tests"
+  ":crossbot-tests",
 )
 
 dependencyResolutionManagement {
@@ -27,21 +25,36 @@ dependencyResolutionManagement {
       version("google-api-sheets", "v4-rev20241008-2.0.0")
       version("google-api-drive", "v3-rev20220815-2.0.0")
       version("hoplite", "2.7.5")
+      version("kotlinx", "1.10.2")
 
+      library("kotlin-coro-core", "org.jetbrains.kotlinx", "kotlinx-coroutines-core")
+        .versionRef("kotlinx")
+      library("kotlin-coro-test", "org.jetbrains.kotlinx", "kotlinx-coroutines-test")
+        .versionRef("kotlinx")
       library("tgbotapi", "dev.inmo", "tgbotapi").versionRef("tgbotapi")
       library("slf4j-api", "org.slf4j", "slf4j-api").versionRef("slf4j")
       library("slf4j-simple", "org.slf4j", "slf4j-simple").versionRef("slf4j")
       library("exposed-core", "org.jetbrains.exposed", "exposed-core").versionRef("exposed")
       library("exposed-json", "org.jetbrains.exposed", "exposed-json").versionRef("exposed")
-      library("exposed-kotlin-datetime", "org.jetbrains.exposed", "exposed-kotlin-datetime").versionRef("exposed")
-      library("exposed-spring-boot-starter", "org.jetbrains.exposed", "exposed-spring-boot-starter").versionRef("exposed")
+      library("exposed-kotlin-datetime", "org.jetbrains.exposed", "exposed-kotlin-datetime")
+        .versionRef("exposed")
+      library("exposed-spring-boot-starter", "org.jetbrains.exposed", "exposed-spring-boot-starter")
+        .versionRef("exposed")
       library("h2database", "com.h2database", "h2").versionRef("h2")
       library("postgresql", "org.postgresql", "postgresql").versionRef("postgresql")
-      library("kotlin-result" , "com.michael-bull.kotlin-result", "kotlin-result").versionRef("kotlin-result")
-      library("google-api-services-sheets", "com.google.apis", "google-api-services-sheets").versionRef("google-api-sheets")
-      library("google-api-services-drive", "com.google.apis", "google-api-services-drive").versionRef("google-api-drive")
-      library("hoplite-json", "com.sksamuel.hoplite","hoplite-json").versionRef("hoplite")
-      library("kotlin-result-coroutines" , "com.michael-bull.kotlin-result", "kotlin-result-coroutines").versionRef("kotlin-result")
+      library("kotlin-result", "com.michael-bull.kotlin-result", "kotlin-result")
+        .versionRef("kotlin-result")
+      library("google-api-services-sheets", "com.google.apis", "google-api-services-sheets")
+        .versionRef("google-api-sheets")
+      library("google-api-services-drive", "com.google.apis", "google-api-services-drive")
+        .versionRef("google-api-drive")
+      library("hoplite-json", "com.sksamuel.hoplite", "hoplite-json").versionRef("hoplite")
+      library(
+          "kotlin-result-coroutines",
+          "com.michael-bull.kotlin-result",
+          "kotlin-result-coroutines",
+        )
+        .versionRef("kotlin-result")
     }
   }
 }

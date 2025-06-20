@@ -32,7 +32,10 @@ class StartState(override val context: User, private val token: String?) :
     return id
   }
 
-  override fun computeNewState(service: StudentApi, input: StudentId?): Pair<State, String?> =
+  override suspend fun computeNewState(
+    service: StudentApi,
+    input: StudentId?,
+  ): Pair<State, String?> =
     if (input != null) {
       MenuState(context, input) to Dialogues.greetings
     } else {

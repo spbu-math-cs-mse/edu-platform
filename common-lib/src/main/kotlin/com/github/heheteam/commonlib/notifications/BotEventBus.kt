@@ -17,11 +17,11 @@ interface BotEventBus {
     problem: Problem,
   )
 
-  fun publishNewSubmissionEvent(submission: Submission)
+  suspend fun publishNewSubmissionEvent(submission: Submission)
 
-  fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime)
+  suspend fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime)
 
-  fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime)
+  suspend fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime)
 
   fun subscribeToNewSubmissionEvent(handler: suspend (Submission) -> Unit)
 

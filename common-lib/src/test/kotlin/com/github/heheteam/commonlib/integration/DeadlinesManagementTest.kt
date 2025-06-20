@@ -5,6 +5,7 @@ import io.mockk.coVerify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
@@ -15,7 +16,7 @@ import kotlinx.datetime.toLocalDateTime
 
 class DeadlinesManagementTest : IntegrationTestEnvironment() {
   @Test
-  fun `telegram notifications are sent on new moving deadlines request`() {
+  fun `telegram notifications are sent on new moving deadlines request`() = runTest {
     val apis = createDefaultApis()
     buildData(apis) {
       val student = student("Student1", "Student1")
@@ -38,7 +39,7 @@ class DeadlinesManagementTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `telegram notifications are sent on moving deadlines`() {
+  fun `telegram notifications are sent on moving deadlines`() = runTest {
     val apis = createDefaultApis()
     buildData(apis) {
       val student = student("Student1", "Student1")
@@ -61,7 +62,7 @@ class DeadlinesManagementTest : IntegrationTestEnvironment() {
   }
 
   @Test
-  fun `deadlines are moved correctly`() {
+  fun `deadlines are moved correctly`() = runTest {
     val apis = createDefaultApis()
     buildData(apis) {
       val student = student("Student1", "Student1")

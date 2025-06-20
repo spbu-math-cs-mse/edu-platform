@@ -60,7 +60,10 @@ class RemoveStudentState(
   }
 
   @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
-  override fun computeNewState(service: AdminApi, input: String): Pair<State, List<String>> {
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: String,
+  ): Pair<State, List<String>> {
     if (input == "/stop") {
       return Pair(MenuState(context, adminId), emptyList())
     }

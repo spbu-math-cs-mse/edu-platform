@@ -19,7 +19,7 @@ data class ScheduledMessage(
 )
 
 interface ScheduledMessagesDistributor {
-  fun sendScheduledMessage(
+  fun storeScheduledMessage(
     adminId: AdminId,
     messageInfo: NewScheduledMessageInfo,
   ): Result<ScheduledMessageId, EduPlatformError>

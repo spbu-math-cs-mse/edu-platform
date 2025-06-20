@@ -1,12 +1,10 @@
 package com.github.heheteam.multibot
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
@@ -41,7 +39,6 @@ private const val HEARTBEAT_DELAY_SECONDS = 5
 
 class MultiBotRunner : CliktCommand() {
   private val configPath: String by option().required().help("path to the config file")
-  private val useRedis: Boolean by option().boolean().default(false)
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
   private val enableSheets: Boolean by
     option("--enable-sheets").flag("--disable-sheets", default = true)
@@ -97,7 +94,6 @@ class MultiBotRunner : CliktCommand() {
     val apiFabric =
       ApiFabric(
         database,
-        config,
         googleSheetsService,
         studentBotTelegramController,
         teacherBotTelegramController,
@@ -107,7 +103,6 @@ class MultiBotRunner : CliktCommand() {
     val apis =
       apiFabric.createApis(
         initDatabase,
-        useRedis,
         TeacherResolverKind.FIRST,
         config.botConfig.adminIds,
       )
@@ -124,11 +119,7 @@ class MultiBotRunner : CliktCommand() {
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
         }
       }
-      launch {
-        val stateRegister = StateRegister(apis.teacherApi)
-        val teacherRunner = TeacherRunner(teacherBotToken, stateRegister)
-        teacherRunner.execute()
-      }
+      launch { TeacherRunner(teacherBotToken, StateRegister(apis.teacherApi)).run() }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
       launch { parentRun(parentBotToken, apis.parentApi) }
     }

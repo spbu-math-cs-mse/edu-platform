@@ -1,6 +1,10 @@
 package com.github.heheteam.adminbot
 
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
+import dev.inmo.tgbotapi.types.message.textsources.code
+import dev.inmo.tgbotapi.types.message.textsources.plus
+import dev.inmo.tgbotapi.types.message.textsources.regularln
 
 object Dialogues {
   val greetingSticker =
@@ -35,7 +39,10 @@ object Dialogues {
 
   const val devAskForId: String = "Введите свой id:"
 
-  const val devIdNotFound: String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  fun adminIdIsNotInWhitelist(tgId: Long): TextSourcesList =
+    regularln(
+      "Вашего аккаунта нет в списке разрешенных. Попросите админа вас добавить.\n\nВаш id: "
+    ) + code(tgId.toString())
 
   const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 

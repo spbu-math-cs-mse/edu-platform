@@ -30,9 +30,9 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
-import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
@@ -89,7 +89,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         )
         command("start") {
           val user = it.from
-          if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
+          if (user != null) startChain(StartState(user))
         }
 
         registerAllStates()

@@ -19,7 +19,7 @@ import dev.inmo.tgbotapi.types.chat.User
 
 class AskLastNameState(override val context: User, private val firstName: String) :
   BotStateWithHandlers<AdminId, Unit, AdminApi> {
-  override fun computeNewState(service: AdminApi, input: AdminId): Pair<State, Unit> {
+  override suspend fun computeNewState(service: AdminApi, input: AdminId): Pair<State, Unit> {
     return MenuState(context, input) to Unit
   }
 

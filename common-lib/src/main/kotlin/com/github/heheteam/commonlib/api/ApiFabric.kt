@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Submission
-import com.github.heheteam.commonlib.config.Config
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage

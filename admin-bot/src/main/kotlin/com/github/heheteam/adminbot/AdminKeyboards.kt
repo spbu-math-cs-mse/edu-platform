@@ -15,6 +15,9 @@ object AdminKeyboards {
       keyboard = matrix { row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) } }
     )
 
+  fun tryAgain() =
+    InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Попробовать снова", RETURN_BACK) } })
+
   const val CREATE_COURSE = "create course"
   const val EDIT_COURSE = "edit course"
   const val CREATE_ASSIGNMENT = "create assignment"

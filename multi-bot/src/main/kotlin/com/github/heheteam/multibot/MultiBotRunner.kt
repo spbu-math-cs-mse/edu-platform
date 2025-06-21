@@ -101,11 +101,7 @@ class MultiBotRunner : CliktCommand() {
       )
 
     val apis =
-      apiFabric.createApis(
-        initDatabase,
-        TeacherResolverKind.FIRST,
-        config.botConfig.adminIds,
-      )
+      apiFabric.createApis(initDatabase, TeacherResolverKind.FIRST, config.botConfig.adminIds)
 
     runBlocking {
       launch { StudentRunner(studentBotToken, apis.studentApi).run() }

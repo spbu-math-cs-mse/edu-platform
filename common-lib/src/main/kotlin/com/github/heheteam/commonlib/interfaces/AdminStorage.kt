@@ -9,6 +9,8 @@ import dev.inmo.tgbotapi.types.UserId
 internal interface AdminStorage {
   fun addTgIdToWhitelist(tgId: Long): Result<Unit, EduPlatformError>
 
+  fun tgIdIsInWhitelist(tgId: Long): Boolean
+
   fun createAdmin(
     name: String = "defaultName",
     surname: String = "defaultSurname",

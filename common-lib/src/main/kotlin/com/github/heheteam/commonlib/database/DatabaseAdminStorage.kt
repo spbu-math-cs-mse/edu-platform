@@ -44,6 +44,11 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
       Ok(Unit)
     }
 
+  override fun tgIdIsInWhitelist(tgId: Long): Boolean =
+    transaction(database) {
+      AdminWhitelistTable.selectAll().where { AdminWhitelistTable.tgId eq tgId }.count() > 0L
+    }
+
   override fun createAdmin(
     name: String,
     surname: String,

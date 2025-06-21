@@ -1,6 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
+import com.github.heheteam.adminbot.AdminKeyboards.ADD_ADMIN
 import com.github.heheteam.adminbot.AdminKeyboards.COURSE_INFO
 import com.github.heheteam.adminbot.AdminKeyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.AdminKeyboards.CREATE_COURSE
@@ -63,6 +64,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
             NewState(CourseInfoState(context, course, adminId))
           } ?: Unhandled
         }
+        ADD_ADMIN -> NewState(AddAdminState(context, adminId))
 
         else -> Unhandled
       }

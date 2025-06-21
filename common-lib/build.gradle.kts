@@ -6,7 +6,6 @@ val exposedVersion: String by project
 val postgresDriverVersion: String by project
 
 dependencies {
-
     testImplementation("io.mockk:mockk:1.14.2")
     testImplementation(libs.kotlin.coro.core)
     testImplementation(libs.kotlin.coro.test)
@@ -21,6 +20,6 @@ dependencies {
     implementation(libs.kotlin.result.coroutines)
     implementation(libs.google.api.services.sheets)
     implementation(libs.google.api.services.drive)
-    implementation(libs.hoplite.json)
+    implementation(libs.dotenv.kotlin)
     implementation(libs.postgresql)
 }

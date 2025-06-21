@@ -32,7 +32,9 @@ jobs:
       postgres:
         image: postgres
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: edu-platform
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -40,17 +42,29 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+
+    env:
+      GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE:
+      DB_URL: jdbc:postgresql://localhost:5432/edu-platform
+      DB_DRIVER: org.postgresql.Driver
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Load Config Files from Secrets
-        env:
-          CONFIG_FILE: ${{ secrets.POSTGRES_CONFIG_FILE }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          echo $CONFIG_FILE > common-lib/src/main/resources/config.json
-          echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
+          DB_LOGIN_FILE="${{ runner.temp }}/db_login"
+          echo "DB_LOGIN_FILE=$DB_LOGIN_FILE" >> $GITHUB_ENV
+          echo 'postgres' > "$DB_LOGIN_FILE"
+          
+          DB_PASSWORD_FILE="${{ runner.temp }}/db_password"
+          echo "DB_PASSWORD_FILE=$DB_PASSWORD_FILE" >> $GITHUB_ENV
+          echo 'postgres' > "$DB_PASSWORD_FILE"
+    
+          KEY_FILE="${{ runner.temp }}/google_api_key.json"
+          echo "GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE=$KEY_FILE" >> $GITHUB_ENV
+          echo '${{ secrets.GOOGLE_API_KEY }}' > "$KEY_FILE"
 
       - name: Run Backend Tests
         run: ./gradlew test -PexcludeTests="**/DatabaseStartupTest*"
@@ -89,24 +103,16 @@ jobs:
           ./gradlew detektTest
 
 
-  deploy-prod:
+  build-and-push:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: [run-backend-tests, check-formatting, check-static-analyzer]
+    needs: [ run-backend-tests, check-formatting, check-static-analyzer ]
     permissions:
       contents: read
       packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Load Config Files from Secrets
-        env:
-          CONFIG_FILE: ${{ secrets.PROD_CONFIG_FILE }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: |
-          echo $CONFIG_FILE > common-lib/src/main/resources/config.json
-          echo $GOOGLE_API_KEY > common-lib/src/main/resources/google_api_key.json
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
@@ -123,6 +129,15 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
+  
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Transfer Compose File
         uses: appleboy/scp-action@master
@@ -141,6 +156,7 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd /root/edu-platform
-            docker compose pull backend
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
             docker compose up -d --force-recreate backend
             docker image prune -af

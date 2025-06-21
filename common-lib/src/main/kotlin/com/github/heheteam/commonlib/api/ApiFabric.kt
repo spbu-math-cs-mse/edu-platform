@@ -71,7 +71,11 @@ class ApiFabric(
   private val adminBotTelegramController: AdminBotTelegramController,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
-  fun createApis(initDatabase: Boolean, teacherResolverKind: TeacherResolverKind): ApiCollection {
+  fun createApis(
+    initDatabase: Boolean,
+    teacherResolverKind: TeacherResolverKind,
+    adminIds: List<Long> = listOf(),
+  ): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
@@ -109,16 +113,12 @@ class ApiFabric(
       SubmissionDistributorDecorator(databaseSubmissionDistributor, ratingRecorder)
     val academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     val adminStorage = DatabaseAdminStorage(database)
+
     if (initDatabase) {
-      fillWithSamples(
-        courseStorage,
-        assignmentStorage,
-        adminStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
     }
+
+    adminIds.forEach { adminStorage.addTgIdToWhitelist(it) }
 
     val parentStorage = MockParentStorage()
     val botEventBus: BotEventBus = ObserverBus()

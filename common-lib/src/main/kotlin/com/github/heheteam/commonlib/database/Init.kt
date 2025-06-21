@@ -1,6 +1,8 @@
 package com.github.heheteam.commonlib.database
 
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.table.AdminTable
+import com.github.heheteam.commonlib.database.table.AdminWhitelistTable
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.CourseStudents
@@ -19,7 +21,6 @@ import com.github.heheteam.commonlib.database.table.SubmissionPersonalMessagesTa
 import com.github.heheteam.commonlib.database.table.SubmissionTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
-import com.github.heheteam.commonlib.loadConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -47,9 +48,10 @@ private val allTables =
     TeacherMenuMessageTable,
     PersonalDeadlineTable,
     CourseTokenTable,
+    AdminWhitelistTable,
   )
 
-fun main() {
+fun main(args: Array<String>) {
   val config = loadConfig().databaseConfig
   val database = Database.connect(config.url, config.driver, config.login, config.password)
 

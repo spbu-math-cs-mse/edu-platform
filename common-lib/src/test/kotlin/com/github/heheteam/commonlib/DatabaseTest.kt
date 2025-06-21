@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.database.DatabaseAdminStorage
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -38,7 +38,6 @@ class DatabaseTest {
 
   private val courseStorage = DatabaseCourseStorage(database)
   private val gradeTable = DatabaseGradeTable(database)
-  private val adminStorage = DatabaseAdminStorage(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)
   private val submissionDistributor = DatabaseSubmissionDistributor(database)
@@ -172,7 +171,6 @@ class DatabaseTest {
       fillWithSamples(
         courseStorage,
         assignmentStorage,
-        adminStorage,
         studentStorage,
         teacherStorage,
         database,

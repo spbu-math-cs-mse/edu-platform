@@ -104,7 +104,7 @@ jobs:
 
 
   build-and-push:
-#    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [ run-backend-tests, check-formatting, check-static-analyzer ]
     permissions:
@@ -132,7 +132,7 @@ jobs:
   
 
   deploy:
-#    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: build-and-push
     steps:

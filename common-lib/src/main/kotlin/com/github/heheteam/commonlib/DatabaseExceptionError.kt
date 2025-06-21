@@ -54,7 +54,7 @@ data class AdminIsNotWhitelistedError(
   override val causedBy: EduPlatformError? = null,
 ) : EduPlatformError {
   override val shortDescription: String =
-    "Error creating admin: Telegram id $tgId is not whitelisted"
+    "Error resolving admin: Telegram id $tgId is not whitelisted"
 }
 
 data class DatabaseExceptionError(

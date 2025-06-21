@@ -2,7 +2,7 @@ package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.TextWithMediaAttachments
-import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.config.loadConfigFromResources
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -26,7 +26,7 @@ class TeacherBotTest {
   private lateinit var teacherId: TeacherId
   private lateinit var studentId: StudentId
   private lateinit var problemId: ProblemId
-  private val config = loadConfig()
+  private val config = loadConfigFromResources()
 
   private val database =
     Database.connect(
@@ -63,7 +63,7 @@ class TeacherBotTest {
   }
 
   companion object {
-    private val config = loadConfig()
+    private val config = loadConfigFromResources()
 
     private val database =
       Database.connect(

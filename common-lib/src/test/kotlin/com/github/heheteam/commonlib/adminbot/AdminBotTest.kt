@@ -2,7 +2,7 @@ package com.github.heheteam.commonlib.adminbot
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.config.loadConfigFromResources
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -25,7 +25,7 @@ import kotlin.test.assertEquals
 import org.jetbrains.exposed.sql.Database
 
 class AdminBotTest {
-  private val config = loadConfig()
+  private val config = loadConfigFromResources()
 
   private val database =
     Database.connect(

@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
-import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.config.loadConfigFromResources
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -37,7 +37,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 class AcademicWorkflowLogicTest {
-  private val config = loadConfig()
+  private val config = loadConfigFromResources()
 
   private val database =
     Database.connect(

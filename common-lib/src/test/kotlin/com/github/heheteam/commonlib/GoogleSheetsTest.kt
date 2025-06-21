@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.config.loadConfigFromResources
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -24,7 +24,7 @@ import org.jetbrains.exposed.sql.Database
 
 @Ignore
 class GoogleSheetsTest {
-  private val config = loadConfig()
+  private val config = loadConfigFromResources()
 
   private val database =
     Database.connect(

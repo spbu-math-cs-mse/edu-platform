@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.integration
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
-import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.config.loadConfigFromResources
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeEach
 
 open class IntegrationTestEnvironment {
-  protected val config = loadConfig()
+  protected val config = loadConfigFromResources()
   protected val database =
     Database.connect(
       config.databaseConfig.url,

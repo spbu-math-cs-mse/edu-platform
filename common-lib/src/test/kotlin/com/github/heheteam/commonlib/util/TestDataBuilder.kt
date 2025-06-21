@@ -21,6 +21,7 @@ import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 
@@ -37,28 +38,34 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   private val defaultMessageId = MessageId(messageIdCounter.next())
   private val coursesChatId = mutableMapOf<CourseId, RawChatId>()
 
+  fun whitelistAdmin(tgId: Long): Long {
+    apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
+    return tgId
+  }
+
   fun admin(name: String, surname: String, tgId: Long = defaultChatId): Admin =
     binding {
-        val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
-        val admin = apis.adminApi.loginById(adminId).bind()
-        admin
-      }
+      apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
+      val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
+      val admin = Admin(adminId, name, surname, tgId.toRawChatId())
+      admin
+    }
       .value
 
   fun student(name: String, surname: String, tgId: Long = defaultChatId): Student =
     binding {
-        val studentId = apis.studentApi.createStudent(name, surname, tgId).value
-        val student = apis.studentApi.loginById(studentId).bind()
-        student
-      }
+      val studentId = apis.studentApi.createStudent(name, surname, tgId).value
+      val student = apis.studentApi.loginById(studentId).bind()
+      student
+    }
       .value
 
   fun teacher(name: String, surname: String, tgId: Long = defaultChatId): Teacher =
     binding {
-        val teacherId = apis.teacherApi.createTeacher(name, surname, tgId)
-        val teacher = apis.teacherApi.loginById(teacherId).bind()
-        teacher
-      }
+      val teacherId = apis.teacherApi.createTeacher(name, surname, tgId)
+      val teacher = apis.teacherApi.loginById(teacherId).bind()
+      teacher
+    }
       .value
 
   suspend fun course(name: String, setup: suspend CourseContext.() -> Unit = {}): Course {

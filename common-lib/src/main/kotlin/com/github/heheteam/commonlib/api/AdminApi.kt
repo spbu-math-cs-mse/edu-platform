@@ -178,13 +178,10 @@ internal constructor(
   fun loginByTgId(tgId: UserId): Result<Admin, ResolveError<UserId>> =
     adminStorage.resolveByTgId(tgId)
 
-  fun loginById(adminId: AdminId): Result<Admin, ResolveError<AdminId>> =
-    adminStorage.resolveAdmin(adminId)
-
-  fun updateTgId(adminId: AdminId, newTgId: UserId): Result<Unit, ResolveError<AdminId>> =
-    adminStorage.updateTgId(adminId, newTgId)
-
   fun tgIdIsInWhitelist(tgId: UserId): Boolean = adminStorage.tgIdIsInWhitelist(tgId.chatId.long)
+
+  fun addTgIdToWhitelist(tgId: UserId): Result<Unit, EduPlatformError> =
+    adminStorage.addTgIdToWhitelist(tgId.chatId.long)
 
   fun createAdmin(name: String, surname: String, tgId: Long): Result<AdminId, EduPlatformError> =
     adminStorage.createAdmin(name, surname, tgId)

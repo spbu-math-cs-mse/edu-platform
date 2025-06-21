@@ -74,7 +74,7 @@ class ApiFabric(
   fun createApis(
     initDatabase: Boolean,
     teacherResolverKind: TeacherResolverKind,
-    adminIds: List<Long>,
+    adminIds: List<Long> = listOf(),
   ): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
@@ -115,14 +115,7 @@ class ApiFabric(
     val adminStorage = DatabaseAdminStorage(database)
 
     if (initDatabase) {
-      fillWithSamples(
-        courseStorage,
-        assignmentStorage,
-        adminStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
     }
 
     adminIds.forEach { adminStorage.addTgIdToWhitelist(it) }

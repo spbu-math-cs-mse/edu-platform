@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.config.loadConfigFromResources
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -38,7 +38,7 @@ class DatabaseStartupTest {
   @Test
   fun startupTest() {
     val startupTime = measureTimeMillis {
-      val config = loadConfig()
+      val config = loadConfigFromResources()
       database =
         Database.connect(
           config.databaseConfig.url,
@@ -56,14 +56,7 @@ class DatabaseStartupTest {
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
-      fillWithSamples(
-        courseStorage,
-        assignmentStorage,
-        adminStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
     }
     println("Startup time: ${startupTime.toFloat() / 1000.0} s")
     assertTrue(startupTime < 12000)

@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.adminbot.states.AddAdminState
 import com.github.heheteam.adminbot.states.AddScheduledMessageStartState
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
@@ -108,6 +109,7 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<AddAdminState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<RemoveStudentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddTeacherState>(::registerHandlers)

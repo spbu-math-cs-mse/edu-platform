@@ -4,7 +4,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
 import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
@@ -38,7 +37,7 @@ import org.jetbrains.exposed.sql.Database
 private const val HEARTBEAT_DELAY_SECONDS = 5
 
 class MultiBotRunner : CliktCommand() {
-  private val configPath: String by option().required().help("path to the config file")
+  private val configPath: String? by option().help("path to the .env file")
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
   private val enableSheets: Boolean by
     option("--enable-sheets").flag("--disable-sheets", default = true)
@@ -62,7 +61,7 @@ class MultiBotRunner : CliktCommand() {
 
     val googleSheetsService =
       if (enableSheets) {
-        GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
+        GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKeyPath)
       } else {
         GoogleSheetsServiceDummy()
       }

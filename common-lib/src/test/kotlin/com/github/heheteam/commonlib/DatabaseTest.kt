@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.config.loadConfigFromResources
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -26,7 +26,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 class DatabaseTest {
-  private val config = loadConfigFromResources()
+  private val config = loadConfig()
 
   private val database =
     Database.connect(

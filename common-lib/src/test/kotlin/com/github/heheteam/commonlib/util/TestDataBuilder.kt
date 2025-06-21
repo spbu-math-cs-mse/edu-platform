@@ -45,27 +45,27 @@ class TestDataBuilder(internal val apis: ApiCollection) {
 
   fun admin(name: String, surname: String, tgId: Long = defaultChatId): Admin =
     binding {
-      apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
-      val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
-      val admin = Admin(adminId, name, surname, tgId.toRawChatId())
-      admin
-    }
+        apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
+        val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
+        val admin = Admin(adminId, name, surname, tgId.toRawChatId())
+        admin
+      }
       .value
 
   fun student(name: String, surname: String, tgId: Long = defaultChatId): Student =
     binding {
-      val studentId = apis.studentApi.createStudent(name, surname, tgId).value
-      val student = apis.studentApi.loginById(studentId).bind()
-      student
-    }
+        val studentId = apis.studentApi.createStudent(name, surname, tgId).value
+        val student = apis.studentApi.loginById(studentId).bind()
+        student
+      }
       .value
 
   fun teacher(name: String, surname: String, tgId: Long = defaultChatId): Teacher =
     binding {
-      val teacherId = apis.teacherApi.createTeacher(name, surname, tgId)
-      val teacher = apis.teacherApi.loginById(teacherId).bind()
-      teacher
-    }
+        val teacherId = apis.teacherApi.createTeacher(name, surname, tgId)
+        val teacher = apis.teacherApi.loginById(teacherId).bind()
+        teacher
+      }
       .value
 
   suspend fun course(name: String, setup: suspend CourseContext.() -> Unit = {}): Course {

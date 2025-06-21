@@ -52,7 +52,7 @@ private val allTables =
   )
 
 fun main(args: Array<String>) {
-  val config = loadConfig(args[0]).databaseConfig
+  val config = loadConfig().databaseConfig
   val database = Database.connect(config.url, config.driver, config.login, config.password)
 
   transaction {

@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.config.loadConfigFromResources
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -45,7 +45,7 @@ class StudentBotTest {
   private lateinit var academicWorkflowLogic: AcademicWorkflowLogic
   private lateinit var academicWorkflowService: AcademicWorkflowService
   private lateinit var scheduledMessageDeliveryService: ScheduledMessageDeliveryService
-  private val config = loadConfigFromResources()
+  private val config = loadConfig()
 
   private val database =
     Database.connect(

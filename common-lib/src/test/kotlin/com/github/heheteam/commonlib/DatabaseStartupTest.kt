@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib
 
-import com.github.heheteam.commonlib.config.loadConfigFromResources
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -38,7 +38,7 @@ class DatabaseStartupTest {
   @Test
   fun startupTest() {
     val startupTime = measureTimeMillis {
-      val config = loadConfigFromResources()
+      val config = loadConfig()
       database =
         Database.connect(
           config.databaseConfig.url,

@@ -34,7 +34,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
+          POSTGRES_DB: edu-platform
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -45,7 +45,7 @@ jobs:
 
     env:
       GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE:
-      DB_URL: jdbc:postgresql://localhost:5432/dachshund
+      DB_URL: jdbc:postgresql://localhost:5432/edu-platform
       DB_DRIVER: org.postgresql.Driver
 
     steps:

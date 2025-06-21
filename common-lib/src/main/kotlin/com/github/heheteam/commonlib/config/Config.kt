@@ -32,7 +32,6 @@ class Config(private val dotenv: Dotenv) {
         studentBotUsername = env("STUDENT_BOT_USERNAME"),
         adminIds = env("ADMIN_IDS").split(',').filter { it.isNotBlank() }.map { it.toLong() },
       )
-      .also { println(it) }
   }
 
   val googleSheetsConfig =

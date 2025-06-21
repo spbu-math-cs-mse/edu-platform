@@ -9,27 +9,40 @@
 - Преподаватель может запрашивать решение, проверять его, отправлять фидбэк ученику и проставлять ему баллы в одном и том же чате с ботом. (Баллы автоматически проставляются ботом в гугл-таблицу). Всё это должно быть удобно делать, в том числе с телефона. Это упростит процесс проверки решений преподавателями и ускорит получение фидбэка учениками.
 
 ## Конфиг-файлы
-Файл с конфигурацией бд лежит в `common-lib/src/main/resources/config.json` имеет структуру:
-```json
-{
-  "googleSheetsConfig": {
-    "serviceAccountKey": "google_api_key.json",
-    "spreadsheetId": "SPREADSHEET_ID_12345"
-  },
-  "databaseConfig": {
-    "url": "jdbc:postgresql://localhost:<port>/<database>",
-    "driver": "org.postgresql.Driver",
-    "login": "<login>",
-    "password": "<password>"
-  },
-  "redisConfig" : {
-    "host": "localhost",
-    "port": "6379"
-  }
-}
+Файл с конфигурацией лежит в `common-lib/src/main/resources/.env` и имеет структуру:
+```
+# The Telegram username for the student bot.
+STUDENT_BOT_USERNAME=StudentBot
+
+# A comma-separated list of Telegram User IDs for bot administrators.
+ADMIN_IDS=123456789,987654321
+
+# Paths to the files containing Telegram Bot Token for each bot.
+STUDENT_BOT_TOKEN_FILE=./secrets/student_bot_token
+TEACHER_BOT_TOKEN_FILE=./secrets/teacher_bot_token
+ADMIN_BOT_TOKEN_FILE=./secrets/admin_bot_token
+PARENT_BOT_TOKEN_FILE=./secrets/parent_bot_token
+
+# Path to the JSON file containing the Google Service Account key.
+GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE=./secrets/google_api_key.json
+
+# The JDBC connection URL for the PostgreSQL database.
+# When running with Docker Compose, use the service name 'postgres_db'.
+DB_URL=jdbc:postgresql://postgres_db:5432/edu-platform
+# For running outside of Docker container use 'localhost'.
+# DB_URL=jdbc:postgresql://localhost:5432/dachshund
+
+# Database driver.
+DB_DRIVER=org.postgresql.Driver
+
+# Path to the file containing the database username.
+DB_LOGIN_FILE=./secrets/db_user
+
+# Path to the file containing the database password.
+DB_PASSWORD_FILE=./secrets/db_password
 ```
 
-Файл с ключом от сервисного аккаунта api googlesheets лежит в `common-lib/src/main/resources/google_api_key.json` и имеет структуру:
+Файл с ключом от сервисного аккаунта api googlesheets имеет структуру:
 ```json
 {
   "type": "service_account",

@@ -93,7 +93,10 @@ internal constructor(
   ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
     problemStorage.getProblemsWithAssignmentsFromCourse(courseId)
 
-  suspend fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
+  suspend fun requestReschedulingDeadlines(
+    studentId: StudentId,
+    newDeadline: LocalDateTime,
+  ): Result<Unit, EduPlatformError> =
     personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline)
 
   fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =

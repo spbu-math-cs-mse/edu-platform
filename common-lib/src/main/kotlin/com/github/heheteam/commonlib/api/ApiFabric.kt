@@ -45,10 +45,6 @@ import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
-import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
-import dev.inmo.kslog.common.error
-import dev.inmo.kslog.common.logger
 import org.jetbrains.exposed.sql.Database
 
 data class ApiCollection(
@@ -127,23 +123,6 @@ class ApiFabric(
       studentBotTelegramController.notifyStudentOnDeadlineRescheduling(chatId, newDeadline)
     }
 
-    botEventBus.subscribeToNewDeadlineRequest { studentId, newDeadline ->
-      adminStorage
-        .getAdmins()
-        .onSuccess { admins ->
-          admins.forEach { admin ->
-            adminBotTelegramController.notifyAdminOnNewMovingDeadlinesRequest(
-              admin.tgId,
-              studentId,
-              newDeadline,
-            )
-          }
-        }
-        .onFailure { error ->
-          logger.error("Failed to get admins for new deadline request: $error")
-        }
-    }
-
     val tgTechnicalMessagesStorage =
       DatabaseTelegramTechnicalMessagesStorage(database, submissionDistributor)
     val menuMessageUpdaterService =
@@ -205,7 +184,13 @@ class ApiFabric(
       )
 
     val personalDeadlinesService =
-      PersonalDeadlinesService(studentStorage, personalDeadlineStorage, botEventBus)
+      PersonalDeadlinesService(
+        studentStorage,
+        adminStorage,
+        personalDeadlineStorage,
+        adminBotTelegramController,
+        botEventBus,
+      )
 
     val scheduledMessageDeliveryService =
       ScheduledMessageDeliveryServiceImpl(

@@ -75,7 +75,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     }
 
     fun withStudent(student: Student) {
-      apis.studentApi.applyForCourse(student.id, courseId)
+      apis.adminApi.registerStudentForCourse(student.id, courseId)
     }
 
     fun withTeacher(teacher: Teacher) {
@@ -176,7 +176,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     apis.adminApi.resolveScheduledMessage(scheduledMessageId)
 
   suspend fun checkAndSentMessages(timestamp: LocalDateTime) =
-    apis.studentApi.checkAndSentMessages(timestamp)
+    apis.studentApi.checkAndSendMessages(timestamp)
 
   fun viewRecordedMessages(adminId: AdminId? = null, courseId: CourseId? = null, limit: Int = 5) =
     apis.adminApi.viewScheduledMessages(adminId, courseId, limit)

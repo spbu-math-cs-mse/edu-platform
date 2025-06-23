@@ -7,13 +7,13 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.SubmissionInputRequest
-import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.StudentViewService

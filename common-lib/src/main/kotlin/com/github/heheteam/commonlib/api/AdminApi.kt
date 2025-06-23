@@ -10,7 +10,6 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
-import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentId
@@ -25,6 +24,7 @@ import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
+import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.util.toUrl

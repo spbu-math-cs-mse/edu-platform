@@ -7,13 +7,13 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.database.CourseTokenService
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding

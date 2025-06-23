@@ -62,8 +62,8 @@ class AcademicWorkflowLogicTest {
   private lateinit var assignmentId: AssignmentId
   private lateinit var timestamp: Instant
 
-  private val good = SubmissionAssessment(1, TextWithMediaAttachments("comment"))
-  private val bad = SubmissionAssessment(0, TextWithMediaAttachments("comment"))
+  private val good = SubmissionAssessment(1, TextWithMediaAttachments.fromString("comment"))
+  private val bad = SubmissionAssessment(0, TextWithMediaAttachments.fromString("comment"))
 
   private fun monotoneTime(): LocalDateTime {
     timestamp += Duration.fromMinutes(1.0)

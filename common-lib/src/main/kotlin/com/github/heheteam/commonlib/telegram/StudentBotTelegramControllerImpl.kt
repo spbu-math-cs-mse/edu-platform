@@ -19,6 +19,8 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.extensions.makeString
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -42,13 +44,14 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
         else -> "✅"
       }
 
-    val messageText = buildString {
-      append(
-        "Ваше решение задачи ${problem.number}, серия ${problem.assignmentId} (id задачи: ${problem.id}) проверено!\n"
-      )
-      append("Оценка: $emoji ${assessment.grade}/${problem.maxScore}\n")
-      if (assessment.comment.text != "" || assessment.comment.attachments.isNotEmpty()) {
-        append("Комментарий преподавателя: ${assessment.comment.text}")
+    val messageText = buildEntities {
+      +"Ваше решение задачи ${problem.number}, серия ${problem.assignmentId} (id задачи: ${problem.id}) проверено!\n"
+      +"Оценка: $emoji ${assessment.grade}/${problem.maxScore}\n"
+      if (
+        assessment.comment.text.makeString().isNotEmpty() ||
+          assessment.comment.attachments.isNotEmpty()
+      ) {
+        +"Комментарий преподавателя:" + assessment.comment.text
       }
     }
     return studentBot
@@ -81,9 +84,10 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
     scheduledMessageId: ScheduledMessageId,
     replyMarkup: InlineKeyboardMarkup?,
   ): Result<MessageId, EduPlatformError> {
-    val messageText =
-      "Сообщение от курса \"${course.name}\" (ID: ${course.id}), " +
-        "ID сообщения: ${scheduledMessageId.long}\n\n${content.text}"
+    val messageText = buildEntities {
+      +"Сообщение от курса \"${course.name}\" (ID: ${course.id}), "
+      +"ID сообщения: ${scheduledMessageId.long}\n\n${content.text}"
+    }
     val sentMessage =
       studentBot.sendTextWithMediaAttachments(
         chatId.toChatId(),

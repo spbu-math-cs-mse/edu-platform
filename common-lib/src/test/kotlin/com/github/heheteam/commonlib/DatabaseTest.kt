@@ -68,7 +68,7 @@ class DatabaseTest {
       studentId,
       chatId,
       MessageId(problem.id.long),
-      TextWithMediaAttachments(text = "sample${problem.number}"),
+      TextWithMediaAttachments.fromString("sample${problem.number}"),
       problem.id,
       clock.next().toJavaLocalDateTime(),
       teacherId,

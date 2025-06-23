@@ -12,6 +12,8 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
+import dev.inmo.tgbotapi.types.message.textsources.regular
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
@@ -84,9 +86,15 @@ data class MediaAttachment(
 
 @Serializable
 data class TextWithMediaAttachments(
-  val text: String = "",
+  val text: TextSourcesList = listOf(regular("")),
   val attachments: List<MediaAttachment> = listOf(),
-)
+) {
+  companion object {
+    fun fromString(string: String): TextWithMediaAttachments {
+      return TextWithMediaAttachments(text = listOf(regular(string)))
+    }
+  }
+}
 
 @Serializable
 data class Submission(

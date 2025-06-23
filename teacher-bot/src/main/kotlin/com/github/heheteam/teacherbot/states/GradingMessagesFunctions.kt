@@ -19,6 +19,7 @@ import dev.inmo.tgbotapi.extensions.utils.contentMessageOrNull
 import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.utils.extensions.makeString
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -78,8 +79,8 @@ internal suspend fun extractAssessmentFromMessage(
   val comment = content.text
   val grade =
     when {
-      comment.contains("[+]") -> Ok(1)
-      comment.contains("[-]") -> Ok(0)
+      comment.makeString().contains("[+]") -> Ok(1)
+      comment.makeString().contains("[-]") -> Ok(0)
       else -> Err("message must contain [+] or [-] to be graded")
     }.bind()
   SubmissionAssessment(grade, content)

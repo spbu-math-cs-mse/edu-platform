@@ -69,7 +69,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
         withStudent(student1)
         withStudent(student2)
       }
-    val messageContent = TelegramMessageContent(text = "Hello students!")
+    val messageContent = TelegramMessageContent.fromString("Hello students!")
     return TestScenarioData(admin, student1, student2, course, messageContent)
   }
 

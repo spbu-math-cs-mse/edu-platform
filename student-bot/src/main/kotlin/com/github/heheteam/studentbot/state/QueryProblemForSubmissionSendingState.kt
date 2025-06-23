@@ -8,7 +8,6 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
-import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -20,9 +19,6 @@ import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.getOrElse
-import dev.inmo.kslog.common.error
-import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -48,16 +44,7 @@ class QueryProblemForSubmissionSendingState(
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
   ): Result<Unit, EduPlatformError> = coroutineBinding {
-    val assignments =
-      service.getCourseAssignments(selectedCourseId).getOrElse {
-        logger.error("service.getCourseAssignments failed: ${it.toStackedString()}")
-        listOf()
-      }
-    val problems =
-      service.calculateRescheduledDeadlines(
-        userId,
-        assignments.associateWith { service.getProblemsFromAssignment(it.id).value },
-      )
+    val problems = service.getActiveProblems(userId, selectedCourseId).bind()
     val message =
       bot.send(context, Dialogues.askProblem, replyMarkup = buildProblemSendingSelector(problems))
     sentMessage.add(message)

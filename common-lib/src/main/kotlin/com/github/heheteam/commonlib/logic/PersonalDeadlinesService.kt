@@ -4,12 +4,15 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.interfaces.AdminStorage
+import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.PersonalDeadlineStorage
+import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapResult
@@ -17,6 +20,7 @@ import kotlinx.datetime.LocalDateTime
 
 internal class PersonalDeadlinesService(
   private val studentStorage: StudentStorage,
+  private val problemStorage: ProblemStorage,
   private val adminStorage: AdminStorage,
   private val personalDeadlineStorage: PersonalDeadlineStorage,
   private val adminBotTelegramController: AdminBotTelegramController,
@@ -57,12 +61,13 @@ internal class PersonalDeadlinesService(
     }
   }
 
-  fun calculateNewDeadlines(
+  fun getActiveProblems(
     studentId: StudentId,
-    problems: Map<Assignment, List<Problem>>,
-  ): Map<Assignment, List<Problem>> {
+    courseId: CourseId,
+  ): Result<Map<Assignment, List<Problem>>, EduPlatformError> = binding {
+    val problems = problemStorage.getProblemsWithAssignmentsFromCourse(courseId).bind()
     val newDeadline = personalDeadlineStorage.resolveDeadline(studentId)
-    return problems
+    problems
       .map { (assignment, problems) ->
         assignment to
           problems.map { it.copy(deadline = calculateDeadline(it.deadline, newDeadline)) }

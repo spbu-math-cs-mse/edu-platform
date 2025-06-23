@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
+import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
@@ -15,18 +16,17 @@ import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
-import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.ScheduledMessage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
-import com.github.heheteam.commonlib.interfaces.ScheduledMessagesDistributor
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
+import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
+import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
@@ -40,7 +40,7 @@ import java.time.LocalDateTime
 ) // shortcut to make this not to long; should be fixed later
 class AdminApi
 internal constructor(
-  private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
+  private val scheduledMessagesService: ScheduledMessageService,
   private val courseStorage: CourseStorage,
   private val adminStorage: AdminStorage,
   private val studentStorage: StudentStorage,
@@ -49,7 +49,7 @@ internal constructor(
   private val problemStorage: ProblemStorage,
   private val submissionDistributor: SubmissionDistributor,
   private val personalDeadlinesService: PersonalDeadlinesService,
-  private val tokenStorage: CourseTokenStorage,
+  private val tokenStorage: CourseTokenService,
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,
@@ -58,7 +58,7 @@ internal constructor(
     shortName: String,
     courseId: CourseId,
   ): Result<ScheduledMessageId, EduPlatformError> =
-    scheduledMessagesDistributor.storeScheduledMessage(
+    scheduledMessagesService.sendScheduledMessage(
       adminId,
       NewScheduledMessageInfo(timestamp, content, shortName, courseId),
     )
@@ -66,19 +66,19 @@ internal constructor(
   fun resolveScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<ScheduledMessage, EduPlatformError> =
-    scheduledMessagesDistributor.resolveScheduledMessage(scheduledMessageId)
+    scheduledMessagesService.resolveScheduledMessage(scheduledMessageId)
 
   fun viewScheduledMessages(
     adminId: AdminId? = null,
     courseId: CourseId? = null,
     lastN: Int = 5,
   ): Result<List<ScheduledMessage>, EduPlatformError> =
-    scheduledMessagesDistributor.viewScheduledMessages(adminId, courseId, lastN)
+    scheduledMessagesService.viewScheduledMessages(adminId, courseId, lastN)
 
   suspend fun deleteScheduledMessage(
     scheduledMessageId: ScheduledMessageId
   ): Result<Unit, EduPlatformError> =
-    scheduledMessagesDistributor.deleteScheduledMessage(scheduledMessageId)
+    scheduledMessagesService.deleteScheduledMessage(scheduledMessageId)
 
   suspend fun moveAllDeadlinesForStudent(
     studentId: StudentId,

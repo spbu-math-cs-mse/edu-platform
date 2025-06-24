@@ -45,19 +45,19 @@ services:
 
 secrets:
   db_user:
-    file: ./secrets/db_user
+    file: secrets/db_user
   db_password:
-    file: ./secrets/db_password
+    file: secrets/db_password
   student_bot_token:
-    file: ./secrets/student_bot_token
+    file: secrets/student_bot_token
   teacher_bot_token:
-    file: ./secrets/teacher_bot_token
+    file: secrets/teacher_bot_token
   admin_bot_token:
-    file: ./secrets/admin_bot_token
+    file: secrets/admin_bot_token
   parent_bot_token:
-    file: ./secrets/parent_bot_token
+    file: secrets/parent_bot_token
   google_api_key:
-    file: ./secrets/google_api_key.json
+    file: secrets/google_api_key.json
 
 volumes:
   postgres_data:

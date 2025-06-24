@@ -41,7 +41,7 @@ object Dialogues {
 
   fun adminIdIsNotInWhitelist(tgId: Long): TextSourcesList =
     regularln(
-      "Вашего аккаунта нет в списке разрешенных. Попросите админа вас добавить.\n\nВаш id: "
+      "Вашего аккаунта нет в списке разрешенных. Попросите админа вас добавить.\n\nВаш Telegram id: "
     ) + code(tgId.toString())
 
   const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"

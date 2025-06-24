@@ -31,6 +31,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageDeliveryServiceImpl
 import com.github.heheteam.commonlib.logic.ui.MenuMessageUpdaterImpl
@@ -49,6 +50,7 @@ import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import dev.inmo.kslog.common.error
 import dev.inmo.kslog.common.logger
+import dev.inmo.tgbotapi.types.toChatId
 import org.jetbrains.exposed.sql.Database
 
 data class ApiCollection(
@@ -113,12 +115,13 @@ class ApiFabric(
       SubmissionDistributorDecorator(databaseSubmissionDistributor, ratingRecorder)
     val academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     val adminStorage = DatabaseAdminStorage(database)
+    val adminAuthService = AdminAuthService(adminStorage)
 
     if (initDatabase) {
       fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
     }
 
-    adminIds.forEach { adminStorage.addTgIdToWhitelist(it) }
+    adminAuthService.addTgIdsToWhitelist(adminIds.map { it.toChatId() })
 
     val parentStorage = MockParentStorage()
     val botEventBus: BotEventBus = ObserverBus()
@@ -231,7 +234,7 @@ class ApiFabric(
       AdminApi(
         scheduledMessagesDistributor,
         courseStorage,
-        adminStorage,
+        adminAuthService,
         studentStorage,
         teacherStorage,
         assignmentStorage,

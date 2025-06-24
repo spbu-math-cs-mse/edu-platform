@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseTokenStorage
+import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import io.mockk.mockk
@@ -44,7 +45,7 @@ class AdminBotTest {
       AdminApi(
         DatabaseScheduledMessagesDistributor(database, sentMessageLogStorage, studentBotController),
         DatabaseCourseStorage(database),
-        DatabaseAdminStorage(database),
+        AdminAuthService(DatabaseAdminStorage(database)),
         DatabaseStudentStorage(database),
         DatabaseTeacherStorage(database),
         DatabaseAssignmentStorage(database, problemStorage),

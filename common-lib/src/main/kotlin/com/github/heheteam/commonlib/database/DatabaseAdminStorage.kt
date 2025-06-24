@@ -27,7 +27,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 
 class DatabaseAdminStorage(val database: Database) : AdminStorage {
   init {
@@ -102,20 +101,6 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
           row[AdminTable.tgId].toRawChatId(),
         )
       }
-    }
-  }
-
-  override fun updateTgId(adminId: AdminId, newTgId: UserId): Result<Unit, ResolveError<AdminId>> {
-    val rows =
-      transaction(database) {
-        AdminTable.update({ AdminTable.id eq adminId.long }) {
-          it[AdminTable.tgId] = newTgId.chatId.long
-        }
-      }
-    return if (rows == 1) {
-      Ok(Unit)
-    } else {
-      Err(ResolveError(adminId))
     }
   }
 

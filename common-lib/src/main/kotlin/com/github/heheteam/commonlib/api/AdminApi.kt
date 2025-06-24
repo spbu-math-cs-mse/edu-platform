@@ -10,7 +10,6 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.interfaces.AdminId
-import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -26,6 +25,7 @@ import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
+import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
@@ -42,7 +42,7 @@ class AdminApi
 internal constructor(
   private val scheduledMessagesDistributor: ScheduledMessagesDistributor,
   private val courseStorage: CourseStorage,
-  private val adminStorage: AdminStorage,
+  private val adminAuthService: AdminAuthService,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
   private val assignmentStorage: AssignmentStorage,
@@ -176,15 +176,15 @@ internal constructor(
     courseStorage.resolveCourseWithSpreadsheetId(courseId).map { it.second.toUrl() }
 
   fun loginByTgId(tgId: UserId): Result<Admin, ResolveError<UserId>> =
-    adminStorage.resolveByTgId(tgId)
+    adminAuthService.loginByTgId(tgId)
 
-  fun tgIdIsInWhitelist(tgId: UserId): Boolean = adminStorage.tgIdIsInWhitelist(tgId.chatId.long)
+  fun tgIdIsInWhitelist(tgId: UserId): Boolean = adminAuthService.tgIdIsInWhitelist(tgId)
 
   fun addTgIdToWhitelist(tgId: UserId): Result<Unit, EduPlatformError> =
-    adminStorage.addTgIdToWhitelist(tgId.chatId.long)
+    adminAuthService.addTgIdToWhitelist(tgId)
 
   fun createAdmin(name: String, surname: String, tgId: Long): Result<AdminId, EduPlatformError> =
-    adminStorage.createAdmin(name, surname, tgId)
+    adminAuthService.createAdmin(name, surname, tgId)
 
   fun getTokenForCourse(courseId: CourseId): String? = tokenStorage.getTokenForCourse(courseId)
 

@@ -135,23 +135,6 @@ class ApiFabric(
       studentBotTelegramController.notifyStudentOnDeadlineRescheduling(chatId, newDeadline)
     }
 
-    botEventBus.subscribeToNewDeadlineRequest { studentId, newDeadline ->
-      adminStorage
-        .getAdmins()
-        .onSuccess { admins ->
-          admins.forEach { admin ->
-            adminBotTelegramController.notifyAdminOnNewMovingDeadlinesRequest(
-              admin.tgId,
-              studentId,
-              newDeadline,
-            )
-          }
-        }
-        .onFailure { error ->
-          logger.error("Failed to get admins for new deadline request: $error")
-        }
-    }
-
     val tgTechnicalMessagesStorage =
       DatabaseTelegramTechnicalMessagesStorage(database, submissionDistributor)
     val menuMessageUpdaterService =
@@ -213,7 +196,14 @@ class ApiFabric(
       )
 
     val personalDeadlinesService =
-      PersonalDeadlinesService(studentStorage, problemStorage, personalDeadlineStorage, botEventBus)
+      PersonalDeadlinesService(
+        studentStorage,
+        problemStorage,
+        adminStorage,
+        personalDeadlineStorage,
+        adminBotTelegramController,
+        botEventBus,
+      )
 
     val studentApi =
       StudentApi(

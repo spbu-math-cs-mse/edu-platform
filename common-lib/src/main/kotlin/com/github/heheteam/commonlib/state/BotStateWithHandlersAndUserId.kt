@@ -56,7 +56,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
       bot.send(
         context,
         "Случилась ошибка! Не волнуйтесь, разработчики уже в пути решения этой проблемы.\n" +
-          "Ошибка:${introError.shortDescription}",
+          "Ошибка: ${introError.shortDescription}",
       )
       return defaultState()
     }

@@ -123,7 +123,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
       SubmissionInputRequest(
         studentId = student.id,
         problemId = problem.id,
-        submissionContent = TextWithMediaAttachments(content),
+        submissionContent = TextWithMediaAttachments.fromString(content),
         telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
         timestamp = defaultTimestamp,
       )
@@ -199,7 +199,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     SubmissionInputRequest(
       studentId = student.id,
       problemId = problem.id,
-      submissionContent = TextWithMediaAttachments(content),
+      submissionContent = TextWithMediaAttachments.fromString(content),
       telegramMessageInfo = TelegramMessageInfo(student.tgId, defaultMessageId),
       timestamp = defaultTimestamp,
     )

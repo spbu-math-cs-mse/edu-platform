@@ -1,6 +1,11 @@
 package com.github.heheteam.commonlib.telegram
 
+import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.asEduPlatformError
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
 import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
@@ -22,13 +27,17 @@ class AdminBotTelegramControllerImpl(val adminBot: TelegramBot) : AdminBotTelegr
     chatId: RawChatId,
     studentId: StudentId,
     newDeadline: LocalDateTime,
-  ) {
-    adminBot.send(
-      chatId.toChatId(),
-      "Ученик $studentId просит продлить дедлайны до ${newDeadline.format(deadlineFormat)}.\nХотите продлить?",
-      replyMarkup = moveDeadlines(studentId, newDeadline),
-    )
-  }
+  ): Result<Unit, EduPlatformError> =
+    com.github.michaelbull.result
+      .runCatching {
+        adminBot.send(
+          chatId.toChatId(),
+          "Ученик $studentId просит продлить дедлайны до ${newDeadline.format(deadlineFormat)}.\nХотите продлить?",
+          replyMarkup = moveDeadlines(studentId, newDeadline),
+        )
+      }
+      .mapError { it.asEduPlatformError() }
+      .map {}
 
   private fun moveDeadlines(studentId: StudentId, newDeadline: LocalDateTime) = inlineKeyboard {
     row {

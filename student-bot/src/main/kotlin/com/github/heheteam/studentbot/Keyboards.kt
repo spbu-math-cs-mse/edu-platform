@@ -49,4 +49,18 @@ object Keyboards {
     )
 
   fun back() = InlineKeyboardMarkup(keyboard = matrix { row { dataButton("Назад", RETURN_BACK) } })
+
+  const val YES = "yes"
+  const val NO = "no"
+
+  fun confirm() =
+    InlineKeyboardMarkup(
+      keyboard =
+        matrix {
+          row {
+            dataButton("Да", YES)
+            dataButton("Нет", NO)
+          }
+        }
+    )
 }

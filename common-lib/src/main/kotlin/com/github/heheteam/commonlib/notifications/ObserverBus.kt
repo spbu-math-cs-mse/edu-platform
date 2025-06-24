@@ -19,8 +19,6 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
       suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
     >()
 
-  private val newDeadlineRequestHandlers =
-    mutableListOf<suspend (StudentId, LocalDateTime) -> Unit>()
   private val movingDeadlineHandlers = mutableListOf<suspend (RawChatId, LocalDateTime) -> Unit>()
 
   override fun publishGradeEvent(
@@ -39,10 +37,6 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
   override suspend fun publishNewSubmissionEvent(submission: Submission) =
     newSubmissionHandlers.forEach { it.invoke(submission) }
 
-  override suspend fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime) {
-    newDeadlineRequestHandlers.forEach { it.invoke(studentId, newDeadline) }
-  }
-
   override suspend fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime) {
     movingDeadlineHandlers.forEach { it.invoke(chatId, newDeadline) }
   }
@@ -55,10 +49,6 @@ class ObserverBus(val context: CoroutineDispatcher = Dispatchers.IO) : BotEventB
     handler: suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
   ) {
     newGradeHandlers.add(handler)
-  }
-
-  override fun subscribeToNewDeadlineRequest(handler: suspend (StudentId, LocalDateTime) -> Unit) {
-    newDeadlineRequestHandlers.add(handler)
   }
 
   override fun subscribeToMovingDeadlineEvents(

@@ -8,15 +8,13 @@ import com.github.heheteam.studentbot.Dialogues
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
 class StartState(override val context: User, private val token: String?) :
-  BotState<StudentId?, String?, StudentApi> {
+  BotState<StudentId?, Unit, StudentApi> {
   override suspend fun readUserInput(bot: BehaviourContext, service: StudentApi): StudentId? {
-    bot.sendSticker(context, Dialogues.greetingSticker)
     val id = service.loginByTgId(context.id).get()?.id
     if (id != null) {
       if (token != null) {
@@ -36,19 +34,13 @@ class StartState(override val context: User, private val token: String?) :
     return id
   }
 
-  override suspend fun computeNewState(
-    service: StudentApi,
-    input: StudentId?,
-  ): Pair<State, String?> =
+  override suspend fun computeNewState(service: StudentApi, input: StudentId?): Pair<State, Unit> =
     if (input != null) {
-      MenuState(context, input) to Dialogues.greetings
+      MenuState(context, input) to Unit
     } else {
-      AskFirstNameState(context, token) to Dialogues.greetings
+      AskFirstNameState(context, token) to Unit
     }
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: String?) {
-    if (response != null) {
-      bot.send(context, response)
-    }
-  }
+  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
+    Unit
 }

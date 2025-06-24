@@ -86,7 +86,7 @@ class TeacherBotTest {
       studentId,
       RawChatId(0),
       MessageId(0),
-      TextWithMediaAttachments(text = "text"),
+      TextWithMediaAttachments.fromString("text"),
       problemId,
       LocalDateTime.now(),
       teacherId,
@@ -94,7 +94,7 @@ class TeacherBotTest {
     val submission = submissionDistributor.querySubmission(teacherId).value!!
 
     assertEquals(studentId, submission.studentId)
-    assertEquals(TextWithMediaAttachments(text = "text"), submission.content)
+    assertEquals(TextWithMediaAttachments.fromString("text"), submission.content)
     assertEquals(MessageId(0), submission.messageId)
     assertEquals(RawChatId(0), submission.chatId)
   }

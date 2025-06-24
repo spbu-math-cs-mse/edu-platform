@@ -47,7 +47,7 @@ internal class StateRegister(
       registerStateForBotState<DeveloperStartState, StudentApi>(studentApi)
       registerSendSubmissionState(botToken, studentApi)
       strictlyOnPresetStudentState(studentApi)
-      registerStateForBotState<RescheduleDeadlinesState, StudentApi>(studentApi)
+      registerStateWithStudentId<RescheduleDeadlinesState, StudentApi>(studentApi)
       registerStateForBotState<CheckDeadlinesState, StudentApi>(studentApi)
       registerStateForBotState<PetTheDachshundState, StudentApi>(studentApi)
       registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::initializeHandlers)

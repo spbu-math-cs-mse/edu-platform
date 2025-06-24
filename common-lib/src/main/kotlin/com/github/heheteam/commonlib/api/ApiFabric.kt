@@ -48,10 +48,6 @@ import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
-import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
-import dev.inmo.kslog.common.error
-import dev.inmo.kslog.common.logger
 import dev.inmo.tgbotapi.types.toChatId
 import org.jetbrains.exposed.sql.Database
 

@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.telegram
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.asEduPlatformError
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.asEduPlatformError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map

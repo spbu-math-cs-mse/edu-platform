@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.database.table.CourseTokenTable
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.interfaces.toCourseId

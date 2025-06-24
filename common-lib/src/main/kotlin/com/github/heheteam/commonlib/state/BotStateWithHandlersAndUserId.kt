@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -30,8 +30,8 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, In, Any>,
-  ): Result<Unit, EduPlatformError>
+    updateHandlersController: UpdateHandlersController<() -> Unit, In, NumberedError>,
+  ): Result<Unit, NumberedError>
 
   suspend fun computeNewState(service: ApiService, input: In): Pair<State, Out>
 
@@ -45,25 +45,23 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
     bot: BehaviourContext,
     service: ApiService,
     initUpdateHandlers:
-      (UpdateHandlersController<() -> Unit, In, Any>, context: User, userId: UserId) -> Unit =
+      (
+        UpdateHandlersController<() -> Unit, In, NumberedError>, context: User, userId: UserId,
+      ) -> Unit =
       { _, _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlersController<() -> Unit, In, Any>()
+    val updateHandlersController = UpdateHandlersController<() -> Unit, In, NumberedError>()
     initUpdateHandlers(updateHandlersController, context, userId)
     val introError = intro(bot, service, updateHandlersController).getError()
     if (introError != null) {
-      bot.send(
-        context,
-        "Случилась ошибка! Не волнуйтесь, разработчики уже в пути решения этой проблемы.\n" +
-          "Ошибка: ${introError.shortDescription}",
-      )
+      bot.send(context, introError.toMessageText())
       return defaultState()
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()
-        is HandlingError<Any> -> {
+        is HandlingError<NumberedError> -> {
           bot.send(context.id, handlerResult.toString())
         }
 
@@ -92,7 +90,9 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, Any>, context: User, studentId: StudentId,
+      UpdateHandlersController<() -> Unit, out Any?, NumberedError>,
+      context: User,
+      studentId: StudentId,
     ) -> Unit =
     { _, _, _ ->
     },
@@ -110,7 +110,9 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, Any>, context: User, teacherId: TeacherId,
+      UpdateHandlersController<() -> Unit, out Any?, NumberedError>,
+      context: User,
+      teacherId: TeacherId,
     ) -> Unit =
     { _, _, _ ->
     },
@@ -125,7 +127,9 @@ inline fun <
 > DefaultBehaviourContextWithFSM<State>.registerStateForBotStateWithHandlersAndUserId(
   service: HelperService,
   noinline initUpdateHandlers:
-    (UpdateHandlersController<() -> Unit, out Any?, Any>, context: User, userId: UserId) -> Unit =
+    (
+      UpdateHandlersController<() -> Unit, out Any?, NumberedError>, context: User, userId: UserId,
+    ) -> Unit =
     { _, _, _ ->
     },
 ) {

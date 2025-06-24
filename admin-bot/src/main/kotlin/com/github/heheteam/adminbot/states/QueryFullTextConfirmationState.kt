@@ -1,14 +1,13 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
-import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createYesNoKeyboard
 import com.github.michaelbull.result.Result
@@ -32,7 +31,7 @@ data class QueryFullTextConfirmationState(
   val adminId: AdminId,
   val courseId: CourseId,
   val numberOfMessages: Int,
-) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, EduPlatformError>, AdminApi> {
+) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, NumberedError>, AdminApi> {
 
   override fun defaultState(): State = MenuState(context, adminId)
 
@@ -40,7 +39,7 @@ data class QueryFullTextConfirmationState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val keyboard = createYesNoKeyboard("Да", "Нет")
     bot.sendMessage(
       context.id,
@@ -50,17 +49,14 @@ data class QueryFullTextConfirmationState(
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       keyboard
         .handler(dataCallbackQuery.data)
-        .mapBoth(
-          success = { UserInput(it) },
-          failure = { HandlingError(NamedError("Invalid input for Yes/No confirmation")) },
-        )
+        .mapBoth(success = { UserInput(it) }, failure = { Unhandled })
     }
   }
 
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Pair<State, Result<List<ScheduledMessage>, EduPlatformError>> {
+  ): Pair<State, Result<List<ScheduledMessage>, NumberedError>> {
     val messages = service.viewScheduledMessages(null, courseId)
     return MenuState(context, adminId) to messages
   }
@@ -68,7 +64,7 @@ data class QueryFullTextConfirmationState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: Result<List<ScheduledMessage>, EduPlatformError>,
+    response: Result<List<ScheduledMessage>, NumberedError>,
     input: Boolean,
   ) {
     response.mapBoth(

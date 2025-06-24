@@ -1,10 +1,10 @@
 package com.github.heheteam.commonlib.logic
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.SubmissionInputRequest
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.ResponsibleTeacherResolver

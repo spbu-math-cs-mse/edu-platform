@@ -4,11 +4,12 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
-import com.github.heheteam.commonlib.OperationCancelledError
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NamedError
+import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -70,7 +71,7 @@ class ConfirmScheduledMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<Boolean, EduPlatformError>>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val confirmationMessage =
       bot.send(
         context,

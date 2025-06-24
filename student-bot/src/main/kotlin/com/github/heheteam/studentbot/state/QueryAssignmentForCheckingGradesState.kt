@@ -1,9 +1,10 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -21,7 +22,6 @@ import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.logger
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -45,8 +45,8 @@ data class QueryAssignmentForCheckingGradesState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Assignment?, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Assignment?, NumberedError>,
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val assignments = service.getCourseAssignments(courseId).bind()
     val coursesPicker = createAssignmentPicker(assignments)
     val selectCourseMessage =

@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
@@ -11,7 +11,6 @@ import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.Keyboards
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.map
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.fsm.common.State
@@ -30,8 +29,8 @@ data class ApplyForCoursesState(override val context: User, override val userId:
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, NumberedError>,
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val studentCourses = service.getStudentCourses(userId).bind().toSet()
     val allCourses = service.getAllCourses().bind().map { it to studentCourses.contains(it) }
     val selectCourseMessage =

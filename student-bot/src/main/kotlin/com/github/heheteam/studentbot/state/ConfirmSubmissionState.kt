@@ -1,12 +1,12 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
-import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -46,8 +46,8 @@ class ConfirmSubmissionState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, NumberedError>,
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
         ButtonData("Да", "yes") { true },

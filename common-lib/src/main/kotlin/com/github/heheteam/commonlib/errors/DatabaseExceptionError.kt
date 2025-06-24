@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.errors
 
 import com.github.heheteam.commonlib.interfaces.TeacherId
 

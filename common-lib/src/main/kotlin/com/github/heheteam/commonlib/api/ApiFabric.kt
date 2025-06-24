@@ -20,6 +20,7 @@ import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.decorators.SubmissionDistributorDecorator
+import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
@@ -201,6 +202,8 @@ class ApiFabric(
         botEventBus,
       )
 
+    val errorManagementService = ErrorManagementService()
+
     val studentApi =
       StudentApi(
         academicWorkflowService,
@@ -209,6 +212,7 @@ class ApiFabric(
         StudentViewService(courseStorage, problemStorage, assignmentStorage),
         studentStorage,
         courseTokenService,
+        errorManagementService,
       )
 
     val adminApi =
@@ -223,16 +227,23 @@ class ApiFabric(
         submissionDistributor,
         personalDeadlinesService,
         courseTokenService,
+        errorManagementService,
       )
 
-    val parentApi = ParentApi(studentStorage, gradeTable, parentStorage)
+    val parentApi = ParentApi(studentStorage, gradeTable, parentStorage, errorManagementService)
 
     botEventBus.subscribeToNewSubmissionEvent { submission: Submission ->
       newSubmissionTeacherNotifier.notifyNewSubmission(submission)
     }
 
     val teacherApi =
-      TeacherApi(courseStorage, academicWorkflowService, teacherStorage, menuMessageUpdaterService)
+      TeacherApi(
+        courseStorage,
+        academicWorkflowService,
+        teacherStorage,
+        menuMessageUpdaterService,
+        errorManagementService,
+      )
     return ApiCollection(studentApi, teacherApi, adminApi, parentApi)
   }
 }

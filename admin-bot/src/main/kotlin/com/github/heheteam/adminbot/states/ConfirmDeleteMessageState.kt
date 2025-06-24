@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -41,7 +41,7 @@ data class ConfirmDeleteMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val result = service.resolveScheduledMessage(scheduledMessageId)
     result.mapBoth(
       success = { message ->

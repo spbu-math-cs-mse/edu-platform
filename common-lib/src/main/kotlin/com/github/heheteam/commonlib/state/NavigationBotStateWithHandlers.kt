@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
@@ -28,7 +28,7 @@ abstract class NavigationBotStateWithHandlers<Service> :
     bot: BehaviourContext,
     service: Service,
     updateHandlersController: UpdateHandlerManager<State?>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val keyboardData = createKeyboard(service)
     val introMessage =
       bot.sendMessage(context, introMessageContent, replyMarkup = keyboardData.keyboard)

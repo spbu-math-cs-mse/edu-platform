@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.TeacherApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.michaelbull.result.Result

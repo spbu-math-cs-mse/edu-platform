@@ -1,15 +1,15 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.MaybeEduPlatformError
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
-import com.github.heheteam.commonlib.asNamedError
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.SubmissionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SubmissionPersonalMessagesTable
 import com.github.heheteam.commonlib.database.table.TeacherMenuMessageTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.MaybeEduPlatformError
+import com.github.heheteam.commonlib.errors.asNamedError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionId

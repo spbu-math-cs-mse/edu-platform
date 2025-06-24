@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort

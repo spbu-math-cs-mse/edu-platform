@@ -8,8 +8,8 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyDoesNotExistForStudent
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentRemoving
 import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -46,7 +46,7 @@ class RemoveStudentState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val message =
       bot.send(context) {
         +"Введите ID учеников (через запятую), которых хотите убрать с курса $courseName, " +

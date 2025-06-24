@@ -25,8 +25,10 @@ class StartState(override val context: User, private val token: String?) :
               bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
             failure = { error ->
-              if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
-              else bot.send(context, "Ошибка: ${error.shortDescription}")
+              val deepError = error.error
+              if (deepError is TokenError)
+                bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+              else bot.send(context, error.toMessageText())
             },
           )
       }

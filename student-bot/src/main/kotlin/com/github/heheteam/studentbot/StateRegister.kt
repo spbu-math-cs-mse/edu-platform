@@ -1,6 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
@@ -95,7 +96,7 @@ internal class StateRegister(
   }
 
   private fun initializeHandlers(
-    handlersController: UpdateHandlersController<() -> Unit, out Any?, Any>,
+    handlersController: UpdateHandlersController<() -> Unit, out Any?, NumberedError>,
     context: User,
     studentId: StudentId,
   ) {
@@ -117,7 +118,7 @@ internal class StateRegister(
     text: String,
     studentId: StudentId,
     context: User,
-  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, Any> =
+  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, NumberedError> =
     if (text.startsWith("/start")) {
       val parts = text.split(" ")
       if (parts.size != 2) {
@@ -131,8 +132,10 @@ internal class StateRegister(
               bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
             failure = { error ->
-              if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
-              else bot.send(context, "Ошибка: ${error.shortDescription}")
+              val deepError = error.error
+              if (deepError is TokenError)
+                bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+              else bot.send(context, error.toMessageText())
             },
           )
         NewState(MenuState(context, studentId))

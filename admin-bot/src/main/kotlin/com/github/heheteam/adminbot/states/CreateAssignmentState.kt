@@ -4,9 +4,9 @@ import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.AdminKeyboards.RETURN_BACK
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
@@ -61,7 +61,7 @@ class CreateAssignmentState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     when {
       description == null -> handleAssignmentDescription(bot, updateHandlersController)
       problems == null -> handleProblemsDescription(bot, updateHandlersController)
@@ -71,8 +71,7 @@ class CreateAssignmentState(
 
   private suspend fun handleAssignmentDescription(
     bot: BehaviourContext,
-    updateHandlersController:
-      UpdateHandlersController<SuspendableBotAction, State, EduPlatformError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State, NumberedError>,
   ) {
     val msg =
       bot.send(
@@ -115,8 +114,7 @@ class CreateAssignmentState(
 
   private suspend fun handleProblemsDescription(
     bot: BehaviourContext,
-    updateHandlersController:
-      UpdateHandlersController<SuspendableBotAction, State, EduPlatformError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State, NumberedError>,
   ) {
     lastMessageId?.let {
       try {

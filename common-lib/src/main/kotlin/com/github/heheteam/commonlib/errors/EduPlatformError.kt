@@ -1,4 +1,4 @@
-package com.github.heheteam.commonlib
+package com.github.heheteam.commonlib.errors
 
 import com.github.michaelbull.result.Result
 import dev.inmo.micro_utils.common.joinTo
@@ -8,6 +8,10 @@ interface EduPlatformError {
   val shortDescription: String
   val longDescription: String
     get() = shortDescription
+
+  /** A simple, user-friendly description. It must be in Russian. */
+  val userDescription: String?
+    get() = null
 }
 
 data class NamedError(

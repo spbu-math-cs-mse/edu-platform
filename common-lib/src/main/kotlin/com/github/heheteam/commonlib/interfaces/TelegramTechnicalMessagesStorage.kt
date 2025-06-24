@@ -1,9 +1,9 @@
 package com.github.heheteam.commonlib.interfaces
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.MaybeEduPlatformError
 import com.github.heheteam.commonlib.MenuMessageInfo
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.MaybeEduPlatformError
 import com.github.michaelbull.result.Result
 
 internal interface TelegramTechnicalMessagesStorage {

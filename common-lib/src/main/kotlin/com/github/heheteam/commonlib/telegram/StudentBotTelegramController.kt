@@ -1,10 +1,10 @@
 package com.github.heheteam.commonlib.telegram
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.errors.EduPlatformError
 
 data class TeacherNewSubmissionNotificationStatus(
   val teacherDirectMessagingSendError: EduPlatformError? = null,

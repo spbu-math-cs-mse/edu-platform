@@ -2,8 +2,8 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -37,7 +37,7 @@ class CreateAssignmentErrorState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val msg = bot.send(context, errorMessage, replyMarkup = AdminKeyboards.returnBack())
     sentMessages.add(msg)
 

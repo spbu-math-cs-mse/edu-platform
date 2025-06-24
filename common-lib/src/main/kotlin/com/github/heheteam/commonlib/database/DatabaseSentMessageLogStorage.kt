@@ -1,9 +1,9 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.DatabaseExceptionError
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.SentMessageLog
 import com.github.heheteam.commonlib.database.table.SentMessageLogTable
+import com.github.heheteam.commonlib.errors.DatabaseExceptionError
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.SentMessageLogStorage
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId

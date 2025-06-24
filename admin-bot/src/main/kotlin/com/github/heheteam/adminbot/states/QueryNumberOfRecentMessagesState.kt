@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -30,7 +30,7 @@ data class QueryNumberOfRecentMessagesState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     bot.sendMessage(
       context.id,
       buildEntities {

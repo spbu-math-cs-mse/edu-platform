@@ -1,11 +1,11 @@
 package com.github.heheteam.commonlib.testdouble
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController

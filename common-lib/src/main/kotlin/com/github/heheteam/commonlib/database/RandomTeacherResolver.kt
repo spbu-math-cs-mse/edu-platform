@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.SubmissionInputRequest
-import com.github.heheteam.commonlib.TeacherResolveError
+import com.github.heheteam.commonlib.errors.TeacherResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage

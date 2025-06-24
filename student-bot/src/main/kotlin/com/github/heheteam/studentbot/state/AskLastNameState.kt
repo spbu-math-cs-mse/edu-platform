@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -45,7 +45,7 @@ class AskLastNameState(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlerManager<StudentId>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
@@ -82,8 +82,10 @@ class AskLastNameState(
             bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
           },
           failure = { error ->
-            if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
-            else bot.send(context, "Ошибка: ${error.shortDescription}")
+            val deepError = error.error
+            if (deepError is TokenError)
+              bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+            else bot.send(context, error.toMessageText())
           },
         )
     }

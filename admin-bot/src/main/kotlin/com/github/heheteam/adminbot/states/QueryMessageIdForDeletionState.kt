@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NamedError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -28,7 +28,7 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     bot.sendMessage(
       context.id,
       buildEntities { +"Введите ID сообщения, которое вы хотите удалить:" },

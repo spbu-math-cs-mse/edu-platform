@@ -8,8 +8,8 @@ import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyExistsForTeacherAdditi
 import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -47,7 +47,7 @@ class AddTeacherState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val introMessage =
       bot.send(context) {
         +"Введите ID преподавателей (через запятую), которых хотите добавить на курс $courseName, " +

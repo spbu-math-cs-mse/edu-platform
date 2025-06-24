@@ -3,10 +3,11 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
-import com.github.heheteam.commonlib.OperationCancelledError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NamedError
+import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -54,7 +55,7 @@ class EnterScheduledMessageDateManuallyState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<LocalDate, EduPlatformError>>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.enterScheduledMessageDateManually)
     sentMessages.add(introMessage)
 

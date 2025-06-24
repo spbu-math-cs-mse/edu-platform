@@ -26,8 +26,8 @@ import com.github.heheteam.adminbot.states.QueryScheduledMessageTimeState
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.StartState
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -65,7 +65,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   > DefaultBehaviourContextWithFSM<State>.registerStateForBotStateWithHandlers(
     noinline initUpdateHandlers:
       (
-        UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>, context: User,
+        UpdateHandlersController<SuspendableBotAction, out Any?, NumberedError>, context: User,
       ) -> Unit =
       { _, _ ->
       }
@@ -135,7 +135,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun registerHandlers(
-    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, NumberedError>,
     context: User,
   ) {
     addMenuCommandHandler(handlersController, context)
@@ -143,7 +143,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun addMenuCommandHandler(
-    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, NumberedError>,
     context: User,
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
@@ -156,7 +156,7 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun addMoveDeadlinesHandler(
-    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, NumberedError>,
     context: User,
   ) {
     handlersController.addDataCallbackHandler { dataCallbackQuery ->

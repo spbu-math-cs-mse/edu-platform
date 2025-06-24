@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.logic.ui
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.TelegramMessageInfo
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage

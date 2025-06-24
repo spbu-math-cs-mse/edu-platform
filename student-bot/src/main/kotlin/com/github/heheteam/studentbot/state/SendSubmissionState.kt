@@ -1,14 +1,13 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
-import com.github.heheteam.commonlib.util.HandlerResultWithUserInput
-import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -39,8 +38,9 @@ data class SendSubmissionState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, SubmissionInputRequest?, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController:
+      UpdateHandlersController<() -> Unit, SubmissionInputRequest?, NumberedError>,
+  ): Result<Unit, NumberedError> = coroutineBinding {
     bot.send(context, Dialogues.tellValidSubmissionTypes, replyMarkup = back())
     updateHandlersController.addTextMessageHandler { message ->
       bot.parseSentSubmission(message, studentBotToken)
@@ -76,15 +76,19 @@ data class SendSubmissionState(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionInputRequest?,
-  ) = Unit
+  ) {
+    if (response == null) {
+      bot.send(context, Dialogues.tellSubmissionTypeIsInvalid)
+    }
+  }
 
   private suspend fun BehaviourContext.parseSentSubmission(
     submissionMessage: CommonMessage<*>,
     studentBotToken: String,
-  ): HandlerResultWithUserInput<Nothing, SubmissionInputRequest, String> {
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, SubmissionInputRequest?, NumberedError> {
     val attachment = extractTextWithMediaAttachments(submissionMessage, studentBotToken, this)
     return if (attachment == null) {
-      HandlingError(Dialogues.tellSubmissionTypeIsInvalid)
+      UserInput(null)
     } else {
       UserInput(
         SubmissionInputRequest(

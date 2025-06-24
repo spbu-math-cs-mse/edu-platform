@@ -3,8 +3,8 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -25,7 +25,7 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Unit>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val stats = service.getCourseStatistics(course.id)
     val courseToken = service.getTokenForCourse(course.id)
     bot.send(

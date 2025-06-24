@@ -82,7 +82,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     }
 
     fun withStudent(student: Student) {
-      apis.studentApi.applyForCourse(student.id, courseId)
+      apis.adminApi.registerStudentForCourse(student.id, courseId)
     }
 
     fun withTeacher(teacher: Teacher) {

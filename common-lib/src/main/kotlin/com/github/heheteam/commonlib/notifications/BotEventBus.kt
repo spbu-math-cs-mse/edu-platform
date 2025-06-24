@@ -19,8 +19,6 @@ interface BotEventBus {
 
   suspend fun publishNewSubmissionEvent(submission: Submission)
 
-  suspend fun publishNewDeadlineRequest(studentId: StudentId, newDeadline: LocalDateTime)
-
   suspend fun publishMovingDeadlineEvent(chatId: RawChatId, newDeadline: LocalDateTime)
 
   fun subscribeToNewSubmissionEvent(handler: suspend (Submission) -> Unit)
@@ -28,8 +26,6 @@ interface BotEventBus {
   fun subscribeToGradeEvents(
     handler: suspend (StudentId, RawChatId, MessageId, SubmissionAssessment, Problem) -> Unit
   )
-
-  fun subscribeToNewDeadlineRequest(handler: suspend (StudentId, LocalDateTime) -> Unit)
 
   fun subscribeToMovingDeadlineEvents(handler: suspend (RawChatId, LocalDateTime) -> Unit)
 }

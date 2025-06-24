@@ -23,6 +23,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
+import dev.inmo.tgbotapi.utils.buildEntities
 
 class QueryScheduledMessageContentState(
   override val context: User,
@@ -66,7 +67,7 @@ class QueryScheduledMessageContentState(
       } else {
         val lines = text.lines()
         val shortDescription = lines.first()
-        val content = lines.drop(1).joinToString("\n")
+        val content = buildEntities { +lines.drop(1).joinToString("\n") }
         UserInput(Ok(ScheduledMessageTextField(shortDescription, content)))
       }
     }

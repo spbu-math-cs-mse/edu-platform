@@ -122,7 +122,7 @@ class GoogleSheetsTest {
       gradeTable.recordSubmissionAssessment(
         submission.id,
         teacher1Id,
-        SubmissionAssessment(submissionId % 2, TextWithMediaAttachments("comment")),
+        SubmissionAssessment(submissionId % 2, TextWithMediaAttachments.fromString("comment")),
       )
     }
 

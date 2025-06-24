@@ -25,6 +25,7 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.media.TelegramMediaDocument
 import dev.inmo.tgbotapi.types.media.TelegramMediaPhoto
+import dev.inmo.tgbotapi.types.message.MarkdownV2ParseMode
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.AudioContent
@@ -35,7 +36,10 @@ import dev.inmo.tgbotapi.types.message.content.MediaGroupPartContent
 import dev.inmo.tgbotapi.types.message.content.PhotoContent
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.content.VideoContent
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.RiskFeature
+import dev.inmo.tgbotapi.utils.extensions.makeMarkdownV2String
+import dev.inmo.tgbotapi.utils.extensions.makeString
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
@@ -71,7 +75,7 @@ suspend fun TelegramBot.sendTextWithMediaAttachments(
           reply(chatId, replyTo, text, replyMarkup = replyMarkup)
         }
       } else if (singleAttachment != null) {
-        sendSingleMedia(singleAttachment, chatId, content, replyTo)
+        sendSingleMedia(singleAttachment, chatId, text, replyTo)
       } else {
         sendSubmissionAsGroupMedia(attachments, text, chatId, replyTo)
       }
@@ -82,24 +86,16 @@ suspend fun TelegramBot.sendTextWithMediaAttachments(
 private suspend fun TelegramBot.sendSingleMedia(
   singleAttachment: MediaAttachment,
   chatId: ChatId,
-  submissionContent: TextWithMediaAttachments,
+  submissionContent: TextSourcesList,
   replyTo: MessageId? = null,
 ): ContentMessage<MediaGroupPartContent> {
   val file = downloadFile(singleAttachment.downloadUrl, singleAttachment.uniqueString)
   return when (singleAttachment.kind) {
     AttachmentKind.PHOTO -> {
-      if (replyTo == null) {
-        sendPhoto(chatId, file.asMultipartFile(), text = submissionContent.text)
-      } else {
-        replyWithPhoto(chatId, replyTo, file.asMultipartFile(), text = submissionContent.text)
-      }
+      sendTextWithPhoto(replyTo, chatId, file, submissionContent)
     }
     AttachmentKind.DOCUMENT -> {
-      if (replyTo == null) {
-        sendDocument(chatId, file.asMultipartFile(), text = submissionContent.text)
-      } else {
-        replyWithDocument(chatId, replyTo, file.asMultipartFile(), text = submissionContent.text)
-      }
+      sendTextWithDocument(replyTo, chatId, file, submissionContent)
     }
   }.also {
     try {
@@ -110,10 +106,51 @@ private suspend fun TelegramBot.sendSingleMedia(
   }
 }
 
+private suspend fun TelegramBot.sendTextWithDocument(
+  replyTo: MessageId?,
+  chatId: ChatId,
+  file: File,
+  submissionContent: TextSourcesList,
+): ContentMessage<DocumentContent> =
+  if (replyTo == null) {
+    sendDocument(chatId, file.asMultipartFile(), text = submissionContent.makeString())
+  } else {
+    replyWithDocument(
+      chatId,
+      replyTo,
+      file.asMultipartFile(),
+      text = submissionContent.makeMarkdownV2String(),
+      parseMode = MarkdownV2ParseMode,
+    )
+  }
+
+private suspend fun TelegramBot.sendTextWithPhoto(
+  replyTo: MessageId?,
+  chatId: ChatId,
+  file: File,
+  submissionContent: TextSourcesList,
+): ContentMessage<PhotoContent> =
+  if (replyTo == null) {
+    sendPhoto(
+      chatId,
+      file.asMultipartFile(),
+      text = submissionContent.makeMarkdownV2String(),
+      parseMode = MarkdownV2ParseMode,
+    )
+  } else {
+    replyWithPhoto(
+      chatId,
+      replyTo,
+      file.asMultipartFile(),
+      text = submissionContent.makeMarkdownV2String(),
+      parseMode = MarkdownV2ParseMode,
+    )
+  }
+
 @OptIn(RiskFeature::class)
 private suspend fun TelegramBot.sendSubmissionAsGroupMedia(
   attachments: List<MediaAttachment>,
-  text: String,
+  text: TextSourcesList,
   chatId: ChatId,
   replyTo: MessageId? = null,
 ): ContentMessage<MediaGroupContent<MediaGroupPartContent>> {
@@ -124,11 +161,11 @@ private suspend fun TelegramBot.sendSubmissionAsGroupMedia(
         val file = downloadFile(media.downloadUrl, media.uniqueString)
         when (media.kind) {
           AttachmentKind.PHOTO -> {
-            TelegramMediaPhoto(file.asMultipartFile(), firstMediaText)
+            TelegramMediaPhoto(file.asMultipartFile(), firstMediaText.orEmpty())
           }
 
           AttachmentKind.DOCUMENT -> {
-            TelegramMediaDocument(file.asMultipartFile(), firstMediaText)
+            TelegramMediaDocument(file.asMultipartFile(), firstMediaText.orEmpty())
           }
         } to file
       }
@@ -158,25 +195,19 @@ suspend fun extractTextWithMediaAttachments(
   bot: TelegramBot,
 ): TextWithMediaAttachments? =
   when (val content = message.content) {
-    is TextContent -> TextWithMediaAttachments(content.text)
+    is TextContent -> TextWithMediaAttachments(content.textSources)
     is PhotoContent ->
-      extractSingleAttachment(content.text.orEmpty(), AttachmentKind.PHOTO, content, botToken, bot)
+      extractSingleAttachment(content.textSources, AttachmentKind.PHOTO, content, botToken, bot)
 
     is DocumentContent ->
-      extractSingleAttachment(
-        content.text.orEmpty(),
-        AttachmentKind.DOCUMENT,
-        content,
-        botToken,
-        bot,
-      )
+      extractSingleAttachment(content.textSources, AttachmentKind.DOCUMENT, content, botToken, bot)
 
     is MediaGroupContent<*> -> extractMultipleAttachments(content, botToken, bot)
     else -> null
   }
 
 private suspend fun extractSingleAttachment(
-  text: String,
+  text: TextSourcesList,
   attachmentKind: AttachmentKind,
   content: MediaContent,
   botToken: String,
@@ -195,7 +226,7 @@ private suspend fun extractMultipleAttachments(
   bot: TelegramBot,
 ): TextWithMediaAttachments? =
   TextWithMediaAttachments(
-    content.text.orEmpty(),
+    content.textSources,
     content.group.map {
       val kind =
         when (it.content) {

@@ -22,6 +22,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.EntitiesBuilder
 import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.extensions.makeString
 import java.time.format.DateTimeFormatter
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
@@ -101,10 +102,10 @@ data class QueryFullTextConfirmationState(
     bold("Тема: ") + "${message.shortName}\n"
     bold("Администратор: id=") + "${message.adminId.long}\n"
     bold("Содержание: ")
-    +if (fullTextConfirmed) {
-      message.content.text
+    if (fullTextConfirmed) {
+      +message.content.text
     } else {
-      message.content.text.truncate(TRUNCATED_MESSAGE_LENGTH)
+      +message.content.text.makeString().truncate(TRUNCATED_MESSAGE_LENGTH)
     }
     +"\n"
     bold("Статус: ")

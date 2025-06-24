@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.ScheduledMessage
-import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.testdouble.StudentBotTelegramControllerTestDouble
 import com.github.heheteam.commonlib.util.buildData
 import com.github.heheteam.commonlib.util.defaultInstant
@@ -40,9 +40,9 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
       val course2 = course("Course2") { withStudent(student("Student2", "Student2", 201L)) }
 
-      val messageContent1 = TelegramMessageContent(text = "Message 1")
-      val messageContent2 = TelegramMessageContent(text = "Message 2")
-      val messageContent3 = TelegramMessageContent(text = "Message 3")
+      val messageContent1 = tgMsg("Message 1")
+      val messageContent2 = tgMsg("Message 2")
+      val messageContent3 = tgMsg("Message 3")
 
       val msg1Id =
         sendScheduledMessage(admin.id, at((-2).hours), messageContent1, "Msg1", course1.id).value
@@ -70,7 +70,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
-      val content = TelegramMessageContent(text = "Test Resolution")
+      val content = tgMsg("Test Resolution")
       val scheduledTimestamp = at(1.minutes)
 
       val scheduledMessageId =
@@ -99,7 +99,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
-      val content = TelegramMessageContent(text = "Test Resolution")
+      val content = tgMsg("Test Resolution")
       val scheduledTimestamp = at(1.minutes)
 
       val scheduledMessageId =
@@ -137,7 +137,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
           withStudent(student1)
           withStudent(student2)
         }
-      val messageContent = TelegramMessageContent(text = "Message to delete")
+      val messageContent = tgMsg("Message to delete")
       val scheduledTimestamp = at((-1).hours)
 
       val scheduledMessageId =
@@ -168,27 +168,9 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1")
       val course2 = course("Course2")
 
-      sendScheduledMessage(
-        admin1.id,
-        at(1.hours),
-        TelegramMessageContent("Msg A"),
-        "MsgA",
-        course1.id,
-      )
-      sendScheduledMessage(
-        admin2.id,
-        at(2.hours),
-        TelegramMessageContent("Msg B"),
-        "MsgB",
-        course2.id,
-      )
-      sendScheduledMessage(
-        admin1.id,
-        at(3.hours),
-        TelegramMessageContent("Msg C"),
-        "MsgC",
-        course1.id,
-      )
+      sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
 
       val messagesForAdmin1 = viewRecordedMessages(adminId = admin1.id, limit = 3).value
       assertEquals(2, messagesForAdmin1.size)
@@ -205,27 +187,9 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1")
       val course2 = course("Course2")
 
-      sendScheduledMessage(
-        admin.id,
-        at(1.hours),
-        TelegramMessageContent("Msg A"),
-        "MsgA",
-        course1.id,
-      )
-      sendScheduledMessage(
-        admin.id,
-        at(2.hours),
-        TelegramMessageContent("Msg B"),
-        "MsgB",
-        course2.id,
-      )
-      sendScheduledMessage(
-        admin.id,
-        at(3.hours),
-        TelegramMessageContent("Msg C"),
-        "MsgC",
-        course1.id,
-      )
+      sendScheduledMessage(admin.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
 
       val messagesForCourse1 = viewRecordedMessages(courseId = course1.id, limit = 3).value
       assertEquals(2, messagesForCourse1.size)
@@ -235,7 +199,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
     }
   }
 
-  fun tgMsg(s: String) = TelegramMessageContent(s)
+  fun tgMsg(s: String): TextWithMediaAttachments = TextWithMediaAttachments.fromString(s)
 
   @Test
   fun `scenario 7 - viewScheduledMessages filters by adminId and courseId`() = runTest {

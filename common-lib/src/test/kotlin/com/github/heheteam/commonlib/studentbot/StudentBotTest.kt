@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -18,7 +19,6 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
-import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.CourseTokenService

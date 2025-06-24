@@ -13,5 +13,4 @@ dependencies {
     implementation(libs.exposed.spring.boot.starter)
     implementation(libs.kotlin.result)
     implementation(libs.postgresql)
-    implementation(libs.hoplite.json)
 }

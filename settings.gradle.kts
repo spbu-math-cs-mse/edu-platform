@@ -24,7 +24,7 @@ dependencyResolutionManagement {
       version("kotlin-result-coroutines", "2.0.0")
       version("google-api-sheets", "v4-rev20241008-2.0.0")
       version("google-api-drive", "v3-rev20220815-2.0.0")
-      version("hoplite", "2.7.5")
+      version("dotenv-kotlin","6.5.1")
       version("kotlinx", "1.10.2")
 
       library("kotlin-coro-core", "org.jetbrains.kotlinx", "kotlinx-coroutines-core")
@@ -48,7 +48,7 @@ dependencyResolutionManagement {
         .versionRef("google-api-sheets")
       library("google-api-services-drive", "com.google.apis", "google-api-services-drive")
         .versionRef("google-api-drive")
-      library("hoplite-json", "com.sksamuel.hoplite", "hoplite-json").versionRef("hoplite")
+      library("dotenv-kotlin", "io.github.cdimascio", "dotenv-kotlin").versionRef("dotenv-kotlin")
       library(
           "kotlin-result-coroutines",
           "com.michael-bull.kotlin-result",

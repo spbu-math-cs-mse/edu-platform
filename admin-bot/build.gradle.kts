@@ -12,7 +12,6 @@ dependencies {
     implementation(libs.tgbotapi)
     implementation(libs.exposed.spring.boot.starter)
     implementation(libs.kotlin.result)
-    implementation(libs.hoplite.json)
     implementation(libs.postgresql)
     implementation(libs.kotlin.result.coroutines)
 }

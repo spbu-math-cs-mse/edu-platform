@@ -4,14 +4,13 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
 import com.github.heheteam.adminbot.AdminRunner
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.api.ApiFabric
 import com.github.heheteam.commonlib.api.TeacherResolverKind
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceDummy
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
-import com.github.heheteam.commonlib.loadConfig
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
@@ -38,20 +37,20 @@ import org.jetbrains.exposed.sql.Database
 private const val HEARTBEAT_DELAY_SECONDS = 5
 
 class MultiBotRunner : CliktCommand() {
-  private val studentBotToken: String by option().required().help("student bot token")
-  private val teacherBotToken: String by option().required().help("teacher bot token")
-  private val adminBotToken: String by option().required().help("admin bot token")
-  private val parentBotToken: String by option().required().help("parent bot token")
+  private val configPath: String? by option().help("path to the .env file")
   private val initDatabase: Boolean by option().flag("--noinit", default = true)
   private val enableSheets: Boolean by
     option("--enable-sheets").flag("--disable-sheets", default = true)
 
-  private val studentBotUsername: String by option().required().help("student bot username")
-
   override fun run() {
-    CourseStatisticsFormatter.studentBotUsername = studentBotUsername
+    val config = loadConfig(configPath)
+    val studentBotToken = config.botConfig.studentBotToken
+    val teacherBotToken = config.botConfig.teacherBotToken
+    val adminBotToken = config.botConfig.adminBotToken
+    val parentBotToken = config.botConfig.parentBotToken
 
-    val config = loadConfig()
+    CourseStatisticsFormatter.studentBotUsername = config.botConfig.studentBotUsername
+
     val database =
       Database.connect(
         config.databaseConfig.url,
@@ -59,9 +58,10 @@ class MultiBotRunner : CliktCommand() {
         config.databaseConfig.login,
         config.databaseConfig.password,
       )
+
     val googleSheetsService =
       if (enableSheets) {
-        GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
+        GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKeyPath)
       } else {
         GoogleSheetsServiceDummy()
       }
@@ -99,7 +99,8 @@ class MultiBotRunner : CliktCommand() {
         adminBotTelegramController,
       )
 
-    val apis = apiFabric.createApis(initDatabase, TeacherResolverKind.FIRST)
+    val apis =
+      apiFabric.createApis(initDatabase, TeacherResolverKind.FIRST, config.botConfig.adminIds)
 
     runBlocking {
       launch { StudentRunner(studentBotToken, apis.studentApi).run() }

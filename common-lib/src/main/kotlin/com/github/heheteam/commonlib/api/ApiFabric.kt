@@ -31,6 +31,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -47,6 +48,7 @@ import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
 import com.github.heheteam.commonlib.util.fillWithSamples
+import dev.inmo.tgbotapi.types.toChatId
 import org.jetbrains.exposed.sql.Database
 
 data class ApiCollection(
@@ -69,7 +71,11 @@ class ApiFabric(
   private val adminBotTelegramController: AdminBotTelegramController,
 ) {
   @Suppress("LongMethod") // it will always be long-ish, but it is definitely too long (legacy)
-  fun createApis(initDatabase: Boolean, teacherResolverKind: TeacherResolverKind): ApiCollection {
+  fun createApis(
+    initDatabase: Boolean,
+    teacherResolverKind: TeacherResolverKind,
+    adminIds: List<Long> = listOf(),
+  ): ApiCollection {
     val databaseCourseStorage = DatabaseCourseStorage(database)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
@@ -110,16 +116,13 @@ class ApiFabric(
       SubmissionDistributorDecorator(databaseSubmissionDistributor, ratingRecorder)
     val academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     val adminStorage = DatabaseAdminStorage(database)
+    val adminAuthService = AdminAuthService(adminStorage)
+
     if (initDatabase) {
-      fillWithSamples(
-        courseStorage,
-        assignmentStorage,
-        adminStorage,
-        studentStorage,
-        teacherStorage,
-        database,
-      )
+      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
     }
+
+    adminAuthService.addTgIdsToWhitelist(adminIds.map { it.toChatId() })
 
     val parentStorage = MockParentStorage()
     val botEventBus: BotEventBus = ObserverBus()
@@ -212,7 +215,7 @@ class ApiFabric(
       AdminApi(
         scheduledMessageService,
         courseStorage,
-        adminStorage,
+        adminAuthService,
         studentStorage,
         teacherStorage,
         assignmentStorage,

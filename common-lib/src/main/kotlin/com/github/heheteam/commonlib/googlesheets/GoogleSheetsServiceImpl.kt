@@ -36,6 +36,7 @@ import com.google.api.services.sheets.v4.model.UpdateCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateDimensionPropertiesRequest
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
+import java.io.File
 
 private const val RATING_SHEET_TITLE: String = "Рейтинг"
 
@@ -46,9 +47,7 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
 
   init {
     val credentials =
-      GoogleCredentials.fromStream(
-          object {}.javaClass.classLoader.getResourceAsStream(serviceAccountKeyFile)
-        )
+      GoogleCredentials.fromStream(File(serviceAccountKeyFile).inputStream())
         .createScoped(listOf("https://www.googleapis.com/auth/spreadsheets", DriveScopes.DRIVE))
 
     apiClient =

@@ -1,6 +1,10 @@
 package com.github.heheteam.adminbot
 
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
+import dev.inmo.tgbotapi.types.message.textsources.code
+import dev.inmo.tgbotapi.types.message.textsources.plus
+import dev.inmo.tgbotapi.types.message.textsources.regularln
 
 object Dialogues {
   val greetingSticker =
@@ -14,6 +18,17 @@ object Dialogues {
   val nerdSticker =
     InputFile.fromId("CAACAgEAAxkBAAIBxGceRcgL_nCWjiRrMzWQSi_MdlDzAAL4AQACOA6CEVv05nratTJkNgQ")
 
+  const val askFirstName: String = "Как я могу к вам обращаться? Напишите ваше имя."
+
+  fun askLastName(firstName: String): String =
+    "Отлично, $firstName, введите вашу фамилию \uD83D\uDC47"
+
+  fun niceToMeetYou(firstName: String, lastName: String): String =
+    "Приятно познакомиться, $firstName $lastName!\n"
+
+  fun notFoundInWhitelist(tgId: Long) =
+    "Ваш id не был добавлен в систему. Попросите администратора добавить вас по id $tgId. "
+
   const val greetings: String =
     "Привет! Я бот-помощник для управления образовательным процессом.\n" +
       "Я помогу тебе:\n" +
@@ -24,7 +39,10 @@ object Dialogues {
 
   const val devAskForId: String = "Введите свой id:"
 
-  const val devIdNotFound: String = "Этот id не был найден в базе данных! Попробуйте ещё раз:"
+  fun adminIdIsNotInWhitelist(tgId: Long): TextSourcesList =
+    regularln(
+      "Вашего аккаунта нет в списке разрешенных. Попросите админа вас добавить.\n\nВаш Telegram id: "
+    ) + code(tgId.toString())
 
   const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 

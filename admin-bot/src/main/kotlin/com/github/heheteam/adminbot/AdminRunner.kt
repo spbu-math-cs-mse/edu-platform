@@ -1,8 +1,11 @@
 package com.github.heheteam.adminbot
 
+import com.github.heheteam.adminbot.states.AddAdminState
 import com.github.heheteam.adminbot.states.AddScheduledMessageStartState
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
+import com.github.heheteam.adminbot.states.AskFirstNameState
+import com.github.heheteam.adminbot.states.AskLastNameState
 import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
 import com.github.heheteam.adminbot.states.ConfirmScheduledMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
@@ -22,12 +25,15 @@ import com.github.heheteam.adminbot.states.QueryScheduledMessageDateState
 import com.github.heheteam.adminbot.states.QueryScheduledMessageTimeState
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
+import com.github.heheteam.adminbot.states.StartState
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
+import com.github.heheteam.commonlib.state.registerState
+import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
@@ -85,7 +91,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         )
         command("start") {
           val user = it.from
-          if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
+          if (user != null) startChain(StartState(user))
         }
         startStateOnUnhandledUpdate { user ->
           if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
@@ -100,10 +106,14 @@ class AdminRunner(private val adminApi: AdminApi) {
   }
 
   private fun DefaultBehaviourContextWithFSM<State>.registerAllStates() {
+    registerStateForBotState<StartState, AdminApi>(adminApi)
+    registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
+    registerState<AskLastNameState, AdminApi>(adminApi)
     registerStateForBotStateWithHandlers<MenuState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<AddAdminState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<RemoveStudentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddTeacherState>(::registerHandlers)

@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib
 
+import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -41,7 +42,7 @@ class GoogleSheetsTest {
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val googleSheetsService =
-    GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKey)
+    GoogleSheetsServiceImpl(config.googleSheetsConfig.serviceAccountKeyPath)
 
   @BeforeTest
   @AfterTest
@@ -126,8 +127,11 @@ class GoogleSheetsTest {
       )
     }
 
+    val spreadsheetId = googleSheetsService.createCourseSpreadsheet("test sheet").get()?.long
+    assertNotNull(spreadsheetId)
+
     googleSheetsService.updateRating(
-      config.googleSheetsConfig.spreadsheetId,
+      spreadsheetId,
       courseStorage.resolveCourse(course1Id).value,
       assignmentStorage.getAssignmentsForCourse(course1Id).value,
       problemStorage.getProblemsFromCourse(course1Id).value,
@@ -135,7 +139,7 @@ class GoogleSheetsTest {
       gradeTable.getCourseRating(course1Id).value,
     )
     googleSheetsService.updateRating(
-      config.googleSheetsConfig.spreadsheetId,
+      spreadsheetId,
       courseStorage.resolveCourse(course2Id).value,
       assignmentStorage.getAssignmentsForCourse(course2Id).value,
       problemStorage.getProblemsFromCourse(course2Id).value,

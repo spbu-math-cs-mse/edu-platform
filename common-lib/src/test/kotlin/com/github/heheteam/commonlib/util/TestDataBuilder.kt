@@ -21,6 +21,7 @@ import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 
@@ -37,10 +38,16 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   private val defaultMessageId = MessageId(messageIdCounter.next())
   private val coursesChatId = mutableMapOf<CourseId, RawChatId>()
 
+  fun whitelistAdmin(tgId: Long): Long {
+    apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
+    return tgId
+  }
+
   fun admin(name: String, surname: String, tgId: Long = defaultChatId): Admin =
     binding {
+        apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
         val adminId = apis.adminApi.createAdmin(name, surname, tgId).bind()
-        val admin = apis.adminApi.loginById(adminId).bind()
+        val admin = Admin(adminId, name, surname, tgId.toRawChatId())
         admin
       }
       .value

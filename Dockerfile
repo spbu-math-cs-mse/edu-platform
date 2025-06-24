@@ -16,13 +16,16 @@ COPY settings.gradle.kts ./
 COPY . ./
 
 RUN chmod +x ./gradlew
-
 RUN ./gradlew :multi-bot:shadowJar
 
 FROM eclipse-temurin:21-jre-jammy AS runtime
 
 WORKDIR /edu-platform
 
+RUN groupadd -r appgroup && useradd -r -g appgroup -s /sbin/nologin appuser
+RUN chown -R appuser:appgroup /edu-platform
+
 COPY --from=build edu-platform/multi-bot/build/libs/multi-bot-1.0.jar multi-bot.jar
 
-CMD java -jar multi-bot.jar --student-bot-token $STUDENT_BOT_TOKEN --teacher-bot-token $TEACHER_BOT_TOKEN --admin-bot-token $ADMIN_BOT_TOKEN --parent-bot-token $PARENT_BOT_TOKEN --student-bot-username $STUDENT_BOT_USERNAME > ./logs/log 2>&1
+USER appuser
+CMD java -jar multi-bot.jar

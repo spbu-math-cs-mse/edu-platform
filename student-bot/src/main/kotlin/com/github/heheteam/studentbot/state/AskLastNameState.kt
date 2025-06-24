@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.HandlingError
@@ -80,7 +81,10 @@ class AskLastNameState(
           success = { course ->
             bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
           },
-          failure = { error -> bot.send(context, Dialogues.failedToRegisterForCourse(error)) },
+          failure = { error ->
+            if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
+            else bot.send(context, "Ошибка: ${error.shortDescription}")
+          },
         )
     }
   }

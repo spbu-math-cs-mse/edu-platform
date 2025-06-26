@@ -1,4 +1,3 @@
-
 services:
   backend:
     image: ghcr.io/spbu-math-cs-mse/edu-platform:latest
@@ -16,12 +15,20 @@ services:
       TEACHER_BOT_TOKEN_FILE: /run/secrets/teacher_bot_token
       ADMIN_BOT_TOKEN_FILE: /run/secrets/admin_bot_token
       PARENT_BOT_TOKEN_FILE: /run/secrets/parent_bot_token
-      GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE: /run/secrets/google_api_key.json
+      GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE: /run/secrets/google_api_key
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./logs/:/edu-platform/logs/
+    secrets: # <--- ADD THIS SECTION FOR THE BACKEND SERVICE
+      - db_user
+      - db_password
+      - student_bot_token
+      - teacher_bot_token
+      - admin_bot_token
+      - parent_bot_token
+      - google_api_key
 
   postgres:
     image: postgres:15

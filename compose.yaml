@@ -21,7 +21,7 @@ services:
         condition: service_healthy
     volumes:
       - ./logs/:/edu-platform/logs/
-    secrets: # <--- ADD THIS SECTION FOR THE BACKEND SERVICE
+    secrets:
       - db_user
       - db_password
       - student_bot_token

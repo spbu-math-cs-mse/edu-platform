@@ -36,6 +36,8 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
   val database: Database,
   val submissionDistributor: SubmissionDistributor,
 ) : TelegramTechnicalMessagesStorage {
+  private val serviceClass = DatabaseTelegramTechnicalMessagesStorage::class
+
   init {
     transaction(database) {
       SchemaUtils.create(SubmissionGroupMessagesTable)
@@ -83,7 +85,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
           }
       }
     return row.singleOrNull().toResultOr {
-      "Failed to resolve a singlie group message (got ${row.size})".asNamedError()
+      "Failed to resolve a singlie group message (got ${row.size})".asNamedError(serviceClass)
     }
   }
 
@@ -102,7 +104,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
           }
       }
     return row.singleOrNull().toResultOr {
-      "Failed to resolve a singlie personal message (got ${row.size})".asNamedError()
+      "Failed to resolve a singlie personal message (got ${row.size})".asNamedError(serviceClass)
     }
   }
 
@@ -147,7 +149,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.toResultOr { "Failed to lookup teacher menu message".asNamedError() }
+    return row.toResultOr { "Failed to lookup teacher menu message".asNamedError(serviceClass) }
   }
 
   override fun resolveTeacherFirstUncheckedSubmissionMessage(
@@ -162,7 +164,9 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             .where(TeacherTable.id eq teacherId.long)
             .map { it[TeacherTable.tgId] }
             .firstOrNull()
-            ?: return@transaction Err("No tg id for the teacher $teacherId".asNamedError())
+            ?: return@transaction Err(
+              "No tg id for the teacher $teacherId".asNamedError(serviceClass)
+            )
         return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
 
@@ -176,7 +180,8 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
         }
         .firstOrNull()
         .toResultOr {
-          "Submission ${submission.id} does not have a corresponding message".asNamedError()
+          "Submission ${submission.id} does not have a corresponding message"
+            .asNamedError(serviceClass)
         }
     }
   }
@@ -201,7 +206,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             )
           }
       }
-    return row.toResultOr { "Failed to resolve group menu messages".asNamedError() }
+    return row.toResultOr { "Failed to resolve group menu messages".asNamedError(serviceClass) }
   }
 
   override fun resolveGroupFirstUncheckedSubmissionMessage(
@@ -216,7 +221,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             .map { it[CourseTable.groupRawChatId] }
             .firstOrNull()
             ?: return@transaction Err(
-              "Course $courseId does not have a corresponding group!".asNamedError()
+              "Course $courseId does not have a corresponding group!".asNamedError(serviceClass)
             )
         return@transaction MenuMessageInfo(RawChatId(chatId)).ok()
       }
@@ -232,7 +237,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
         .firstOrNull()
         .toResultOr {
           "The submission ${submission.id} does not have an associated message in a group of the course $courseId"
-            .asNamedError()
+            .asNamedError(serviceClass)
         }
     }
   }

@@ -3,10 +3,10 @@ package com.github.heheteam.commonlib.logic
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.util.raiseError
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding

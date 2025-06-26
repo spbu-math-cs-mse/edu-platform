@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.TelegramError
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments

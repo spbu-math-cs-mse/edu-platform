@@ -2,8 +2,8 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId

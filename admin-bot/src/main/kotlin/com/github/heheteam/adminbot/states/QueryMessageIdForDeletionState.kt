@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -39,7 +39,7 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
   override suspend fun computeNewState(service: AdminApi, input: String): Pair<State, String> =
     binding {
         val messageIdLong =
-          input.toLongOrNull().toResultOr { NamedError("Invalid message ID format") }.bind()
+          input.toLongOrNull().toResultOr { newStateError("Invalid message ID format") }.bind()
         val scheduledMessageId = messageIdLong.toScheduledMessageId()
 
         val message = service.resolveScheduledMessage(scheduledMessageId).bind()

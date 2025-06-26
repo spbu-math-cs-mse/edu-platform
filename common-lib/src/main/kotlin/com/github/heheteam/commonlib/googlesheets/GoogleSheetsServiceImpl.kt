@@ -5,7 +5,14 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.errors.BatchUpdateError
+import com.github.heheteam.commonlib.errors.ClearSheetError
+import com.github.heheteam.commonlib.errors.CreateSheetError
+import com.github.heheteam.commonlib.errors.CreateSpreadsheetError
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.GetSpreadsheetError
+import com.github.heheteam.commonlib.errors.SetupPermissionsError
+import com.github.heheteam.commonlib.errors.SheetNotFoundError
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId

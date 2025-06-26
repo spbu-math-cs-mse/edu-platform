@@ -1,6 +1,4 @@
-package com.github.heheteam.commonlib.googlesheets
-
-import com.github.heheteam.commonlib.errors.EduPlatformError
+package com.github.heheteam.commonlib.errors
 
 data class CreateSpreadsheetError(
   val courseName: String,

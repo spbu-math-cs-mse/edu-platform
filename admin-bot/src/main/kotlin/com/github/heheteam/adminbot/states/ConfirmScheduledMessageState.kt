@@ -7,9 +7,9 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.errors.OperationCancelledError
+import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -95,7 +95,7 @@ class ConfirmScheduledMessageState(
       when (callback.data) {
         "confirm" -> UserInput(Ok(true))
         "cancel" -> UserInput(Err(OperationCancelledError()))
-        else -> UserInput(Err(NamedError(Dialogues.unknownCommand)))
+        else -> UserInput(Err(newStateError(Dialogues.unknownCommand)))
       }
     }
   }

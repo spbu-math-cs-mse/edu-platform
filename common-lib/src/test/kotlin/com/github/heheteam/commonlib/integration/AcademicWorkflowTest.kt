@@ -2,9 +2,9 @@ package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.TelegramError
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
-import com.github.heheteam.commonlib.telegram.TelegramError
 import com.github.heheteam.commonlib.util.buildData
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err

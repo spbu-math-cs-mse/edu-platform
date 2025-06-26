@@ -49,7 +49,13 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       }
       Ok(Unit)
     } catch (e: Throwable) {
-      Err(BindError(studentId, parentId, causedBy = e.asEduPlatformError()))
+      Err(
+        BindError(
+          studentId,
+          parentId,
+          causedBy = e.asEduPlatformError(DatabaseStudentStorage::class),
+        )
+      )
     }
 
   override fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> = binding {

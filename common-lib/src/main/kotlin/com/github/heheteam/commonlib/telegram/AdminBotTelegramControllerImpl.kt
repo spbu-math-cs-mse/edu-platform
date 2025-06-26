@@ -36,7 +36,7 @@ class AdminBotTelegramControllerImpl(val adminBot: TelegramBot) : AdminBotTelegr
           replyMarkup = moveDeadlines(studentId, newDeadline),
         )
       }
-      .mapError { it.asEduPlatformError() }
+      .mapError { it.asEduPlatformError(AdminBotTelegramControllerImpl::class) }
       .map {}
 
   private fun moveDeadlines(studentId: StudentId, newDeadline: LocalDateTime) = inlineKeyboard {

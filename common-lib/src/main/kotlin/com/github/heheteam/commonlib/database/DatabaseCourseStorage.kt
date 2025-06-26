@@ -102,7 +102,13 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
           }
           Ok(Unit)
         } catch (e: ExposedSQLException) {
-          Err(BindError(teacherId, courseId, causedBy = e.asEduPlatformError()))
+          Err(
+            BindError(
+              teacherId,
+              courseId,
+              causedBy = e.asEduPlatformError(DatabaseCourseStorage::class),
+            )
+          )
         }
       } else {
         Err(BindError(teacherId, courseId))

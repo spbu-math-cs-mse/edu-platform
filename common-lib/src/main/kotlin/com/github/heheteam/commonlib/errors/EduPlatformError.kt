@@ -2,6 +2,8 @@ package com.github.heheteam.commonlib.errors
 
 import com.github.michaelbull.result.Result
 import dev.inmo.micro_utils.common.joinTo
+import dev.inmo.micro_utils.fsm.common.State
+import kotlin.reflect.KClass
 
 interface EduPlatformError {
   val causedBy: EduPlatformError?
@@ -9,15 +11,22 @@ interface EduPlatformError {
   val longDescription: String
     get() = shortDescription
 
+  val causedIn: KClass<*>?
+    get() = null
+
   /** A simple, user-friendly description. It must be in Russian. */
   val userDescription: String?
     get() = null
 }
 
-data class NamedError(
+data class StateError(
   override val shortDescription: String,
+  override val causedIn: KClass<*>,
   override val causedBy: EduPlatformError? = null,
 ) : EduPlatformError
+
+fun State.newStateError(shortDescription: String, causedBy: EduPlatformError? = null) =
+  StateError(shortDescription, this::class, causedBy)
 
 data class OperationCancelledError(
   override val shortDescription: String = "Операция отменена.",
@@ -37,13 +46,21 @@ data class AggregateError(
       causes.joinToString("\n") { it.longDescription.prependIndent("  ") }
 }
 
-fun String.asNamedError(causedBy: EduPlatformError? = null) = NamedError(this, causedBy)
+data class NamedError(
+  override val shortDescription: String,
+  override val causedIn: KClass<*>? = null,
+  override val causedBy: EduPlatformError? = null,
+) : EduPlatformError
 
-fun Throwable.asEduPlatformError(): EduPlatformError {
+fun String.asNamedError(service: KClass<*>, causedBy: EduPlatformError? = null) =
+  NamedError(this, service, causedBy)
+
+fun Throwable.asEduPlatformError(service: KClass<*>? = null): EduPlatformError {
   val cause = this.cause
   return NamedError(
     shortDescription = this.message ?: this.javaClass.simpleName,
     causedBy = cause?.asEduPlatformError(),
+    causedIn = service,
   )
 }
 

@@ -4,8 +4,8 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -64,7 +64,7 @@ class QueryScheduledMessageContentState(
     updateHandlersController.addTextMessageHandler { message ->
       val text = message.content.text
       if (text.isBlank()) {
-        UserInput(Err(NamedError(Dialogues.scheduledMessageContentEmptyError)))
+        UserInput(Err(newStateError(Dialogues.scheduledMessageContentEmptyError)))
       } else {
         val lines = text.lines()
         val shortDescription = lines.first()

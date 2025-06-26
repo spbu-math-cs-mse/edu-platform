@@ -5,9 +5,9 @@ import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.errors.OperationCancelledError
+import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -74,7 +74,7 @@ class QueryScheduledMessageTimeState(
         try {
           UserInput(Ok(LocalTime.parse(text, timeFormatter)))
         } catch (_: DateTimeParseException) {
-          UserInput(Err(NamedError(Dialogues.invalidTimeFormat)))
+          UserInput(Err(newStateError(Dialogues.invalidTimeFormat)))
         }
       }
     }

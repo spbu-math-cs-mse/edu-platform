@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.toStackedString
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
@@ -18,7 +17,7 @@ import dev.inmo.tgbotapi.types.chat.User
 typealias SuspendableBotAction = suspend BehaviourContext.() -> Unit
 
 typealias UpdateHandlerManager<In> =
-  UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>
+  UpdateHandlersController<SuspendableBotAction, In, NumberedError>
 
 interface BotStateWithHandlers<In, Out, ApiService> : State {
   override val context: User
@@ -29,11 +28,19 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     bot: BehaviourContext,
     service: ApiService,
     updateHandlersController: UpdateHandlerManager<In>,
-  ): Result<Unit, EduPlatformError>
+  ): Result<Unit, NumberedError>
 
-  suspend fun computeNewState(service: ApiService, input: In): Pair<State, Out>
+  suspend fun computeNewState(
+    service: ApiService,
+    input: In,
+  ): Result<Pair<State, Out>, NumberedError>
 
-  suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out, input: In)
+  suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: ApiService,
+    response: Out,
+    input: In,
+  ): Result<Unit, NumberedError>
 
   fun defaultState(): State
 
@@ -41,31 +48,47 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     bot: BehaviourContext,
     service: ApiService,
     initUpdateHandlers:
-      (
-        UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>, context: User,
-      ) -> Unit =
+      (UpdateHandlersController<SuspendableBotAction, In, NumberedError>, context: User) -> Unit =
       { _, _ ->
       },
   ): State {
     val updateHandlersController =
-      UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>()
+      UpdateHandlersController<SuspendableBotAction, In, NumberedError>()
     initUpdateHandlers(updateHandlersController, context)
-    val error = intro(bot, service, updateHandlersController).getError()
-    if (error != null) {
-      bot.send(context, "Случилась ошибка! Разработчики уже бегут ее решать")
+    val introResult = intro(bot, service, updateHandlersController)
+    val introError = introResult.getError()
+    if (introError != null) {
+      bot.send(context, introError.toMessageText())
       return defaultState()
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<SuspendableBotAction> -> handlerResult.action.invoke(bot)
-        is HandlingError<EduPlatformError> -> {
-          bot.send(context.id, handlerResult.error.toStackedString())
+        is HandlingError<NumberedError> -> {
+          bot.send(context, handlerResult.error.toMessageText())
         }
 
-        is NewState -> return handlerResult.state.also { outro(bot, service) }
+        is NewState -> {
+          outro(bot, service)
+          return handlerResult.state
+        }
+
         is UserInput<In> -> {
-          val (state, response) = computeNewState(service, handlerResult.input)
-          sendResponse(bot, service, response, handlerResult.input)
+          val newStateResult = computeNewState(service, handlerResult.input)
+          val newStateError = newStateResult.getError()
+          if (newStateError != null) {
+            bot.send(context, newStateError.toMessageText())
+            outro(bot, service)
+            return defaultState()
+          }
+          val (state, response) = newStateResult.value
+          val sendResponseResult = sendResponse(bot, service, response, handlerResult.input)
+          val sendResponseError = sendResponseResult.getError()
+          if (sendResponseError != null) {
+            bot.send(context, sendResponseError.toMessageText())
+            outro(bot, service)
+            return defaultState()
+          }
           outro(bot, service)
           return state
         }
@@ -81,7 +104,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>, context: User,
+      UpdateHandlersController<SuspendableBotAction, out Any?, NumberedError>, context: User,
     ) -> Unit =
     { _, _ ->
     },

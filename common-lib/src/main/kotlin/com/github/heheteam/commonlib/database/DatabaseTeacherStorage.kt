@@ -1,11 +1,11 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.ResolveError
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.interfaces.toTeacherId

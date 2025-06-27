@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.interfaces.TokenError
+import com.github.heheteam.commonlib.errors.TokenError
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object Dialogues {

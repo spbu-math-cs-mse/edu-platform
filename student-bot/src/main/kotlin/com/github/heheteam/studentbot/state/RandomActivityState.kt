@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
@@ -29,8 +29,8 @@ data class RandomActivityState(override val context: User, override val userId: 
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, NumberedError>,
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val selectCourseMessage =
       bot.sendMessage(context.id, "Что-то бесплатное", replyMarkup = Keyboards.back())
     sentMessages.add(selectCourseMessage)

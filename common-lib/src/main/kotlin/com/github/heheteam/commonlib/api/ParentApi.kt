@@ -1,10 +1,10 @@
 package com.github.heheteam.commonlib.api
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Parent
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.ParentStorage
@@ -12,7 +12,6 @@ import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.utils.mapNotNullValues
 
@@ -21,18 +20,22 @@ internal constructor(
   private val studentStorage: StudentStorage,
   private val gradeTable: GradeTable,
   private val parentStorage: ParentStorage,
+  private val errorManagementService: ErrorManagementService,
 ) {
-  fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> =
-    studentStorage.getChildren(parentId)
+  fun getChildren(parentId: ParentId): Result<List<Student>, NumberedError> =
+    errorManagementService.serviceBinding { studentStorage.getChildren(parentId).bind() }
 
-  fun getStudentPerformance(studentId: StudentId): Result<Map<ProblemId, Grade>, EduPlatformError> =
-    gradeTable.getStudentPerformance(studentId).map { it.mapNotNullValues() }
+  fun getStudentPerformance(studentId: StudentId): Result<Map<ProblemId, Grade>, NumberedError> =
+    errorManagementService.serviceBinding {
+      gradeTable.getStudentPerformance(studentId).bind().mapNotNullValues()
+    }
 
-  fun tryLoginByTelegramId(id: UserId): Result<Parent, ResolveError<UserId>> =
-    parentStorage.resolveByTgId(id)
+  fun tryLoginByTelegramId(id: UserId): Result<Parent, NumberedError> =
+    errorManagementService.serviceBinding { parentStorage.resolveByTgId(id).bind() }
 
-  fun createParent(): Result<ParentId, EduPlatformError> = parentStorage.createParent()
+  fun createParent(): Result<ParentId, NumberedError> =
+    errorManagementService.serviceBinding { parentStorage.createParent().bind() }
 
-  fun tryLoginByParentId(parentId: ParentId): Result<Parent, ResolveError<ParentId>> =
-    parentStorage.resolveParent(parentId)
+  fun tryLoginByParentId(parentId: ParentId): Result<Parent, NumberedError> =
+    errorManagementService.serviceBinding { parentStorage.resolveParent(parentId).bind() }
 }

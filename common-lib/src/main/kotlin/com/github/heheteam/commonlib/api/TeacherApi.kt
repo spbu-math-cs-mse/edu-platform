@@ -1,10 +1,10 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionId
@@ -23,9 +23,10 @@ internal constructor(
   private val academicWorkflowService: AcademicWorkflowService,
   private val teacherStorage: TeacherStorage,
   private val menuMessageUpdater: MenuMessageUpdater,
+  private val errorManagementService: ErrorManagementService,
 ) {
-  fun setCourseGroup(courseId: CourseId, chatId: RawChatId): Result<Unit, ResolveError<CourseId>> =
-    courseStorage.setCourseGroup(courseId, chatId)
+  fun setCourseGroup(courseId: CourseId, chatId: RawChatId): Result<Unit, NumberedError> =
+    errorManagementService.serviceBinding { courseStorage.setCourseGroup(courseId, chatId).bind() }
 
   suspend fun assessSubmission(
     submissionId: SubmissionId,
@@ -43,24 +44,28 @@ internal constructor(
   fun createTeacher(firstName: String, lastName: String, tgId: Long): TeacherId =
     teacherStorage.createTeacher(firstName, lastName, tgId)
 
-  fun loginByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
-    teacherStorage.resolveByTgId(tgId)
+  fun loginByTgId(tgId: UserId): Result<Teacher, NumberedError> =
+    errorManagementService.serviceBinding { teacherStorage.resolveByTgId(tgId).bind() }
 
-  fun loginById(teacherId: TeacherId): Result<Teacher, ResolveError<TeacherId>> =
-    teacherStorage.resolveTeacher(teacherId)
+  fun loginById(teacherId: TeacherId): Result<Teacher, NumberedError> =
+    errorManagementService.serviceBinding { teacherStorage.resolveTeacher(teacherId).bind() }
 
-  fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, EduPlatformError> =
-    courseStorage.getTeacherCourses(teacherId)
+  fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, NumberedError> =
+    errorManagementService.serviceBinding { courseStorage.getTeacherCourses(teacherId).bind() }
 
-  fun resolveCourse(it: CourseId): Result<Course, ResolveError<CourseId>> =
-    courseStorage.resolveCourse(it)
+  fun resolveCourse(it: CourseId): Result<Course, NumberedError> =
+    errorManagementService.serviceBinding { courseStorage.resolveCourse(it).bind() }
 
-  fun updateTgId(teacherId: TeacherId, id: UserId): Result<Unit, ResolveError<TeacherId>> =
-    teacherStorage.updateTgId(teacherId, id)
+  fun updateTgId(teacherId: TeacherId, id: UserId): Result<Unit, NumberedError> =
+    errorManagementService.serviceBinding { teacherStorage.updateTgId(teacherId, id).bind() }
 
-  suspend fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, EduPlatformError> =
-    menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId)
+  suspend fun updateTeacherMenuMessage(teacherId: TeacherId): Result<Unit, NumberedError> =
+    errorManagementService.coroutineServiceBinding {
+      menuMessageUpdater.updateMenuMessageInPersonalChat(teacherId).bind()
+    }
 
-  suspend fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, EduPlatformError> =
-    menuMessageUpdater.updateMenuMessageInGroupChat(courseId)
+  suspend fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, NumberedError> =
+    errorManagementService.coroutineServiceBinding {
+      menuMessageUpdater.updateMenuMessageInGroupChat(courseId).bind()
+    }
 }

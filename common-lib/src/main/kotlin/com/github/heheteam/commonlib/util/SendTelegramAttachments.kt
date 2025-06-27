@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.util
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.MediaAttachment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
-import com.github.heheteam.commonlib.telegram.TelegramError
+import com.github.heheteam.commonlib.errors.TelegramError
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching

@@ -1,9 +1,9 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -42,8 +42,8 @@ class QueryProblemForSubmissionSendingState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, NumberedError>,
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val problems = service.getActiveProblems(userId, selectedCourseId).bind()
     val message =
       bot.send(context, Dialogues.askProblem, replyMarkup = buildProblemSendingSelector(problems))

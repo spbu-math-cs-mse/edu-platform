@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.telegram
 
-import com.github.heheteam.commonlib.EduPlatformError
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId

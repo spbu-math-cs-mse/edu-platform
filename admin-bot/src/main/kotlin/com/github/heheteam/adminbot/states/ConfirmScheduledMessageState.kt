@@ -4,16 +4,19 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
-import com.github.heheteam.commonlib.OperationCancelledError
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.OperationCancelledError
+import com.github.heheteam.commonlib.errors.newStateError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -70,7 +73,7 @@ class ConfirmScheduledMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<Boolean, EduPlatformError>>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val confirmationMessage =
       bot.send(
         context,
@@ -94,7 +97,7 @@ class ConfirmScheduledMessageState(
       when (callback.data) {
         "confirm" -> UserInput(Ok(true))
         "cancel" -> UserInput(Err(OperationCancelledError()))
-        else -> UserInput(Err(NamedError(Dialogues.unknownCommand)))
+        else -> UserInput(Err(newStateError(Dialogues.unknownCommand)))
       }
     }
   }
@@ -102,31 +105,33 @@ class ConfirmScheduledMessageState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Result<Boolean, EduPlatformError>,
-  ): Pair<State, Result<ScheduledMessageId?, EduPlatformError>> {
-    return input.mapBoth(
-      success = { confirmed ->
-        if (confirmed) {
-          val scheduledMessage =
-            service.sendScheduledMessage(
-              adminId,
-              LocalDateTime.of(date, time),
-              TelegramMessageContent(scheduledMessageTextField.content),
-              scheduledMessageTextField.shortDescription,
-              course.id,
-            )
-          Pair(MenuState(context, adminId), scheduledMessage)
-        } else {
-          Pair(MenuState(context, adminId), Ok(null))
-        }
-      },
-      failure = { error ->
-        if (error is OperationCancelledError) {
-          Pair(MenuState(context, adminId), Ok(null))
-        } else {
-          Pair(this, Err(error))
-        }
-      },
-    )
+  ): Result<Pair<State, Result<ScheduledMessageId?, EduPlatformError>>, NumberedError> {
+    return input
+      .mapBoth(
+        success = { confirmed ->
+          if (confirmed) {
+            val scheduledMessage =
+              service.sendScheduledMessage(
+                adminId,
+                LocalDateTime.of(date, time),
+                TelegramMessageContent(scheduledMessageTextField.content),
+                scheduledMessageTextField.shortDescription,
+                course.id,
+              )
+            Pair(MenuState(context, adminId), scheduledMessage)
+          } else {
+            Pair(MenuState(context, adminId), Ok(null))
+          }
+        },
+        failure = { error ->
+          if (error is OperationCancelledError) {
+            Pair(MenuState(context, adminId), Ok(null))
+          } else {
+            Pair(this, Err(error))
+          }
+        },
+      )
+      .ok()
   }
 
   override suspend fun sendResponse(
@@ -134,18 +139,17 @@ class ConfirmScheduledMessageState(
     service: AdminApi,
     response: Result<ScheduledMessageId?, EduPlatformError>,
     input: Result<Boolean, EduPlatformError>,
-  ) {
-    response.mapBoth(
-      success = { scheduledMessageId ->
+  ): Result<Unit, NumberedError> =
+    coroutineBinding {
+        val scheduledMessageId = response.bind()
         if (scheduledMessageId == null) {
           bot.send(context, "Операция отменена")
         } else {
           bot.send(context, "Ваше сообщение id=${scheduledMessageId.long} успешно отправлено!")
         }
-      },
-      failure = { error -> "Случилась ошибка при отправке. Ошибка: ${error.shortDescription}" },
-    )
-  }
+        Unit
+      }
+      .toNumberedResult()
 
   private fun confirmationKeyboard(): InlineKeyboardMarkup {
     return InlineKeyboardMarkup(

@@ -1,11 +1,10 @@
 package com.github.heheteam.commonlib.integration
 
-import com.github.heheteam.commonlib.AdminIsNotWhitelistedError
+import com.github.heheteam.commonlib.errors.AdminIsNotWhitelistedError
 import com.github.heheteam.commonlib.util.buildData
 import dev.inmo.tgbotapi.types.toChatId
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.plus
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 
@@ -18,7 +17,7 @@ class AdminsWhitelistTest : IntegrationTestEnvironment() {
       assertFalse(apis.adminApi.tgIdIsInWhitelist(randomTgId))
       val result = apis.adminApi.createAdmin("Name", "Surname", randomTgId.chatId.long)
       assertTrue(result.isErr)
-      assertTrue(result.error is AdminIsNotWhitelistedError)
+      assertTrue(result.error.error is AdminIsNotWhitelistedError)
     }
   }
 

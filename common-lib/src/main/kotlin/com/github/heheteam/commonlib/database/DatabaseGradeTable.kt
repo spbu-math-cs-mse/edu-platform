@@ -1,6 +1,5 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionAssessment
@@ -8,6 +7,7 @@ import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SubmissionTable
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.GradeTable

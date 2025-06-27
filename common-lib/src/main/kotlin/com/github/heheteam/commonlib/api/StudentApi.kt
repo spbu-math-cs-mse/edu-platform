@@ -2,11 +2,11 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Problem
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.SubmissionInputRequest
+import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
@@ -31,59 +31,79 @@ internal constructor(
   private val studentViewService: StudentViewService,
   private val studentStorage: StudentStorage,
   private val courseTokenService: CourseTokenService,
+  private val errorManagementService: ErrorManagementService,
 ) {
-  suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, EduPlatformError> =
-    scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
+  suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, NumberedError> =
+    errorManagementService.coroutineServiceBinding {
+      scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
+    }
 
   fun getGradingForAssignment(
     assignmentId: AssignmentId,
     studentId: StudentId,
-  ): Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError> =
-    academicWorkflowService.getGradingsForAssignment(assignmentId, studentId)
+  ): Result<List<Pair<Problem, ProblemGrade>>, NumberedError> =
+    errorManagementService.serviceBinding {
+      academicWorkflowService.getGradingsForAssignment(assignmentId, studentId).bind()
+    }
 
-  fun getAllCourses(): Result<List<Course>, EduPlatformError> = studentViewService.getAllCourses()
+  fun getAllCourses(): Result<List<Course>, NumberedError> =
+    errorManagementService.serviceBinding { studentViewService.getAllCourses().bind() }
 
-  fun getStudentCourses(studentId: StudentId): Result<List<Course>, EduPlatformError> =
-    studentViewService.getStudentCourses(studentId)
+  fun getStudentCourses(studentId: StudentId): Result<List<Course>, NumberedError> =
+    errorManagementService.serviceBinding { studentViewService.getStudentCourses(studentId).bind() }
 
-  fun getCourseAssignments(courseId: CourseId): Result<List<Assignment>, EduPlatformError> =
-    studentViewService.getCourseAssignments(courseId)
+  fun getCourseAssignments(courseId: CourseId): Result<List<Assignment>, NumberedError> =
+    errorManagementService.serviceBinding {
+      studentViewService.getCourseAssignments(courseId).bind()
+    }
 
   suspend fun inputSubmission(
     submissionInputRequest: SubmissionInputRequest
   ): SubmissionSendingResult = academicWorkflowService.sendSubmission(submissionInputRequest)
 
-  fun getProblemsFromAssignment(
-    assignmentId: AssignmentId
-  ): Result<List<Problem>, EduPlatformError> =
-    studentViewService.getProblemsFromAssignment(assignmentId)
+  fun getProblemsFromAssignment(assignmentId: AssignmentId): Result<List<Problem>, NumberedError> =
+    errorManagementService.serviceBinding {
+      studentViewService.getProblemsFromAssignment(assignmentId).bind()
+    }
 
-  fun loginByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> =
-    studentStorage.resolveByTgId(tgId)
+  fun loginByTgId(tgId: UserId): Result<Student, NumberedError> =
+    errorManagementService.serviceBinding { studentStorage.resolveByTgId(tgId).bind() }
 
-  fun loginById(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
-    studentStorage.resolveStudent(studentId)
+  fun loginById(studentId: StudentId): Result<Student, NumberedError> =
+    errorManagementService.serviceBinding { studentStorage.resolveStudent(studentId).bind() }
 
-  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>> =
-    studentStorage.updateTgId(studentId, newTgId)
+  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, NumberedError> =
+    errorManagementService.serviceBinding { studentStorage.updateTgId(studentId, newTgId).bind() }
 
-  fun createStudent(
-    name: String,
-    surname: String,
-    tgId: Long,
-  ): Result<StudentId, EduPlatformError> = studentStorage.createStudent(name, surname, tgId)
+  fun createStudent(name: String, surname: String, tgId: Long): Result<StudentId, NumberedError> =
+    errorManagementService.serviceBinding {
+      studentStorage.createStudent(name, surname, tgId).bind()
+    }
 
-  suspend fun requestReschedulingDeadlines(studentId: StudentId, newDeadline: LocalDateTime) =
-    personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline)
+  suspend fun requestReschedulingDeadlines(
+    studentId: StudentId,
+    newDeadline: LocalDateTime,
+  ): Result<Unit, NumberedError> =
+    errorManagementService.coroutineServiceBinding {
+      personalDeadlinesService.requestReschedulingDeadlines(studentId, newDeadline).bind()
+    }
 
   fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =
     personalDeadlinesService.calculateNewDeadlines(studentId, problems)
 
-  fun getActiveProblems(studentId: StudentId, courseId: CourseId) =
-    personalDeadlinesService.getActiveProblems(studentId, courseId)
+  fun getActiveProblems(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Map<Assignment, List<Problem>>, NumberedError> =
+    errorManagementService.serviceBinding {
+      personalDeadlinesService.getActiveProblems(studentId, courseId).bind()
+    }
 
   fun registerForCourseWithToken(
     token: String,
     studentId: StudentId,
-  ): Result<Course, EduPlatformError> = courseTokenService.registerStudentForToken(studentId, token)
+  ): Result<Course, NumberedError> =
+    errorManagementService.serviceBinding {
+      courseTokenService.registerStudentForToken(studentId, token).bind()
+    }
 }

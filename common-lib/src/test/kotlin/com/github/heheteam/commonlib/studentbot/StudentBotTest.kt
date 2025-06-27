@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -88,6 +89,7 @@ class StudentBotTest {
         StudentViewService(courseStorage, problemStorage, assignmentStorage),
         studentStorage,
         mockCourseTokensService,
+        ErrorManagementService(),
       )
   }
 

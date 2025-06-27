@@ -1,20 +1,54 @@
 package com.github.heheteam.commonlib.state
 
+import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.types.chat.User
 
 interface BotState<In, Out, HelperService> : State {
-  suspend fun readUserInput(bot: BehaviourContext, service: HelperService): In
+  override val context: User
 
-  suspend fun computeNewState(service: HelperService, input: In): Pair<State, Out>
+  suspend fun readUserInput(
+    bot: BehaviourContext,
+    service: HelperService,
+  ): Result<In, NumberedError>
 
-  suspend fun sendResponse(bot: BehaviourContext, service: HelperService, response: Out)
+  suspend fun computeNewState(
+    service: HelperService,
+    input: In,
+  ): Result<Pair<State, Out>, NumberedError>
+
+  suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: HelperService,
+    response: Out,
+  ): Result<Unit, NumberedError>
 
   suspend fun handle(bot: BehaviourContext, service: HelperService): State {
-    val input = readUserInput(bot, service)
-    val (newState, response) = computeNewState(service, input)
-    sendResponse(bot, service, response)
+    val inputResult = readUserInput(bot, service)
+    val inputError = inputResult.getError()
+    if (inputError != null) {
+      bot.send(context, inputError.toMessageText())
+      return this
+    }
+    val input = inputResult.value
+    val newStateResult = computeNewState(service, input)
+    val newStateError = newStateResult.getError()
+    if (newStateError != null) {
+      bot.send(context, newStateError.toMessageText())
+      return this
+    }
+    val (newState, response) = newStateResult.value
+    val sendResponseResult = sendResponse(bot, service, response)
+    val sendResponseError = sendResponseResult.getError()
+    if (sendResponseError != null) {
+      bot.send(context, sendResponseError.toMessageText())
+      return this
+    }
     return newState
   }
 }

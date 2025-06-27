@@ -1,10 +1,10 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlersAndStudentId
-import com.github.heheteam.commonlib.toStackedString
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.createCoursePicker
 import com.github.heheteam.commonlib.util.map
@@ -28,7 +28,7 @@ data class QueryCourseForCheckingGradesState(
 
   override fun createKeyboard(
     service: StudentApi
-  ): Result<MenuKeyboardData<State?>, EduPlatformError> = binding {
+  ): Result<MenuKeyboardData<State?>, NumberedError> = binding {
     val courses = service.getStudentCourses(userId).bind()
     val coursesPicker = createCoursePicker(courses)
     coursesPicker.map { course ->

@@ -1,14 +1,14 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Admin
-import com.github.heheteam.commonlib.AdminIsNotWhitelistedError
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.AdminTable
 import com.github.heheteam.commonlib.database.table.AdminWhitelistTable
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.errors.AdminIsNotWhitelistedError
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.ResolveError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AdminStorage
 import com.github.heheteam.commonlib.interfaces.toAdminId

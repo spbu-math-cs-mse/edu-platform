@@ -1,9 +1,10 @@
 package com.github.heheteam.commonlib.telegram
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
-import com.github.heheteam.commonlib.asNamedError
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.TelegramError
+import com.github.heheteam.commonlib.errors.asNamedError
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.logic.ui.createSubmissionGradingKeyboard
 import com.github.heheteam.commonlib.toTelegramMessageInfo
@@ -109,7 +110,7 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
           }
           .toTelegramMessageInfo()
       }
-      .mapError { "".asNamedError() }
+      .mapError { "".asNamedError(TeacherBotTelegramControllerImpl::class) }
 
   override suspend fun deleteMessage(
     telegramMessageInfo: TelegramMessageInfo

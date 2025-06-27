@@ -1,18 +1,18 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.BindError
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.DeleteError
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.asEduPlatformError
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.CourseTeachers
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.errors.BindError
+import com.github.heheteam.commonlib.errors.DeleteError
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.ResolveError
+import com.github.heheteam.commonlib.errors.asEduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
@@ -102,7 +102,13 @@ class DatabaseCourseStorage(val database: Database) : CourseStorage {
           }
           Ok(Unit)
         } catch (e: ExposedSQLException) {
-          Err(BindError(teacherId, courseId, causedBy = e.asEduPlatformError()))
+          Err(
+            BindError(
+              teacherId,
+              courseId,
+              causedBy = e.asEduPlatformError(DatabaseCourseStorage::class),
+            )
+          )
         }
       } else {
         Err(BindError(teacherId, courseId))

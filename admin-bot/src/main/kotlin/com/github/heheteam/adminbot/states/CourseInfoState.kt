@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
@@ -50,15 +51,17 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     }
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: Unit): Pair<State, Unit> =
-    Pair(MenuState(context, adminId), Unit)
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: Unit,
+  ): Result<Pair<State, Unit>, NumberedError> = Pair(MenuState(context, adminId), Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: Unit,
-  ) = Unit
+  ): Result<Unit, NumberedError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

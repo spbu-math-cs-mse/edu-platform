@@ -8,15 +8,18 @@ import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -83,29 +86,31 @@ class QueryScheduledMessageTimeState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Result<LocalTime, EduPlatformError>,
-  ): Pair<State, EduPlatformError?> {
-    return input.mapBoth(
-      success = { time ->
-        Pair(
-          ConfirmScheduledMessageState(
-            context,
-            course,
-            adminId,
-            scheduledMessageTextField,
-            date,
-            time,
-          ),
-          null,
-        )
-      },
-      failure = { error ->
-        if (error is OperationCancelledError) {
-          Pair(MenuState(context, adminId), null)
-        } else {
-          Pair(this, error)
-        }
-      },
-    )
+  ): Result<Pair<State, EduPlatformError?>, NumberedError> {
+    return input
+      .mapBoth(
+        success = { time ->
+          Pair(
+            ConfirmScheduledMessageState(
+              context,
+              course,
+              adminId,
+              scheduledMessageTextField,
+              date,
+              time,
+            ),
+            null,
+          )
+        },
+        failure = { error ->
+          if (error is OperationCancelledError) {
+            Pair(MenuState(context, adminId), null)
+          } else {
+            Pair(this, error)
+          }
+        },
+      )
+      .ok()
   }
 
   override suspend fun sendResponse(
@@ -113,10 +118,13 @@ class QueryScheduledMessageTimeState(
     service: AdminApi,
     response: EduPlatformError?,
     input: Result<LocalTime, EduPlatformError>,
-  ) {
-    response?.let {
-      val errorMessage = bot.send(context, it.shortDescription)
-      sentMessages.add(errorMessage)
-    }
-  }
+  ): Result<Unit, NumberedError> =
+    runCatching {
+        response?.let {
+          val errorMessage = bot.send(context, it.shortDescription)
+          sentMessages.add(errorMessage)
+        }
+        Unit
+      }
+      .toNumberedResult()
 }

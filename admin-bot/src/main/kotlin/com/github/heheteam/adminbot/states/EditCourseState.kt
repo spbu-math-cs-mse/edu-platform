@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.buildColumnMenu
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -102,14 +103,15 @@ class EditCourseState(
     return editCourseKeyboard
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
-    return Pair(input, Unit)
-  }
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: State,
+  ): Result<Pair<State, Unit>, NumberedError> = Pair(input, Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: State,
-  ) = Unit
+  ): Result<Unit, NumberedError> = Unit.ok()
 }

@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
@@ -48,8 +49,11 @@ class AddScheduledMessageStartState(
     sentMessages.add(introMessage)
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
-    return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit)
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: State,
+  ): Result<Pair<State, Unit>, NumberedError> {
+    return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit).ok()
   }
 
   override suspend fun handle(
@@ -66,7 +70,7 @@ class AddScheduledMessageStartState(
     service: AdminApi,
     response: Unit,
     input: State,
-  ) = Unit
+  ) = Unit.ok()
 
   override fun defaultState(): State = MenuState(context, adminId)
 }

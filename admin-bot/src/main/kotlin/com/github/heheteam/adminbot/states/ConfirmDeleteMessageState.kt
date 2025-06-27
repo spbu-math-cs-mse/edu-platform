@@ -3,6 +3,7 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -11,13 +12,12 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createYesNoKeyboard
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
-import dev.inmo.kslog.common.KSLog
-import dev.inmo.kslog.common.warning
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -89,12 +89,16 @@ data class ConfirmDeleteMessageState(
     +"Вы уверены, что хотите удалить это сообщение?"
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: Boolean): Pair<State, String> {
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: Boolean,
+  ): Result<Pair<State, String>, NumberedError> {
     return if (input) {
-      PerformDeleteMessageState(context, adminId, scheduledMessageId) to "Удаление сообщения..."
-    } else {
-      MenuState(context, adminId) to "Удаление сообщения отменено."
-    }
+        PerformDeleteMessageState(context, adminId, scheduledMessageId) to "Удаление сообщения..."
+      } else {
+        MenuState(context, adminId) to "Удаление сообщения отменено."
+      }
+      .ok()
   }
 
   override suspend fun sendResponse(
@@ -102,18 +106,15 @@ data class ConfirmDeleteMessageState(
     service: AdminApi,
     response: String,
     input: Boolean,
-  ) {
-    confirmationMessage?.let {
-      try {
-        bot.delete(it)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete confirmation message", e)
+  ): Result<Unit, NumberedError> =
+    runCatching {
+        confirmationMessage?.let { bot.delete(it) }
+        if (response.isNotEmpty()) {
+          bot.sendMessage(context.id, response)
+        }
+        Unit
       }
-    }
-    if (response.isNotEmpty()) {
-      bot.sendMessage(context.id, response)
-    }
-  }
+      .toNumberedResult()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

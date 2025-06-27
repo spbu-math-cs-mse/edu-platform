@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createCoursePicker
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -57,7 +58,7 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
     service: AdminApi,
     response: Unit,
     input: Course?,
-  ) = Unit
+  ): Result<Unit, NumberedError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

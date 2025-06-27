@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -40,15 +41,18 @@ abstract class NavigationBotStateWithHandlers<Service> :
     }
   }
 
-  override suspend fun computeNewState(service: Service, input: State?): Pair<State, Unit> =
-    if (input != null) input to Unit else menuState() to Unit
+  override suspend fun computeNewState(
+    service: Service,
+    input: State?,
+  ): Result<Pair<State, Unit>, NumberedError> =
+    Ok(if (input != null) input to Unit else menuState() to Unit)
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: Service,
     response: Unit,
     input: State?,
-  ) = Unit
+  ): Result<Unit, NumberedError> = Ok(Unit)
 
   override suspend fun outro(bot: BehaviourContext, service: Service) {
     for (message in sentMessages) {

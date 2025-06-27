@@ -30,9 +30,17 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     updateHandlersController: UpdateHandlerManager<In>,
   ): Result<Unit, NumberedError>
 
-  suspend fun computeNewState(service: ApiService, input: In): Pair<State, Out>
+  suspend fun computeNewState(
+    service: ApiService,
+    input: In,
+  ): Result<Pair<State, Out>, NumberedError>
 
-  suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out, input: In)
+  suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: ApiService,
+    response: Out,
+    input: In,
+  ): Result<Unit, NumberedError>
 
   fun defaultState(): State
 
@@ -47,7 +55,8 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     val updateHandlersController =
       UpdateHandlersController<SuspendableBotAction, In, NumberedError>()
     initUpdateHandlers(updateHandlersController, context)
-    val introError = intro(bot, service, updateHandlersController).getError()
+    val introResult = intro(bot, service, updateHandlersController)
+    val introError = introResult.getError()
     if (introError != null) {
       bot.send(context, introError.toMessageText())
       return defaultState()
@@ -59,10 +68,27 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
           bot.send(context, handlerResult.error.toMessageText())
         }
 
-        is NewState -> return handlerResult.state.also { outro(bot, service) }
+        is NewState -> {
+          outro(bot, service)
+          return handlerResult.state
+        }
+
         is UserInput<In> -> {
-          val (state, response) = computeNewState(service, handlerResult.input)
-          sendResponse(bot, service, response, handlerResult.input)
+          val newStateResult = computeNewState(service, handlerResult.input)
+          val newStateError = newStateResult.getError()
+          if (newStateError != null) {
+            bot.send(context, newStateError.toMessageText())
+            outro(bot, service)
+            return defaultState()
+          }
+          val (state, response) = newStateResult.value
+          val sendResponseResult = sendResponse(bot, service, response, handlerResult.input)
+          val sendResponseError = sendResponseResult.getError()
+          if (sendResponseError != null) {
+            bot.send(context, sendResponseError.toMessageText())
+            outro(bot, service)
+            return defaultState()
+          }
           outro(bot, service)
           return state
         }

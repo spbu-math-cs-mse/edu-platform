@@ -3,6 +3,7 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -11,6 +12,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -41,11 +43,17 @@ class AddAdminState(override val context: User, val adminId: AdminId) :
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: String): Pair<State, String> {
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: String,
+  ): Result<Pair<State, String>, NumberedError> = coroutineBinding {
     val stringId = input.trim()
-    val newAdminId = stringId.toLongOrNull() ?: return this to "Некорректный id: $stringId"
+    val newAdminId =
+      stringId.toLongOrNull()
+        ?: return@coroutineBinding this@AddAdminState to "Некорректный id: $stringId"
     service.addTgIdToWhitelist(newAdminId.toChatId())
-    return MenuState(context, adminId) to "Админ с id $newAdminId успешно добавлен в систему!"
+    return@coroutineBinding MenuState(context, adminId) to
+      "Админ с id $newAdminId успешно добавлен в систему!"
   }
 
   override suspend fun sendResponse(
@@ -53,7 +61,10 @@ class AddAdminState(override val context: User, val adminId: AdminId) :
     service: AdminApi,
     response: String,
     input: String,
-  ) {
-    bot.send(context, response)
-  }
+  ) =
+    runCatching {
+        bot.send(context, response)
+        Unit
+      }
+      .toNumberedResult()
 }

@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -39,18 +40,17 @@ data class PerformDeleteMessageState(
     )
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: Unit): Pair<State, String> {
-    return MenuState(context, adminId) to "" // Always return to menu after attempt
-  }
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: Unit,
+  ): Result<Pair<State, String>, NumberedError> = Pair(MenuState(context, adminId), "").ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: String,
     input: Unit,
-  ) {
-    // Response is sent in intro, so this can be empty.
-  }
+  ): Result<Unit, NumberedError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

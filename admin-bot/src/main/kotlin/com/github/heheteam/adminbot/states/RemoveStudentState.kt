@@ -10,6 +10,7 @@ import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -21,6 +22,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -63,19 +65,19 @@ class RemoveStudentState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Pair<State, List<String>> {
+  ): Result<Pair<State, List<String>>, NumberedError> = coroutineBinding {
     if (input == "/stop") {
-      return Pair(MenuState(context, adminId), emptyList())
+      return@coroutineBinding Pair(MenuState(context, adminId), emptyList<String>())
     }
 
     val splitIds = input.split(",").map { it.trim() }
     if (splitIds.isEmpty()) {
-      return Pair(this, listOf(noIdInInput))
+      return@coroutineBinding Pair(this@RemoveStudentState, listOf(noIdInInput))
     }
 
     val processedIds = processStringIds(splitIds)
     if (processedIds.isErr) {
-      return Pair(this, listOf(processedIds.error))
+      return@coroutineBinding Pair(this@RemoveStudentState, listOf(processedIds.error))
     }
 
     val ids = processedIds.value
@@ -122,7 +124,7 @@ class RemoveStudentState(
       goodIds.forEach { service.removeStudent(StudentId(it), course.id) }
     }
 
-    return Pair(MenuState(context, adminId), messages)
+    Pair(MenuState(context, adminId), messages)
   }
 
   override suspend fun sendResponse(
@@ -130,9 +132,7 @@ class RemoveStudentState(
     service: AdminApi,
     response: List<String>,
     input: String,
-  ) {
-    response.forEach { msg -> bot.send(context, msg) }
-  }
+  ) = runCatching { response.forEach { msg -> bot.send(context, msg) } }.toNumberedResult()
 
   private fun processStringIds(ids: List<String>): Result<List<Long>, String> {
     return ids

@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
@@ -57,14 +58,17 @@ class CreateAssignmentErrorState(
     }
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: State,
+  ): Result<Pair<State, Unit>, NumberedError> = Pair(input, Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: State,
-  ) = Unit
+  ): Result<Unit, NumberedError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

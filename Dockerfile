@@ -22,11 +22,8 @@ FROM eclipse-temurin:21-jre-jammy AS runtime
 
 WORKDIR /edu-platform
 
-RUN groupadd -r appgroup && useradd -r -g appgroup -s /sbin/nologin appuser
-RUN chown -R appuser:appgroup /edu-platform
-RUN mkdir -p /edu-platform/logs && chown -R appuser:appgroup /edu-platform/logs
+RUN mkdir -p /edu-platform/logs
 
 COPY --from=build edu-platform/multi-bot/build/libs/multi-bot-1.0.jar multi-bot.jar
 
-USER appuser
 CMD java -jar multi-bot.jar > /edu-platform/logs/log 2>&1

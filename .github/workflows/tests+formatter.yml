@@ -61,7 +61,7 @@ jobs:
           DB_PASSWORD_FILE="${{ runner.temp }}/db_password"
           echo "DB_PASSWORD_FILE=$DB_PASSWORD_FILE" >> $GITHUB_ENV
           echo 'postgres' > "$DB_PASSWORD_FILE"
-    
+          
           KEY_FILE="${{ runner.temp }}/google_api_key.json"
           echo "GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE=$KEY_FILE" >> $GITHUB_ENV
           echo '${{ secrets.GOOGLE_API_KEY }}' > "$KEY_FILE"
@@ -157,6 +157,6 @@ jobs:
           script: |
             cd /root/edu-platform
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
+            docker compose pull backend
             docker compose up -d --force-recreate backend
             docker image prune -af

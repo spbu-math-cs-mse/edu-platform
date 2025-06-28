@@ -28,4 +28,4 @@ RUN chown -R appuser:appgroup /edu-platform
 COPY --from=build edu-platform/multi-bot/build/libs/multi-bot-1.0.jar multi-bot.jar
 
 USER appuser
-CMD java -jar multi-bot.jar
+CMD java -jar multi-bot.jar > ./logs/log 2>&1

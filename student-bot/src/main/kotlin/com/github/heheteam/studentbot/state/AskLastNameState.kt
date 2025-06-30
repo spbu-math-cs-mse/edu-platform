@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
 import com.github.michaelbull.result.Result
@@ -24,16 +25,17 @@ class AskLastNameState(
   private val firstName: String,
   private val token: String?,
 ) : BotStateWithHandlers<StudentId, Unit, StudentApi> {
-  override suspend fun computeNewState(service: StudentApi, input: StudentId): Pair<State, Unit> {
-    return MenuState(context, input) to Unit
-  }
+  override suspend fun computeNewState(
+    service: StudentApi,
+    input: StudentId,
+  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, input) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
     input: StudentId,
-  ) = Unit
+  ) = Unit.ok()
 
   override fun defaultState(): State {
     return StartState(context, token)

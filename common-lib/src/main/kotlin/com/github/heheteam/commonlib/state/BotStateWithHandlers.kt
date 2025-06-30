@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -74,23 +75,19 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
         }
 
         is UserInput<In> -> {
-          val newStateResult = computeNewState(service, handlerResult.input)
-          val newStateError = newStateResult.getError()
-          if (newStateError != null) {
-            bot.send(context, newStateError.toMessageText())
+          val state = coroutineBinding {
+            val (state, response) = computeNewState(service, handlerResult.input).bind()
+            sendResponse(bot, service, response, handlerResult.input).bind()
             outro(bot, service)
-            return defaultState()
+            state
           }
-          val (state, response) = newStateResult.value
-          val sendResponseResult = sendResponse(bot, service, response, handlerResult.input)
-          val sendResponseError = sendResponseResult.getError()
-          if (sendResponseError != null) {
-            bot.send(context, sendResponseError.toMessageText())
+          return if (state.isErr) {
+            bot.send(context, state.error.toMessageText())
             outro(bot, service)
-            return defaultState()
+            defaultState()
+          } else {
+            state.value
           }
-          outro(bot, service)
-          return state
         }
       }
     }

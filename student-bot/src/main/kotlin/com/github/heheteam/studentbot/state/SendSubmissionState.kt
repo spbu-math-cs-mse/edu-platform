@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
@@ -12,11 +13,13 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.back
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
@@ -64,23 +67,26 @@ data class SendSubmissionState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: SubmissionInputRequest?,
-  ): Pair<State, SubmissionInputRequest?> {
+  ): Result<Pair<State, SubmissionInputRequest?>, NumberedError> {
     return if (input == null) {
-      MenuState(context, userId) to input
-    } else {
-      ConfirmSubmissionState(context, userId, input) to input
-    }
+        MenuState(context, userId) to input
+      } else {
+        ConfirmSubmissionState(context, userId, input) to input
+      }
+      .ok()
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionInputRequest?,
-  ) {
-    if (response == null) {
-      bot.send(context, Dialogues.tellSubmissionTypeIsInvalid)
-    }
-  }
+  ): Result<Unit, NumberedError> =
+    runCatching {
+        if (response == null) {
+          bot.send(context, Dialogues.tellSubmissionTypeIsInvalid)
+        }
+      }
+      .toNumberedResult()
 
   private suspend fun BehaviourContext.parseSentSubmission(
     submissionMessage: CommonMessage<*>,

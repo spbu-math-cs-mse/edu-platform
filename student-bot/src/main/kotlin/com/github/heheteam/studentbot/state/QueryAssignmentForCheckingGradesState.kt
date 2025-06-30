@@ -3,8 +3,8 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createAssignmentPicker
 import com.github.heheteam.commonlib.util.delete
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.mapError
@@ -35,7 +36,7 @@ data class QueryAssignmentForCheckingGradesState(
 ) :
   BotStateWithHandlersAndStudentId<
     Assignment?,
-    Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?,
+    Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?,
     StudentApi,
   > {
   private val sentMessages = mutableListOf<AccessibleMessage>()
@@ -62,34 +63,32 @@ data class QueryAssignmentForCheckingGradesState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: Assignment?,
-  ): Pair<State, Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?> =
-    if (input != null) {
-      val gradedProblems = service.getGradingForAssignment(input.id, userId)
-      MenuState(context, userId) to (input to gradedProblems)
-    } else {
-      MenuState(context, userId) to input
+  ): Result<Pair<State, Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?>, NumberedError> =
+    binding {
+      if (input != null) {
+        val gradedProblems = service.getGradingForAssignment(input.id, userId).bind()
+        MenuState(context, userId) to (input to gradedProblems)
+      } else {
+        MenuState(context, userId) to input
+      }
     }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
-    response: Pair<Assignment, Result<List<Pair<Problem, ProblemGrade>>, EduPlatformError>>?,
-  ) {
-    if (response != null) {
-      val grades = response.second
-      grades.mapBoth(
-        success = { gradedProblems -> bot.respondWithGrades(response.first, gradedProblems) },
-        failure = {
-          val errorMessage = "Ошибка! Не получилось запросить ваши оценки"
-          bot.send(context, text = errorMessage)
-        },
-      )
-    }
-    for (message in sentMessages) {
-      runCatching { bot.delete(message) }
-        .mapError { logger.warning("Message $message delete failed", it) }
-    }
-  }
+    response: Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?,
+  ): Result<Unit, NumberedError> =
+    runCatching {
+        if (response != null) {
+          val grades = response.second
+          bot.respondWithGrades(response.first, grades)
+        }
+        for (message in sentMessages) {
+          runCatching { bot.delete(message) }
+            .mapError { logger.warning("Message $message delete failed", it) }
+        }
+      }
+      .toNumberedResult()
 
   private suspend fun BehaviourContext.respondWithGrades(
     assignment: Assignment,

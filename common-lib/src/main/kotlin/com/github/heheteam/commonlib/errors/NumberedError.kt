@@ -9,8 +9,8 @@ class NumberedError(val number: Long, val error: EduPlatformError) : EduPlatform
       if (userDescription != null) "Ошибка №$number:\n$userDescription" else "Ошибка №$number"
 }
 
-fun <T> Result<T, EduPlatformError>.toNumberedResult(): Result<T, NumberedError> =
-  this.mapError { NumberedError(0, it) }
+// fun <T> Result<T, EduPlatformError>.toNumberedResult(): Result<T, NumberedError> =
+//  this.mapError { NumberedError(0, it) }
 
 fun <T> Result<T, Throwable>.toNumberedResult(): Result<T, NumberedError> =
   this.mapError { NumberedError(0, it.asEduPlatformError()) }

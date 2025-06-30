@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Keyboards
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -66,8 +67,10 @@ data class RescheduleDeadlinesState(override val context: User, override val use
   override fun defaultState(): State = MenuState(context, userId)
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
-    Unit
+    Unit.ok()
 
-  override suspend fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
-    MenuState(context, userId) to Unit
+  override suspend fun computeNewState(
+    service: StudentApi,
+    input: Unit,
+  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, userId) to Unit).ok()
 }

@@ -6,22 +6,18 @@ import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.OperationCancelledError
-import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
-import com.github.heheteam.commonlib.util.ok
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -48,12 +44,7 @@ class ConfirmScheduledMessageState(
   val scheduledMessageTextField: ScheduledMessageTextField,
   val date: LocalDate,
   val time: LocalTime,
-) :
-  BotStateWithHandlers<
-    Result<Boolean, EduPlatformError>,
-    Result<ScheduledMessageId?, EduPlatformError>,
-    AdminApi,
-  > {
+) : BotStateWithHandlers<Boolean, ScheduledMessageId?, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -72,7 +63,7 @@ class ConfirmScheduledMessageState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<Result<Boolean, EduPlatformError>>,
+    updateHandlersController: UpdateHandlerManager<Boolean>,
   ): Result<Unit, NumberedError> = coroutineBinding {
     val confirmationMessage =
       bot.send(
@@ -95,53 +86,44 @@ class ConfirmScheduledMessageState(
 
     updateHandlersController.addDataCallbackHandler { callback ->
       when (callback.data) {
-        "confirm" -> UserInput(Ok(true))
-        "cancel" -> UserInput(Err(OperationCancelledError()))
-        else -> UserInput(Err(newStateError(Dialogues.unknownCommand)))
+        "confirm" -> UserInput(true)
+        "cancel" -> UserInput(false)
+        else -> Unhandled
       }
     }
   }
 
   override suspend fun computeNewState(
     service: AdminApi,
-    input: Result<Boolean, EduPlatformError>,
-  ): Result<Pair<State, Result<ScheduledMessageId?, EduPlatformError>>, NumberedError> {
-    return input
-      .mapBoth(
-        success = { confirmed ->
-          if (confirmed) {
-            val scheduledMessage =
-              service.sendScheduledMessage(
-                adminId,
-                LocalDateTime.of(date, time),
-                TelegramMessageContent(scheduledMessageTextField.content),
-                scheduledMessageTextField.shortDescription,
-                course.id,
-              )
-            Pair(MenuState(context, adminId), scheduledMessage)
-          } else {
-            Pair(MenuState(context, adminId), Ok(null))
-          }
-        },
-        failure = { error ->
-          if (error is OperationCancelledError) {
-            Pair(MenuState(context, adminId), Ok(null))
-          } else {
-            Pair(this, Err(error))
-          }
-        },
-      )
-      .ok()
+    input: Boolean,
+  ): Result<Pair<State, ScheduledMessageId?>, NumberedError> {
+    return binding {
+      if (input) {
+        val scheduledMessage =
+          service
+            .sendScheduledMessage(
+              adminId,
+              LocalDateTime.of(date, time),
+              TelegramMessageContent(scheduledMessageTextField.content),
+              scheduledMessageTextField.shortDescription,
+              course.id,
+            )
+            .bind()
+        Pair(MenuState(context, adminId), scheduledMessage)
+      } else {
+        Pair(MenuState(context, adminId), null)
+      }
+    }
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: Result<ScheduledMessageId?, EduPlatformError>,
-    input: Result<Boolean, EduPlatformError>,
+    response: ScheduledMessageId?,
+    input: Boolean,
   ): Result<Unit, NumberedError> =
-    coroutineBinding {
-        val scheduledMessageId = response.bind()
+    runCatching {
+        val scheduledMessageId = response
         if (scheduledMessageId == null) {
           bot.send(context, "Операция отменена")
         } else {

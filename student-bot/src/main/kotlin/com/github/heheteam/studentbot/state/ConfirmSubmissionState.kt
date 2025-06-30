@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.toNumberedResult
 import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
@@ -12,10 +13,12 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -70,48 +73,49 @@ class ConfirmSubmissionState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: Boolean,
-  ): Pair<State, SubmissionSendingResult?> {
-    val menuState = MenuState(context, submissionInputRequest.studentId)
-    return menuState to
-      if (input) {
-        service.inputSubmission(submissionInputRequest)
-      } else {
-        null
-      }
-  }
+  ): Result<Pair<State, SubmissionSendingResult?>, NumberedError> =
+    (MenuState(context, submissionInputRequest.studentId) to
+        if (input) {
+          service.inputSubmission(submissionInputRequest)
+        } else {
+          null
+        })
+      .ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionSendingResult?,
-  ) {
-    with(bot) {
-      try {
-        delete(submissionMessage)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
+  ): Result<Unit, NumberedError> =
+    runCatching {
+        with(bot) {
+          try {
+            delete(submissionMessage)
+          } catch (e: CommonRequestException) {
+            KSLog.warning("Failed to delete message", e)
+          }
+          try {
+            delete(confirmMessage)
+          } catch (e: CommonRequestException) {
+            KSLog.warning("Failed to delete message", e)
+          }
+        }
+        if (response != null) {
+          when (response) {
+            is SubmissionSendingResult.Failure ->
+              bot.send(
+                context.id,
+                "Случилась ошибка при отправке решения\n" + response.error.toStackedString(),
+              )
+            is SubmissionSendingResult.Success ->
+              bot.send(
+                context.id,
+                "Решение ${response.submissionId.long} успешно отправлено на проверку!",
+              )
+          }
+        }
       }
-      try {
-        delete(confirmMessage)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
-      }
-    }
-    if (response != null) {
-      when (response) {
-        is SubmissionSendingResult.Failure ->
-          bot.send(
-            context.id,
-            "Случилась ошибка при отправке решения\n" + response.error.toStackedString(),
-          )
-        is SubmissionSendingResult.Success ->
-          bot.send(
-            context.id,
-            "Решение ${response.submissionId.long} успешно отправлено на проверку!",
-          )
-      }
-    }
-  }
+      .toNumberedResult()
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

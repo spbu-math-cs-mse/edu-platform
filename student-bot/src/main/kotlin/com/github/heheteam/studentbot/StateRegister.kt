@@ -16,7 +16,6 @@ import com.github.heheteam.studentbot.state.AskFirstNameState
 import com.github.heheteam.studentbot.state.AskLastNameState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
-import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
@@ -45,7 +44,6 @@ internal class StateRegister(
       registerStateForBotState<StartState, StudentApi>(studentApi)
       registerStateForBotState<AskFirstNameState, StudentApi>(studentApi)
       registerState<AskLastNameState, StudentApi>(studentApi)
-      registerStateForBotState<DeveloperStartState, StudentApi>(studentApi)
       registerSendSubmissionState(botToken, studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerStateWithStudentId<RescheduleDeadlinesState, StudentApi>(studentApi)

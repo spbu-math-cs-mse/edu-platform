@@ -2,15 +2,15 @@ package com.github.heheteam.commonlib.state
 
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.getError
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.chat.Chat
 
 interface BotState<In, Out, HelperService> : State {
-  override val context: User
+  override val context: Chat
 
   suspend fun readUserInput(
     bot: BehaviourContext,
@@ -29,27 +29,18 @@ interface BotState<In, Out, HelperService> : State {
   ): Result<Unit, NumberedError>
 
   suspend fun handle(bot: BehaviourContext, service: HelperService): State {
-    val inputResult = readUserInput(bot, service)
-    val inputError = inputResult.getError()
-    if (inputError != null) {
-      bot.send(context, inputError.toMessageText())
-      return this
+    val state = coroutineBinding {
+      val input = readUserInput(bot, service).bind()
+      val (newState, response) = computeNewState(service, input).bind()
+      sendResponse(bot, service, response).bind()
+      newState
     }
-    val input = inputResult.value
-    val newStateResult = computeNewState(service, input)
-    val newStateError = newStateResult.getError()
-    if (newStateError != null) {
-      bot.send(context, newStateError.toMessageText())
-      return this
+    return if (state.isErr) {
+      bot.send(context, state.error.toMessageText())
+      this
+    } else {
+      state.value
     }
-    val (newState, response) = newStateResult.value
-    val sendResponseResult = sendResponse(bot, service, response)
-    val sendResponseError = sendResponseResult.getError()
-    if (sendResponseError != null) {
-      bot.send(context, sendResponseError.toMessageText())
-      return this
-    }
-    return newState
   }
 }
 

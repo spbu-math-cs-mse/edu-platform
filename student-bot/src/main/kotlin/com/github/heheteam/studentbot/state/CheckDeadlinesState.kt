@@ -2,10 +2,11 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
@@ -27,11 +28,11 @@ class CheckDeadlinesState(
   override val context: User,
   private val studentId: StudentId,
   private val course: Course,
-) : BotState<Result<Unit, EduPlatformError>, Result<Unit, EduPlatformError>, StudentApi> {
+) : BotState<Unit, Unit, StudentApi> {
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: StudentApi,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, NumberedError> = coroutineBinding {
     val problemsWithPersonalDeadlines = service.getActiveProblems(studentId, course.id).bind()
     val messageText =
       buildEntities(" ") {
@@ -71,14 +72,12 @@ class CheckDeadlinesState(
 
   override suspend fun computeNewState(
     service: StudentApi,
-    input: Result<Unit, EduPlatformError>,
-  ): Pair<State, Result<Unit, EduPlatformError>> {
-    return MenuState(context, studentId) to input
-  }
+    input: Unit,
+  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, studentId) to input).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
-    response: Result<Unit, EduPlatformError>,
-  ) = Unit
+    response: Unit,
+  ): Result<Unit, NumberedError> = Unit.ok()
 }

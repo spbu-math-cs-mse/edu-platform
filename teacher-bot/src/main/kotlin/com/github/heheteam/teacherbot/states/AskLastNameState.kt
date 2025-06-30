@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.michaelbull.result.Result
@@ -18,9 +19,10 @@ import dev.inmo.tgbotapi.types.chat.User
 
 class AskLastNameState(override val context: User, private val firstName: String) :
   BotStateWithHandlers<TeacherId, Unit, TeacherApi> {
-  override suspend fun computeNewState(service: TeacherApi, input: TeacherId): Pair<State, Unit> {
-    return MenuState(context, input) to Unit
-  }
+  override suspend fun computeNewState(
+    service: TeacherApi,
+    input: TeacherId,
+  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, input) to Unit).ok()
 
   override fun defaultState(): State {
     return StartState(context)
@@ -31,7 +33,7 @@ class AskLastNameState(override val context: User, private val firstName: String
     service: TeacherApi,
     response: Unit,
     input: TeacherId,
-  ) = Unit
+  ) = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: TeacherApi) = Unit
 

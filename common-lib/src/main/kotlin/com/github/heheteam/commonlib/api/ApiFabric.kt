@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.DatabaseTelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.database.FirstTeacherResolver
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
+import com.github.heheteam.commonlib.database.createTables
 import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
@@ -120,6 +121,8 @@ class ApiFabric(
 
     if (initDatabase) {
       fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
+    } else {
+      createTables(database)
     }
 
     adminAuthService.addTgIdsToWhitelist(adminIds.map { it.toChatId() })

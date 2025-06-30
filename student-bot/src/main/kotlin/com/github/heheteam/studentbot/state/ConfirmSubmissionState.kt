@@ -2,9 +2,9 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toStackedString
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
@@ -49,8 +49,8 @@ class ConfirmSubmissionState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, NumberedError>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
         ButtonData("Да", "yes") { true },
@@ -73,7 +73,7 @@ class ConfirmSubmissionState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: Boolean,
-  ): Result<Pair<State, SubmissionSendingResult?>, NumberedError> =
+  ): Result<Pair<State, SubmissionSendingResult?>, FrontendError> =
     (MenuState(context, submissionInputRequest.studentId) to
         if (input) {
           service.inputSubmission(submissionInputRequest)
@@ -86,7 +86,7 @@ class ConfirmSubmissionState(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionSendingResult?,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         with(bot) {
           try {
@@ -115,7 +115,7 @@ class ConfirmSubmissionState(
           }
         }
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

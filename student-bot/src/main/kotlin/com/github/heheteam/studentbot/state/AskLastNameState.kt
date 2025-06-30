@@ -1,7 +1,9 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.TelegramBotError
 import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -28,7 +30,7 @@ class AskLastNameState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: StudentId,
-  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, input) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, input) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
@@ -47,7 +49,7 @@ class AskLastNameState(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController: UpdateHandlerManager<StudentId>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
@@ -84,10 +86,15 @@ class AskLastNameState(
             bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
           },
           failure = { error ->
-            val deepError = error.error
-            if (deepError is TokenError)
-              bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
-            else bot.send(context, error.toMessageText())
+            when (error) {
+              is TelegramBotError -> {}
+              is NumberedError -> {
+                val deepError = error.error
+                if (deepError is TokenError)
+                  bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+                else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
+              }
+            }
           },
         )
     }

@@ -1,7 +1,7 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -22,7 +22,7 @@ class AskLastNameState(override val context: User, private val firstName: String
   override suspend fun computeNewState(
     service: TeacherApi,
     input: TeacherId,
-  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, input) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, input) to Unit).ok()
 
   override fun defaultState(): State {
     return StartState(context)
@@ -41,7 +41,7 @@ class AskLastNameState(override val context: User, private val firstName: String
     bot: BehaviourContext,
     service: TeacherApi,
     updateHandlersController: UpdateHandlerManager<TeacherId>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text

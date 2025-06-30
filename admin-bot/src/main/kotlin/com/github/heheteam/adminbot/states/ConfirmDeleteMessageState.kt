@@ -2,8 +2,8 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -41,7 +41,7 @@ data class ConfirmDeleteMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val result = service.resolveScheduledMessage(scheduledMessageId)
     result.mapBoth(
       success = { message ->
@@ -92,7 +92,7 @@ data class ConfirmDeleteMessageState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Result<Pair<State, String>, NumberedError> {
+  ): Result<Pair<State, String>, FrontendError> {
     return if (input) {
         PerformDeleteMessageState(context, adminId, scheduledMessageId) to "Удаление сообщения..."
       } else {
@@ -106,7 +106,7 @@ data class ConfirmDeleteMessageState(
     service: AdminApi,
     response: String,
     input: Boolean,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         confirmationMessage?.let { bot.delete(it) }
         if (response.isNotEmpty()) {
@@ -114,7 +114,7 @@ data class ConfirmDeleteMessageState(
         }
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

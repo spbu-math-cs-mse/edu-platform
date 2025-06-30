@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
@@ -40,8 +40,8 @@ data class MenuState(override val context: User, override val userId: StudentId)
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, NumberedError>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
     service.updateTgId(userId, context.id)
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
 
@@ -78,7 +78,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
   override suspend fun computeNewState(
     service: StudentApi,
     input: State,
-  ): Result<Pair<State, Unit>, NumberedError> {
+  ): Result<Pair<State, Unit>, FrontendError> {
     return Pair(input, Unit).ok()
   }
 
@@ -86,8 +86,8 @@ data class MenuState(override val context: User, override val userId: StudentId)
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
-  ): Result<Unit, NumberedError> =
-    runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toNumberedResult()
+  ): Result<Unit, FrontendError> =
+    runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
@@ -29,7 +29,7 @@ abstract class NavigationBotStateWithHandlers<Service> :
     bot: BehaviourContext,
     service: Service,
     updateHandlersController: UpdateHandlerManager<State?>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val keyboardData = createKeyboard(service)
     val introMessage =
       bot.sendMessage(context, introMessageContent, replyMarkup = keyboardData.keyboard)
@@ -44,7 +44,7 @@ abstract class NavigationBotStateWithHandlers<Service> :
   override suspend fun computeNewState(
     service: Service,
     input: State?,
-  ): Result<Pair<State, Unit>, NumberedError> =
+  ): Result<Pair<State, Unit>, FrontendError> =
     Ok(if (input != null) input to Unit else menuState() to Unit)
 
   override suspend fun sendResponse(
@@ -52,7 +52,7 @@ abstract class NavigationBotStateWithHandlers<Service> :
     service: Service,
     response: Unit,
     input: State?,
-  ): Result<Unit, NumberedError> = Ok(Unit)
+  ): Result<Unit, FrontendError> = Ok(Unit)
 
   override suspend fun outro(bot: BehaviourContext, service: Service) {
     for (message in sentMessages) {

@@ -6,8 +6,8 @@ import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -64,7 +64,7 @@ class ConfirmScheduledMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val confirmationMessage =
       bot.send(
         context,
@@ -96,7 +96,7 @@ class ConfirmScheduledMessageState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Result<Pair<State, ScheduledMessageId?>, NumberedError> {
+  ): Result<Pair<State, ScheduledMessageId?>, FrontendError> {
     return binding {
       if (input) {
         val scheduledMessage =
@@ -121,7 +121,7 @@ class ConfirmScheduledMessageState(
     service: AdminApi,
     response: ScheduledMessageId?,
     input: Boolean,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         val scheduledMessageId = response
         if (scheduledMessageId == null) {
@@ -131,7 +131,7 @@ class ConfirmScheduledMessageState(
         }
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   private fun confirmationKeyboard(): InlineKeyboardMarkup {
     return InlineKeyboardMarkup(

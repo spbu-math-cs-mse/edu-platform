@@ -2,7 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -34,7 +34,7 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Course?>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val courses = service.getCourses().bind().map { it.value }
     val coursesPicker = createCoursePicker(courses)
     val message = bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
@@ -58,7 +58,7 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
     service: AdminApi,
     response: Unit,
     input: Course?,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

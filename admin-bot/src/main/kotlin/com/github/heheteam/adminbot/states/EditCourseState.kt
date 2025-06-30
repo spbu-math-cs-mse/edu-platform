@@ -3,7 +3,7 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -51,7 +51,7 @@ class EditCourseState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val editCourseKeyboard = createEditCourseOptionsKeyboard()
 
     val message =
@@ -106,12 +106,12 @@ class EditCourseState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: State,
-  ): Result<Pair<State, Unit>, NumberedError> = Pair(input, Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = Pair(input, Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: State,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

@@ -2,8 +2,8 @@ package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.state.BotState
@@ -33,7 +33,7 @@ class ChooseGroupCourseState(override val context: Chat) :
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherApi,
-  ): Result<CourseId?, NumberedError> =
+  ): Result<CourseId?, FrontendError> =
     runCatching {
         with(bot) {
           sendMessage(context, "Введите id курса")
@@ -41,12 +41,12 @@ class ChooseGroupCourseState(override val context: Chat) :
           idText.toLongOrNull()?.toCourseId()
         }
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun computeNewState(
     service: TeacherApi,
     input: CourseId?,
-  ): Result<Pair<State, Result<Course, CourseIdError>>, NumberedError> {
+  ): Result<Pair<State, Result<Course, CourseIdError>>, FrontendError> {
     val courseOrError =
       input
         .toResultOr { CourseIdError.BadInteger }
@@ -62,7 +62,7 @@ class ChooseGroupCourseState(override val context: Chat) :
     bot: BehaviourContext,
     service: TeacherApi,
     response: Result<Course, CourseIdError>,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         with(bot) {
           response.mapBoth(
@@ -79,5 +79,5 @@ class ChooseGroupCourseState(override val context: Chat) :
         }
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 }

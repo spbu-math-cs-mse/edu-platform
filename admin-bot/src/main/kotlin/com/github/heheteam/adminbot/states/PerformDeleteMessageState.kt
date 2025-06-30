@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -27,7 +27,7 @@ data class PerformDeleteMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Unit>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val result = service.deleteScheduledMessage(scheduledMessageId)
     result.mapBoth(
       success = { bot.sendMessage(context.id, "Сообщение успешно удалено.") },
@@ -43,14 +43,14 @@ data class PerformDeleteMessageState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Unit,
-  ): Result<Pair<State, String>, NumberedError> = Pair(MenuState(context, adminId), "").ok()
+  ): Result<Pair<State, String>, FrontendError> = Pair(MenuState(context, adminId), "").ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: String,
     input: Unit,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

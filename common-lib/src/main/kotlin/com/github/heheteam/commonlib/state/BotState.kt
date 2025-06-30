@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
@@ -15,18 +15,18 @@ interface BotState<In, Out, HelperService> : State {
   suspend fun readUserInput(
     bot: BehaviourContext,
     service: HelperService,
-  ): Result<In, NumberedError>
+  ): Result<In, FrontendError>
 
   suspend fun computeNewState(
     service: HelperService,
     input: In,
-  ): Result<Pair<State, Out>, NumberedError>
+  ): Result<Pair<State, Out>, FrontendError>
 
   suspend fun sendResponse(
     bot: BehaviourContext,
     service: HelperService,
     response: Out,
-  ): Result<Unit, NumberedError>
+  ): Result<Unit, FrontendError>
 
   suspend fun handle(bot: BehaviourContext, service: HelperService): State {
     val state = coroutineBinding {
@@ -36,7 +36,7 @@ interface BotState<In, Out, HelperService> : State {
       newState
     }
     return if (state.isErr) {
-      bot.send(context, state.error.toMessageText())
+      if (!state.error.shouldBeIgnored) bot.send(context, state.error.toMessageText())
       this
     } else {
       state.value

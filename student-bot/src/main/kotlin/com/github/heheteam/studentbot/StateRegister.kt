@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.registerState
@@ -94,7 +94,7 @@ internal class StateRegister(
   }
 
   private fun initializeHandlers(
-    handlersController: UpdateHandlersController<() -> Unit, out Any?, NumberedError>,
+    handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
     context: User,
     studentId: StudentId,
   ) {
@@ -116,7 +116,7 @@ internal class StateRegister(
     text: String,
     studentId: StudentId,
     context: User,
-  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, NumberedError> =
+  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, FrontendError> =
     if (text.startsWith("/start")) {
       val parts = text.split(" ")
       if (parts.size != 2) {
@@ -133,7 +133,7 @@ internal class StateRegister(
               val deepError = error.error
               if (deepError is TokenError)
                 bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
-              else bot.send(context, error.toMessageText())
+              else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
             },
           )
         NewState(MenuState(context, studentId))

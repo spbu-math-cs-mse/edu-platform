@@ -2,7 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -32,7 +32,7 @@ data class QueryFullTextConfirmationState(
   val adminId: AdminId,
   val courseId: CourseId,
   val numberOfMessages: Int,
-) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, NumberedError>, AdminApi> {
+) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, FrontendError>, AdminApi> {
 
   override fun defaultState(): State = MenuState(context, adminId)
 
@@ -40,7 +40,7 @@ data class QueryFullTextConfirmationState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val keyboard = createYesNoKeyboard("Да", "Нет")
     bot.sendMessage(
       context.id,
@@ -57,7 +57,7 @@ data class QueryFullTextConfirmationState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Result<Pair<State, Result<List<ScheduledMessage>, NumberedError>>, NumberedError> {
+  ): Result<Pair<State, Result<List<ScheduledMessage>, FrontendError>>, FrontendError> {
     val messages = service.viewScheduledMessages(null, courseId)
     return (MenuState(context, adminId) to messages).ok()
   }
@@ -65,9 +65,9 @@ data class QueryFullTextConfirmationState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: Result<List<ScheduledMessage>, NumberedError>,
+    response: Result<List<ScheduledMessage>, FrontendError>,
     input: Boolean,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val messages = response.bind()
     val responseText =
       if (messages.isEmpty()) {

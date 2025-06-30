@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -33,7 +33,7 @@ data class QueryNumberOfRecentMessagesState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.sendMessage(
       context.id,
       buildEntities {
@@ -48,7 +48,7 @@ data class QueryNumberOfRecentMessagesState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, String>, NumberedError> {
+  ): Result<Pair<State, String>, FrontendError> {
     val number = input.toIntOrNull()
     return if (number == null || number <= 0 || number > MAXIMUM_SCHEDULED_MSGS_DISPLAYED) {
         QueryNumberOfRecentMessagesState(context, adminId, courseId) to
@@ -65,12 +65,12 @@ data class QueryNumberOfRecentMessagesState(
     service: AdminApi,
     response: String,
     input: String,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         bot.sendMessage(context.id, response)
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

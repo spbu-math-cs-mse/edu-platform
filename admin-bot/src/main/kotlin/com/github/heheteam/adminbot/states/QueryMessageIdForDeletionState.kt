@@ -1,9 +1,9 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.newStateError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -31,7 +31,7 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.sendMessage(
       context.id,
       buildEntities { +"Введите ID сообщения, которое вы хотите удалить:" },
@@ -42,7 +42,7 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, String>, NumberedError> =
+  ): Result<Pair<State, String>, FrontendError> =
     binding {
         val messageIdLong =
           input.toLongOrNull().toResultOr { newStateError("Invalid message ID format") }.bind()
@@ -67,12 +67,12 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
     service: AdminApi,
     response: String,
     input: String,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         bot.sendMessage(context.id, response)
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

@@ -2,8 +2,8 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -29,7 +29,7 @@ class AddAdminState(override val context: User, val adminId: AdminId) :
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(
       context,
       "Введите ID админа, которого хотите добавить.",
@@ -46,7 +46,7 @@ class AddAdminState(override val context: User, val adminId: AdminId) :
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, String>, NumberedError> = coroutineBinding {
+  ): Result<Pair<State, String>, FrontendError> = coroutineBinding {
     val stringId = input.trim()
     val newAdminId =
       stringId.toLongOrNull()
@@ -66,5 +66,5 @@ class AddAdminState(override val context: User, val adminId: AdminId) :
         bot.send(context, response)
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 }

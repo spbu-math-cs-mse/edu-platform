@@ -4,7 +4,7 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -53,7 +53,7 @@ class QueryScheduledMessageContentState(
     service: AdminApi,
     updateHandlersController:
       UpdateHandlerManager<Result<ScheduledMessageTextField, EduPlatformError>>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.queryScheduledMessageContent)
     sentMessages.add(introMessage)
 
@@ -78,7 +78,7 @@ class QueryScheduledMessageContentState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Result<ScheduledMessageTextField, EduPlatformError>,
-  ): Result<Pair<State, Unit>, NumberedError> {
+  ): Result<Pair<State, Unit>, FrontendError> {
     return input
       .mapBoth(
         success = { scheduledMessageTextField ->
@@ -99,5 +99,5 @@ class QueryScheduledMessageContentState(
     service: AdminApi,
     response: Unit,
     input: Result<ScheduledMessageTextField, EduPlatformError>,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

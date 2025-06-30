@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
@@ -20,17 +20,17 @@ class StartState(override val context: User) : BotState<TeacherId?, String?, Tea
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherApi,
-  ): Result<TeacherId?, NumberedError> =
+  ): Result<TeacherId?, FrontendError> =
     runCatching {
         bot.sendSticker(context, Dialogues.greetingSticker)
         service.loginByTgId(context.id).get()?.id
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun computeNewState(
     service: TeacherApi,
     input: TeacherId?,
-  ): Result<Pair<State, String?>, NumberedError> =
+  ): Result<Pair<State, String?>, FrontendError> =
     if (input != null) {
         MenuState(context, input) to Dialogues.greetings
       } else {
@@ -42,11 +42,11 @@ class StartState(override val context: User) : BotState<TeacherId?, String?, Tea
     bot: BehaviourContext,
     service: TeacherApi,
     response: String?,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         if (response != null) {
           bot.send(context, response)
         }
       }
-      .toNumberedResult()
+      .toTelegramError()
 }

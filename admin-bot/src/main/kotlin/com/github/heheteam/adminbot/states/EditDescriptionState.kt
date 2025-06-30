@@ -2,8 +2,8 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -33,7 +33,7 @@ class EditDescriptionState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context) {
       +"Введите новое описание курса ${courseName}. Текущее описание:" + newLine + newLine
       +course.name
@@ -45,7 +45,7 @@ class EditDescriptionState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, String?>, NumberedError> {
+  ): Result<Pair<State, String?>, FrontendError> {
     val response =
       when {
         input == "/stop" -> null
@@ -61,6 +61,6 @@ class EditDescriptionState(
     service: AdminApi,
     response: String?,
     input: String,
-  ): Result<Unit, NumberedError> =
-    runCatching { if (response != null) bot.send(context, response) }.toNumberedResult()
+  ): Result<Unit, FrontendError> =
+    runCatching { if (response != null) bot.send(context, response) }.toTelegramError()
 }

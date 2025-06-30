@@ -2,7 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
@@ -15,7 +15,7 @@ data class QueryCourseForEditing(override val context: User, val adminIdPrime: A
   override suspend fun computeNewState(
     service: AdminApi,
     input: Course?,
-  ): Result<Pair<State, Unit>, NumberedError> =
+  ): Result<Pair<State, Unit>, FrontendError> =
     if (input != null) {
         EditCourseState(context, adminId, input) to Unit
       } else {

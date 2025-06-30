@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -21,7 +21,7 @@ class AskFirstNameState(override val context: User, private val token: String?) 
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: StudentApi,
-  ): Result<String, NumberedError> =
+  ): Result<String, FrontendError> =
     runCatching {
         bot.sendSticker(context, Dialogues.greetingSticker)
         bot.send(context, Dialogues.greetings)
@@ -29,17 +29,17 @@ class AskFirstNameState(override val context: User, private val token: String?) 
         val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
         firstName
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun computeNewState(
     service: StudentApi,
     input: String,
-  ): Result<Pair<State, Unit>, NumberedError> =
+  ): Result<Pair<State, Unit>, FrontendError> =
     (AskLastNameState(context, input, token) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

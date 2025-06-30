@@ -5,10 +5,10 @@ import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -60,7 +60,7 @@ class QueryScheduledMessageTimeState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<LocalTime, EduPlatformError>>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.queryScheduledMessageTime)
     sentMessages.add(introMessage)
 
@@ -86,7 +86,7 @@ class QueryScheduledMessageTimeState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Result<LocalTime, EduPlatformError>,
-  ): Result<Pair<State, EduPlatformError?>, NumberedError> {
+  ): Result<Pair<State, EduPlatformError?>, FrontendError> {
     return input
       .mapBoth(
         success = { time ->
@@ -118,7 +118,7 @@ class QueryScheduledMessageTimeState(
     service: AdminApi,
     response: EduPlatformError?,
     input: Result<LocalTime, EduPlatformError>,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         response?.let {
           val errorMessage = bot.send(context, it.shortDescription)
@@ -126,5 +126,5 @@ class QueryScheduledMessageTimeState(
         }
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 }

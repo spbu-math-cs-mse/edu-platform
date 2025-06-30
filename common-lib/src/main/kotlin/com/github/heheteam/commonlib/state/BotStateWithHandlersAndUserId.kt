@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -31,13 +31,13 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, In, NumberedError>,
-  ): Result<Unit, NumberedError>
+    updateHandlersController: UpdateHandlersController<() -> Unit, In, FrontendError>,
+  ): Result<Unit, FrontendError>
 
   suspend fun computeNewState(
     service: ApiService,
     input: In,
-  ): Result<Pair<State, Out>, NumberedError>
+  ): Result<Pair<State, Out>, FrontendError>
 
   /** The state to fallback to in case of an error */
   fun defaultState(): State
@@ -46,32 +46,33 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
     bot: BehaviourContext,
     service: ApiService,
     response: Out,
-  ): Result<Unit, NumberedError>
+  ): Result<Unit, FrontendError>
 
-  @Suppress("ReturnCount") // still readable, so no problem
+  @Suppress("NestedBlockDepth") // still readable, so no problem
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
     initUpdateHandlers:
       (
-        UpdateHandlersController<() -> Unit, In, NumberedError>, context: User, userId: UserId,
+        UpdateHandlersController<() -> Unit, In, FrontendError>, context: User, userId: UserId,
       ) -> Unit =
       { _, _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlersController<() -> Unit, In, NumberedError>()
+    val updateHandlersController = UpdateHandlersController<() -> Unit, In, FrontendError>()
     initUpdateHandlers(updateHandlersController, context, userId)
     val introResult = intro(bot, service, updateHandlersController)
     val introError = introResult.getError()
     if (introError != null) {
-      bot.send(context, introError.toMessageText())
+      if (!introError.shouldBeIgnored) bot.send(context, introError.toMessageText())
       return defaultState()
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()
-        is HandlingError<NumberedError> -> {
-          bot.send(context, handlerResult.error.toMessageText())
+        is HandlingError<FrontendError> -> {
+          if (!handlerResult.error.shouldBeIgnored)
+            bot.send(context, handlerResult.error.toMessageText())
         }
 
         is NewState -> {
@@ -87,7 +88,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
             state
           }
           return if (state.isErr) {
-            bot.send(context, state.error.toMessageText())
+            if (!state.error.shouldBeIgnored) bot.send(context, state.error.toMessageText())
             outro(bot, service)
             defaultState()
           } else {
@@ -112,7 +113,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, NumberedError>,
+      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
       context: User,
       studentId: StudentId,
     ) -> Unit =
@@ -132,7 +133,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, NumberedError>,
+      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
       context: User,
       teacherId: TeacherId,
     ) -> Unit =
@@ -150,7 +151,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, NumberedError>, context: User, userId: UserId,
+      UpdateHandlersController<() -> Unit, out Any?, FrontendError>, context: User, userId: UserId,
     ) -> Unit =
     { _, _, _ ->
     },

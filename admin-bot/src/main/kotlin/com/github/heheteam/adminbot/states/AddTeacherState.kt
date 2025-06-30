@@ -9,8 +9,8 @@ import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForTeacherAddition
 import com.github.heheteam.adminbot.Dialogues.oneTeacherIdDoesNotExist
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -49,7 +49,7 @@ class AddTeacherState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage =
       bot.send(context) {
         +"Введите ID преподавателей (через запятую), которых хотите добавить на курс $courseName, " +
@@ -64,7 +64,7 @@ class AddTeacherState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, List<String>>, NumberedError> = coroutineBinding {
+  ): Result<Pair<State, List<String>>, FrontendError> = coroutineBinding {
     if (input == "/stop") {
       return@coroutineBinding Pair(MenuState(context, adminId), emptyList<String>())
     }
@@ -131,7 +131,7 @@ class AddTeacherState(
     service: AdminApi,
     response: List<String>,
     input: String,
-  ) = runCatching { response.forEach { msg -> bot.send(context, msg) } }.toNumberedResult()
+  ) = runCatching { response.forEach { msg -> bot.send(context, msg) } }.toTelegramError()
 
   private fun processStringIds(ids: List<String>): Result<List<Long>, String> {
     return ids

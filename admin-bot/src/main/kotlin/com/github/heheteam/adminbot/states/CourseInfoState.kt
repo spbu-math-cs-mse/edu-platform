@@ -4,7 +4,7 @@ import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -26,7 +26,7 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Unit>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val stats = service.getCourseStatistics(course.id)
     val courseToken = service.getTokenForCourse(course.id)
     bot.send(
@@ -54,14 +54,14 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
   override suspend fun computeNewState(
     service: AdminApi,
     input: Unit,
-  ): Result<Pair<State, Unit>, NumberedError> = Pair(MenuState(context, adminId), Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = Pair(MenuState(context, adminId), Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: Unit,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

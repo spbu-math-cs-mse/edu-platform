@@ -5,10 +5,10 @@ import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -58,7 +58,7 @@ class EnterScheduledMessageDateManuallyState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Result<LocalDate, EduPlatformError>>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.enterScheduledMessageDateManually)
     sentMessages.add(introMessage)
 
@@ -84,7 +84,7 @@ class EnterScheduledMessageDateManuallyState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Result<LocalDate, EduPlatformError>,
-  ): Result<Pair<State, EduPlatformError?>, NumberedError> =
+  ): Result<Pair<State, EduPlatformError?>, FrontendError> =
     input
       .mapBoth(
         success = { date ->
@@ -119,10 +119,10 @@ class EnterScheduledMessageDateManuallyState(
     service: AdminApi,
     response: EduPlatformError?,
     input: Result<LocalDate, EduPlatformError>,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         response?.let { bot.send(context, it.userDescription ?: "Произошла ошибка") }
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 }

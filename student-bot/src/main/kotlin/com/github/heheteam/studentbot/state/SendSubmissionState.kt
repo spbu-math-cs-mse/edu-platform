@@ -4,8 +4,8 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
@@ -42,8 +42,8 @@ data class SendSubmissionState(
     bot: BehaviourContext,
     service: StudentApi,
     updateHandlersController:
-      UpdateHandlersController<() -> Unit, SubmissionInputRequest?, NumberedError>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+      UpdateHandlersController<() -> Unit, SubmissionInputRequest?, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.tellValidSubmissionTypes, replyMarkup = back())
     updateHandlersController.addTextMessageHandler { message ->
       bot.parseSentSubmission(message, studentBotToken)
@@ -67,7 +67,7 @@ data class SendSubmissionState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: SubmissionInputRequest?,
-  ): Result<Pair<State, SubmissionInputRequest?>, NumberedError> {
+  ): Result<Pair<State, SubmissionInputRequest?>, FrontendError> {
     return if (input == null) {
         MenuState(context, userId) to input
       } else {
@@ -80,18 +80,18 @@ data class SendSubmissionState(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionInputRequest?,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         if (response == null) {
           bot.send(context, Dialogues.tellSubmissionTypeIsInvalid)
         }
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   private suspend fun BehaviourContext.parseSentSubmission(
     submissionMessage: CommonMessage<*>,
     studentBotToken: String,
-  ): HandlerResultWithUserInputOrUnhandled<Nothing, SubmissionInputRequest?, NumberedError> {
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, SubmissionInputRequest?, FrontendError> {
     val attachment = extractTextWithMediaAttachments(submissionMessage, studentBotToken, this)
     return if (attachment == null) {
       UserInput(null)

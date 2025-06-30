@@ -2,7 +2,7 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
@@ -32,7 +32,7 @@ class CheckDeadlinesState(
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: StudentApi,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val problemsWithPersonalDeadlines = service.getActiveProblems(studentId, course.id).bind()
     val messageText =
       buildEntities(" ") {
@@ -73,11 +73,11 @@ class CheckDeadlinesState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: Unit,
-  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, studentId) to input).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, studentId) to input).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

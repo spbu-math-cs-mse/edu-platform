@@ -2,8 +2,8 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -19,22 +19,22 @@ class AskFirstNameState(override val context: User) : BotState<String, Unit, Adm
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: AdminApi,
-  ): Result<String, NumberedError> =
+  ): Result<String, FrontendError> =
     runCatching {
         bot.send(context, Dialogues.askFirstName)
         val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
         firstName
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, Unit>, NumberedError> = (AskLastNameState(context, input) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (AskLastNameState(context, input) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

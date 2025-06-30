@@ -1,8 +1,8 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
@@ -19,21 +19,21 @@ data class PetTheDachshundState(override val context: User, val userId: StudentI
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: StudentApi,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         bot.sendMessage(context.id, listOf("Гаф", "Мяу").random())
         Unit
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun computeNewState(
     service: StudentApi,
     input: Unit,
-  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, userId) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, userId) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

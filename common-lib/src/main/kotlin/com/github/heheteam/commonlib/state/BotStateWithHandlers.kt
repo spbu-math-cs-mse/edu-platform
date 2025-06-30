@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
@@ -18,7 +18,7 @@ import dev.inmo.tgbotapi.types.chat.User
 typealias SuspendableBotAction = suspend BehaviourContext.() -> Unit
 
 typealias UpdateHandlerManager<In> =
-  UpdateHandlersController<SuspendableBotAction, In, NumberedError>
+  UpdateHandlersController<SuspendableBotAction, In, FrontendError>
 
 interface BotStateWithHandlers<In, Out, ApiService> : State {
   override val context: User
@@ -29,44 +29,46 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     bot: BehaviourContext,
     service: ApiService,
     updateHandlersController: UpdateHandlerManager<In>,
-  ): Result<Unit, NumberedError>
+  ): Result<Unit, FrontendError>
 
   suspend fun computeNewState(
     service: ApiService,
     input: In,
-  ): Result<Pair<State, Out>, NumberedError>
+  ): Result<Pair<State, Out>, FrontendError>
 
   suspend fun sendResponse(
     bot: BehaviourContext,
     service: ApiService,
     response: Out,
     input: In,
-  ): Result<Unit, NumberedError>
+  ): Result<Unit, FrontendError>
 
   fun defaultState(): State
 
+  @Suppress("NestedBlockDepth")
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
     initUpdateHandlers:
-      (UpdateHandlersController<SuspendableBotAction, In, NumberedError>, context: User) -> Unit =
+      (UpdateHandlersController<SuspendableBotAction, In, FrontendError>, context: User) -> Unit =
       { _, _ ->
       },
   ): State {
     val updateHandlersController =
-      UpdateHandlersController<SuspendableBotAction, In, NumberedError>()
+      UpdateHandlersController<SuspendableBotAction, In, FrontendError>()
     initUpdateHandlers(updateHandlersController, context)
     val introResult = intro(bot, service, updateHandlersController)
     val introError = introResult.getError()
     if (introError != null) {
-      bot.send(context, introError.toMessageText())
+      if (!introError.shouldBeIgnored) bot.send(context, introError.toMessageText())
       return defaultState()
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<SuspendableBotAction> -> handlerResult.action.invoke(bot)
-        is HandlingError<NumberedError> -> {
-          bot.send(context, handlerResult.error.toMessageText())
+        is HandlingError<FrontendError> -> {
+          if (!handlerResult.error.shouldBeIgnored)
+            bot.send(context, handlerResult.error.toMessageText())
         }
 
         is NewState -> {
@@ -82,12 +84,10 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
             state
           }
           return if (state.isErr) {
-            bot.send(context, state.error.toMessageText())
+            if (!state.error.shouldBeIgnored) bot.send(context, state.error.toMessageText())
             outro(bot, service)
             defaultState()
-          } else {
-            state.value
-          }
+          } else state.value
         }
       }
     }
@@ -101,7 +101,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<SuspendableBotAction, out Any?, NumberedError>, context: User,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>, context: User,
     ) -> Unit =
     { _, _ ->
     },

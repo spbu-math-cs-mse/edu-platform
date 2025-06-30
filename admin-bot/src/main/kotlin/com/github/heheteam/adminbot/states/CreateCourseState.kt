@@ -2,8 +2,8 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
@@ -39,7 +39,7 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage =
       bot.send(
         context,
@@ -53,7 +53,7 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, CreateCourseResponse?>, NumberedError> {
+  ): Result<Pair<State, CreateCourseResponse?>, FrontendError> {
     val response =
       if (input == "/stop") null
       else {
@@ -88,13 +88,13 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     service: AdminApi,
     response: CreateCourseResponse?,
     input: String,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         if (response != null) {
           bot.send(context, response.responseMessage)
         }
       }
-      .toNumberedResult()
+      .toTelegramError()
 }
 
 sealed interface CreateCourseResponse {

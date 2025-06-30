@@ -3,7 +3,7 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -31,7 +31,7 @@ class AskLastNameState(override val context: User, private val firstName: String
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<AdminId>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = AdminKeyboards.returnBack())
 
     updateHandlersController.addDataCallbackHandler { callback ->
@@ -54,12 +54,12 @@ class AskLastNameState(override val context: User, private val firstName: String
   override suspend fun computeNewState(
     service: AdminApi,
     input: AdminId,
-  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, input) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, input) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: AdminId,
-  ): Result<Unit, NumberedError> = Unit.ok()
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

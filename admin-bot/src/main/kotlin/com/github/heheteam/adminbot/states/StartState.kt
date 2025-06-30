@@ -4,8 +4,8 @@ import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
@@ -25,7 +25,7 @@ class StartState(override val context: User) : BotState<Boolean, String?, AdminA
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: AdminApi,
-  ): Result<Boolean, NumberedError> {
+  ): Result<Boolean, FrontendError> {
     if (service.tgIdIsInWhitelist(context.id)) {
       bot.sendSticker(context, Dialogues.greetingSticker)
       return true.ok()
@@ -43,7 +43,7 @@ class StartState(override val context: User) : BotState<Boolean, String?, AdminA
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Result<Pair<State, String?>, NumberedError> =
+  ): Result<Pair<State, String?>, FrontendError> =
     if (!input) {
         StartState(context) to null
       } else {
@@ -60,11 +60,11 @@ class StartState(override val context: User) : BotState<Boolean, String?, AdminA
     bot: BehaviourContext,
     service: AdminApi,
     response: String?,
-  ): Result<Unit, NumberedError> =
+  ): Result<Unit, FrontendError> =
     runCatching {
         if (response != null) {
           bot.send(context, response)
         }
       }
-      .toNumberedResult()
+      .toTelegramError()
 }

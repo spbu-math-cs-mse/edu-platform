@@ -1,8 +1,8 @@
 package com.github.heheteam.teacherbot.states
 
 import com.github.heheteam.commonlib.api.TeacherApi
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.toNumberedResult
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
@@ -19,18 +19,18 @@ class AskFirstNameState(override val context: User) : BotState<String, Unit, Tea
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherApi,
-  ): Result<String, NumberedError> =
+  ): Result<String, FrontendError> =
     runCatching {
         bot.send(context, Dialogues.askFirstName)
         val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
         firstName
       }
-      .toNumberedResult()
+      .toTelegramError()
 
   override suspend fun computeNewState(
     service: TeacherApi,
     input: String,
-  ): Result<Pair<State, Unit>, NumberedError> {
+  ): Result<Pair<State, Unit>, FrontendError> {
     return (AskLastNameState(context, input) to Unit).ok()
   }
 

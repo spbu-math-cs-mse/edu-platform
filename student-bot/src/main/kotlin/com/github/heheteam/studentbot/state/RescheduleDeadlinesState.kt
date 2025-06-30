@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
-import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
@@ -30,8 +30,8 @@ data class RescheduleDeadlinesState(override val context: User, override val use
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, NumberedError>,
-  ): Result<Unit, NumberedError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot
       .send(
         context,
@@ -72,5 +72,5 @@ data class RescheduleDeadlinesState(override val context: User, override val use
   override suspend fun computeNewState(
     service: StudentApi,
     input: Unit,
-  ): Result<Pair<State, Unit>, NumberedError> = (MenuState(context, userId) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, userId) to Unit).ok()
 }

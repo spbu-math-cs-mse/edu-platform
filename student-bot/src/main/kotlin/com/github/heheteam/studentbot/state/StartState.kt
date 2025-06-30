@@ -1,7 +1,9 @@
 package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.TelegramBotError
 import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
@@ -20,7 +22,7 @@ class StartState(override val context: User, private val token: String?) :
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: StudentApi,
-  ): Result<StudentId?, NumberedError> {
+  ): Result<StudentId?, FrontendError> {
     val id = service.loginByTgId(context.id).get()?.id
     if (id != null) {
       if (token != null) {
@@ -31,10 +33,15 @@ class StartState(override val context: User, private val token: String?) :
               bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
             failure = { error ->
-              val deepError = error.error
-              if (deepError is TokenError)
-                bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
-              else bot.send(context, error.toMessageText())
+              when (error) {
+                is NumberedError -> {
+                  val deepError = error.error
+                  if (deepError is TokenError)
+                    bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+                  else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
+                }
+                is TelegramBotError -> {}
+              }
             },
           )
       }
@@ -45,7 +52,7 @@ class StartState(override val context: User, private val token: String?) :
   override suspend fun computeNewState(
     service: StudentApi,
     input: StudentId?,
-  ): Result<Pair<State, Unit>, NumberedError> =
+  ): Result<Pair<State, Unit>, FrontendError> =
     if (input != null) {
         MenuState(context, input) to Unit
       } else {

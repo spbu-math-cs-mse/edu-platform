@@ -1,20 +1,20 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Keyboards
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import dev.inmo.kslog.common.KSLog
-import dev.inmo.kslog.common.error
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -29,8 +29,8 @@ data class RandomActivityState(override val context: User, override val userId: 
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val selectCourseMessage =
       bot.sendMessage(context.id, "Что-то бесплатное", replyMarkup = Keyboards.back())
     sentMessages.add(selectCourseMessage)
@@ -43,18 +43,17 @@ data class RandomActivityState(override val context: User, override val userId: 
     }
   }
 
-  override suspend fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
-    MenuState(context, userId) to Unit
+  override suspend fun computeNewState(
+    service: StudentApi,
+    input: Unit,
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, userId) to Unit).ok()
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) {
-    sentMessages.forEach { message ->
-      try {
-        bot.delete(message)
-      } catch (e: CommonRequestException) {
-        KSLog.error(e.message.toString())
-      }
-    }
-  }
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: StudentApi,
+    response: Unit,
+  ): Result<Unit, FrontendError> =
+    runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
 }

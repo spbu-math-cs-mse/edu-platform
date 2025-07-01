@@ -1,8 +1,9 @@
 package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.TokenError
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
@@ -15,7 +16,6 @@ import com.github.heheteam.studentbot.state.AskFirstNameState
 import com.github.heheteam.studentbot.state.AskLastNameState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
-import com.github.heheteam.studentbot.state.DeveloperStartState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
@@ -44,7 +44,6 @@ internal class StateRegister(
       registerStateForBotState<StartState, StudentApi>(studentApi)
       registerStateForBotState<AskFirstNameState, StudentApi>(studentApi)
       registerState<AskLastNameState, StudentApi>(studentApi)
-      registerStateForBotState<DeveloperStartState, StudentApi>(studentApi)
       registerSendSubmissionState(botToken, studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerStateWithStudentId<RescheduleDeadlinesState, StudentApi>(studentApi)
@@ -95,7 +94,7 @@ internal class StateRegister(
   }
 
   private fun initializeHandlers(
-    handlersController: UpdateHandlersController<() -> Unit, out Any?, Any>,
+    handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
     context: User,
     studentId: StudentId,
   ) {
@@ -117,7 +116,7 @@ internal class StateRegister(
     text: String,
     studentId: StudentId,
     context: User,
-  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, Any> =
+  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, FrontendError> =
     if (text.startsWith("/start")) {
       val parts = text.split(" ")
       if (parts.size != 2) {
@@ -131,8 +130,10 @@ internal class StateRegister(
               bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
             },
             failure = { error ->
-              if (error is TokenError) bot.send(context, Dialogues.failedToRegisterForCourse(error))
-              else bot.send(context, "Ошибка: ${error.shortDescription}")
+              val deepError = error.error
+              if (deepError is TokenError)
+                bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+              else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
             },
           )
         NewState(MenuState(context, studentId))

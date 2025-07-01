@@ -2,13 +2,15 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -51,7 +53,7 @@ class QueryScheduledMessageContentState(
     service: AdminApi,
     updateHandlersController:
       UpdateHandlerManager<Result<ScheduledMessageTextField, EduPlatformError>>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.queryScheduledMessageContent)
     sentMessages.add(introMessage)
 
@@ -63,7 +65,7 @@ class QueryScheduledMessageContentState(
     updateHandlersController.addTextMessageHandler { message ->
       val text = message.content.text
       if (text.isBlank()) {
-        UserInput(Err(NamedError(Dialogues.scheduledMessageContentEmptyError)))
+        UserInput(Err(newStateError(Dialogues.scheduledMessageContentEmptyError)))
       } else {
         val lines = text.lines()
         val shortDescription = lines.first()
@@ -76,18 +78,20 @@ class QueryScheduledMessageContentState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: Result<ScheduledMessageTextField, EduPlatformError>,
-  ): Pair<State, Unit> {
-    return input.mapBoth(
-      success = { scheduledMessageTextField ->
-        Pair(
-          QueryScheduledMessageDateState(context, course, adminId, scheduledMessageTextField),
-          Unit,
-        )
-      },
-      failure = { error ->
-        Pair(QueryScheduledMessageContentState(context, course, adminId, error), Unit)
-      },
-    )
+  ): Result<Pair<State, Unit>, FrontendError> {
+    return input
+      .mapBoth(
+        success = { scheduledMessageTextField ->
+          Pair(
+            QueryScheduledMessageDateState(context, course, adminId, scheduledMessageTextField),
+            Unit,
+          )
+        },
+        failure = { error ->
+          Pair(QueryScheduledMessageContentState(context, course, adminId, error), Unit)
+        },
+      )
+      .ok()
   }
 
   override suspend fun sendResponse(
@@ -95,5 +99,5 @@ class QueryScheduledMessageContentState(
     service: AdminApi,
     response: Unit,
     input: Result<ScheduledMessageTextField, EduPlatformError>,
-  ) = Unit
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

@@ -1,11 +1,7 @@
 package com.github.heheteam.commonlib.database
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.SubmissionInputRequest
-import com.github.heheteam.commonlib.SubmissionResolveError
-import com.github.heheteam.commonlib.TeacherDoesNotExist
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
@@ -14,6 +10,10 @@ import com.github.heheteam.commonlib.database.table.CourseTeachers
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.database.table.SubmissionTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.ResolveError
+import com.github.heheteam.commonlib.errors.SubmissionResolveError
+import com.github.heheteam.commonlib.errors.TeacherDoesNotExist
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId

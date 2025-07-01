@@ -1,16 +1,16 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
-import com.github.heheteam.commonlib.util.HandlingError
+import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createYesNoKeyboard
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -32,7 +32,7 @@ data class QueryFullTextConfirmationState(
   val adminId: AdminId,
   val courseId: CourseId,
   val numberOfMessages: Int,
-) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, EduPlatformError>, AdminApi> {
+) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, FrontendError>, AdminApi> {
 
   override fun defaultState(): State = MenuState(context, adminId)
 
@@ -40,7 +40,7 @@ data class QueryFullTextConfirmationState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Boolean>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val keyboard = createYesNoKeyboard("Да", "Нет")
     bot.sendMessage(
       context.id,
@@ -50,45 +50,38 @@ data class QueryFullTextConfirmationState(
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       keyboard
         .handler(dataCallbackQuery.data)
-        .mapBoth(
-          success = { UserInput(it) },
-          failure = { HandlingError(NamedError("Invalid input for Yes/No confirmation")) },
-        )
+        .mapBoth(success = { UserInput(it) }, failure = { Unhandled })
     }
   }
 
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Pair<State, Result<List<ScheduledMessage>, EduPlatformError>> {
+  ): Result<Pair<State, Result<List<ScheduledMessage>, FrontendError>>, FrontendError> {
     val messages = service.viewScheduledMessages(null, courseId)
-    return MenuState(context, adminId) to messages
+    return (MenuState(context, adminId) to messages).ok()
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: Result<List<ScheduledMessage>, EduPlatformError>,
+    response: Result<List<ScheduledMessage>, FrontendError>,
     input: Boolean,
-  ) {
-    response.mapBoth(
-      success = { messages ->
-        val responseText =
-          if (messages.isEmpty()) {
-            buildEntities { +"Для выбранного курса нет запланированных сообщений." }
-          } else {
-            buildEntities {
-              +"Последние запланированные сообщения для курса:\n\n"
-              messages.forEach { message ->
-                formatSingleMessage(message, input)
-                +"\n\n"
-              }
-            }
+  ): Result<Unit, FrontendError> = coroutineBinding {
+    val messages = response.bind()
+    val responseText =
+      if (messages.isEmpty()) {
+        buildEntities { +"Для выбранного курса нет запланированных сообщений." }
+      } else {
+        buildEntities {
+          +"Последние запланированные сообщения для курса:\n\n"
+          messages.forEach { message ->
+            formatSingleMessage(message, input)
+            +"\n\n"
           }
-        bot.send(context.id, responseText)
-      },
-      failure = { bot.send(context.id, "Ошибка при запросе: ${it.shortDescription}") },
-    )
+        }
+      }
+    bot.send(context.id, responseText)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit

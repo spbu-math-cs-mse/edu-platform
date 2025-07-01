@@ -2,13 +2,14 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
@@ -43,20 +44,23 @@ class AddScheduledMessageStartState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.addScheduledMessageStartSummary)
     sentMessages.add(introMessage)
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
-    return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit)
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: State,
+  ): Result<Pair<State, Unit>, FrontendError> {
+    return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit).ok()
   }
 
   override suspend fun handle(
     bot: BehaviourContext,
     service: AdminApi,
     initUpdateHandlers:
-      (UpdateHandlersController<SuspendableBotAction, State, EduPlatformError>, User) -> Unit,
+      (UpdateHandlersController<SuspendableBotAction, State, FrontendError>, context: User) -> Unit,
   ): State {
     return QueryScheduledMessageContentState(context, course, adminId)
   }
@@ -66,7 +70,7 @@ class AddScheduledMessageStartState(
     service: AdminApi,
     response: Unit,
     input: State,
-  ) = Unit
+  ) = Unit.ok()
 
   override fun defaultState(): State = MenuState(context, adminId)
 }

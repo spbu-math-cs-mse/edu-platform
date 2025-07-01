@@ -1,13 +1,13 @@
 package com.github.heheteam.commonlib.state
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.toStackedString
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -18,7 +18,7 @@ import dev.inmo.tgbotapi.types.chat.User
 typealias SuspendableBotAction = suspend BehaviourContext.() -> Unit
 
 typealias UpdateHandlerManager<In> =
-  UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>
+  UpdateHandlersController<SuspendableBotAction, In, FrontendError>
 
 interface BotStateWithHandlers<In, Out, ApiService> : State {
   override val context: User
@@ -29,45 +29,65 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
     bot: BehaviourContext,
     service: ApiService,
     updateHandlersController: UpdateHandlerManager<In>,
-  ): Result<Unit, EduPlatformError>
+  ): Result<Unit, FrontendError>
 
-  suspend fun computeNewState(service: ApiService, input: In): Pair<State, Out>
+  suspend fun computeNewState(
+    service: ApiService,
+    input: In,
+  ): Result<Pair<State, Out>, FrontendError>
 
-  suspend fun sendResponse(bot: BehaviourContext, service: ApiService, response: Out, input: In)
+  suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: ApiService,
+    response: Out,
+    input: In,
+  ): Result<Unit, FrontendError>
 
   fun defaultState(): State
 
+  @Suppress("NestedBlockDepth")
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
     initUpdateHandlers:
-      (
-        UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>, context: User,
-      ) -> Unit =
+      (UpdateHandlersController<SuspendableBotAction, In, FrontendError>, context: User) -> Unit =
       { _, _ ->
       },
   ): State {
     val updateHandlersController =
-      UpdateHandlersController<SuspendableBotAction, In, EduPlatformError>()
+      UpdateHandlersController<SuspendableBotAction, In, FrontendError>()
     initUpdateHandlers(updateHandlersController, context)
-    val error = intro(bot, service, updateHandlersController).getError()
-    if (error != null) {
-      bot.send(context, "Случилась ошибка! Разработчики уже бегут ее решать")
+    val introResult = intro(bot, service, updateHandlersController)
+    val introError = introResult.getError()
+    if (introError != null) {
+      if (!introError.shouldBeIgnored) bot.send(context, introError.toMessageText())
       return defaultState()
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
         is ActionWrapper<SuspendableBotAction> -> handlerResult.action.invoke(bot)
-        is HandlingError<EduPlatformError> -> {
-          bot.send(context.id, handlerResult.error.toStackedString())
+        is HandlingError<FrontendError> -> {
+          if (!handlerResult.error.shouldBeIgnored)
+            bot.send(context, handlerResult.error.toMessageText())
         }
 
-        is NewState -> return handlerResult.state.also { outro(bot, service) }
-        is UserInput<In> -> {
-          val (state, response) = computeNewState(service, handlerResult.input)
-          sendResponse(bot, service, response, handlerResult.input)
+        is NewState -> {
           outro(bot, service)
-          return state
+          return handlerResult.state
+        }
+
+        is UserInput<In> -> {
+          val state = coroutineBinding {
+            val (state, response) = computeNewState(service, handlerResult.input).bind()
+            sendResponse(bot, service, response, handlerResult.input).bind()
+            outro(bot, service)
+            state
+          }
+          return if (state.isErr) {
+            if (!state.error.shouldBeIgnored) bot.send(context, state.error.toMessageText())
+            outro(bot, service)
+            defaultState()
+          } else state.value
         }
       }
     }
@@ -81,7 +101,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<SuspendableBotAction, out Any?, EduPlatformError>, context: User,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>, context: User,
     ) -> Unit =
     { _, _ ->
     },

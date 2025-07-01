@@ -1,11 +1,11 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.DatabaseExceptionError
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.ProblemDescription
-import com.github.heheteam.commonlib.ResolveError
 import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.errors.DatabaseExceptionError
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.ResolveError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId

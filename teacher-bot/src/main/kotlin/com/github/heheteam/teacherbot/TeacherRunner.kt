@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.teacherbot.states.AskFirstNameState
 import com.github.heheteam.teacherbot.states.AskLastNameState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
-import com.github.heheteam.teacherbot.states.DeveloperStartState
 import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
@@ -75,11 +74,9 @@ class StateRegister(private val teacherApi: TeacherApi) {
         state.handle(this, teacherApi)
       }
       registerStateForBotState<StartState, TeacherApi>(teacherApi)
-      registerStateForBotState<DeveloperStartState, TeacherApi>(teacherApi)
       registerStateForBotState<StartState, TeacherApi>(teacherApi)
       registerStateForBotState<AskFirstNameState, TeacherApi>(teacherApi)
       registerState<AskLastNameState, TeacherApi>(teacherApi)
-      registerStateForBotState<DeveloperStartState, TeacherApi>(teacherApi)
       strictlyOn<MenuState> { state ->
         state.teacherBotToken = botToken
         state.handle(this, teacherApi)

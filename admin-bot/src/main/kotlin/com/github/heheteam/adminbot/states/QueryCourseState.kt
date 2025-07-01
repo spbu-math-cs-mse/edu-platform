@@ -1,8 +1,8 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.createCoursePicker
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -33,7 +34,7 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Course?>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val courses = service.getCourses().bind().map { it.value }
     val coursesPicker = createCoursePicker(courses)
     val message = bot.sendMessage(context.id, "Выберите курс", replyMarkup = coursesPicker.keyboard)
@@ -57,7 +58,7 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
     service: AdminApi,
     response: Unit,
     input: Course?,
-  ) = Unit
+  ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

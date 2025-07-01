@@ -1,7 +1,7 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.MenuKeyboardData
@@ -24,7 +24,7 @@ data class QueryCourseForCheckingDeadlinesState(
 
   override fun createKeyboard(
     service: StudentApi
-  ): Result<MenuKeyboardData<State?>, EduPlatformError> = binding {
+  ): Result<MenuKeyboardData<State?>, FrontendError> = binding {
     val courses = service.getStudentCourses(userId).bind()
     val coursesPicker = createCoursePicker(courses)
     coursesPicker.map { course ->

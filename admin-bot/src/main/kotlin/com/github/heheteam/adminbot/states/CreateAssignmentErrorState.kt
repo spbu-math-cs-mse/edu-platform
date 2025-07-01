@@ -2,13 +2,14 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.kslog.common.KSLog
@@ -37,7 +38,7 @@ class CreateAssignmentErrorState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val msg = bot.send(context, errorMessage, replyMarkup = AdminKeyboards.returnBack())
     sentMessages.add(msg)
 
@@ -57,14 +58,17 @@ class CreateAssignmentErrorState(
     }
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: State) = Pair(input, Unit)
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: State,
+  ): Result<Pair<State, Unit>, FrontendError> = Pair(input, Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: State,
-  ) = Unit
+  ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {

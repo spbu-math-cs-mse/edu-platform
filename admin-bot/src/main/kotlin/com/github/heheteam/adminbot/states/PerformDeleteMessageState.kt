@@ -1,11 +1,12 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
@@ -26,7 +27,7 @@ data class PerformDeleteMessageState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Unit>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val result = service.deleteScheduledMessage(scheduledMessageId)
     result.mapBoth(
       success = { bot.sendMessage(context.id, "Сообщение успешно удалено.") },
@@ -39,18 +40,17 @@ data class PerformDeleteMessageState(
     )
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: Unit): Pair<State, String> {
-    return MenuState(context, adminId) to "" // Always return to menu after attempt
-  }
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: Unit,
+  ): Result<Pair<State, String>, FrontendError> = Pair(MenuState(context, adminId), "").ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: String,
     input: Unit,
-  ) {
-    // Response is sent in intro, so this can be empty.
-  }
+  ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

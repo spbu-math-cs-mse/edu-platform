@@ -1,12 +1,13 @@
 package com.github.heheteam.studentbot.state
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Keyboards
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -29,8 +30,8 @@ data class RescheduleDeadlinesState(override val context: User, override val use
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, Any>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot
       .send(
         context,
@@ -66,8 +67,10 @@ data class RescheduleDeadlinesState(override val context: User, override val use
   override fun defaultState(): State = MenuState(context, userId)
 
   override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
-    Unit
+    Unit.ok()
 
-  override suspend fun computeNewState(service: StudentApi, input: Unit): Pair<State, Unit> =
-    MenuState(context, userId) to Unit
+  override suspend fun computeNewState(
+    service: StudentApi,
+    input: Unit,
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, userId) to Unit).ok()
 }

@@ -1,7 +1,9 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
@@ -9,11 +11,13 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -35,7 +39,7 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage =
       bot.send(
         context,
@@ -49,13 +53,13 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Pair<State, CreateCourseResponse?> {
+  ): Result<Pair<State, CreateCourseResponse?>, FrontendError> {
     val response =
       if (input == "/stop") null
       else {
         response(service, input)
       }
-    return Pair(MenuState(context, adminId), response)
+    return Pair(MenuState(context, adminId), response).ok()
   }
 
   private fun response(service: AdminApi, input: String): CreateCourseResponse {
@@ -84,11 +88,13 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
     service: AdminApi,
     response: CreateCourseResponse?,
     input: String,
-  ) {
-    if (response != null) {
-      bot.send(context, response.responseMessage)
-    }
-  }
+  ): Result<Unit, FrontendError> =
+    runCatching {
+        if (response != null) {
+          bot.send(context, response.responseMessage)
+        }
+      }
+      .toTelegramError()
 }
 
 sealed interface CreateCourseResponse {

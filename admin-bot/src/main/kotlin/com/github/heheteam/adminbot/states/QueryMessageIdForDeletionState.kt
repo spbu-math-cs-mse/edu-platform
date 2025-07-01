@@ -1,17 +1,20 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
-import com.github.heheteam.commonlib.NamedError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.newStateError
+import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.runCatching
 import com.github.michaelbull.result.toResultOr
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
@@ -28,7 +31,7 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.sendMessage(
       context.id,
       buildEntities { +"Введите ID сообщения, которое вы хотите удалить:" },
@@ -36,10 +39,13 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: String): Pair<State, String> =
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: String,
+  ): Result<Pair<State, String>, FrontendError> =
     binding {
         val messageIdLong =
-          input.toLongOrNull().toResultOr { NamedError("Invalid message ID format") }.bind()
+          input.toLongOrNull().toResultOr { newStateError("Invalid message ID format") }.bind()
         val scheduledMessageId = messageIdLong.toScheduledMessageId()
 
         val message = service.resolveScheduledMessage(scheduledMessageId).bind()
@@ -52,19 +58,21 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
       }
       .mapBoth(
         success = { it },
-        failure = { error ->
-          MenuState(context, adminId) to "Сообщение с таким ID не найдено или уже удалено."
-        },
+        failure = { MenuState(context, adminId) to "Не удалось найти сообщение с указанным ID." },
       )
+      .ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: String,
     input: String,
-  ) {
-    bot.sendMessage(context.id, response)
-  }
+  ): Result<Unit, FrontendError> =
+    runCatching {
+        bot.sendMessage(context.id, response)
+        Unit
+      }
+      .toTelegramError()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) = Unit
 }

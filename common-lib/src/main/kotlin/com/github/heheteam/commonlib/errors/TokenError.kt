@@ -1,6 +1,4 @@
-package com.github.heheteam.commonlib.interfaces
-
-import com.github.heheteam.commonlib.EduPlatformError
+package com.github.heheteam.commonlib.errors
 
 sealed class TokenError(override val causedBy: EduPlatformError? = null) : EduPlatformError {
   data object TokenNotFound : TokenError() {

@@ -7,13 +7,14 @@ import com.github.heheteam.adminbot.AdminKeyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.AdminKeyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.AdminKeyboards.EDIT_COURSE
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.queryCourse
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -49,7 +50,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     val menuMessage = bot.send(context, Dialogues.menu, replyMarkup = AdminKeyboards.menu())
     sentMessages.add(menuMessage)
 
@@ -71,14 +72,15 @@ class MenuState(override val context: User, val adminId: AdminId) :
     }
   }
 
-  override suspend fun computeNewState(service: AdminApi, input: State): Pair<State, Unit> {
-    return Pair(input, Unit)
-  }
+  override suspend fun computeNewState(
+    service: AdminApi,
+    input: State,
+  ): Result<Pair<State, Unit>, FrontendError> = Pair(input, Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
     input: State,
-  ) = Unit
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

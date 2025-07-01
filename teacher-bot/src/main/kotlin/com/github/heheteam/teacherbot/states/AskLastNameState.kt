@@ -1,12 +1,13 @@
 package com.github.heheteam.teacherbot.states
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.TeacherApi
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.heheteam.teacherbot.Keyboards
 import com.github.michaelbull.result.Result
@@ -18,9 +19,10 @@ import dev.inmo.tgbotapi.types.chat.User
 
 class AskLastNameState(override val context: User, private val firstName: String) :
   BotStateWithHandlers<TeacherId, Unit, TeacherApi> {
-  override suspend fun computeNewState(service: TeacherApi, input: TeacherId): Pair<State, Unit> {
-    return MenuState(context, input) to Unit
-  }
+  override suspend fun computeNewState(
+    service: TeacherApi,
+    input: TeacherId,
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, input) to Unit).ok()
 
   override fun defaultState(): State {
     return StartState(context)
@@ -31,7 +33,7 @@ class AskLastNameState(override val context: User, private val firstName: String
     service: TeacherApi,
     response: Unit,
     input: TeacherId,
-  ) = Unit
+  ) = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: TeacherApi) = Unit
 
@@ -39,7 +41,7 @@ class AskLastNameState(override val context: User, private val firstName: String
     bot: BehaviourContext,
     service: TeacherApi,
     updateHandlersController: UpdateHandlerManager<TeacherId>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text

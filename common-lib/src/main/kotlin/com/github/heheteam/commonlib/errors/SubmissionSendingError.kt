@@ -1,6 +1,5 @@
-package com.github.heheteam.commonlib.logic.ui
+package com.github.heheteam.commonlib.errors
 
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.TeacherId

@@ -4,8 +4,9 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.EduPlatformError
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
@@ -74,7 +75,7 @@ class QueryScheduledMessageDateState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<State?>,
-  ): Result<Unit, EduPlatformError> = coroutineBinding {
+  ): Result<Unit, FrontendError> = coroutineBinding {
     super.intro(bot, service, updateHandlersController).bind()
     error?.let {
       val errorMessage = bot.send(context, it.shortDescription)
@@ -87,7 +88,7 @@ class QueryScheduledMessageDateState(
 
   private fun handleMessageCallback(
     message: CommonMessage<TextContent>
-  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, State?, EduPlatformError> {
+  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, State?, FrontendError> {
     val text = message.content.text
     return if (text == "/stop") {
       NewState(menuState())

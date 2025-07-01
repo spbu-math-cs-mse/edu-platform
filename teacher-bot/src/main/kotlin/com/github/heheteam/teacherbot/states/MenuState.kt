@@ -4,7 +4,6 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
-import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.AnyMessageSuspendableHandler
 import com.github.heheteam.commonlib.util.HandlerResult
@@ -24,7 +23,6 @@ import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.error
-import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -96,7 +94,6 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     bot: TelegramBot
   ): List<AnyMessageSuspendableHandler<TeacherAction, MessageError>> =
     listOf(
-      { tryHandleSetIdCommand(it) },
       { tryHandleMenuCommand(it) },
       { tryParseGradingReplyWithoutChecking(it, teacherBotToken, bot) },
     )
@@ -186,22 +183,6 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     if (message.content.textContentOrNull()?.text == "/menu") {
       ActionWrapper<TeacherAction>(UpdateMenuMessage).ok()
     } else null
-
-  private fun tryHandleSetIdCommand(
-    message: CommonMessage<MessageContent>
-  ): Result<NewState, Nothing>? {
-    val re = Regex("/setid ([0-9]+)")
-    val match = message.content.textContentOrNull()?.text?.let { re.matchEntire(it) }
-    return if (match != null) {
-      val newId =
-        match.groups[1]?.value?.toLongOrNull()
-          ?: run {
-            logger.error("input id ${match.groups[1]} is not long!")
-            return NewState(MenuState(context, teacherId)).ok()
-          }
-      NewState(PresetTeacherState(context, newId.toTeacherId())).ok()
-    } else null
-  }
 
   private suspend fun tryParseGradingReplyWithoutChecking(
     commonMessage: CommonMessage<*>,

@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.util
 
-import com.github.heheteam.commonlib.DatabaseExceptionError
+import com.github.heheteam.commonlib.errors.DatabaseExceptionError
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching

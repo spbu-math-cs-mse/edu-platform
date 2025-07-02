@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
@@ -159,43 +160,42 @@ internal constructor(
       courseStorage.resolveCourseWithSpreadsheetId(courseId).bind()
     }
 
-  fun getCourseStatistics(courseId: CourseId): CourseStatistics {
-    val students = courseStorage.getStudents(courseId).value
-    val teachers = courseStorage.getTeachers(courseId).value
-    val assignments = assignmentStorage.getAssignmentsForCourse(courseId).value
-
-    var totalProblems = 0
-    var totalMaxScore = 0
-    var totalSubmissions = 0
-    var checkedSubmissions = 0
-    assignments.forEach { assignment ->
-      val problems = problemStorage.getProblemsFromAssignment(assignment.id).value
-      totalProblems += problems.size
-      totalMaxScore += problems.sumOf { it.maxScore }
-      problems.forEach { problem ->
-        val submissions = submissionDistributor.getSubmissionsForProblem(problem.id).value
-        totalSubmissions += submissions.size
-        checkedSubmissions +=
-          submissions.count { submissionId ->
-            submissionDistributor.isSubmissionAssessed(submissionId).value
-          }
+  fun getCourseStatistics(courseId: CourseId): Result<CourseStatistics, FrontendError> =
+    errorManagementService.serviceBinding {
+      val students = courseStorage.getStudents(courseId).bind()
+      val teachers = courseStorage.getTeachers(courseId).bind()
+      val assignments = assignmentStorage.getAssignmentsForCourse(courseId).bind()
+      var totalProblems = 0
+      var totalMaxScore = 0
+      var totalSubmissions = 0
+      var checkedSubmissions = 0
+      assignments.forEach { assignment ->
+        val problems = problemStorage.getProblemsFromAssignment(assignment.id).bind()
+        totalProblems += problems.size
+        totalMaxScore += problems.sumOf { it.maxScore }
+        problems.forEach { problem ->
+          val submissions = submissionDistributor.getSubmissionsForProblem(problem.id).bind()
+          totalSubmissions += submissions.size
+          checkedSubmissions +=
+            submissions.count { submissionId ->
+              submissionDistributor.isSubmissionAssessed(submissionId).bind()
+            }
+        }
       }
+      CourseStatistics(
+        studentsCount = students.size,
+        teachersCount = teachers.size,
+        assignmentsCount = assignments.size,
+        totalProblems = totalProblems,
+        totalMaxScore = totalMaxScore,
+        totalSubmissions = totalSubmissions,
+        checkedSubmissions = checkedSubmissions,
+        uncheckedSubmissions = totalSubmissions - checkedSubmissions,
+        students = students,
+        teachers = teachers,
+        assignments = assignments,
+      )
     }
-
-    return CourseStatistics(
-      studentsCount = students.size,
-      teachersCount = teachers.size,
-      assignmentsCount = assignments.size,
-      totalProblems = totalProblems,
-      totalMaxScore = totalMaxScore,
-      totalSubmissions = totalSubmissions,
-      checkedSubmissions = checkedSubmissions,
-      uncheckedSubmissions = totalSubmissions - checkedSubmissions,
-      students = students,
-      teachers = teachers,
-      assignments = assignments,
-    )
-  }
 
   fun getRatingLink(courseId: CourseId): Result<String, NumberedError> =
     errorManagementService.serviceBinding {

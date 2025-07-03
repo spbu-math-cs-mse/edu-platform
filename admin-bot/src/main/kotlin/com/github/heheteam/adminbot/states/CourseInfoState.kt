@@ -31,7 +31,7 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     val courseToken = service.getTokenForCourse(course.id)
     bot.send(
       context,
-      entities = CourseStatisticsFormatter.format(course.name, stats, courseToken),
+      entities = CourseStatisticsFormatter.format(course.id, course.name, stats, courseToken),
       replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).value, courseToken),
     )
 

@@ -115,12 +115,7 @@ internal constructor(
   ): Result<Unit, EduPlatformError> = coroutineBinding {
     val sentMessage =
       studentBotTelegramController
-        .sendScheduledInformationalMessage(
-          student.tgId,
-          scheduledMessage.content,
-          course,
-          scheduledMessage.id,
-        )
+        .sendScheduledInformationalMessage(student.tgId, scheduledMessage, course)
         .bind()
     sentMessageLogStorage
       .logSentMessage(

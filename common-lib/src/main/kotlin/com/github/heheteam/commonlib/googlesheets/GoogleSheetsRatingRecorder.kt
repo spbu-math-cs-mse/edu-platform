@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.mapError
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
@@ -84,18 +85,30 @@ internal constructor(
 
   override fun updateRating(problemId: ProblemId) {
     scope.launch {
-      val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
-      val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
-      updateRating(courseId)
+      val result = binding {
+        val assignmentId = problemStorage.resolveProblem(problemId).bind().assignmentId
+        val courseId = assignmentStorage.resolveAssignment(assignmentId).bind().courseId
+        updateRating(courseId)
+      }
+      val error = result.getError()
+      if (error != null) {
+        KSLog.error("Failed to update rating for data lookup problem: $error")
+      }
     }
   }
 
   override fun updateRating(submissionId: SubmissionId) {
     scope.launch {
-      val problemId = submissionDistributor.resolveSubmission(submissionId).value.problemId
-      val assignmentId = problemStorage.resolveProblem(problemId).value.assignmentId
-      val courseId = assignmentStorage.resolveAssignment(assignmentId).value.courseId
-      updateRating(courseId)
+      val result = binding {
+        val problemId = submissionDistributor.resolveSubmission(submissionId).bind().problemId
+        val assignmentId = problemStorage.resolveProblem(problemId).bind().assignmentId
+        val courseId = assignmentStorage.resolveAssignment(assignmentId).bind().courseId
+        updateRating(courseId)
+      }
+      val error = result.getError()
+      if (error != null) {
+        KSLog.error("Failed to update rating for data lookup problem: $error")
+      }
     }
   }
 }

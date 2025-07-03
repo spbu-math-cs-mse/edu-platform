@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib
 import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -49,14 +50,21 @@ class DatabaseStartupTest {
 
       problemStorage = DatabaseProblemStorage(database)
       assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
-      courseStorage = DatabaseCourseStorage(database)
+      courseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
       gradeTable = DatabaseGradeTable(database)
       submissionDistributor = DatabaseSubmissionDistributor(database)
       adminStorage = DatabaseAdminStorage(database)
       studentStorage = DatabaseStudentStorage(database)
       teacherStorage = DatabaseTeacherStorage(database)
 
-      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
+      fillWithSamples(
+        courseStorage,
+        assignmentStorage,
+        studentStorage,
+        teacherStorage,
+        database,
+        true,
+      )
     }
     println("Startup time: ${startupTime.toFloat() / 1000.0} s")
     assertTrue(startupTime < 12000)

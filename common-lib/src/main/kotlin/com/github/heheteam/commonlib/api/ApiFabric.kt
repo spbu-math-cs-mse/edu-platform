@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -78,7 +79,7 @@ class ApiFabric(
     teacherResolverKind: TeacherResolverKind,
     adminIds: List<Long> = listOf(),
   ): ApiCollection {
-    val databaseCourseStorage = DatabaseCourseStorage(database)
+    val databaseCourseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database, problemStorage)

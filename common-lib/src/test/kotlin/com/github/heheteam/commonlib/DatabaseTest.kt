@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -36,7 +37,7 @@ class DatabaseTest {
       config.databaseConfig.password,
     )
 
-  private val courseStorage = DatabaseCourseStorage(database)
+  private val courseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
   private val gradeTable = DatabaseGradeTable(database)
   private val studentStorage = DatabaseStudentStorage(database)
   private val teacherStorage = DatabaseTeacherStorage(database)

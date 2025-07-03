@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseStudentStorage
@@ -36,7 +37,7 @@ class TeacherBotTest {
       config.databaseConfig.password,
     )
   private val submissionDistributor = DatabaseSubmissionDistributor(database)
-  private val courseStorage = DatabaseCourseStorage(database)
+  private val courseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
   private val problemStorage = DatabaseProblemStorage(database)
   private val assignmentStorage = DatabaseAssignmentStorage(database, problemStorage)
   private val teacherStorage = DatabaseTeacherStorage(database)

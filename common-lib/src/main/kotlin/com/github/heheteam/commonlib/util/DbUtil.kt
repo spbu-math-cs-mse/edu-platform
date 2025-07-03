@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun <T> catchingTransaction(
-  database: Database,
+  database: Database?,
   statement: Transaction.() -> T,
 ): Result<T, DatabaseExceptionError> {
   return runCatching { transaction(database, statement) }.mapError { DatabaseExceptionError(it) }

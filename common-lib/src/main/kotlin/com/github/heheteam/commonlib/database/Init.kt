@@ -70,3 +70,7 @@ fun reset(database: Database) {
     SchemaUtils.create(*allTables)
   }
 }
+
+fun createTables(database: Database) {
+  transaction(database) { SchemaUtils.create(*allTables) }
+}

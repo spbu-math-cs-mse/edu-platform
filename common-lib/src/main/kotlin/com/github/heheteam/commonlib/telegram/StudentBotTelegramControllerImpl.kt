@@ -86,8 +86,7 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
     replyMarkup: InlineKeyboardMarkup?,
   ): Result<MessageId, EduPlatformError> {
     val messageText = buildEntities {
-      +"Сообщение от курса \"${course.name}\" (ID: ${course.id}), "
-      +"ID сообщения: ${scheduledMessage.id.long}\n"
+      regularln("Сообщение от курса \"${course.name}\"")
       bold("Тема: ")
       regularln(scheduledMessage.shortName)
       scheduledMessage.content.text.forEach { +it }

@@ -14,6 +14,12 @@ import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.message.textsources.regular
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.net.URI
+import java.net.URL
+import java.nio.channels.Channels
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
@@ -77,12 +83,43 @@ enum class AttachmentKind {
   DOCUMENT,
 }
 
+interface MediaAttachment {
+  val kind: AttachmentKind
+
+  suspend fun openFile(): File
+}
+
+data class LocalMediaAttachment(override val kind: AttachmentKind, val resourcePath: String) :
+  MediaAttachment {
+  override suspend fun openFile(): File {
+    val inputStream: InputStream = object {}.javaClass.getResourceAsStream(resourcePath)!!
+    val extension = resourcePath.substringAfterLast(".")
+    return inputStream.use { input ->
+      val tempFile = File.createTempFile("resource_", ".${extension}")
+      tempFile.outputStream().use { output -> input.copyTo(output) }
+      tempFile
+    }
+  }
+}
+
 @Serializable
-data class MediaAttachment(
-  val kind: AttachmentKind,
+data class RemoteMediaAttachment(
+  override val kind: AttachmentKind,
   val downloadUrl: String,
-  val uniqueString: String, // used do form a download file name
-)
+  val uniqueString: String, // used to form a download file name
+) : MediaAttachment {
+  override suspend fun openFile(): File {
+    val extension = downloadUrl.substringAfterLast(".")
+    val url: URL = URI(downloadUrl).toURL()
+    val file = File("$uniqueString.$extension")
+    url.openStream().use {
+      Channels.newChannel(it).use { rbc ->
+        FileOutputStream(file).use { fos -> fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE) }
+      }
+    }
+    return file
+  }
+}
 
 @Serializable
 data class TextWithMediaAttachments(

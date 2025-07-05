@@ -20,6 +20,7 @@ import com.github.heheteam.studentbot.Keyboards.FREE_ACTIVITY
 import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.PET_THE_DACHSHUND
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
+import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.runCatching
@@ -65,7 +66,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
         MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)
         COURSES_CATALOG -> ApplyForCoursesState(context, userId)
         PET_THE_DACHSHUND -> PetTheDachshundState(context, userId)
-        FREE_ACTIVITY -> RandomActivityState(context, userId)
+        FREE_ACTIVITY -> ZeroQuestion(context, userId)
         else -> null
       }
     return if (state != null) {

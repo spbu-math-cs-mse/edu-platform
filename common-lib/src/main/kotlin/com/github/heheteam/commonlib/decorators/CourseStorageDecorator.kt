@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -20,7 +21,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
 internal class CourseStorageDecorator(
-  private val courseStorage: CourseStorage,
+  private val courseStorage: DatabaseCourseStorage,
   private val ratingRecorder: RatingRecorder,
   private val courseTokenService: CourseTokenService,
 ) : CourseStorage {

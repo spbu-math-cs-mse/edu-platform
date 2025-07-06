@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.domain
 
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -11,6 +12,11 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
+
+enum class AddStudentStatus {
+  Exists,
+  Success,
+}
 
 data class RichCourse(
   val id: CourseId,
@@ -23,6 +29,14 @@ data class RichCourse(
   fun addStudent(studentId: StudentId): Result<Unit, EduPlatformError> {
     students.add(studentId)
     return Ok(Unit)
+  }
+
+  fun addStudent(student: Student): AddStudentStatus {
+    if (student.id in students) {
+      return AddStudentStatus.Exists
+    }
+    students.add(student.id)
+    return AddStudentStatus.Success
   }
 
   fun removeStudent(studentId: StudentId): Result<Unit, EduPlatformError> {

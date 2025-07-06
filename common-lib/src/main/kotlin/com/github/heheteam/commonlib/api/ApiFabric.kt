@@ -22,6 +22,7 @@ import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.decorators.SubmissionDistributorDecorator
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
@@ -122,7 +123,14 @@ class ApiFabric(
     val adminAuthService = AdminAuthService(adminStorage)
 
     if (initDatabase) {
-      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
+      fillWithSamples(
+        courseStorage,
+        assignmentStorage,
+        studentStorage,
+        teacherStorage,
+        database,
+        true,
+      )
     } else {
       createTables(database)
     }
@@ -218,7 +226,7 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
       )
-
+    val courseService = CourseService(DatabaseCourseRepository(), studentStorage, database)
     val adminApi =
       AdminApi(
         scheduledMessageService,
@@ -232,6 +240,7 @@ class ApiFabric(
         personalDeadlinesService,
         courseTokenService,
         errorManagementService,
+        courseService,
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage, errorManagementService)

@@ -31,9 +31,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
-class DatabaseCourseStorage(
-  private val courseRepository: CourseRepository // Dependency Injected
-) : CourseStorage {
+class DatabaseCourseStorage(private val courseRepository: CourseRepository) : CourseStorage {
 
   override fun addStudentToCourse(
     studentId: StudentId,

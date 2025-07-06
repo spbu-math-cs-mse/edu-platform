@@ -7,6 +7,8 @@ import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.heheteam.commonlib.domain.AddStudentStatus
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
@@ -49,6 +51,7 @@ internal constructor(
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val tokenStorage: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
+  private val courseService: CourseService,
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,
@@ -73,6 +76,12 @@ internal constructor(
       scheduledMessagesService.resolveScheduledMessage(scheduledMessageId).bind()
     }
 
+  fun addStudents(
+    courseId: CourseId,
+    students: List<StudentId>,
+  ): Result<List<AddStudentStatus>, NumberedError> =
+    errorManagementService.serviceBinding { courseService.addStudents(courseId, students).bind() }
+
   fun viewScheduledMessages(
     adminId: AdminId? = null,
     courseId: CourseId? = null,
@@ -95,8 +104,6 @@ internal constructor(
   ) {
     personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
   }
-
-  fun courseExists(courseName: String): Boolean = getCourse(courseName).get() != null
 
   fun getCourse(courseName: String): Result<Course?, NumberedError> =
     errorManagementService.serviceBinding {

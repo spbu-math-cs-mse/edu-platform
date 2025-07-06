@@ -13,6 +13,7 @@ import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.CourseTokenService
@@ -59,6 +60,7 @@ class AdminBotTest {
         mockk<PersonalDeadlinesService>(relaxed = true),
         mockk<CourseTokenService>(relaxed = true),
         ErrorManagementService(),
+        mockk<CourseService>(relaxed = true),
       )
   }
 

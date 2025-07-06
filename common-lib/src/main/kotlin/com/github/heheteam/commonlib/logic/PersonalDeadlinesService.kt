@@ -16,6 +16,8 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapResult
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
 import kotlinx.datetime.LocalDateTime
 
 internal class PersonalDeadlinesService(
@@ -51,7 +53,11 @@ internal class PersonalDeadlinesService(
   suspend fun moveDeadlinesForStudent(studentId: StudentId, newDeadline: LocalDateTime) {
     personalDeadlineStorage.updateDeadlineForStudent(studentId, newDeadline)
     val student = studentStorage.resolveStudent(studentId).value
-    botEventBus.publishMovingDeadlineEvent(student.tgId, newDeadline)
+    if (student != null) {
+      botEventBus.publishMovingDeadlineEvent(student.tgId, newDeadline)
+    } else {
+      KSLog.error("Cannot move deadline to an unresolved student $studentId")
+    }
   }
 
   fun calculateNewDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> {

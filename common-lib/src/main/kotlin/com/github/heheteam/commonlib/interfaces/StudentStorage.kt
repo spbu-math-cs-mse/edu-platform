@@ -21,7 +21,7 @@ interface StudentStorage {
     tgId: Long = 0L,
   ): Result<StudentId, EduPlatformError>
 
-  fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>>
+  fun resolveStudent(studentId: StudentId): Result<Student?, EduPlatformError>
 
   fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>>
 

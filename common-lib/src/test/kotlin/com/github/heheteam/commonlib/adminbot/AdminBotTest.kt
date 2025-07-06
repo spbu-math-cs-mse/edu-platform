@@ -9,7 +9,6 @@ import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesStorage
 import com.github.heheteam.commonlib.database.DatabaseSentMessageLogStorage
-import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
@@ -52,7 +51,6 @@ class AdminBotTest {
         ),
         courseStorage,
         AdminAuthService(DatabaseAdminStorage(database)),
-        DatabaseStudentStorage(database),
         DatabaseTeacherStorage(database),
         DatabaseAssignmentStorage(database, problemStorage),
         problemStorage,

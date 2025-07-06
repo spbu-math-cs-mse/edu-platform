@@ -68,7 +68,6 @@ class AddStudentState(
     sentMessages.add(introMessage)
   }
 
-  @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
@@ -123,8 +122,9 @@ class AddStudentState(
     studentsStatuses.map { (studentId, status) ->
       val stringStatus =
         when (status) {
-          AddStudentStatus.Exists -> "уже существует"
+          AddStudentStatus.ExistsInCourse -> "уже существует"
           AddStudentStatus.Success -> "успешно добавлен"
+          AddStudentStatus.NotAStudent -> "не существует в базе данных"
         }
       regularln("$studentId -- $stringStatus")
     }

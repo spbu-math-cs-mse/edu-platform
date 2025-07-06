@@ -63,7 +63,7 @@ class DatabaseCourseStorage(private val courseRepository: CourseRepository) : Co
   ): Result<Unit, EduPlatformError> = binding {
     transaction {
       val richCourse = courseRepository.findById(courseId).bind()
-      richCourse.removeStudent(studentId).bind()
+      richCourse.removeStudent(studentId)
       courseRepository.save(richCourse).bind()
     }
     Unit

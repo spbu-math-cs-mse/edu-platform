@@ -69,7 +69,7 @@ internal constructor(
   fun loginByTgId(tgId: UserId): Result<Student, NumberedError> =
     errorManagementService.serviceBinding { studentStorage.resolveByTgId(tgId).bind() }
 
-  fun loginById(studentId: StudentId): Result<Student, NumberedError> =
+  fun loginById(studentId: StudentId): Result<Student?, NumberedError> =
     errorManagementService.serviceBinding { studentStorage.resolveStudent(studentId).bind() }
 
   fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, NumberedError> =

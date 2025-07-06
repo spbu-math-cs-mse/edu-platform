@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.domain.AddStudentStatus
+import com.github.heheteam.commonlib.domain.RemoveStudentStatus
 import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.errors.NumberedError
@@ -20,7 +21,6 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
@@ -43,7 +43,6 @@ internal constructor(
   private val scheduledMessagesService: ScheduledMessageService,
   private val courseStorage: CourseStorage,
   private val adminAuthService: AdminAuthService,
-  private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
@@ -82,6 +81,14 @@ internal constructor(
   ): Result<List<AddStudentStatus>, NumberedError> =
     errorManagementService.serviceBinding { courseService.addStudents(courseId, students).bind() }
 
+  fun removeStudents(
+    courseId: CourseId,
+    students: List<StudentId>,
+  ): Result<List<RemoveStudentStatus>, NumberedError> =
+    errorManagementService.serviceBinding {
+      courseService.removeStudents(courseId, students).bind()
+    }
+
   fun viewScheduledMessages(
     adminId: AdminId? = null,
     courseId: CourseId? = null,
@@ -115,12 +122,7 @@ internal constructor(
       courseStorage.getCourses().bind().groupBy { it.name }.mapValues { it.value.first() }
     }
 
-  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
-
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
-
-  fun studiesIn(id: StudentId, course: Course): Boolean =
-    courseStorage.getStudentCourses(id).get()?.any { it.id == course.id } ?: false
 
   fun teachesIn(id: TeacherId, course: Course): Boolean =
     courseStorage.getTeacherCourses(id).get()?.any { it.id == course.id } ?: false

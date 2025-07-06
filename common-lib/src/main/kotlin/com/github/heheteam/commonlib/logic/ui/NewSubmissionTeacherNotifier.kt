@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FailedToResolveSubmission
+import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.errors.NoResponsibleTeacherFor
 import com.github.heheteam.commonlib.errors.SendToGroupSubmissionError
 import com.github.heheteam.commonlib.errors.SendToTeacherSubmissionError
@@ -148,7 +149,7 @@ internal class NewSubmissionTeacherNotifier(
         .mapError { FailedToResolveSubmission(submission) }
         .bind()
     if (chat == null) {
-      Err(SendToGroupSubmissionError(assignment.courseId)).bind<Nothing>()
+      Err(SendToGroupSubmissionError(assignment.courseId)).bind()
     }
     teacherBotTelegramController
       .sendSubmission(chat, submission.content)
@@ -210,7 +211,12 @@ internal class NewSubmissionTeacherNotifier(
       val submission = submissionDistributor.resolveSubmission(submissionId).bind()
       val problem = problemStorage.resolveProblem(submission.problemId).bind()
       val assignment = assignmentStorage.resolveAssignment(problem.assignmentId).bind()
-      val student = studentStorage.resolveStudent(submission.studentId).bind()
+      val student =
+        studentStorage
+          .resolveStudent(submission.studentId)
+          .bind()
+          .toResultOr { NamedError("Student ${submission.studentId} does not exist in a database") }
+          .bind()
       val responsibleTeacher =
         submission.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).bind() }
       SubmissionStatusMessageInfo(

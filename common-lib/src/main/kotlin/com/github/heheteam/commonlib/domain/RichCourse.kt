@@ -14,8 +14,15 @@ import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
 
 enum class AddStudentStatus {
-  Exists,
+  ExistsInCourse,
   Success,
+  NotAStudent,
+}
+
+enum class RemoveStudentStatus {
+  Removed,
+  NotFoundInCourse,
+  NotAStudent,
 }
 
 data class RichCourse(
@@ -33,17 +40,22 @@ data class RichCourse(
 
   fun addStudent(student: Student): AddStudentStatus {
     if (student.id in students) {
-      return AddStudentStatus.Exists
+      return AddStudentStatus.ExistsInCourse
     }
     students.add(student.id)
     return AddStudentStatus.Success
   }
 
-  fun removeStudent(studentId: StudentId): Result<Unit, EduPlatformError> {
-    if (!students.remove(studentId)) {
-      return Err(NamedError("Student not found in course"))
+  fun removeStudent(student: Student): RemoveStudentStatus {
+    return removeStudent(student.id)
+  }
+
+  fun removeStudent(studentId: StudentId): RemoveStudentStatus {
+    return if (students.remove(studentId)) {
+      RemoveStudentStatus.Removed
+    } else {
+      RemoveStudentStatus.NotFoundInCourse
     }
-    return Ok(Unit)
   }
 
   fun addTeacher(teacherId: TeacherId): Result<Unit, EduPlatformError> {

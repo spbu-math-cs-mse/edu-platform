@@ -232,7 +232,6 @@ class ApiFabric(
         scheduledMessageService,
         courseStorage,
         adminAuthService,
-        studentStorage,
         teacherStorage,
         assignmentStorage,
         problemStorage,

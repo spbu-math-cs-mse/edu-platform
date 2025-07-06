@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.errors
 
 import com.github.heheteam.commonlib.domain.AddStudentStatus
+import com.github.heheteam.commonlib.domain.RemoveStudentStatus
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
@@ -23,7 +24,21 @@ class CourseService(
       binding {
         val course = courseRepository.findById(courseId).bind()
         val students = studentIds.map { studentStorage.resolveStudent(it).bind() }
-        students.map { course.addStudent(it) }
+        students.map { if (it != null) course.addStudent(it) else AddStudentStatus.NotAStudent }
+      }
+    }
+
+  fun removeStudents(
+    courseId: CourseId,
+    studentIds: List<StudentId>,
+  ): Result<List<RemoveStudentStatus>, EduPlatformError> =
+    transaction(database) {
+      binding {
+        val course = courseRepository.findById(courseId).bind()
+        val students = studentIds.map { studentStorage.resolveStudent(it).bind() }
+        students.map {
+          if (it != null) course.removeStudent(it) else RemoveStudentStatus.NotAStudent
+        }
       }
     }
 }

@@ -2,11 +2,10 @@ package com.github.heheteam.commonlib.telegram
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
+import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.SubmissionAssessment
-import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.TelegramError
-import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
@@ -20,8 +19,10 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.extensions.makeString
+import dev.inmo.tgbotapi.utils.regularln
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -80,19 +81,20 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
 
   override suspend fun sendScheduledInformationalMessage(
     chatId: RawChatId,
-    content: TelegramMessageContent,
+    scheduledMessage: ScheduledMessage,
     course: Course,
-    scheduledMessageId: ScheduledMessageId,
     replyMarkup: InlineKeyboardMarkup?,
   ): Result<MessageId, EduPlatformError> {
     val messageText = buildEntities {
-      +"Сообщение от курса \"${course.name}\" (ID: ${course.id}), "
-      +"ID сообщения: ${scheduledMessageId.long}\n\n${content.text}"
+      regularln("Сообщение от курса \"${course.name}\"")
+      bold("Тема: ")
+      regularln(scheduledMessage.shortName)
+      scheduledMessage.content.text.forEach { +it }
     }
     val sentMessage =
       studentBot.sendTextWithMediaAttachments(
         chatId.toChatId(),
-        content.copy(text = messageText),
+        scheduledMessage.content.copy(text = messageText),
         replyMarkup = replyMarkup,
       )
     return sentMessage.map { it.messageId }

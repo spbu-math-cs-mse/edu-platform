@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -21,6 +22,7 @@ import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.decorators.SubmissionDistributorDecorator
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
@@ -78,7 +80,7 @@ class ApiFabric(
     teacherResolverKind: TeacherResolverKind,
     adminIds: List<Long> = listOf(),
   ): ApiCollection {
-    val databaseCourseStorage = DatabaseCourseStorage(database)
+    val databaseCourseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database, problemStorage)
@@ -121,7 +123,14 @@ class ApiFabric(
     val adminAuthService = AdminAuthService(adminStorage)
 
     if (initDatabase) {
-      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
+      fillWithSamples(
+        courseStorage,
+        assignmentStorage,
+        studentStorage,
+        teacherStorage,
+        database,
+        true,
+      )
     } else {
       createTables(database)
     }
@@ -217,13 +226,12 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
       )
-
+    val courseService = CourseService(DatabaseCourseRepository(), studentStorage, database)
     val adminApi =
       AdminApi(
         scheduledMessageService,
         courseStorage,
         adminAuthService,
-        studentStorage,
         teacherStorage,
         assignmentStorage,
         problemStorage,
@@ -231,6 +239,7 @@ class ApiFabric(
         personalDeadlinesService,
         courseTokenService,
         errorManagementService,
+        courseService,
       )
 
     val parentApi = ParentApi(studentStorage, gradeTable, parentStorage, errorManagementService)

@@ -1,40 +1,48 @@
 package com.github.heheteam.adminbot.states
 
-import com.github.heheteam.adminbot.Dialogues.manyIdsAlreadyDoNotExistForStudentRemoving
-import com.github.heheteam.adminbot.Dialogues.manyIdsAreGoodForStudentRemoving
-import com.github.heheteam.adminbot.Dialogues.manyStudentIdsDoNotExist
 import com.github.heheteam.adminbot.Dialogues.noIdInInput
-import com.github.heheteam.adminbot.Dialogues.oneIdAlreadyDoesNotExistForStudentRemoving
-import com.github.heheteam.adminbot.Dialogues.oneIdIsGoodForStudentRemoving
-import com.github.heheteam.adminbot.Dialogues.oneStudentIdDoesNotExist
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
+import com.github.heheteam.commonlib.domain.RemoveStudentStatus
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ensureSuccess
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.regularln
+
+sealed interface RemoveStudentServiceResult {
+  data class ParserError(val messageToDisplay: String) : RemoveStudentServiceResult
+
+  data class ParserSuccess(val result: List<Pair<StudentId, RemoveStudentStatus>>) :
+    RemoveStudentServiceResult
+}
 
 class RemoveStudentState(
   override val context: User,
   val course: Course,
   val courseName: String,
   val adminId: AdminId,
-) : BotStateWithHandlers<String, List<String>, AdminApi> {
+) : BotStateWithHandlers<String, RemoveStudentServiceResult, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -49,94 +57,82 @@ class RemoveStudentState(
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<String>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val message =
-      bot.send(context) {
-        +"Введите ID учеников (через запятую), которых хотите убрать с курса $courseName, " +
-          "или отправьте /stop, чтобы отменить операцию."
-      }
-    sentMessages.add(message)
+    val introMessage =
+      bot.send(
+        context,
+        "Введите ID учеников (через запятую), которых хотите убрать с курса $courseName, " +
+          "или отправьте /stop, чтобы отменить операцию.",
+      )
 
-    updateHandlersController.addTextMessageHandler { textMessage ->
-      UserInput(textMessage.content.text)
-    }
+    updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
+    sentMessages.add(introMessage)
   }
 
-  @Suppress("LongMethod", "CyclomaticComplexMethod") // wild legacy, fix later
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, List<String>>, FrontendError> = coroutineBinding {
-    if (input == "/stop") {
-      return@coroutineBinding Pair(MenuState(context, adminId), emptyList<String>())
-    }
-
+  ): Result<Pair<State, RemoveStudentServiceResult>, FrontendError> = coroutineBinding {
     val splitIds = input.split(",").map { it.trim() }
     if (splitIds.isEmpty()) {
-      return@coroutineBinding Pair(this@RemoveStudentState, listOf(noIdInInput))
-    }
-
-    val processedIds = processStringIds(splitIds)
-    if (processedIds.isErr) {
-      return@coroutineBinding Pair(this@RemoveStudentState, listOf(processedIds.error))
-    }
-
-    val ids = processedIds.value
-    val messages = mutableListOf<String>()
-
-    // Process invalid IDs
-    val badIds = mutableListOf<Long>()
-    val goodIds = mutableListOf<Long>()
-
-    // Check non-existent students
-    val nonExistent = ids.filter { !service.studentExists(StudentId(it)) }
-    if (nonExistent.isNotEmpty()) {
-      messages.add(
-        when (nonExistent.size) {
-          1 -> oneStudentIdDoesNotExist(nonExistent.first())
-          else -> manyStudentIdsDoNotExist(nonExistent)
-        }
+      return@coroutineBinding Pair(
+        this@RemoveStudentState,
+        RemoveStudentServiceResult.ParserError(noIdInInput),
       )
-      badIds.addAll(nonExistent)
     }
 
-    // Check students not enrolled
-    val notEnrolled =
-      ids.filter { id -> id !in nonExistent && !service.studiesIn(StudentId(id), course) }
-    if (notEnrolled.isNotEmpty()) {
-      messages.add(
-        when (notEnrolled.size) {
-          1 -> oneIdAlreadyDoesNotExistForStudentRemoving(notEnrolled.first(), courseName)
-          else -> manyIdsAlreadyDoNotExistForStudentRemoving(notEnrolled, courseName)
+    val studentIds =
+      stringsToInts(splitIds)
+        .ensureSuccess {
+          return@coroutineBinding Pair(
+            this@RemoveStudentState,
+            RemoveStudentServiceResult.ParserError(it),
+          )
         }
-      )
-      badIds.addAll(notEnrolled)
-    }
+        .map { it.toStudentId() }
+    val result = studentIds.zip(service.removeStudents(course.id, studentIds).bind())
 
-    // Process valid IDs
-    goodIds.addAll(ids - badIds.toSet())
-    if (goodIds.isNotEmpty()) {
-      messages.add(
-        when (goodIds.size) {
-          1 -> oneIdIsGoodForStudentRemoving(goodIds.first(), courseName)
-          else -> manyIdsAreGoodForStudentRemoving(goodIds, courseName)
-        }
-      )
-      goodIds.forEach { service.removeStudent(StudentId(it), course.id) }
-    }
-
-    Pair(MenuState(context, adminId), messages)
+    Pair(MenuState(context, adminId), RemoveStudentServiceResult.ParserSuccess(result))
   }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: List<String>,
+    response: RemoveStudentServiceResult,
     input: String,
-  ) = runCatching { response.forEach { msg -> bot.send(context, msg) } }.toTelegramError()
+  ): Result<Unit, FrontendError> =
+    runCatching {
+        when (response) {
+          is RemoveStudentServiceResult.ParserError -> {
+            bot.send(context, response.messageToDisplay)
+          }
+          is RemoveStudentServiceResult.ParserSuccess -> {
+            val studentsStatuses = response.result
+            val statusMessage = createStatusMessage(studentsStatuses)
+            bot.send(context, statusMessage)
+          }
+        }
+        Unit
+      }
+      .toTelegramError()
 
-  private fun processStringIds(ids: List<String>): Result<List<Long>, String> {
-    return ids
-      .map { idStr -> idStr.toLongOrNull()?.let { Ok(it) } ?: Err("Некорректный ID: $idStr") }
-      .combine()
+  private fun createStatusMessage(
+    studentsStatuses: List<Pair<StudentId, RemoveStudentStatus>>
+  ): TextSourcesList = buildEntities {
+    regularln("Статус удаления учеников:")
+    studentsStatuses.map { (studentId, status) ->
+      val stringStatus =
+        when (status) {
+          RemoveStudentStatus.Removed -> "успешно удален"
+          RemoveStudentStatus.NotFoundInCourse -> "не найден"
+          RemoveStudentStatus.NotAStudent -> "не существует в базе данных"
+        }
+      regularln("$studentId -- $stringStatus")
+    }
+  }
+
+  private fun stringsToInts(ids: List<String>): Result<List<Long>, String> {
+    val extractedIds =
+      ids.map { idStr -> idStr.toLongOrNull()?.let { Ok(it) } ?: Err("Некорректный ID: $idStr") }
+    return extractedIds.combine().mapError { errors -> errors }
   }
 }

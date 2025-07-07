@@ -97,18 +97,16 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       }
       .map { it.value.toStudentId() }
 
-  override fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
-    transaction(database) {
+  override fun resolveStudent(studentId: StudentId): Result<Student?, EduPlatformError> =
+    catchingTransaction(database) {
       val row =
         StudentTable.selectAll().where(StudentTable.id eq studentId.long).singleOrNull()
-          ?: return@transaction Err(ResolveError(studentId))
-      Ok(
-        Student(
-          studentId,
-          row[StudentTable.name],
-          row[StudentTable.surname],
-          row[StudentTable.tgId].toRawChatId(),
-        )
+          ?: return@catchingTransaction null
+      Student(
+        studentId,
+        row[StudentTable.name],
+        row[StudentTable.surname],
+        row[StudentTable.tgId].toRawChatId(),
       )
     }
 

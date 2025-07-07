@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.studentbot
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
@@ -60,7 +61,7 @@ class StudentBotTest {
   @BeforeEach
   fun setup() {
     reset(database)
-    courseStorage = DatabaseCourseStorage(database)
+    courseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
     initDatabaseStorages()
     academicWorkflowLogic = AcademicWorkflowLogic(submissionDistributor, gradeTable)
     scheduledMessageService = mockk<ScheduledMessageService>(relaxed = true)

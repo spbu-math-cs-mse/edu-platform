@@ -28,12 +28,13 @@ internal constructor(
       technicalMessageStorage.resolveTeacherFirstUncheckedSubmissionMessage(teacherId).bind()
     val menuMessage =
       if (messageId != null) {
-          teacherBotTelegramController.sendMenuMessage(
+          teacherBotTelegramController.sendPersonalMenuMessage(
+            teacherId,
             chatId,
             TelegramMessageInfo(chatId, messageId),
           )
         } else {
-          teacherBotTelegramController.sendMenuMessage(chatId, null)
+          teacherBotTelegramController.sendPersonalMenuMessage(teacherId, chatId, null)
         }
         .bind()
     technicalMessageStorage.updateTeacherMenuMessage(
@@ -52,12 +53,13 @@ internal constructor(
           technicalMessageStorage.resolveGroupFirstUncheckedSubmissionMessage(courseId).bind()
         val menuMessage =
           if (messageId != null) {
-              teacherBotTelegramController.sendMenuMessage(
+              teacherBotTelegramController.sendGroupMenuMessage(
+                courseId,
                 chatId,
                 TelegramMessageInfo(chatId, messageId),
               )
             } else {
-              teacherBotTelegramController.sendMenuMessage(chatId, null)
+              teacherBotTelegramController.sendGroupMenuMessage(courseId, chatId, null)
             }
             .bind()
         technicalMessageStorage.updateTeacherMenuMessage(

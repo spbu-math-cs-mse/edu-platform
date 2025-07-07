@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.AnyMessageSuspendableHandler
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.WHO_AM_I
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
@@ -22,7 +23,6 @@ import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
-import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -99,7 +99,11 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     )
 
   private fun createDataCallbackHandlers() =
-    listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress)
+    listOf(
+      ::tryHandleConfirmButtonPress,
+      ::tryHandleGradingButtonPress,
+      ::tryHandleWhoAmIButtonPress,
+    )
 
   @OptIn(RiskFeature::class)
   private fun tryHandleConfirmButtonPress(
@@ -127,6 +131,11 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
       .map { ActionWrapper<TeacherAction>(GradingFromButton(it.submissionId, it.grade)) }
       .get()
       ?.ok()
+
+  private fun tryHandleWhoAmIButtonPress(
+    dataCallback: DataCallbackQuery
+  ): Result<ActionWrapper<TeacherAction>, Nothing>? =
+    if (dataCallback.data == WHO_AM_I) ActionWrapper<TeacherAction>(SendTeacherId).ok() else null
 
   private var counter = 0
   private val storedInfo = mutableMapOf<Int, Pair<SubmissionId, SubmissionAssessment>>()
@@ -174,6 +183,8 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
       is DeleteMessage -> with(bot) { action.message?.let { delete(it) } }
 
       is UpdateMenuMessage -> teacherApi.updateTeacherMenuMessage(teacherId)
+
+      is SendTeacherId -> bot.sendMessage(context.id, Dialogues.sendTeacherId(teacherId))
     }
   }
 

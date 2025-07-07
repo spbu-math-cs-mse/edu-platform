@@ -27,6 +27,7 @@ import com.github.heheteam.studentbot.state.RandomActivityState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.WhoAmIState
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
@@ -52,6 +53,7 @@ internal class StateRegister(
       registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::initializeHandlers)
+      registerStateWithStudentId<WhoAmIState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<ConfirmSubmissionState, StudentApi>(
         studentApi,
         ::initializeHandlers,

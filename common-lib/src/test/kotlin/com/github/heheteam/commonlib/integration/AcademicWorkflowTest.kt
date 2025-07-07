@@ -36,14 +36,21 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
       studentBotController.notifyStudentOnNewAssessment(any(), any(), any(), any(), any())
     } returns Unit.ok()
 
-  private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
-    coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
+  private fun mockSendPersonalMenuMessage(
+    returnValue: Result<TelegramMessageInfo, EduPlatformError>
+  ) =
+    coEvery { teacherBotController.sendPersonalMenuMessage(any(), any(), any()) } returns
+      returnValue
+
+  private fun mockSendGroupMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
+    coEvery { teacherBotController.sendGroupMenuMessage(any(), any(), any()) } returns returnValue
 
   @Test
   fun `telegram notifications are sent on new submission`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
-    mockSendMenuMessage(Ok(messageInfoNum(1)))
+    mockSendPersonalMenuMessage(Ok(messageInfoNum(1)))
+    mockSendGroupMenuMessage(Ok(messageInfoNum(1)))
 
     buildData(createDefaultApis()) {
       val student = student("Student1", "Student1")
@@ -80,7 +87,8 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
       Err(TelegramError(RuntimeException("Simulated Telegram error during sendSubmission")))
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
-    mockSendMenuMessage(Ok(messageInfoNum(1)))
+    mockSendPersonalMenuMessage(Ok(messageInfoNum(1)))
+    mockSendGroupMenuMessage(Ok(messageInfoNum(1)))
 
     buildData(createDefaultApis()) {
       val student = student("Student1", "Student1")
@@ -108,8 +116,9 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   fun `teacher api updateTeacherMenuMessage propagates telegram errors`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
-    coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns
+    mockSendPersonalMenuMessage(
       Err(TelegramError(RuntimeException("Simulated Telegram error during sendMenuMessage")))
+    )
 
     buildData(createDefaultApis()) {
       val teacher = teacher("Teacher1", "Teacher1")
@@ -122,7 +131,8 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   fun `telegram notifications are sent on new assessment`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
-    mockSendMenuMessage(Ok(messageInfoNum(1)))
+    mockSendPersonalMenuMessage(Ok(messageInfoNum(1)))
+    mockSendGroupMenuMessage(Ok(messageInfoNum(1)))
     mockNotifyStudentOnNewAssessment()
 
     buildData(createDefaultApis()) {

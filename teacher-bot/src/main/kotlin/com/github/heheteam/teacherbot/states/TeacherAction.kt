@@ -25,3 +25,5 @@ data class ConfirmSending(
 data class DeleteMessage(val message: AccessibleMessage?) : TeacherAction
 
 data object UpdateMenuMessage : TeacherAction
+
+data object SendTeacherId : TeacherAction

@@ -1,6 +1,11 @@
 package com.github.heheteam.teacherbot
 
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.TeacherId
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.types.message.textsources.TextSource
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.code
 
 object Dialogues {
   val typingSticker =
@@ -30,4 +35,14 @@ object Dialogues {
     "Приятно познакомиться, $firstName $lastName!\n"
 
   const val menu: String = "\u2705 Главное меню"
+
+  fun sendTeacherId(teacherId: TeacherId): List<TextSource> = buildEntities {
+    +"Ваш ID: "
+    code("$teacherId")
+  }
+
+  fun sendCourseId(courseId: CourseId): List<TextSource> = buildEntities {
+    +"ID курса: "
+    code("$courseId")
+  }
 }

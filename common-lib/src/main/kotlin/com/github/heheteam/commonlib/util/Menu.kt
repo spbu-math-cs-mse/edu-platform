@@ -49,3 +49,5 @@ fun createYesNoKeyboard(yesText: String, noText: String): MenuKeyboardData<Boole
   val noButton = ButtonData(noText, "no_button") { false }
   return buildMenu(listOf(listOf(yesButton, noButton)))
 }
+
+const val WHO_AM_I = "whoami"

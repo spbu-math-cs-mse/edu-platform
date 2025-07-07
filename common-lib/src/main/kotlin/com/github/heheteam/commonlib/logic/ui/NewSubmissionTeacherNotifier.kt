@@ -93,7 +93,8 @@ internal class NewSubmissionTeacherNotifier(
           .resolveGroupFirstUncheckedSubmissionMessage(courseId)
           .mapError { FailedToResolveSubmission(submission, it) }
           .bind()
-      teacherBotTelegramController.sendMenuMessage(
+      teacherBotTelegramController.sendGroupMenuMessage(
+        courseId,
         chatId,
         messageId?.let { TelegramMessageInfo(chatId, it) },
       )
@@ -119,7 +120,11 @@ internal class NewSubmissionTeacherNotifier(
           .bind()
       val menuMessage =
         teacherBotTelegramController
-          .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
+          .sendPersonalMenuMessage(
+            teacherId,
+            chatId,
+            messageId?.let { TelegramMessageInfo(chatId, it) },
+          )
           .mapError { FailedToResolveSubmission(submission) }
           .bind()
 

@@ -2,7 +2,11 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.errors.TokenError
+import com.github.heheteam.commonlib.interfaces.StudentId
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
+import dev.inmo.tgbotapi.types.message.textsources.TextSource
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.code
 
 object Dialogues {
   val greetingSticker =
@@ -62,4 +66,9 @@ object Dialogues {
 
   fun failedToRegisterForCourse(error: TokenError): String =
     "Не удалось записаться на курс.\n" + error.toReadableString()
+
+  fun sendStudentId(studentId: StudentId): List<TextSource> = buildEntities {
+    +"Ваш ID: "
+    code("$studentId")
+  }
 }

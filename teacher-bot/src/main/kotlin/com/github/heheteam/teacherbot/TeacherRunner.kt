@@ -8,7 +8,6 @@ import com.github.heheteam.teacherbot.states.AskLastNameState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
-import com.github.heheteam.teacherbot.states.PresetTeacherState
 import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
@@ -81,7 +80,6 @@ class StateRegister(private val teacherApi: TeacherApi) {
         state.teacherBotToken = botToken
         state.handle(this, teacherApi)
       }
-      registerStateForBotState<PresetTeacherState, TeacherApi>(teacherApi)
       registerStateForBotState<ChooseGroupCourseState, TeacherApi>(teacherApi)
     }
   }

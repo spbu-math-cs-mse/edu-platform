@@ -24,7 +24,10 @@ class CourseService(
       binding {
         val course = courseRepository.findById(courseId).bind()
         val students = studentIds.map { studentStorage.resolveStudent(it).bind() }
-        students.map { if (it != null) course.addStudent(it) else AddStudentStatus.NotAStudent }
+        val result =
+          students.map { if (it != null) course.addStudent(it) else AddStudentStatus.NotAStudent }
+        courseRepository.save(course).bind()
+        result
       }
     }
 
@@ -36,9 +39,12 @@ class CourseService(
       binding {
         val course = courseRepository.findById(courseId).bind()
         val students = studentIds.map { studentStorage.resolveStudent(it).bind() }
-        students.map {
-          if (it != null) course.removeStudent(it) else RemoveStudentStatus.NotAStudent
-        }
+        val result =
+          students.map {
+            if (it != null) course.removeStudent(it) else RemoveStudentStatus.NotAStudent
+          }
+        courseRepository.save(course).bind()
+        result
       }
     }
 }

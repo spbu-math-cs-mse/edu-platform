@@ -27,12 +27,12 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     service: AdminApi,
     updateHandlersController: UpdateHandlerManager<Unit>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val stats = service.getCourseStatistics(course.id)
+    val stats = service.getCourseStatistics(course.id).bind()
     val courseToken = service.getTokenForCourse(course.id)
     bot.send(
       context,
       entities = CourseStatisticsFormatter.format(course.id, course.name, stats, courseToken),
-      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).value, courseToken),
+      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).bind(), courseToken),
     )
 
     updateHandlersController.addDataCallbackHandler { callback ->

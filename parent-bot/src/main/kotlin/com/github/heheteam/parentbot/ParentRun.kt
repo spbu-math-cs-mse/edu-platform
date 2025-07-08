@@ -1,6 +1,7 @@
 package com.github.heheteam.parentbot
 
 import com.github.heheteam.commonlib.api.ParentApi
+import com.github.heheteam.commonlib.state.InformationState
 import com.github.heheteam.commonlib.state.registerStateWithParentId
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
 import com.github.heheteam.parentbot.state.AddChildById
@@ -16,7 +17,6 @@ import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.strictlyOn
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
@@ -64,10 +64,11 @@ suspend fun parentRun(botToken: String, parentApi: ParentApi) {
 }
 
 private fun DefaultBehaviourContextWithFSM<State>.registerStates(parentApi: ParentApi) {
-  strictlyOn<Start> { it.handle(this, parentApi) }
+  strictlyOn<Start> { it.handle(parentApi) }
   registerStateWithParentId<Menu, ParentApi>(parentApi)
   registerStateWithParentId<QueryCourseForStudentPerformance, ParentApi>(parentApi)
   registerStateWithParentId<QueryStudentPerformance, ParentApi>(parentApi)
   strictlyOn<AddChildById> { it.handle(this, parentApi) }
   strictlyOn<RegisterParent> { it.handle(this, parentApi) }
+  strictlyOn<InformationState<ParentApi, *>> { it.handle(this, parentApi) }
 }

@@ -10,7 +10,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.InformationState
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlersAndUserId
 import com.github.heheteam.commonlib.util.MenuKeyboardData
-import com.github.heheteam.commonlib.util.createCoursePicker
+import com.github.heheteam.commonlib.util.createRichCoursePicker
 import com.github.heheteam.commonlib.util.map
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -31,7 +31,7 @@ class QueryCourseForStudentPerformance(
   override fun createKeyboard(service: ParentApi): Result<MenuKeyboardData<State?>, FrontendError> =
     binding {
       val result = service.getStudentCourses(studentId).bind()
-      createCoursePicker(result).map { course ->
+      createRichCoursePicker(result).map { course ->
         if (course != null) {
           InformationState<ParentApi, ParentId>(
             context,
@@ -52,5 +52,8 @@ class QueryCourseForStudentPerformance(
 
 private fun formatGrades(grades: Map<Problem, Grade>): TextWithMediaAttachments =
   TextWithMediaAttachments(
-    buildEntities { grades.forEach { (problem, grade) -> +"${problem.number} -> $grade\n" } }
+    buildEntities {
+      +"Оценки (возможно, пустые):"
+      grades.forEach { (problem, grade) -> +"${problem.number} -> $grade\n" }
+    }
   )

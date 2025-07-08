@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
+import com.github.heheteam.commonlib.domain.RichCourse
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
@@ -63,6 +64,9 @@ suspend fun BehaviourContext.queryCourse(user: User, courses: List<Course>): Cou
 
 fun createCoursePicker(courses: List<Course>): MenuKeyboardData<Course?> =
   createPickerWithBackButtonFromList(courses) { it.name }
+
+fun createRichCoursePicker(courses: List<RichCourse>): MenuKeyboardData<RichCourse?> =
+  createPickerWithBackButtonFromList(courses) { it.description }
 
 fun createAssignmentPicker(assignments: List<Assignment>): MenuKeyboardData<Assignment?> =
   createPickerWithBackButtonFromList(assignments) { it.description }

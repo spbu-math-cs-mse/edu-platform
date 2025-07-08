@@ -22,9 +22,9 @@ class RegisterParent(override val context: User) : TextQueryBotStateWithHandlers
     } else {
       val (firstName, lastName) = parts
       service
-        .createParent(firstName, lastName)
+        .createParent(firstName, lastName, context.id.chatId)
         .mapBoth(
-          success = { parentId -> UserInputParsingResult.Success(Menu(context, parentId)) },
+          success = { parent -> UserInputParsingResult.Success(Menu(context, parent.id)) },
           failure = { error ->
             UserInputParsingResult.Failure(buildEntities { +error.toMessageText() })
           },

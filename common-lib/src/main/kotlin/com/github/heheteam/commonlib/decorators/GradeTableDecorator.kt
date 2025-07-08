@@ -22,8 +22,10 @@ internal class GradeTableDecorator(
   private val ratingRecorder: GoogleSheetsRatingRecorder,
 ) : GradeTable {
   override fun getStudentPerformance(
-    studentId: StudentId
-  ): Result<Map<Problem, Grade?>, EduPlatformError> = gradeTable.getStudentPerformance(studentId)
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Map<ProblemId, Grade?>, EduPlatformError> =
+    gradeTable.getStudentPerformance(studentId, courseId)
 
   override fun getStudentPerformance(
     studentId: StudentId,

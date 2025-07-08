@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseParentRepository
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesStorage
@@ -45,9 +46,9 @@ import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
-import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
+import com.github.heheteam.commonlib.service.ParentService
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -137,7 +138,6 @@ class ApiFabric(
 
     adminAuthService.addTgIdsToWhitelist(adminIds.map { it.toChatId() })
 
-    val parentStorage = MockParentStorage()
     val botEventBus: BotEventBus = ObserverBus()
 
     botEventBus.subscribeToMovingDeadlineEvents { chatId, newDeadline ->
@@ -241,8 +241,10 @@ class ApiFabric(
         errorManagementService,
         courseService,
       )
-
-    val parentApi = ParentApi(studentStorage, gradeTable, parentStorage, errorManagementService)
+    val parentRepository = DatabaseParentRepository()
+    val parentService = ParentService(parentRepository, studentStorage, database)
+    val parentApi =
+      ParentApi(gradeTable, errorManagementService, parentService, courseService, problemStorage)
 
     botEventBus.subscribeToNewSubmissionEvent { submission: Submission ->
       newSubmissionTeacherNotifier.notifyNewSubmission(submission)

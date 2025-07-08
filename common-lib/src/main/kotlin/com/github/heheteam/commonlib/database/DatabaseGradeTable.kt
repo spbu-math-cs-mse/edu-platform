@@ -23,6 +23,7 @@ import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -42,8 +43,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
   }
 
   override fun getStudentPerformance(
-    studentId: StudentId
-  ): Result<Map<Problem, Grade?>, EduPlatformError> = TODO()
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Map<ProblemId, Grade?>, EduPlatformError> =
+    getCourseRating(courseId).map { it[studentId].orEmpty() }
 
   override fun getStudentPerformance(
     studentId: StudentId,

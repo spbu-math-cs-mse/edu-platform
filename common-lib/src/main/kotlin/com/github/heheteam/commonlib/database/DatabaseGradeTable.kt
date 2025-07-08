@@ -43,30 +43,7 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
 
   override fun getStudentPerformance(
     studentId: StudentId
-  ): Result<Map<ProblemId, Grade?>, EduPlatformError> =
-    catchingTransaction(database) {
-      SubmissionTable.join(
-          AssessmentTable,
-          JoinType.LEFT,
-          onColumn = SubmissionTable.id,
-          otherColumn = AssessmentTable.submissionId,
-        )
-        .join(
-          ProblemTable,
-          JoinType.INNER,
-          onColumn = SubmissionTable.problemId,
-          otherColumn = ProblemTable.id,
-        )
-        .selectAll()
-        .where { SubmissionTable.studentId eq studentId.long }
-        .orderBy(
-          AssessmentTable.timestamp,
-          SortOrder.ASC,
-        ) // associate takes the latter entry with the same key
-        .associate {
-          it[SubmissionTable.problemId].value.toProblemId() to it[AssessmentTable.grade]
-        }
-    }
+  ): Result<Map<Problem, Grade?>, EduPlatformError> = TODO()
 
   override fun getStudentPerformance(
     studentId: StudentId,

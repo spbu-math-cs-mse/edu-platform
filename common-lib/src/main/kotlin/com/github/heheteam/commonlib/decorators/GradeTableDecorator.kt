@@ -23,7 +23,7 @@ internal class GradeTableDecorator(
 ) : GradeTable {
   override fun getStudentPerformance(
     studentId: StudentId
-  ): Result<Map<ProblemId, Grade?>, EduPlatformError> = gradeTable.getStudentPerformance(studentId)
+  ): Result<Map<Problem, Grade?>, EduPlatformError> = gradeTable.getStudentPerformance(studentId)
 
   override fun getStudentPerformance(
     studentId: StudentId,

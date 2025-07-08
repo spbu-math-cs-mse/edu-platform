@@ -18,7 +18,6 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.map
-import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -110,22 +109,17 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       )
     }
 
-  override fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> {
-    return transaction(database) {
-      val maybeRow =
-        StudentTable.selectAll()
-          .where { StudentTable.tgId eq (tgId.chatId.long) }
-          .limit(1)
-          .firstOrNull()
-          .toResultOr { ResolveError(tgId, Student::class.simpleName) }
-      maybeRow.map { row ->
-        Student(
-          row[StudentTable.id].value.toStudentId(),
-          row[StudentTable.name],
-          row[StudentTable.surname],
-          row[StudentTable.tgId].toRawChatId(),
-        )
-      }
+  override fun resolveByTgId(tgId: UserId): Result<Student?, EduPlatformError> {
+    return catchingTransaction(database) {
+      val row =
+        StudentTable.selectAll().where { StudentTable.tgId eq (tgId.chatId.long) }.singleOrNull()
+          ?: return@catchingTransaction null
+      Student(
+        row[StudentTable.id].value.toStudentId(),
+        row[StudentTable.name],
+        row[StudentTable.surname],
+        row[StudentTable.tgId].toRawChatId(),
+      )
     }
   }
 

@@ -211,10 +211,11 @@ internal constructor(
       courseStorage.resolveCourseWithSpreadsheetId(courseId).bind().second.toUrl()
     }
 
-  fun loginByTgId(tgId: UserId): Result<Admin, NumberedError> =
+  fun loginByTgId(tgId: UserId): Result<Admin?, NumberedError> =
     errorManagementService.serviceBinding { adminAuthService.loginByTgId(tgId).bind() }
 
-  fun tgIdIsInWhitelist(tgId: UserId): Boolean = adminAuthService.tgIdIsInWhitelist(tgId)
+  fun tgIdIsInWhitelist(tgId: UserId): Result<Boolean, NumberedError> =
+    errorManagementService.serviceBinding { adminAuthService.tgIdIsInWhitelist(tgId).bind() }
 
   fun addTgIdToWhitelist(tgId: UserId): Result<Unit, NumberedError> =
     errorManagementService.serviceBinding { adminAuthService.addTgIdToWhitelist(tgId).bind() }

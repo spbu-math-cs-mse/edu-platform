@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.errors.AdminIsNotWhitelistedError
 import com.github.heheteam.commonlib.util.buildData
+import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.toChatId
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
@@ -14,7 +15,7 @@ class AdminsWhitelistTest : IntegrationTestEnvironment() {
     val apis = createDefaultApis()
     buildData(apis) {
       val randomTgId = 10000L.toChatId()
-      assertFalse(apis.adminApi.tgIdIsInWhitelist(randomTgId))
+      assertFalse(apis.adminApi.tgIdIsInWhitelist(randomTgId).value)
       val result = apis.adminApi.createAdmin("Name", "Surname", randomTgId.chatId.long)
       assertTrue(result.isErr)
       assertTrue(result.error.error is AdminIsNotWhitelistedError)
@@ -26,7 +27,7 @@ class AdminsWhitelistTest : IntegrationTestEnvironment() {
     val api = createDefaultApis()
     buildData(api) {
       val randomTgId = 10000L.toChatId()
-      assertFalse(apis.adminApi.tgIdIsInWhitelist(randomTgId))
+      assertFalse(apis.adminApi.tgIdIsInWhitelist(randomTgId).value)
       apis.adminApi.addTgIdToWhitelist(randomTgId)
       val result = apis.adminApi.createAdmin("Name", "Surname", randomTgId.chatId.long)
       assertTrue(result.isOk)

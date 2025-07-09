@@ -44,7 +44,7 @@ internal constructor(
   fun createTeacher(firstName: String, lastName: String, tgId: Long): TeacherId =
     teacherStorage.createTeacher(firstName, lastName, tgId)
 
-  fun loginByTgId(tgId: UserId): Result<Teacher, NumberedError> =
+  fun loginByTgId(tgId: UserId): Result<Teacher?, NumberedError> =
     errorManagementService.serviceBinding { teacherStorage.resolveByTgId(tgId).bind() }
 
   fun loginById(teacherId: TeacherId): Result<Teacher, NumberedError> =

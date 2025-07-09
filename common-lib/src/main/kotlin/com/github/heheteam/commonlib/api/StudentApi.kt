@@ -66,7 +66,7 @@ internal constructor(
       studentViewService.getProblemsFromAssignment(assignmentId).bind()
     }
 
-  fun loginByTgId(tgId: UserId): Result<Student, NumberedError> =
+  fun loginByTgId(tgId: UserId): Result<Student?, NumberedError> =
     errorManagementService.serviceBinding { studentStorage.resolveByTgId(tgId).bind() }
 
   fun loginById(studentId: StudentId): Result<Student?, NumberedError> =

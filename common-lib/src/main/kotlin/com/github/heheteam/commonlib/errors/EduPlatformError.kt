@@ -76,3 +76,5 @@ fun EduPlatformError.toStackedString(): String {
 }
 
 typealias MaybeEduPlatformError = Result<Unit, EduPlatformError>
+
+typealias EduPlatformResult<T> = Result<T, EduPlatformError>

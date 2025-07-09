@@ -23,6 +23,7 @@ import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.interfaces.toTeacherId
 import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -42,31 +43,10 @@ class DatabaseGradeTable(val database: Database) : GradeTable {
   }
 
   override fun getStudentPerformance(
-    studentId: StudentId
+    studentId: StudentId,
+    courseId: CourseId,
   ): Result<Map<ProblemId, Grade?>, EduPlatformError> =
-    catchingTransaction(database) {
-      SubmissionTable.join(
-          AssessmentTable,
-          JoinType.LEFT,
-          onColumn = SubmissionTable.id,
-          otherColumn = AssessmentTable.submissionId,
-        )
-        .join(
-          ProblemTable,
-          JoinType.INNER,
-          onColumn = SubmissionTable.problemId,
-          otherColumn = ProblemTable.id,
-        )
-        .selectAll()
-        .where { SubmissionTable.studentId eq studentId.long }
-        .orderBy(
-          AssessmentTable.timestamp,
-          SortOrder.ASC,
-        ) // associate takes the latter entry with the same key
-        .associate {
-          it[SubmissionTable.problemId].value.toProblemId() to it[AssessmentTable.grade]
-        }
-    }
+    getCourseRating(courseId).map { it[studentId].orEmpty() }
 
   override fun getStudentPerformance(
     studentId: StudentId,

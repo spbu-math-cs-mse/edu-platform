@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.errors
 
 import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.domain.RemoveStudentStatus
+import com.github.heheteam.commonlib.domain.RichCourse
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
@@ -47,4 +48,8 @@ class CourseService(
         result
       }
     }
+
+  fun getStudentCourses(studentId: StudentId): EduPlatformResult<List<RichCourse>> {
+    return transaction(database) { courseRepository.findByStudent(studentId) }
+  }
 }

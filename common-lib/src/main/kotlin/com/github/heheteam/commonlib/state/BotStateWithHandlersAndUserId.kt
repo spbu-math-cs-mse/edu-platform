@@ -1,7 +1,7 @@
 package com.github.heheteam.commonlib.state
 
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.ActionWrapper
@@ -103,8 +103,8 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
 interface BotStateWithHandlersAndStudentId<In, Out, ApiService> :
   BotStateWithHandlersAndUserId<In, Out, ApiService, StudentId>
 
-interface BotStateWithHandlersAndAdminId<In, Out, ApiService> :
-  BotStateWithHandlersAndUserId<In, Out, ApiService, AdminId>
+interface BotStateWithHandlersAndParentId<In, Out, ApiService> :
+  BotStateWithHandlersAndUserId<In, Out, ApiService, ParentId>
 
 inline fun <
   reified S : BotStateWithHandlersAndUserId<*, *, HelperService, StudentId>,
@@ -116,6 +116,23 @@ inline fun <
       UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
       context: User,
       studentId: StudentId,
+    ) -> Unit =
+    { _, _, _ ->
+    },
+) {
+  strictlyOn<S> { state -> state.handle(this, service, initUpdateHandlers) }
+}
+
+inline fun <
+  reified S : BotStateWithHandlersAndUserId<*, *, HelperService, ParentId>,
+  HelperService,
+> DefaultBehaviourContextWithFSM<State>.registerStateWithParentId(
+  service: HelperService,
+  noinline initUpdateHandlers:
+    (
+      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      context: User,
+      parentId: ParentId,
     ) -> Unit =
     { _, _, _ ->
     },

@@ -61,10 +61,12 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
   override fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> = binding {
     val ids =
       catchingTransaction(database) {
-          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long)
+          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long).map {
+            it[ParentStudents.studentId].value
+          }
         }
         .bind()
-        .map { it[ParentStudents.studentId].value }
+
     catchingTransaction(database) {
         ids.map { studentId ->
           StudentTable.selectAll()

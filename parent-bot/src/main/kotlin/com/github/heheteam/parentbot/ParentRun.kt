@@ -68,7 +68,7 @@ private fun DefaultBehaviourContextWithFSM<State>.registerStates(parentApi: Pare
   registerStateWithParentId<Menu, ParentApi>(parentApi)
   registerStateWithParentId<QueryCourseForStudentPerformance, ParentApi>(parentApi)
   registerStateWithParentId<QueryStudentPerformance, ParentApi>(parentApi)
-  strictlyOn<AddChildById> { it.handle(this, parentApi) }
+  strictlyOn<AddChildById> { it.handleWithIds(this, parentApi) }
   strictlyOn<RegisterParent> { it.handle(this, parentApi) }
-  strictlyOn<InformationState<ParentApi, *>> { it.handle(this, parentApi) }
+  strictlyOn<InformationState<ParentApi, *>> { it.handleWithIds(this, parentApi) }
 }

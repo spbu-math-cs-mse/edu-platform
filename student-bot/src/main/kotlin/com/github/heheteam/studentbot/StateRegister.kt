@@ -90,7 +90,7 @@ internal class StateRegister(
   ) {
     strictlyOn<SendSubmissionState> { state ->
       state.studentBotToken = botToken
-      state.handle(this, studentApi)
+      state.handleWithIds(this, studentApi)
     }
   }
 

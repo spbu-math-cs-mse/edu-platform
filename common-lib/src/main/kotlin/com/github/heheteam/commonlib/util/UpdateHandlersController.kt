@@ -1,5 +1,7 @@
 package com.github.heheteam.commonlib.util
 
+import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.ChatId
@@ -121,4 +123,5 @@ class UpdateHandlersController<ActionT, UserInputT, Err> {
   }
 }
 
-// typealias UpdateHandlersController
+typealias UpdateHandlerManager<In> =
+  UpdateHandlersController<SuspendableBotAction, In, FrontendError>

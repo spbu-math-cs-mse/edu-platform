@@ -31,7 +31,7 @@ class InformationState<Service, UserId>(
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State?, FrontendError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State?, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessageContent = contentGenerator().bind()
     val keyboardData = createKeyboard(service).bind()

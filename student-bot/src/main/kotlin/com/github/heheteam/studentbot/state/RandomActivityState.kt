@@ -7,7 +7,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Keyboards
@@ -29,7 +29,7 @@ data class RandomActivityState(override val context: User, override val userId: 
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<Unit>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val selectCourseMessage =
       bot.sendMessage(context.id, "Что-то бесплатное", replyMarkup = Keyboards.back())
@@ -52,6 +52,7 @@ data class RandomActivityState(override val context: User, override val userId: 
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
+    input: Unit,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

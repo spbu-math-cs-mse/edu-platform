@@ -34,7 +34,7 @@ abstract class NavigationBotStateWithHandlersAndUserId<Service, UserId> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State?, FrontendError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State?, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val keyboardData = createKeyboard(service).bind()
     val introMessage =
@@ -57,6 +57,7 @@ abstract class NavigationBotStateWithHandlersAndUserId<Service, UserId> :
     bot: BehaviourContext,
     service: Service,
     response: Unit,
+    input: State?,
   ): Result<Unit, FrontendError> = Ok(Unit)
 
   override suspend fun outro(bot: BehaviourContext, service: Service) {

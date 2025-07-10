@@ -11,7 +11,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
@@ -45,7 +45,7 @@ class QueryProblemForSubmissionSendingState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Problem?, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<Problem?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val problems = service.getActiveProblems(userId, selectedCourseId).bind()
     val message =
@@ -86,6 +86,7 @@ class QueryProblemForSubmissionSendingState(
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
+    input: Problem?,
   ): Result<Unit, FrontendError> =
     runCatching {
         for (message in sentMessage) {

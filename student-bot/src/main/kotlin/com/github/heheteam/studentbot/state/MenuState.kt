@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -40,7 +41,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     service.updateTgId(userId, context.id)
     val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
@@ -86,6 +87,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
+    input: State,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

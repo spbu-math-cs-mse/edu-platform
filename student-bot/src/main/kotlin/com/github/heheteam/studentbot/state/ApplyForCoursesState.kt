@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -29,7 +30,7 @@ data class ApplyForCoursesState(override val context: User, override val userId:
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, FrontendError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, Unit, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val studentCourses = service.getStudentCourses(userId).bind().toSet()
     val allCourses = service.getAllCourses().bind().map { it to studentCourses.contains(it) }
@@ -58,6 +59,7 @@ data class ApplyForCoursesState(override val context: User, override val userId:
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
+    input: Unit,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

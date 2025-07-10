@@ -31,7 +31,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, In, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<In>,
   ): Result<Unit, FrontendError>
 
   suspend fun computeNewState(
@@ -46,6 +46,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
     bot: BehaviourContext,
     service: ApiService,
     response: Out,
+    input: In,
   ): Result<Unit, FrontendError>
 
   @Suppress("NestedBlockDepth") // still readable, so no problem
@@ -54,12 +55,15 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
     service: ApiService,
     initUpdateHandlers:
       (
-        UpdateHandlersController<() -> Unit, In, FrontendError>, context: User, userId: UserId,
+        UpdateHandlersController<SuspendableBotAction, In, FrontendError>,
+        context: User,
+        userId: UserId,
       ) -> Unit =
       { _, _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlersController<() -> Unit, In, FrontendError>()
+    val updateHandlersController =
+      UpdateHandlersController<SuspendableBotAction, In, FrontendError>()
     initUpdateHandlers(updateHandlersController, context, userId)
     val introResult = intro(bot, service, updateHandlersController)
     val introError = introResult.getError()
@@ -69,7 +73,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
     }
     while (true) {
       when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
-        is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()
+        is ActionWrapper<SuspendableBotAction> -> handlerResult.action.invoke(bot)
         is HandlingError<FrontendError> -> {
           if (!handlerResult.error.shouldBeIgnored)
             bot.send(context, handlerResult.error.toMessageText())
@@ -83,7 +87,7 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
         is UserInput<In> -> {
           val state = coroutineBinding {
             val (state, response) = computeNewState(service, handlerResult.input).bind()
-            sendResponse(bot, service, response).bind()
+            sendResponse(bot, service, response, handlerResult.input).bind()
             outro(bot, service)
             state
           }
@@ -113,7 +117,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
       context: User,
       studentId: StudentId,
     ) -> Unit =
@@ -130,7 +134,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
       context: User,
       parentId: ParentId,
     ) -> Unit =
@@ -150,7 +154,7 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
       context: User,
       teacherId: TeacherId,
     ) -> Unit =
@@ -168,7 +172,9 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>, context: User, userId: UserId,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
+      context: User,
+      userId: UserId,
     ) -> Unit =
     { _, _, _ ->
     },

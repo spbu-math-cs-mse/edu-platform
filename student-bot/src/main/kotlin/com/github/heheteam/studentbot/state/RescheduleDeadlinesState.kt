@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.NewState
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Keyboards
@@ -30,7 +30,7 @@ data class RescheduleDeadlinesState(override val context: User, override val use
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Unit, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<Unit>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot
       .send(
@@ -66,8 +66,12 @@ data class RescheduleDeadlinesState(override val context: User, override val use
 
   override fun defaultState(): State = MenuState(context, userId)
 
-  override suspend fun sendResponse(bot: BehaviourContext, service: StudentApi, response: Unit) =
-    Unit.ok()
+  override suspend fun sendResponse(
+    bot: BehaviourContext,
+    service: StudentApi,
+    response: Unit,
+    input: Unit,
+  ) = Unit.ok()
 
   override suspend fun computeNewState(
     service: StudentApi,

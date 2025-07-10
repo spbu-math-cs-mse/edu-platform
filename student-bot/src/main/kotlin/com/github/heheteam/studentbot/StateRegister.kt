@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
@@ -94,7 +95,7 @@ internal class StateRegister(
   }
 
   private fun initializeHandlers(
-    handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+    handlersController: UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
     context: User,
     studentId: StudentId,
   ) {
@@ -116,7 +117,7 @@ internal class StateRegister(
     text: String,
     studentId: StudentId,
     context: User,
-  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, FrontendError> =
+  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, Nothing, FrontendError> =
     if (text.startsWith("/start")) {
       val parts = text.split(" ")
       if (parts.size != 2) {

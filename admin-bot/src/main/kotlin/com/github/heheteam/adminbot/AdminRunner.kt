@@ -39,6 +39,7 @@ import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
+import com.github.michaelbull.result.get
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
@@ -50,9 +51,14 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
+import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.content.TextMessage
+import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.RiskFeature
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.code
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
@@ -93,6 +99,8 @@ class AdminRunner(private val adminApi: AdminApi) {
           val user = it.from
           if (user != null) startChain(StartState(user))
         }
+        command("bind") { tryBindingChatToErrorService(it) }
+
         startStateOnUnhandledUpdate { user ->
           if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
         }
@@ -103,6 +111,26 @@ class AdminRunner(private val adminApi: AdminApi) {
       }
       .second
       .join()
+  }
+
+  @OptIn(RiskFeature::class)
+  private suspend fun DefaultBehaviourContextWithFSM<State>.tryBindingChatToErrorService(
+    message: TextMessage
+  ) {
+    val chat = message.chat.groupChatOrNull()
+    if (chat != null) {
+      val user = message.from
+      if (user != null && adminApi.tgIdIsInWhitelist(user.id).get() ?: false) {
+        adminApi.bindErrorChat(chat.id.toChatId().chatId)
+        bot.send(chat, "bound successfully")
+      } else {
+        val text = buildEntities {
+          +"No authorized; your id: "
+          code(user?.id.toString())
+        }
+        bot.send(chat, text)
+      }
+    }
   }
 
   private fun DefaultBehaviourContextWithFSM<State>.registerAllStates() {

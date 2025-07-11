@@ -1,8 +1,8 @@
 package com.github.heheteam.commonlib.logic.ui
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -28,12 +28,12 @@ internal constructor(
       technicalMessageStorage.resolveTeacherFirstUncheckedSubmissionMessage(teacherId).bind()
     val menuMessage =
       if (messageId != null) {
-          teacherBotTelegramController.sendMenuMessage(
+          teacherBotTelegramController.sendPersonalMenuMessage(
             chatId,
             TelegramMessageInfo(chatId, messageId),
           )
         } else {
-          teacherBotTelegramController.sendMenuMessage(chatId, null)
+          teacherBotTelegramController.sendPersonalMenuMessage(chatId, null)
         }
         .bind()
     technicalMessageStorage.updateTeacherMenuMessage(
@@ -42,22 +42,29 @@ internal constructor(
   }
 
   override suspend fun updateMenuMessageInGroupChat(
-    courseId: CourseId
+    course: Course
   ): Result<Unit, EduPlatformError> =
     withContext(Dispatchers.IO) {
       coroutineBinding {
-        val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(courseId).bind()
+        val menuMessages = technicalMessageStorage.resolveGroupMenuMessage(course.id).bind()
         deleteMenuMessages(menuMessages)
         val (chatId, messageId) =
-          technicalMessageStorage.resolveGroupFirstUncheckedSubmissionMessage(courseId).bind()
+          technicalMessageStorage.resolveGroupFirstUncheckedSubmissionMessage(course.id).bind()
         val menuMessage =
           if (messageId != null) {
-              teacherBotTelegramController.sendMenuMessage(
+              teacherBotTelegramController.sendGroupMenuMessage(
+                course.id,
+                course.name,
                 chatId,
                 TelegramMessageInfo(chatId, messageId),
               )
             } else {
-              teacherBotTelegramController.sendMenuMessage(chatId, null)
+              teacherBotTelegramController.sendGroupMenuMessage(
+                course.id,
+                course.name,
+                chatId,
+                null,
+              )
             }
             .bind()
         technicalMessageStorage.updateTeacherMenuMessage(

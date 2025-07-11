@@ -168,6 +168,7 @@ class ApiFabric(
         submissionDistributor,
         teacherBotTelegramController,
         tgTechnicalMessagesStorage,
+        courseStorage,
       )
     val teacherResolver: ResponsibleTeacherResolver =
       when (teacherResolverKind) {

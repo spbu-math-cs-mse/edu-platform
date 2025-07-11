@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
@@ -24,6 +25,7 @@ internal class UiControllerTelegramSender(
   private val submissionDistributor: SubmissionDistributor,
   private val teacherBotTelegramController: TeacherBotTelegramController,
   private val telegramTechnicalMessageStorage: TelegramTechnicalMessagesStorage,
+  private val courseStorage: CourseStorage,
 ) : UiController {
   override suspend fun updateUiOnSubmissionAssessment(
     submissionId: SubmissionId,
@@ -56,7 +58,7 @@ internal class UiControllerTelegramSender(
           .bind()
       val menuMessage =
         teacherBotTelegramController
-          .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
+          .sendPersonalMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
           .bind()
 
       telegramTechnicalMessageStorage.updateTeacherMenuMessage(
@@ -72,9 +74,15 @@ internal class UiControllerTelegramSender(
 
       val (chatId, messageId) =
         telegramTechnicalMessageStorage.resolveGroupFirstUncheckedSubmissionMessage(courseId).bind()
+      val course = courseStorage.resolveCourse(courseId).bind()
       val menuMessage =
         teacherBotTelegramController
-          .sendMenuMessage(chatId, messageId?.let { TelegramMessageInfo(chatId, it) })
+          .sendGroupMenuMessage(
+            courseId,
+            course.name,
+            chatId,
+            messageId?.let { TelegramMessageInfo(chatId, it) },
+          )
           .bind()
       telegramTechnicalMessageStorage.updateTeacherMenuMessage(
         TelegramMessageInfo(menuMessage.chatId, menuMessage.messageId)

@@ -19,6 +19,7 @@ object Keyboards {
   const val COURSES_CATALOG = "coursesCatalog"
   const val PET_THE_DACHSHUND = "petTheeDachshund"
   const val FREE_ACTIVITY = "freeActivity"
+  const val WHO_AM_I = "whoami"
 
   fun menu(isNewUser: Boolean) =
     InlineKeyboardMarkup(
@@ -33,6 +34,7 @@ object Keyboards {
           row { dataButton("Каталог курсов", COURSES_CATALOG) }
           row { dataButton("Почесать Таксе пузо", PET_THE_DACHSHUND) }
           row { dataButton("Бесплатная активность", FREE_ACTIVITY) }
+          row { dataButton("Узнать ID", WHO_AM_I) }
         }
     )
 

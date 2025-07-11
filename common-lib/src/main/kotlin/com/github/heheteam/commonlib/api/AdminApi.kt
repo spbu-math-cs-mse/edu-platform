@@ -231,6 +231,6 @@ internal constructor(
   fun regenerateTokenForCourse(courseId: CourseId): String = tokenStorage.regenerateToken(courseId)
 
   fun bindErrorChat(id: RawChatId) {
-    errorManagementService.boundChat = id
+    errorManagementService.boundChat(id)
   }
 }

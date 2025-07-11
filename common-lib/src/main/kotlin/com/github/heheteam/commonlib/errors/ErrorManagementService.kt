@@ -21,7 +21,11 @@ class ErrorManagementService(val adminBotController: AdminBotTelegramController)
     fun newErrorNumber(): Long = currentErrorNumber++
   }
 
-  var boundChat: RawChatId? = null
+  fun boundChat(chatId: RawChatId) {
+    boundChat = chatId
+  }
+
+  private var boundChat: RawChatId? = null
 
   private fun EduPlatformError.toNumberedError(): NumberedError {
     val errorNumber = newErrorNumber()

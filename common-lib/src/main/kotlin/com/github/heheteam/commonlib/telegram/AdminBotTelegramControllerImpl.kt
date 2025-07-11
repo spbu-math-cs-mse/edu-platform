@@ -47,7 +47,7 @@ class AdminBotTelegramControllerImpl(val adminBot: TelegramBot) : AdminBotTelegr
   override suspend fun sendErrorInfo(chatId: RawChatId, error: NumberedError) {
     val errorText = error.error.toStackedString()
     val errorMessage = buildEntities {
-      boldln("Ошибка №:${error.number}")
+      boldln("Ошибка №${error.number}")
       regularln(errorText)
     }
     adminBot.send(chatId.toChatId(), errorMessage)

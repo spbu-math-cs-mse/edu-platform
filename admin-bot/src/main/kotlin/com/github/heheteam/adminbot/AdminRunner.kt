@@ -55,7 +55,6 @@ import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.content.TextMessage
-import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.code
@@ -117,19 +116,18 @@ class AdminRunner(private val adminApi: AdminApi) {
   private suspend fun DefaultBehaviourContextWithFSM<State>.tryBindingChatToErrorService(
     message: TextMessage
   ) {
-    val chat = message.chat.groupChatOrNull()
-    if (chat != null) {
-      val user = message.from
-      if (user != null && adminApi.tgIdIsInWhitelist(user.id).get() ?: false) {
-        adminApi.bindErrorChat(chat.id.toChatId().chatId)
-        bot.send(chat, "bound successfully")
-      } else {
-        val text = buildEntities {
-          +"No authorized; your id: "
-          code(user?.id.toString())
-        }
-        bot.send(chat, text)
+    val chat = message.chat.groupChatOrNull() ?: return
+    val user = message.from
+    if (user != null && adminApi.tgIdIsInWhitelist(user.id).get() ?: false) {
+      adminApi.bindErrorChat(chat.id.chatId)
+      bot.send(chat, "This chat has been successfully bound!")
+    } else {
+      val text = buildEntities {
+        +"Your Telegram ID ("
+        code(user?.id.toString())
+        +") is not in the whitelist."
       }
+      bot.send(chat, text)
     }
   }
 

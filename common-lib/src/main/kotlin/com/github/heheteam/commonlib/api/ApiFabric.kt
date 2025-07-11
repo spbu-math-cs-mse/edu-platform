@@ -214,7 +214,7 @@ class ApiFabric(
         botEventBus,
       )
 
-    val errorManagementService = ErrorManagementService()
+    val errorManagementService = ErrorManagementService(adminBotTelegramController)
 
     val studentApi =
       StudentApi(

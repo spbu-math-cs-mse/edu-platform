@@ -18,6 +18,7 @@ import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
+import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import io.mockk.mockk
 import kotlin.test.AfterTest
@@ -36,6 +37,7 @@ class AdminBotTest {
     )
   private val core: AdminApi
   private val studentBotController = mockk<StudentBotTelegramController>(relaxed = true)
+  private val adminBotController = mockk<AdminBotTelegramController>(relaxed = true)
 
   init {
     val problemStorage = DatabaseProblemStorage(database)
@@ -57,7 +59,7 @@ class AdminBotTest {
         DatabaseSubmissionDistributor(database),
         mockk<PersonalDeadlinesService>(relaxed = true),
         mockk<CourseTokenService>(relaxed = true),
-        ErrorManagementService(),
+        ErrorManagementService(adminBotController),
         mockk<CourseService>(relaxed = true),
       )
   }

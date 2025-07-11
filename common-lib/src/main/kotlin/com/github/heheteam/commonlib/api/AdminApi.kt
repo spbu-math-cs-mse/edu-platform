@@ -32,6 +32,7 @@ import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
+import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.UserId
 import java.time.LocalDateTime
 
@@ -228,4 +229,8 @@ internal constructor(
   fun getTokenForCourse(courseId: CourseId): String? = tokenStorage.getTokenForCourse(courseId)
 
   fun regenerateTokenForCourse(courseId: CourseId): String = tokenStorage.regenerateToken(courseId)
+
+  fun bindErrorChat(id: RawChatId) {
+    errorManagementService.boundChat(id)
+  }
 }

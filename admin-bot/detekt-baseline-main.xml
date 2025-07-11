@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ForbiddenComment:EditDescriptionState.kt$EditDescriptionState$// course.name = answer TODO: implement this feature</ID>
     <ID>MagicNumber:CreateAssignmentState.kt$3</ID>
     <ID>MagicNumber:DateTime.kt$3</ID>
     <ID>MagicNumber:DateTime.kt$4</ID>

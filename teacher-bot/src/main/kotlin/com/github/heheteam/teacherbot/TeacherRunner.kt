@@ -9,6 +9,7 @@ import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.StartState
+import com.github.heheteam.teacherbot.states.WhoAmIState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
@@ -75,6 +76,7 @@ class StateRegister(private val teacherApi: TeacherApi) {
       registerStateForBotState<StartState, TeacherApi>(teacherApi)
       registerStateForBotState<StartState, TeacherApi>(teacherApi)
       registerStateForBotState<AskFirstNameState, TeacherApi>(teacherApi)
+      registerStateForBotState<WhoAmIState, TeacherApi>(teacherApi)
       registerState<AskLastNameState, TeacherApi>(teacherApi)
       strictlyOn<MenuState> { state ->
         state.teacherBotToken = botToken

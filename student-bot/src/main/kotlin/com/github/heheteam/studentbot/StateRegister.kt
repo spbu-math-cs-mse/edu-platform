@@ -53,7 +53,7 @@ internal class StateRegister(
       registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::initializeHandlers)
-      registerStateWithStudentId<WhoAmIState, StudentApi>(studentApi, ::initializeHandlers)
+      registerStateForBotState<WhoAmIState, StudentApi>(studentApi)
       registerStateWithStudentId<ConfirmSubmissionState, StudentApi>(
         studentApi,
         ::initializeHandlers,

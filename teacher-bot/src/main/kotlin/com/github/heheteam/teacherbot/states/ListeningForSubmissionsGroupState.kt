@@ -5,11 +5,9 @@ import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
-import com.github.heheteam.commonlib.util.WHO_AM_I
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
-import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
@@ -17,7 +15,6 @@ import com.github.michaelbull.result.toResultOr
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.info
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
@@ -63,7 +60,6 @@ class ListeningForSubmissionsGroupState(override val context: Chat, val courseId
               } else
                 when (dataCallback.data) {
                   "no" -> with(bot) { dataCallback.message?.let { delete(it) } }
-                  WHO_AM_I -> bot.send(context, Dialogues.sendCourseId(courseId))
                   else -> tryProcessGradingByButtonPress(dataCallback, teacherApi)
                 }
             },

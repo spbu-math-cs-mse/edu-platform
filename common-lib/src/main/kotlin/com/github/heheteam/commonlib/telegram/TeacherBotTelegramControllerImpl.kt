@@ -7,7 +7,6 @@ import com.github.heheteam.commonlib.errors.TelegramError
 import com.github.heheteam.commonlib.errors.asNamedError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.GradingEntry
-import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.logic.ui.createSubmissionGradingKeyboard
 import com.github.heheteam.commonlib.toTelegramMessageInfo
 import com.github.heheteam.commonlib.util.WHO_AM_I
@@ -28,7 +27,11 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
+import dev.inmo.tgbotapi.types.message.textsources.TextSource
+import dev.inmo.tgbotapi.types.message.textsources.regularln
 import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.code
 import dev.inmo.tgbotapi.utils.row
 
 class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
@@ -108,43 +111,48 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   suspend fun sendMenuMessage(
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
-    replyMarkup: InlineKeyboardMarkup,
+    replyMarkup: InlineKeyboardMarkup? = null,
+    additionalText: List<TextSource> = listOf(),
   ): Result<TelegramMessageInfo, EduPlatformError> =
     runCatching {
+        val menuText: List<TextSource> =
+          listOf<TextSource>(regularln("\u2705 Главное меню")) + additionalText
         if (replyTo != null) {
             teacherBot.reply(
               replyTo.chatId.toChatId(),
               replyTo.messageId,
-              "\u2705 Главное меню",
+              menuText,
               replyMarkup = replyMarkup,
             )
           } else {
-            teacherBot.sendMessage(
-              chatId.toChatId(),
-              "\u2705 Главное меню",
-              replyMarkup = replyMarkup,
-            )
+            teacherBot.sendMessage(chatId.toChatId(), menuText, replyMarkup = replyMarkup)
           }
           .toTelegramMessageInfo()
       }
       .mapError { "".asNamedError(TeacherBotTelegramControllerImpl::class) }
 
   override suspend fun sendPersonalMenuMessage(
-    teacherId: TeacherId,
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, EduPlatformError> =
-    sendMenuMessage(chatId, replyTo, personalChatMenu)
+    sendMenuMessage(chatId, replyTo, replyMarkup = personalChatMenu)
 
   override suspend fun sendGroupMenuMessage(
     courseId: CourseId,
+    courseName: String,
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
-  ): Result<TelegramMessageInfo, EduPlatformError> = sendMenuMessage(chatId, replyTo, groupChatMenu)
+  ): Result<TelegramMessageInfo, EduPlatformError> =
+    sendMenuMessage(chatId, replyTo, additionalText = groupChatMenuText(courseId, courseName))
 
   private val personalChatMenu = inlineKeyboard { row { dataButton("Узнать ID", WHO_AM_I) } }
 
-  private val groupChatMenu = inlineKeyboard { row { dataButton("Узнать ID курса", WHO_AM_I) } }
+  private fun groupChatMenuText(courseId: CourseId, courseName: String): List<TextSource> =
+    buildEntities {
+      +"Курс: \"${courseName}\"\n"
+      +"ID: "
+      code(courseId.long.toString())
+    }
 
   override suspend fun deleteMessage(
     telegramMessageInfo: TelegramMessageInfo

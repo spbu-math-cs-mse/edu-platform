@@ -38,12 +38,11 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
 
   private fun mockSendPersonalMenuMessage(
     returnValue: Result<TelegramMessageInfo, EduPlatformError>
-  ) =
-    coEvery { teacherBotController.sendPersonalMenuMessage(any(), any(), any()) } returns
-      returnValue
+  ) = coEvery { teacherBotController.sendPersonalMenuMessage(any(), any()) } returns returnValue
 
   private fun mockSendGroupMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
-    coEvery { teacherBotController.sendGroupMenuMessage(any(), any(), any()) } returns returnValue
+    coEvery { teacherBotController.sendGroupMenuMessage(any(), any(), any(), any()) } returns
+      returnValue
 
   @Test
   fun `telegram notifications are sent on new submission`() = runTest {

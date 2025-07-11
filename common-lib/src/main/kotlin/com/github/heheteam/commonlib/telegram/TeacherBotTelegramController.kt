@@ -4,7 +4,6 @@ import com.github.heheteam.commonlib.TelegramMessageInfo
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
 
@@ -35,13 +34,13 @@ interface TeacherBotTelegramController {
   ): Result<Unit, EduPlatformError>
 
   suspend fun sendPersonalMenuMessage(
-    teacherId: TeacherId,
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, EduPlatformError>
 
   suspend fun sendGroupMenuMessage(
     courseId: CourseId,
+    courseName: String,
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, EduPlatformError>

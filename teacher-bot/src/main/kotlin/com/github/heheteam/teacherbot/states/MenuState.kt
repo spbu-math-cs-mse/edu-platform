@@ -134,8 +134,8 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
 
   private fun tryHandleWhoAmIButtonPress(
     dataCallback: DataCallbackQuery
-  ): Result<ActionWrapper<TeacherAction>, Nothing>? =
-    if (dataCallback.data == WHO_AM_I) ActionWrapper<TeacherAction>(SendTeacherId).ok() else null
+  ): Result<NewState, Nothing>? =
+    if (dataCallback.data == WHO_AM_I) NewState(WhoAmIState(context, teacherId)).ok() else null
 
   private var counter = 0
   private val storedInfo = mutableMapOf<Int, Pair<SubmissionId, SubmissionAssessment>>()
@@ -183,8 +183,6 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
       is DeleteMessage -> with(bot) { action.message?.let { delete(it) } }
 
       is UpdateMenuMessage -> teacherApi.updateTeacherMenuMessage(teacherId)
-
-      is SendTeacherId -> bot.sendMessage(context.id, Dialogues.sendTeacherId(teacherId))
     }
   }
 

@@ -11,7 +11,6 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-@Suppress("LongParameterList")
 abstract class QuizBotStateWithHandlersAndUserId<ApiService, UserId>(
   override val context: User,
   override val userId: UserId,

@@ -15,7 +15,6 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.row
 
-@Suppress("LongParameterList")
 abstract class MultipleChoiceQuestionBotState<ApiService, UserId>(
   override val context: User,
   override val userId: UserId,

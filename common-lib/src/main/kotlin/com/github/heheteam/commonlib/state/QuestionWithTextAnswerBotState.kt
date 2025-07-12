@@ -11,7 +11,6 @@ import com.github.michaelbull.result.mapError
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-@Suppress("LongParameterList")
 abstract class QuestionWithTextAnswerBotState<ApiService, UserId>(
   override val context: User,
   override val userId: UserId,
@@ -23,7 +22,6 @@ abstract class QuestionWithTextAnswerBotState<ApiService, UserId>(
   ): Result<Unit, FrontendError> =
     coroutineBinding {
         bot.sendTextWithMediaAttachments(context.id, question).bind()
-
         updateHandlersController.addTextMessageHandler { message ->
           UserInput(message.content.text)
         }

@@ -7,7 +7,11 @@ import com.github.heheteam.commonlib.NewScheduledMessageInfo
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TelegramMessageContent
+import com.github.heheteam.commonlib.domain.AddStudentStatus
+import com.github.heheteam.commonlib.domain.RemoveStudentStatus
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
@@ -18,7 +22,6 @@ import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
@@ -41,7 +44,6 @@ internal constructor(
   private val scheduledMessagesService: ScheduledMessageService,
   private val courseStorage: CourseStorage,
   private val adminAuthService: AdminAuthService,
-  private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
   private val assignmentStorage: AssignmentStorage,
   private val problemStorage: ProblemStorage,
@@ -49,6 +51,7 @@ internal constructor(
   private val personalDeadlinesService: PersonalDeadlinesService,
   private val tokenStorage: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
+  private val courseService: CourseService,
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,
@@ -71,6 +74,20 @@ internal constructor(
   ): Result<ScheduledMessage, NumberedError> =
     errorManagementService.serviceBinding {
       scheduledMessagesService.resolveScheduledMessage(scheduledMessageId).bind()
+    }
+
+  fun addStudents(
+    courseId: CourseId,
+    students: List<StudentId>,
+  ): Result<List<AddStudentStatus>, NumberedError> =
+    errorManagementService.serviceBinding { courseService.addStudents(courseId, students).bind() }
+
+  fun removeStudents(
+    courseId: CourseId,
+    students: List<StudentId>,
+  ): Result<List<RemoveStudentStatus>, NumberedError> =
+    errorManagementService.serviceBinding {
+      courseService.removeStudents(courseId, students).bind()
     }
 
   fun viewScheduledMessages(
@@ -96,8 +113,6 @@ internal constructor(
     personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
   }
 
-  fun courseExists(courseName: String): Boolean = getCourse(courseName).get() != null
-
   fun getCourse(courseName: String): Result<Course?, NumberedError> =
     errorManagementService.serviceBinding {
       courseStorage.getCourses().bind().find { it.name == courseName }
@@ -108,12 +123,7 @@ internal constructor(
       courseStorage.getCourses().bind().groupBy { it.name }.mapValues { it.value.first() }
     }
 
-  fun studentExists(id: StudentId): Boolean = studentStorage.resolveStudent(id).isOk
-
   fun teacherExists(id: TeacherId): Boolean = teacherStorage.resolveTeacher(id).isOk
-
-  fun studiesIn(id: StudentId, course: Course): Boolean =
-    courseStorage.getStudentCourses(id).get()?.any { it.id == course.id } ?: false
 
   fun teachesIn(id: TeacherId, course: Course): Boolean =
     courseStorage.getTeacherCourses(id).get()?.any { it.id == course.id } ?: false
@@ -159,53 +169,53 @@ internal constructor(
       courseStorage.resolveCourseWithSpreadsheetId(courseId).bind()
     }
 
-  fun getCourseStatistics(courseId: CourseId): CourseStatistics {
-    val students = courseStorage.getStudents(courseId).value
-    val teachers = courseStorage.getTeachers(courseId).value
-    val assignments = assignmentStorage.getAssignmentsForCourse(courseId).value
-
-    var totalProblems = 0
-    var totalMaxScore = 0
-    var totalSubmissions = 0
-    var checkedSubmissions = 0
-    assignments.forEach { assignment ->
-      val problems = problemStorage.getProblemsFromAssignment(assignment.id).value
-      totalProblems += problems.size
-      totalMaxScore += problems.sumOf { it.maxScore }
-      problems.forEach { problem ->
-        val submissions = submissionDistributor.getSubmissionsForProblem(problem.id).value
-        totalSubmissions += submissions.size
-        checkedSubmissions +=
-          submissions.count { submissionId ->
-            submissionDistributor.isSubmissionAssessed(submissionId).value
-          }
+  fun getCourseStatistics(courseId: CourseId): Result<CourseStatistics, FrontendError> =
+    errorManagementService.serviceBinding {
+      val students = courseStorage.getStudents(courseId).bind()
+      val teachers = courseStorage.getTeachers(courseId).bind()
+      val assignments = assignmentStorage.getAssignmentsForCourse(courseId).bind()
+      var totalProblems = 0
+      var totalMaxScore = 0
+      var totalSubmissions = 0
+      var checkedSubmissions = 0
+      assignments.forEach { assignment ->
+        val problems = problemStorage.getProblemsFromAssignment(assignment.id).bind()
+        totalProblems += problems.size
+        totalMaxScore += problems.sumOf { it.maxScore }
+        problems.forEach { problem ->
+          val submissions = submissionDistributor.getSubmissionsForProblem(problem.id).bind()
+          totalSubmissions += submissions.size
+          checkedSubmissions +=
+            submissions.count { submissionId ->
+              submissionDistributor.isSubmissionAssessed(submissionId).bind()
+            }
+        }
       }
+      CourseStatistics(
+        studentsCount = students.size,
+        teachersCount = teachers.size,
+        assignmentsCount = assignments.size,
+        totalProblems = totalProblems,
+        totalMaxScore = totalMaxScore,
+        totalSubmissions = totalSubmissions,
+        checkedSubmissions = checkedSubmissions,
+        uncheckedSubmissions = totalSubmissions - checkedSubmissions,
+        students = students,
+        teachers = teachers,
+        assignments = assignments,
+      )
     }
-
-    return CourseStatistics(
-      studentsCount = students.size,
-      teachersCount = teachers.size,
-      assignmentsCount = assignments.size,
-      totalProblems = totalProblems,
-      totalMaxScore = totalMaxScore,
-      totalSubmissions = totalSubmissions,
-      checkedSubmissions = checkedSubmissions,
-      uncheckedSubmissions = totalSubmissions - checkedSubmissions,
-      students = students,
-      teachers = teachers,
-      assignments = assignments,
-    )
-  }
 
   fun getRatingLink(courseId: CourseId): Result<String, NumberedError> =
     errorManagementService.serviceBinding {
       courseStorage.resolveCourseWithSpreadsheetId(courseId).bind().second.toUrl()
     }
 
-  fun loginByTgId(tgId: UserId): Result<Admin, NumberedError> =
+  fun loginByTgId(tgId: UserId): Result<Admin?, NumberedError> =
     errorManagementService.serviceBinding { adminAuthService.loginByTgId(tgId).bind() }
 
-  fun tgIdIsInWhitelist(tgId: UserId): Boolean = adminAuthService.tgIdIsInWhitelist(tgId)
+  fun tgIdIsInWhitelist(tgId: UserId): Result<Boolean, NumberedError> =
+    errorManagementService.serviceBinding { adminAuthService.tgIdIsInWhitelist(tgId).bind() }
 
   fun addTgIdToWhitelist(tgId: UserId): Result<Unit, NumberedError> =
     errorManagementService.serviceBinding { adminAuthService.addTgIdToWhitelist(tgId).bind() }

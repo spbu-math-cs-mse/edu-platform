@@ -29,7 +29,10 @@ fun Int.toGraded() = Graded(this)
 
 internal interface GradeTable {
   // maps student problem ids to grades
-  fun getStudentPerformance(studentId: StudentId): Result<Map<ProblemId, Grade?>, EduPlatformError>
+  fun getStudentPerformance(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Map<ProblemId, Grade?>, EduPlatformError>
 
   /**
    * Retrieves the grades of a student for the specified assignments.

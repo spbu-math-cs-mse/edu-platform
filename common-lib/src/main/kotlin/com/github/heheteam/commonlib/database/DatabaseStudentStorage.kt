@@ -18,7 +18,6 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.map
-import com.github.michaelbull.result.toResultOr
 import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -61,10 +60,12 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
   override fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> = binding {
     val ids =
       catchingTransaction(database) {
-          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long)
+          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long).map {
+            it[ParentStudents.studentId].value
+          }
         }
         .bind()
-        .map { it[ParentStudents.studentId].value }
+
     catchingTransaction(database) {
         ids.map { studentId ->
           StudentTable.selectAll()
@@ -97,37 +98,30 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       }
       .map { it.value.toStudentId() }
 
-  override fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>> =
-    transaction(database) {
+  override fun resolveStudent(studentId: StudentId): Result<Student?, EduPlatformError> =
+    catchingTransaction(database) {
       val row =
         StudentTable.selectAll().where(StudentTable.id eq studentId.long).singleOrNull()
-          ?: return@transaction Err(ResolveError(studentId))
-      Ok(
-        Student(
-          studentId,
-          row[StudentTable.name],
-          row[StudentTable.surname],
-          row[StudentTable.tgId].toRawChatId(),
-        )
+          ?: return@catchingTransaction null
+      Student(
+        studentId,
+        row[StudentTable.name],
+        row[StudentTable.surname],
+        row[StudentTable.tgId].toRawChatId(),
       )
     }
 
-  override fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>> {
-    return transaction(database) {
-      val maybeRow =
-        StudentTable.selectAll()
-          .where { StudentTable.tgId eq (tgId.chatId.long) }
-          .limit(1)
-          .firstOrNull()
-          .toResultOr { ResolveError(tgId, Student::class.simpleName) }
-      maybeRow.map { row ->
-        Student(
-          row[StudentTable.id].value.toStudentId(),
-          row[StudentTable.name],
-          row[StudentTable.surname],
-          row[StudentTable.tgId].toRawChatId(),
-        )
-      }
+  override fun resolveByTgId(tgId: UserId): Result<Student?, EduPlatformError> {
+    return catchingTransaction(database) {
+      val row =
+        StudentTable.selectAll().where { StudentTable.tgId eq (tgId.chatId.long) }.singleOrNull()
+          ?: return@catchingTransaction null
+      Student(
+        row[StudentTable.id].value.toStudentId(),
+        row[StudentTable.name],
+        row[StudentTable.surname],
+        row[StudentTable.tgId].toRawChatId(),
+      )
     }
   }
 

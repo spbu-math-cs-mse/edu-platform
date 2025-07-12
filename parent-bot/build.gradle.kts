@@ -13,5 +13,6 @@ dependencies {
     implementation(libs.tgbotapi)
     implementation(libs.exposed.spring.boot.starter)
     implementation(libs.kotlin.result)
+    implementation(libs.kotlin.result.coroutines)
     implementation(libs.postgresql)
 }

@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.teacherbot.Dialogues
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
@@ -20,12 +21,14 @@ class StartState(override val context: User) : BotState<TeacherId?, String?, Tea
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: TeacherApi,
-  ): Result<TeacherId?, FrontendError> =
+  ): Result<TeacherId?, FrontendError> = coroutineBinding {
     runCatching {
         bot.sendSticker(context, Dialogues.greetingSticker)
-        service.loginByTgId(context.id).get()?.id
+        service.loginByTgId(context.id).bind()?.id
       }
       .toTelegramError()
+      .bind()
+  }
 
   override suspend fun computeNewState(
     service: TeacherApi,

@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.interfaces
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.errors.BindError
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.ResolveError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
@@ -21,9 +20,9 @@ interface StudentStorage {
     tgId: Long = 0L,
   ): Result<StudentId, EduPlatformError>
 
-  fun resolveStudent(studentId: StudentId): Result<Student, ResolveError<StudentId>>
+  fun resolveStudent(studentId: StudentId): Result<Student?, EduPlatformError>
 
-  fun resolveByTgId(tgId: UserId): Result<Student, ResolveError<UserId>>
+  fun resolveByTgId(tgId: UserId): Result<Student?, EduPlatformError>
 
-  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, ResolveError<StudentId>>
+  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, EduPlatformError>
 }

@@ -70,18 +70,16 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
       }
     }
 
-  override fun resolveByTgId(tgId: UserId): Result<Teacher, ResolveError<UserId>> =
-    transaction(database) {
+  override fun resolveByTgId(tgId: UserId): Result<Teacher?, EduPlatformError> =
+    catchingTransaction(database) {
       val row =
         TeacherTable.selectAll().where(TeacherTable.tgId eq tgId.chatId.long).singleOrNull()
-          ?: return@transaction Err(ResolveError(tgId))
-      Ok(
-        Teacher(
-          row[TeacherTable.id].value.toTeacherId(),
-          row[TeacherTable.name],
-          row[TeacherTable.surname],
-          RawChatId(row[TeacherTable.tgId]),
-        )
+          ?: return@catchingTransaction null
+      Teacher(
+        row[TeacherTable.id].value.toTeacherId(),
+        row[TeacherTable.name],
+        row[TeacherTable.surname],
+        RawChatId(row[TeacherTable.tgId]),
       )
     }
 

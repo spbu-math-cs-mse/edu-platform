@@ -3,9 +3,11 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
+import com.github.heheteam.commonlib.database.DatabaseParentRepository
 import com.github.heheteam.commonlib.database.DatabasePersonalDeadlineStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesStorage
@@ -21,6 +23,7 @@ import com.github.heheteam.commonlib.decorators.AssignmentStorageDecorator
 import com.github.heheteam.commonlib.decorators.CourseStorageDecorator
 import com.github.heheteam.commonlib.decorators.GradeTableDecorator
 import com.github.heheteam.commonlib.decorators.SubmissionDistributorDecorator
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsRatingRecorder
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
@@ -43,9 +46,9 @@ import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.StudentNewGradeNotifierImpl
 import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
-import com.github.heheteam.commonlib.mock.MockParentStorage
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
+import com.github.heheteam.commonlib.service.ParentService
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
@@ -78,7 +81,7 @@ class ApiFabric(
     teacherResolverKind: TeacherResolverKind,
     adminIds: List<Long> = listOf(),
   ): ApiCollection {
-    val databaseCourseStorage = DatabaseCourseStorage(database)
+    val databaseCourseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database, problemStorage)
@@ -121,14 +124,20 @@ class ApiFabric(
     val adminAuthService = AdminAuthService(adminStorage)
 
     if (initDatabase) {
-      fillWithSamples(courseStorage, assignmentStorage, studentStorage, teacherStorage, database)
+      fillWithSamples(
+        courseStorage,
+        assignmentStorage,
+        studentStorage,
+        teacherStorage,
+        database,
+        true,
+      )
     } else {
       createTables(database)
     }
 
     adminAuthService.addTgIdsToWhitelist(adminIds.map { it.toChatId() })
 
-    val parentStorage = MockParentStorage()
     val botEventBus: BotEventBus = ObserverBus()
 
     botEventBus.subscribeToMovingDeadlineEvents { chatId, newDeadline ->
@@ -217,13 +226,12 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
       )
-
+    val courseService = CourseService(DatabaseCourseRepository(), studentStorage, database)
     val adminApi =
       AdminApi(
         scheduledMessageService,
         courseStorage,
         adminAuthService,
-        studentStorage,
         teacherStorage,
         assignmentStorage,
         problemStorage,
@@ -231,9 +239,12 @@ class ApiFabric(
         personalDeadlinesService,
         courseTokenService,
         errorManagementService,
+        courseService,
       )
-
-    val parentApi = ParentApi(studentStorage, gradeTable, parentStorage, errorManagementService)
+    val parentRepository = DatabaseParentRepository()
+    val parentService = ParentService(parentRepository, studentStorage, database)
+    val parentApi =
+      ParentApi(gradeTable, errorManagementService, parentService, courseService, problemStorage)
 
     botEventBus.subscribeToNewSubmissionEvent { submission: Submission ->
       newSubmissionTeacherNotifier.notifyNewSubmission(submission)

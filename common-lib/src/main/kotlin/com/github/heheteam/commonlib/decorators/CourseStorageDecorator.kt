@@ -3,10 +3,8 @@ package com.github.heheteam.commonlib.decorators
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
-import com.github.heheteam.commonlib.errors.BindError
-import com.github.heheteam.commonlib.errors.DeleteError
+import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.ResolveError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
@@ -23,14 +21,14 @@ import dev.inmo.tgbotapi.types.RawChatId
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
 internal class CourseStorageDecorator(
-  private val courseStorage: CourseStorage,
+  private val courseStorage: DatabaseCourseStorage,
   private val ratingRecorder: RatingRecorder,
   private val courseTokenService: CourseTokenService,
 ) : CourseStorage {
   override fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ): Result<Unit, BindError<StudentId, CourseId>> =
+  ): Result<Unit, EduPlatformError> =
     courseStorage.addStudentToCourse(studentId, courseId).also {
       ratingRecorder.updateRating(courseId)
     }
@@ -38,13 +36,12 @@ internal class CourseStorageDecorator(
   override fun addTeacherToCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Result<Unit, BindError<TeacherId, CourseId>> =
-    courseStorage.addTeacherToCourse(teacherId, courseId)
+  ): Result<Unit, EduPlatformError> = courseStorage.addTeacherToCourse(teacherId, courseId)
 
   override fun removeStudentFromCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ): Result<Unit, DeleteError<StudentId>> =
+  ): Result<Unit, EduPlatformError> =
     courseStorage.removeStudentFromCourse(studentId, courseId).also {
       ratingRecorder.updateRating(courseId)
     }
@@ -52,8 +49,7 @@ internal class CourseStorageDecorator(
   override fun removeTeacherFromCourse(
     teacherId: TeacherId,
     courseId: CourseId,
-  ): Result<Unit, DeleteError<TeacherId>> =
-    courseStorage.removeTeacherFromCourse(teacherId, courseId)
+  ): Result<Unit, EduPlatformError> = courseStorage.removeTeacherFromCourse(teacherId, courseId)
 
   override fun getCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 
@@ -63,20 +59,20 @@ internal class CourseStorageDecorator(
   override fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, EduPlatformError> =
     courseStorage.getTeacherCourses(teacherId)
 
-  override fun resolveCourse(courseId: CourseId): Result<Course, ResolveError<CourseId>> =
+  override fun resolveCourse(courseId: CourseId): Result<Course, EduPlatformError> =
     courseStorage.resolveCourse(courseId)
 
   override fun resolveCourseWithSpreadsheetId(
     courseId: CourseId
-  ): Result<Pair<Course, SpreadsheetId>, ResolveError<CourseId>> =
+  ): Result<Pair<Course, SpreadsheetId>, EduPlatformError> =
     courseStorage.resolveCourseWithSpreadsheetId(courseId)
 
   override fun setCourseGroup(
     courseId: CourseId,
     rawChatId: RawChatId,
-  ): Result<Unit, ResolveError<CourseId>> = courseStorage.setCourseGroup(courseId, rawChatId)
+  ): Result<Unit, EduPlatformError> = courseStorage.setCourseGroup(courseId, rawChatId)
 
-  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, ResolveError<CourseId>> =
+  override fun resolveCourseGroup(courseId: CourseId): Result<RawChatId?, EduPlatformError> =
     courseStorage.resolveCourseGroup(courseId)
 
   override fun updateCourseSpreadsheetId(

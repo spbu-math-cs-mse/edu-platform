@@ -2,14 +2,14 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.state.BotState
-import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -25,36 +25,41 @@ class StartState(override val context: User) : BotState<Boolean, String?, AdminA
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: AdminApi,
-  ): Result<Boolean, FrontendError> {
-    if (service.tgIdIsInWhitelist(context.id)) {
-      bot.sendSticker(context, Dialogues.greetingSticker)
-      return true.ok()
-    }
+  ): Result<Boolean, FrontendError> = coroutineBinding {
+    runCatching {
+        if (service.tgIdIsInWhitelist(context.id).bind()) {
+          bot.sendSticker(context, Dialogues.greetingSticker)
+          return@runCatching true
+        }
 
-    bot.send(
-      context,
-      Dialogues.adminIdIsNotInWhitelist(context.id.chatId.long),
-      replyMarkup = AdminKeyboards.tryAgain(),
-    )
-    merge(bot.waitTextMessage(), bot.waitDataCallbackQuery()).first()
-    return false.ok()
+        bot.send(
+          context,
+          Dialogues.adminIdIsNotInWhitelist(context.id.chatId.long),
+          replyMarkup = AdminKeyboards.tryAgain(),
+        )
+        merge(bot.waitTextMessage(), bot.waitDataCallbackQuery()).first()
+        return@runCatching false
+      }
+      .toTelegramError()
+      .mapError { it as FrontendError }
+      .bind()
   }
 
   override suspend fun computeNewState(
     service: AdminApi,
     input: Boolean,
-  ): Result<Pair<State, String?>, FrontendError> =
+  ): Result<Pair<State, String?>, FrontendError> = binding {
     if (!input) {
-        StartState(context) to null
+      StartState(context) to null
+    } else {
+      val adminOrNull = service.loginByTgId(context.id).bind()
+      if (adminOrNull == null) {
+        AskFirstNameState(context)
       } else {
-        service
-          .loginByTgId(context.id)
-          .mapBoth(
-            success = { admin: Admin -> MenuState(context, admin.id) },
-            failure = { AskFirstNameState(context) },
-          ) to Dialogues.greetings
-      }
-      .ok()
+        MenuState(context, adminOrNull.id)
+      } to Dialogues.greetings
+    }
+  }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

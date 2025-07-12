@@ -15,3 +15,7 @@ fun <ErrorT> BindingScope<ErrorT>.raiseError(err: ErrorT): Nothing {
 suspend fun <ErrorT> CoroutineBindingScope<ErrorT>.raiseError(err: ErrorT): Nothing {
   Err(err).bind()
 }
+
+inline fun <V, E> Result<V, E>.ensureSuccess(block: (E) -> Nothing): V {
+  return if (this.isOk) value else block(this.error)
+}

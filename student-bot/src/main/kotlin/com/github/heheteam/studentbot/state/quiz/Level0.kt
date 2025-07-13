@@ -22,7 +22,7 @@ class L0(override val context: User, override val userId: StudentId) : QuestStat
         "Если мы пройдём всё — сможем прикоснуться к ней и стать по-настоящему сильными в математике."
     )
     val buttons = listOf("\uD83D\uDE80 Конечно, Дуся!", "\uD83D\uDD19 Назад\n")
-    send("Ты со мной? \uD83D\uDC3E\n", replyMarkup = horizontalKeyboard(buttons)).also {
+    send("Ты со мной? \uD83D\uDC3E\n", replyMarkup = verticalKeyboard(buttons)).also {
       messagesWithKeyboard.add(it)
     }
     addDataCallbackHandler { callbackQuery ->

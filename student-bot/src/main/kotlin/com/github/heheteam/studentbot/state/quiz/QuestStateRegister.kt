@@ -27,4 +27,30 @@ inline fun DefaultBehaviourContextWithFSM<State>.registerQuest(
   registerStateWithStudentId<L1S3Bellyrub, StudentApi>(studentApi, initUpdateHandlers)
   registerStateWithStudentId<L1S4, StudentApi>(studentApi, initUpdateHandlers)
   registerStateWithStudentId<L1S4Bellyrub, StudentApi>(studentApi, initUpdateHandlers)
+
+  registerStateWithStudentId<L2S0, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L2S1, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L2S1Wrong, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L2S2, StudentApi>(studentApi, initUpdateHandlers)
+
+  registerStateWithStudentId<L3S0, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L3S1, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L3S1Wrong, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L3S2, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L3S3, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L3S3Wrong, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L3S4, StudentApi>(studentApi, initUpdateHandlers)
+
+  registerStateWithStudentId<L4S0, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S1, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S1Wrong, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S2, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S3, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S3Wrong, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S4, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S5, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L4S5Wrong, StudentApi>(studentApi, initUpdateHandlers)
+
+  registerStateWithStudentId<LFS0, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<LFS1, StudentApi>(studentApi, initUpdateHandlers)
 }

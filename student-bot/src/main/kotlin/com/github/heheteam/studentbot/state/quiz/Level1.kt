@@ -21,7 +21,7 @@ class L1S0(override val context: User, override val userId: StudentId) : QuestSt
         send(
             "\uD83D\uDC36 Дуся: \"Вместе мы пройдём сквозь чащу и найдём тайный выход! " +
                     "Но сначала — откроем ворота. Только тот, кто решит задачу, может пройти дальше.\"\n",
-            replyMarkup = horizontalKeyboard(buttons),
+            replyMarkup = verticalKeyboard(buttons),
         )
             .also { messagesWithKeyboard.add(it) }
 
@@ -63,7 +63,7 @@ class L1S1Wrong(override val context: User, override val userId: StudentId) : Qu
         send(
             "\uD83D\uDD12 Ворота задрожали… но остались закрыты. " +
                     "Наверное, ответ был неверный. Деревья недовольно зашумели.\n Попробуем ещё раз? ",
-            replyMarkup = horizontalKeyboard(buttons),
+            replyMarkup = verticalKeyboard(buttons),
         )
             .also { messagesWithKeyboard.add(it) }
         addDataCallbackHandler { callbackQuery ->
@@ -90,33 +90,14 @@ class L1S2(override val context: User, override val userId: StudentId) : QuestSt
             )
         send(
             "\uD83D\uDC36 Дуся: \"Кстати... хочешь почесать мне пузо? Я это очень люблю!\"\n",
-            replyMarkup = horizontalKeyboard(buttons),
+            replyMarkup = verticalKeyboard(buttons),
         )
             .also { messagesWithKeyboard.add(it) }
         addDataCallbackHandler { callbackQuery ->
             when (callbackQuery.data) {
                 buttons[0] -> NewState(L1S3(context, userId))
                 buttons[1] -> NewState(L1S3Bellyrub(context, userId))
-                buttons[1] -> NewState(MenuState(context, userId))
-                else -> Unhandled
-            }
-        }
-    }
-}
-
-class L1S3(override val context: User, override val userId: StudentId) : QuestState() {
-    override suspend fun BotContext.run() {
-        send("\uD83E\uDEA8 Камни выстроились в линию, но один из них исчез…\n" + "2 → 4 → 8 → 16 → ❓")
-        val buttons = listOf("\uD83C\uDFDE Перескочить речку", "\uD83D\uDD19  Назад")
-        send(
-            "\uD83D\uDC36 Дуся: \"Ты справишься! Главное — не оступиться!\"",
-            replyMarkup = horizontalKeyboard(buttons),
-        )
-            .also { messagesWithKeyboard.add(it) }
-        addDataCallbackHandler { callbackQuery ->
-            when (callbackQuery.data) {
-                buttons[0] -> NewState(L1S31(context, userId))
-                buttons[1] -> NewState(MenuState(context, userId))
+                buttons[2] -> NewState(MenuState(context, userId))
                 else -> Unhandled
             }
         }
@@ -133,12 +114,51 @@ class L1S3Bellyrub(override val context: User, override val userId: StudentId) :
         send(
             "Мррр... \uD83D\uDE0C Спасибо! Это было чудесно. " +
                     "Теперь у меня ещё больше сил пройти речку вместе с тобой!",
-            replyMarkup = horizontalKeyboard(buttons)
+            replyMarkup = verticalKeyboard(buttons)
         ).also { messagesWithKeyboard.add(it) }
         addDataCallbackHandler { callbackQuery ->
             when (callbackQuery.data) {
                 buttons[0] -> NewState(L1S31(context, userId))
                 else -> Unhandled
+            }
+        }
+    }
+}
+
+class L1S3(override val context: User, override val userId: StudentId) : QuestState() {
+    override suspend fun BotContext.run() {
+        send("\uD83E\uDEA8 Камни выстроились в линию, но один из них исчез…\n" + "2 → 4 → 8 → 16 → ❓")
+        val buttons = listOf("\uD83C\uDFDE Перескочить речку", "\uD83D\uDD19  Назад")
+        send(
+            "\uD83D\uDC36 Дуся: \"Ты справишься! Главное — не оступиться!\"",
+            replyMarkup = verticalKeyboard(buttons),
+        )
+            .also { messagesWithKeyboard.add(it) }
+        addDataCallbackHandler { callbackQuery ->
+            when (callbackQuery.data) {
+                buttons[0] -> NewState(L1S31(context, userId))
+                buttons[1] -> NewState(MenuState(context, userId))
+                else -> Unhandled
+            }
+        }
+    }
+}
+
+class L1S31(override val context: User, override val userId: StudentId) : QuestState() {
+    override suspend fun BotContext.run() {
+        send("\uD83E\uDEA8 Введи недостающее значение\n" + "2 → 4 → 8 → 16 → ❓")
+        val correctAnswer = 32
+        addTextMessageHandler { message ->
+            when (message.content.text.trim().toIntOrNull()) {
+                null -> {
+                    send("Надо ввести число")
+                    NewState(L1S31(context, userId))
+                }
+
+                correctAnswer -> NewState(L1S4(context, userId))
+                else -> {
+                    NewState(L1S3Wrong(context, userId))
+                }
             }
         }
     }
@@ -151,7 +171,7 @@ class L1S3Wrong(override val context: User, override val userId: StudentId) : Qu
             "*Бульк!* — чуть не оступился! " +
                     "Цепочка чисел была неправильная — надо попробовать ещё раз, чтобы не промокнуть!\n" +
                     "Попробуем ещё раз?",
-            replyMarkup = horizontalKeyboard(buttons),
+            replyMarkup = verticalKeyboard(buttons),
         )
             .also { messagesWithKeyboard.add(it) }
         addDataCallbackHandler { callbackQuery ->
@@ -171,12 +191,12 @@ class L1S4(override val context: User, override val userId: StudentId) : QuestSt
             listOf("\uD83E\uDDE0 Подойти к дубу", "\uD83E\uDD17 Почесать ещё раз", "\uD83D\uDD19  Назад")
         send(
             "\uD83D\uDC36 Дуся: \"А пока ты отдыхаешь, может, почешешь мне пузо? Ну пожааалуйста! \uD83E\uDD7A\"\n",
-            replyMarkup = horizontalKeyboard(buttons),
+            replyMarkup = verticalKeyboard(buttons),
         )
             .also { messagesWithKeyboard.add(it) }
         addDataCallbackHandler { callbackQuery ->
             when (callbackQuery.data) {
-                buttons[0] -> NewState(MenuState(context, userId)) // TODO
+                buttons[0] -> NewState(L2S0(context, userId))
                 buttons[1] -> NewState(L1S4Bellyrub(context, userId))
                 buttons[2] -> NewState(MenuState(context, userId))
                 else -> Unhandled
@@ -190,33 +210,13 @@ class L1S4Bellyrub(override val context: User, override val userId: StudentId) :
         val buttons = listOf("\uD83C\uDFDE Подойти к дубу")
         send(
             "Ах, да! Ты — самый лучший пузочесатель на свете! \uD83D\uDC3E",
-            replyMarkup = horizontalKeyboard(buttons),
+            replyMarkup = verticalKeyboard(buttons),
         )
             .also { messagesWithKeyboard.add(it) }
         addDataCallbackHandler { callbackQuery ->
             when (callbackQuery.data) {
-                buttons[0] -> NewState(L1S31(context, userId))
+                buttons[0] -> NewState(L2S0(context, userId))
                 else -> Unhandled
-            }
-        }
-    }
-}
-
-class L1S31(override val context: User, override val userId: StudentId) : QuestState() {
-    override suspend fun BotContext.run() {
-        send("\uD83E\uDEA8 Введи недостающее значение\n" + "2 → 4 → 8 → 16 → ❓")
-        val correctAnswer = 32
-        addTextMessageHandler { message ->
-            when (message.content.text.trim().toIntOrNull()) {
-                null -> {
-                    send("Надо ввести число")
-                    NewState(L1S1(context, userId))
-                }
-
-                correctAnswer -> NewState(L1S4(context, userId))
-                else -> {
-                    NewState(L1S3Wrong(context, userId))
-                }
             }
         }
     }

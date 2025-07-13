@@ -40,30 +40,35 @@ class BotContext(
 ) {
   suspend fun send(text: String, replyMarkup: KeyboardMarkup? = null): ContentMessage<TextContent> =
     bot.send(context, text, replyMarkup = replyMarkup)
+
   suspend fun send(content: TextWithMediaAttachments, replyMarkup: InlineKeyboardMarkup? = null): ContentMessage<*> =
     bot.sendTextWithMediaAttachments(context.id, content, replyMarkup = replyMarkup).value
 
   fun addDataCallbackHandler(
     arg:
-      suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<
-          () -> Unit,
-          String,
-          FrontendError,
-        >
+    suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<
+        () -> Unit,
+      String,
+      FrontendError,
+      >,
   ) = handlersController.addDataCallbackHandler(arg)
 
   fun addTextMessageHandler(
     arg:
-      suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
-          () -> Unit,
-          String,
-          FrontendError,
-        >
+    suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+        () -> Unit,
+      String,
+      FrontendError,
+      >,
   ) = handlersController.addTextMessageHandler(arg)
 }
 
 fun horizontalKeyboard(buttons: List<String>) = inlineKeyboard {
   row { buttons.map { dataButton(it, it) } }
+}
+
+fun verticalKeyboard(buttons: List<String>) = inlineKeyboard {
+  buttons.map { row { dataButton(it, it) } }
 }
 
 abstract class QuestState : BotStateWithHandlersAndUserId<String, Unit, StudentApi, StudentId> {

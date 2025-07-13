@@ -66,7 +66,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
         MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)
         COURSES_CATALOG -> ApplyForCoursesState(context, userId)
-//        PET_THE_DACHSHUND -> PetTheDachshundState(context, userId) TODO
+        //        PET_THE_DACHSHUND -> PetTheDachshundState(context, userId) TODO
         PET_THE_DACHSHUND -> ZeroQuestion(context, userId)
         FREE_ACTIVITY -> L0(context, userId)
         else -> null

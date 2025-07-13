@@ -72,5 +72,5 @@ fun reset(database: Database) {
 }
 
 fun createTables(database: Database) {
-  transaction(database) { SchemaUtils.create(*allTables) }
+  transaction(database) { SchemaUtils.createMissingTablesAndColumns(*allTables) }
 }

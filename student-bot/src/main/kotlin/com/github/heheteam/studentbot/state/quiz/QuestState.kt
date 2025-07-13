@@ -1,5 +1,7 @@
 package com.github.heheteam.studentbot.state.quiz
 
+import com.github.heheteam.commonlib.AttachmentKind
+import com.github.heheteam.commonlib.LocalMediaAttachment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -61,6 +63,17 @@ class BotContext(
   ): ContentMessage<*> =
     bot.sendTextWithMediaAttachments(context.id, content, replyMarkup = replyMarkup).value
 
+  suspend fun sendImage(
+    path: String,
+    replyMarkup: InlineKeyboardMarkup? = null,
+  ): ContentMessage<*> =
+    send(
+      TextWithMediaAttachments(
+        attachments = listOf(LocalMediaAttachment(AttachmentKind.DOCUMENT, path))
+      ),
+      replyMarkup,
+    )
+
   fun addDataCallbackHandler(
     arg:
       suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<
@@ -82,8 +95,8 @@ class BotContext(
   fun addIntegerReadHandler(
     trueAnswer: Int,
     thisState: QuestState,
-    nextOnTrueAnswerState: QuestState,
-    onWrongAnswerState: QuestState,
+    actionOnCorrectAnswer: (suspend BotContext.() -> QuestState),
+    actionOnWrongAnswer: (suspend BotContext.() -> QuestState),
   ) {
     addTextMessageHandler { message ->
       when (message.content.text.trim().toIntOrNull()) {
@@ -91,24 +104,24 @@ class BotContext(
           send("Надо ввести число")
           NewState(thisState)
         }
-        trueAnswer -> NewState(nextOnTrueAnswerState)
-        else -> {
-          NewState(onWrongAnswerState)
-        }
+
+        trueAnswer -> NewState(actionOnCorrectAnswer.invoke(this))
+
+        else -> NewState(actionOnWrongAnswer.invoke(this))
       }
     }
   }
 
   fun addStringReadHandler(
     trueAnswer: String,
-    nextOnTrueAnswerState: QuestState,
-    onWrongAnswerState: QuestState,
+    actionOnCorrectAnswer: (suspend BotContext.() -> QuestState),
+    actionOnWrongAnswer: (suspend BotContext.() -> QuestState),
   ) {
     addTextMessageHandler { message ->
       when (message.content.text.trim()) {
-        trueAnswer -> NewState(nextOnTrueAnswerState)
+        trueAnswer -> NewState(actionOnCorrectAnswer.invoke(this))
         else -> {
-          NewState(onWrongAnswerState)
+          NewState(actionOnWrongAnswer.invoke(this))
         }
       }
     }

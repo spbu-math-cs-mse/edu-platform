@@ -4,107 +4,33 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
-import com.github.heheteam.commonlib.util.ActionWrapper
-import com.github.heheteam.commonlib.util.HandlingError
-import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
-import com.github.heheteam.commonlib.util.UserInput
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.getError
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
 
-interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> : State {
+interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> :
+  BotStateWithHandlers<In, Out, ApiService> {
   override val context: User
   val userId: UserId
 
-  suspend fun outro(bot: BehaviourContext, service: ApiService)
-
-  /**
-   * This function must print all the necessary information to the user (including the keyboard or
-   * another input query message) and register the callback handler
-   */
-  suspend fun intro(
+  suspend fun handleWithIds(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, In, FrontendError>,
-  ): Result<Unit, FrontendError>
-
-  suspend fun computeNewState(
-    service: ApiService,
-    input: In,
-  ): Result<Pair<State, Out>, FrontendError>
-
-  /** The state to fallback to in case of an error */
-  fun defaultState(): State
-
-  suspend fun sendResponse(
-    bot: BehaviourContext,
-    service: ApiService,
-    response: Out,
-  ): Result<Unit, FrontendError>
-
-  @Suppress("NestedBlockDepth") // still readable, so no problem
-  suspend fun handle(
-    bot: BehaviourContext,
-    service: ApiService,
-    initUpdateHandlers:
-      (
-        UpdateHandlersController<() -> Unit, In, FrontendError>, context: User, userId: UserId,
-      ) -> Unit =
+    initUpdateHandlers: (UpdateHandlerManager<In>, context: User, userId: UserId) -> Unit =
       { _, _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlersController<() -> Unit, In, FrontendError>()
+    val updateHandlersController = UpdateHandlerManager<In>()
     initUpdateHandlers(updateHandlersController, context, userId)
-    val introResult = intro(bot, service, updateHandlersController)
-    val introError = introResult.getError()
-    if (introError != null) {
-      if (!introError.shouldBeIgnored) bot.send(context, introError.toMessageText())
-      return defaultState()
-    }
-    while (true) {
-      when (val handlerResult = updateHandlersController.processNextUpdate(bot, context.id)) {
-        is ActionWrapper<() -> Unit> -> handlerResult.action.invoke()
-        is HandlingError<FrontendError> -> {
-          if (!handlerResult.error.shouldBeIgnored)
-            bot.send(context, handlerResult.error.toMessageText())
-        }
 
-        is NewState -> {
-          outro(bot, service)
-          return handlerResult.state
-        }
-
-        is UserInput<In> -> {
-          val state = coroutineBinding {
-            val (state, response) = computeNewState(service, handlerResult.input).bind()
-            sendResponse(bot, service, response).bind()
-            outro(bot, service)
-            state
-          }
-          return if (state.isErr) {
-            if (!state.error.shouldBeIgnored) bot.send(context, state.error.toMessageText())
-            outro(bot, service)
-            defaultState()
-          } else {
-            state.value
-          }
-        }
-      }
-    }
+    return handleWithUpdateManager(bot, service, updateHandlersController)
   }
 }
 
 interface BotStateWithHandlersAndStudentId<In, Out, ApiService> :
   BotStateWithHandlersAndUserId<In, Out, ApiService, StudentId>
-
-interface BotStateWithHandlersAndParentId<In, Out, ApiService> :
-  BotStateWithHandlersAndUserId<In, Out, ApiService, ParentId>
 
 inline fun <
   reified S : BotStateWithHandlersAndUserId<*, *, HelperService, StudentId>,
@@ -113,14 +39,14 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
       context: User,
       studentId: StudentId,
     ) -> Unit =
     { _, _, _ ->
     },
 ) {
-  strictlyOn<S> { state -> state.handle(this, service, initUpdateHandlers) }
+  strictlyOn<S> { state -> state.handleWithIds(this, service, initUpdateHandlers) }
 }
 
 inline fun <
@@ -130,14 +56,14 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
       context: User,
       parentId: ParentId,
     ) -> Unit =
     { _, _, _ ->
     },
 ) {
-  strictlyOn<S> { state -> state.handle(this, service, initUpdateHandlers) }
+  strictlyOn<S> { state -> state.handleWithIds(this, service, initUpdateHandlers) }
 }
 
 interface BotStateWithHandlersAndTeacherId<In, Out, ApiService> :
@@ -150,14 +76,14 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
       context: User,
       teacherId: TeacherId,
     ) -> Unit =
     { _, _, _ ->
     },
 ) {
-  strictlyOn<S> { state -> state.handle(this, service, initUpdateHandlers) }
+  strictlyOn<S> { state -> state.handleWithIds(this, service, initUpdateHandlers) }
 }
 
 inline fun <
@@ -168,10 +94,12 @@ inline fun <
   service: HelperService,
   noinline initUpdateHandlers:
     (
-      UpdateHandlersController<() -> Unit, out Any?, FrontendError>, context: User, userId: UserId,
+      UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>,
+      context: User,
+      userId: UserId,
     ) -> Unit =
     { _, _, _ ->
     },
 ) {
-  strictlyOn<S> { state -> state.handle(this, service, initUpdateHandlers) }
+  strictlyOn<S> { state -> state.handleWithIds(this, service, initUpdateHandlers) }
 }

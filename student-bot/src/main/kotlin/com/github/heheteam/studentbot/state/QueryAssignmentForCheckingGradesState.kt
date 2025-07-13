@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
@@ -46,7 +47,8 @@ data class QueryAssignmentForCheckingGradesState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Assignment?, FrontendError>,
+    updateHandlersController:
+      UpdateHandlersController<SuspendableBotAction, Assignment?, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val assignments = service.getCourseAssignments(courseId).bind()
     val coursesPicker = createAssignmentPicker(assignments)
@@ -77,6 +79,7 @@ data class QueryAssignmentForCheckingGradesState(
     bot: BehaviourContext,
     service: StudentApi,
     response: Pair<Assignment, List<Pair<Problem, ProblemGrade>>>?,
+    input: Assignment?,
   ): Result<Unit, FrontendError> =
     runCatching {
         if (response != null) {

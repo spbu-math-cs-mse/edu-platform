@@ -45,18 +45,22 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
 
   fun defaultState(): State
 
-  @Suppress("NestedBlockDepth")
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
-    initUpdateHandlers:
-      (UpdateHandlersController<SuspendableBotAction, In, FrontendError>, context: User) -> Unit =
-      { _, _ ->
-      },
+    initUpdateHandlers: (UpdateHandlerManager<In>, context: User) -> Unit = { _, _ -> },
   ): State {
-    val updateHandlersController =
-      UpdateHandlersController<SuspendableBotAction, In, FrontendError>()
+    val updateHandlersController = UpdateHandlerManager<In>()
     initUpdateHandlers(updateHandlersController, context)
+    return handleWithUpdateManager(bot, service, updateHandlersController)
+  }
+
+  @Suppress("NestedBlockDepth")
+  suspend fun handleWithUpdateManager(
+    bot: BehaviourContext,
+    service: ApiService,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, In, FrontendError>,
+  ): State {
     val introResult = intro(bot, service, updateHandlersController)
     val introError = introResult.getError()
     if (introError != null) {

@@ -114,7 +114,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
   override fun resolveByTgId(tgId: UserId): Result<Student?, EduPlatformError> {
     return catchingTransaction(database) {
       val row =
-        StudentTable.selectAll().where { StudentTable.tgId eq (tgId.chatId.long) }.singleOrNull()
+        StudentTable.selectAll().where { StudentTable.tgId eq (tgId.chatId.long) }.firstOrNull()
           ?: return@catchingTransaction null
       Student(
         row[StudentTable.id].value.toStudentId(),

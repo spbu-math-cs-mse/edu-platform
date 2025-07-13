@@ -1,7 +1,9 @@
 package com.github.heheteam.commonlib.telegram
 
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.errors.asEduPlatformError
+import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
@@ -12,6 +14,9 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.boldln
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.regularln
 import dev.inmo.tgbotapi.utils.row
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -38,6 +43,15 @@ class AdminBotTelegramControllerImpl(val adminBot: TelegramBot) : AdminBotTelegr
       }
       .mapError { it.asEduPlatformError(AdminBotTelegramControllerImpl::class) }
       .map {}
+
+  override suspend fun sendErrorInfo(chatId: RawChatId, error: NumberedError) {
+    val errorText = error.error.toStackedString()
+    val errorMessage = buildEntities {
+      boldln("Ошибка №${error.number}")
+      regularln(errorText)
+    }
+    adminBot.send(chatId.toChatId(), errorMessage)
+  }
 
   private fun moveDeadlines(studentId: StudentId, newDeadline: LocalDateTime) = inlineKeyboard {
     row {

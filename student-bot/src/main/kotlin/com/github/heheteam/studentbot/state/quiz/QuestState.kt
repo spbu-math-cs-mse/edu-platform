@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndUserId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
+import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
@@ -25,9 +26,11 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.buttons.KeyboardMarkup
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.MarkdownParseMode
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.row
 
@@ -41,26 +44,75 @@ class BotContext(
   suspend fun send(text: String, replyMarkup: KeyboardMarkup? = null): ContentMessage<TextContent> =
     bot.send(context, text, replyMarkup = replyMarkup)
 
-  suspend fun send(content: TextWithMediaAttachments, replyMarkup: InlineKeyboardMarkup? = null): ContentMessage<*> =
+  suspend fun sendMarkdown(
+    text: String,
+    replyMarkup: KeyboardMarkup? = null,
+  ): ContentMessage<TextContent> =
+    bot.send(context, text, replyMarkup = replyMarkup, parseMode = MarkdownParseMode)
+
+  suspend fun send(
+    textContent: TextSourcesList,
+    replyMarkup: KeyboardMarkup? = null,
+  ): ContentMessage<TextContent> = bot.send(context, textContent, replyMarkup = replyMarkup)
+
+  suspend fun send(
+    content: TextWithMediaAttachments,
+    replyMarkup: InlineKeyboardMarkup? = null,
+  ): ContentMessage<*> =
     bot.sendTextWithMediaAttachments(context.id, content, replyMarkup = replyMarkup).value
 
   fun addDataCallbackHandler(
     arg:
-    suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<
-        () -> Unit,
-      String,
-      FrontendError,
-      >,
+      suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<
+          () -> Unit,
+          String,
+          FrontendError,
+        >
   ) = handlersController.addDataCallbackHandler(arg)
 
   fun addTextMessageHandler(
     arg:
-    suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
-        () -> Unit,
-      String,
-      FrontendError,
-      >,
+      suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
+          () -> Unit,
+          String,
+          FrontendError,
+        >
   ) = handlersController.addTextMessageHandler(arg)
+
+  fun addIntegerReadHandler(
+    trueAnswer: Int,
+    thisState: QuestState,
+    nextOnTrueAnswerState: QuestState,
+    onWrongAnswerState: QuestState,
+  ) {
+    addTextMessageHandler { message ->
+      when (message.content.text.trim().toIntOrNull()) {
+        null -> {
+          send("Надо ввести число")
+          NewState(thisState)
+        }
+        trueAnswer -> NewState(nextOnTrueAnswerState)
+        else -> {
+          NewState(onWrongAnswerState)
+        }
+      }
+    }
+  }
+
+  fun addStringReadHandler(
+    trueAnswer: String,
+    nextOnTrueAnswerState: QuestState,
+    onWrongAnswerState: QuestState,
+  ) {
+    addTextMessageHandler { message ->
+      when (message.content.text.trim()) {
+        trueAnswer -> NewState(nextOnTrueAnswerState)
+        else -> {
+          NewState(onWrongAnswerState)
+        }
+      }
+    }
+  }
 }
 
 fun horizontalKeyboard(buttons: List<String>) = inlineKeyboard {

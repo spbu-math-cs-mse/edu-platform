@@ -6,15 +6,17 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.studentbot.state.MenuState
 import dev.inmo.tgbotapi.types.chat.User
 
+const val dogEmoji = "\uD83D\uDC36"
+
 class L0(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
     send(
       "\uD83C\uDF0C Дуся идёт рядом с тобой по лесной тропинке. " +
         "Листья шуршат, деревья склоняются, будто подслушивают."
     )
-    send(
-      "\uD83D\uDC36 Дуся: \"Давным-давно над Матемаландом пролетела волшебная звезда. " +
-        "Она упала сюда… прямо на вершину Мозговой Горы. " +
+    sendMarkdown(
+      "$dogEmoji Дуся: \"Давным-давно над Матемаландом пролетела *волшебная звезда*. " +
+        "Она упала сюда... прямо на вершину *Мозговой Горы*. " +
         "Говорят, в ней — древняя мудрость: она открывает разум и помогает тем, кто ищет знания.\"\n"
     )
     send(

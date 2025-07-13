@@ -1,85 +1,42 @@
 package com.github.heheteam.studentbot.state.quiz
 
 import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.util.NewState
-import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.studentbot.state.MenuState
 import dev.inmo.tgbotapi.types.chat.User
 
 class L2S0(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
     send(
-      "\uD83C\uDF33 \"Я не дерево. Я ЭНТ! И я задам тебе загадку.\""
+      "Вы входите в каменный лабиринт. На стенах — буквы. Твоя задача — пройти правильно и собрать все буквы, чтобы сложить имя врага."
     )
-    val buttons = listOf("\uD83D\uDE80 Я готов!", "\uD83D\uDD19 Назад\n")
     send(
-      "\uD83D\uDC36 Дуся (шёпотом): \"Лучше не спорь… Просто решим задачу и пойдём дальше \uD83D\uDE05\"",
-      replyMarkup = horizontalKeyboard(buttons)
-    ).also { messagesWithKeyboard.add(it) }
-    addDataCallbackHandler { callbackQuery ->
-      when (callbackQuery.data) {
-        buttons[0] -> NewState(L2S1(context, userId))
-        buttons[1] -> NewState(MenuState(context, userId))
-        else -> Unhandled
-      }
-    }
-  }
-}
-
-class L2S1(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
-    send("\uD83C\uDF33 \"У меня 3 корня, 5 ветвей и 12 листьев. Сколько у меня всего частей?\"")
-    val correctAnswer = 20
-    addTextMessageHandler { message ->
-      when (message.content.text.trim().toIntOrNull()) {
-        null -> {
-          send("Надо ввести число")
-          NewState(L2S1(context, userId))
-        }
-        correctAnswer -> NewState(L2S2(context, userId))
-        else -> {
-          NewState(L2S1Wrong(context, userId))
-        }
-      }
-    }
-  }
-}
-
-class L2S1Wrong(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
-    val buttons = listOf("✅ Конечно!", "\uD83D\uDD19 Назад")
-    send(
-      "Попробуй ещё раз, ты почти у цели!\n",
-      replyMarkup = horizontalKeyboard(buttons),
+      "$dogEmoji Дуся: \"Говорят, если собрать их все, ты узнаешь имя моего злейшего врага. А он ещё тот ужас... надеюсь, ты не боишься бантиков.\""
     )
-      .also { messagesWithKeyboard.add(it) }
-    addDataCallbackHandler { callbackQuery ->
-      when (callbackQuery.data) {
-        buttons[0] -> NewState(L2S1(context, userId))
-        buttons[1] -> NewState(MenuState(context, userId))
-        else -> Unhandled
-      }
-    }
+    addStringReadHandler(
+      "Иннокентий",
+      L2Boss(context, userId),
+      DefaultErrorState(context, userId, L2S0(context, userId)),
+    )
   }
 }
 
-class L2S2(override val context: User, override val userId: StudentId) : QuestState() {
+class L2Boss(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
     send(
-      "Энт двигает веткой — и из ствола вырастает тропинка, сверкающая математическими символами."
+      "\uD83D\uDC29 БУМ! Появляется он... \uD83D\uDCA5 ПУДЕЛЬ ИННОКЕНТИЙ! В бантиках. С калькулятором."
     )
-    val buttons = listOf("\uD83D\uDE80 Вперед, в Лабиринт!", "\uD83D\uDD19 Назад\n")
     send(
-      "\uD83D\uDC36 Дуся: \"Путь открыт! Пойдём дальше — в Лабиринт Ключей! Там нас ждёт настоящее испытание\"",
-      replyMarkup = verticalKeyboard(buttons)
-    ).also { messagesWithKeyboard.add(it) }
-    addDataCallbackHandler { callbackQuery ->
-      when (callbackQuery.data) {
-        buttons[0] -> NewState(L3S1(context, userId))
-        buttons[1] -> NewState(MenuState(context, userId))
-        else -> Unhandled
-      }
-    }
+      "\"Ррррафф! Склонитесь пред истинным гением, умнейшем среди псов! Ну что, Дуся... ты снова притащила какого-то двоечника? Ррррафф!”"
+    )
+    send("\uD83D\uDC36 Дуся: \"Хватит болтать! {Имя}, покажи ему, кто тут гений!\"")
+    send(
+      "Дуся и Иннокентий начинают битву складывания чисел! Дуся сложила два числа и получила сумму 32. После этого Иннокентий прибавил к полученной сумме ещё два числа и получил 53. Затем Дуся прибавила ещё три числа и получил в результате 88. Какое наименьшее количество чётных слагаемых могло быть среди всех 7 чисел, которые складывались на битве?"
+    )
+
+    addIntegerReadHandler(
+      1,
+      this@L2Boss,
+      L3S0(context, userId),
+      DefaultErrorState(context, userId, L3S0(context, userId)),
+    )
   }
 }
-

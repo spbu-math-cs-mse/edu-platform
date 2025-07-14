@@ -69,7 +69,7 @@ class BotContext(
   ): ContentMessage<*> =
     send(
       TextWithMediaAttachments(
-        attachments = listOf(LocalMediaAttachment(AttachmentKind.DOCUMENT, path))
+        attachments = listOf(LocalMediaAttachment(AttachmentKind.PHOTO, path))
       ),
       replyMarkup,
     )

@@ -8,9 +8,7 @@ import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
-import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
-import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
@@ -53,21 +51,7 @@ class AskLastNameState(
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
-      val maybeStudentId = service.createStudent(firstName, lastName, context.id.chatId.long)
-      maybeStudentId.mapBoth(
-        success = { studentId ->
-          greetUser(lastName, service, studentId, bot)
-          NewState(MenuState(context, studentId))
-        },
-        failure = { HandlingError(it) },
-      )
-    }
-    updateHandlersController.addDataCallbackHandler { callback ->
-      if (callback.data == Keyboards.RETURN_BACK) {
-        NewState(AskFirstNameState(context, token))
-      } else {
-        Unhandled
-      }
+      NewState(SelectGradeState(context, firstName, lastName))
     }
   }
 

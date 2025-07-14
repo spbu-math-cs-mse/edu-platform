@@ -25,8 +25,10 @@ import com.github.heheteam.studentbot.state.QueryCourseForSubmissionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSubmissionSendingState
 import com.github.heheteam.studentbot.state.RandomActivityState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
+import com.github.heheteam.studentbot.state.SelectGradeState
 import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.quiz.DefaultErrorState
 import com.github.heheteam.studentbot.state.quiz.FirstQuestion
 import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
 import com.github.heheteam.studentbot.state.quiz.registerQuest
@@ -35,6 +37,7 @@ import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
+import dev.inmo.tgbotapi.extensions.behaviour_builder.strictlyOn
 import dev.inmo.tgbotapi.types.chat.User
 
 internal class StateRegister(
@@ -44,6 +47,9 @@ internal class StateRegister(
   @Suppress("LongMethod") // ok, as it only initializes states
   fun registerStates(botToken: String) {
     with(bot) {
+      strictlyOn<SelectGradeState> { it.handle(this, studentApi) }
+      strictlyOn<ConfirmAndGoToQuestState> { it.handle(this, studentApi) }
+      strictlyOn<DefaultErrorState> { it.handle(this, studentApi) }
       registerStateForBotState<StartState, StudentApi>(studentApi)
       registerStateForBotState<AskFirstNameState, StudentApi>(studentApi)
       registerState<AskLastNameState, StudentApi>(studentApi)

@@ -33,6 +33,7 @@ import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.parent.registerParentStates
 import com.github.heheteam.studentbot.state.quiz.DefaultErrorState
 import com.github.heheteam.studentbot.state.quiz.FirstQuestion
 import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
@@ -102,6 +103,7 @@ internal class StateRegister(
       strictlyOn<AskParentFirstNameState> { it.handle(this, parentApi) }
       strictlyOn<AskParentLastNameState> { it.handle(this, parentApi) }
       strictlyOn<SelectParentGradeState> { it.handle(this, parentApi) }
+      registerParentStates(parentApi)
     }
   }
 

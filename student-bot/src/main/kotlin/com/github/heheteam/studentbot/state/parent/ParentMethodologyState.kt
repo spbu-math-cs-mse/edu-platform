@@ -15,14 +15,13 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
-class ParentMenuState(override val context: User, override val userId: ParentId) :
+class ParentMethodologyState(override val context: User, override val userId: ParentId) :
   BotStateWithHandlersAndParentId<State, Unit, ParentApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -33,10 +32,12 @@ class ParentMenuState(override val context: User, override val userId: ParentId)
     service: ParentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val stickerMessage = bot.sendSticker(context.id, ParentDialogues.typingSticker)
     val initialMessage =
-      bot.send(context, text = ParentDialogues.menu, replyMarkup = ParentKeyboards.menu())
-    sentMessages.add(stickerMessage)
+      bot.send(
+        context,
+        text = ParentDialogues.aboutMethodology,
+        replyMarkup = ParentKeyboards.defaultKeyboard(),
+      )
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
   }
@@ -46,8 +47,7 @@ class ParentMenuState(override val context: User, override val userId: ParentId)
   ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
     val state =
       when (callback.data) {
-        ParentKeyboards.ABOUT_COURSE -> ParentAboutCourseState(context, userId)
-        ParentKeyboards.FREE_ACTIVITY -> ParentStartQuestState(context, userId)
+        ParentKeyboards.RETURN_BACK -> ParentAboutCourseState(context, userId)
         else -> null
       }
     return if (state != null) {

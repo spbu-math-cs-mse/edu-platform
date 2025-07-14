@@ -9,10 +9,12 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
+import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -33,14 +35,15 @@ class ParentStartQuestState(override val context: User, override val userId: Par
   ): Result<Unit, FrontendError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
-        ButtonData("\uD83D\uDC49 Начать игру (от лица ребёнка)", "yes") { true },
-        ButtonData("\uD83D\uDD19 Назад", "no") { false },
+        //        ButtonData("\uD83D\uDC49 Начать игру (от лица ребёнка)", "yes") { true },
+        ButtonData("\uD83D\uDD19 Назад", "no") { false }
       )
     confirmMessage =
       bot.sendMessage(
         context,
-        "Если ваш ребёнок рядом — передайте ему телефон, и мы начнём игру!\n" +
-          "Если хотите посмотреть самостоятельно, нажмите кнопку ниже.",
+        "Этот функционал пока доступен только в боте у ученика, но обязательно скоро появится и здесь!",
+        //        "Если ваш ребёнок рядом — передайте ему телефон, и мы начнём игру!\n" +
+        //          "Если хотите посмотреть самостоятельно, нажмите кнопку ниже.",
         replyMarkup = confirmMessageKeyboard.keyboard,
       )
     updateHandlersController.addDataCallbackHandler { value: DataCallbackQuery ->
@@ -62,5 +65,7 @@ class ParentStartQuestState(override val context: User, override val userId: Par
     response: Unit,
   ): Result<Unit, FrontendError> = Unit.ok()
 
-  override suspend fun outro(bot: BehaviourContext, service: ParentApi) = Unit
+  override suspend fun outro(bot: BehaviourContext, service: ParentApi) {
+    runCatching { bot.delete(confirmMessage) }
+  }
 }

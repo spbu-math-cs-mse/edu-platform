@@ -162,7 +162,7 @@ class L1S4Bellyrub(override val context: User, override val userId: StudentId) :
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L2S0(context, userId))
+        buttons[0] -> NewState(L1S5(context, userId))
         else -> Unhandled
       }
     }

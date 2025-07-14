@@ -5,7 +5,7 @@ import dev.inmo.tgbotapi.types.chat.User
 
 class L2S0(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    sendImage("/maze.jpg") // TODO: send correct image
+    sendImage("/maze.png")
     send(
       "Вы входите в каменный лабиринт. На стенах — буквы. " +
         "Твоя задача — пройти правильно и собрать все буквы, чтобы сложить имя врага."

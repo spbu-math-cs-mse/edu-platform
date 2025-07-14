@@ -16,7 +16,7 @@ class L3S0(override val context: User, override val userId: StudentId) : QuestSt
     send(
       "$DOG_EMOJI Дуся: \"Смотри, подарки! Чую, в одном из них должно быть что-то вкусное, давай его вскроем!\""
     )
-    // TODO: send the image of gifts
+    sendImage("/gifts.png")
     val buttons = listOf("А", "Б", "В", "Г")
     send(
         "Вы видите несколько подарков. В одном из подарков, аппетитная косточка, а в остальных грязный носок. " +

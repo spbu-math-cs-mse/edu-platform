@@ -10,7 +10,7 @@ const val DOG_EMOJI = "\uD83D\uDC36"
 
 class L0(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    sendImage("/forest.tiff")
+    sendImage("/forest.png")
     send(
       "\uD83C\uDF0C Дуся идёт рядом с тобой по лесной тропинке. " +
         "Листья шуршат, деревья склоняются, будто подслушивают."

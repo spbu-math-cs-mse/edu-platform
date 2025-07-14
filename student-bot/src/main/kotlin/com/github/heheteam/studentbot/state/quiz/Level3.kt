@@ -37,7 +37,7 @@ class L3S0(override val context: User, override val userId: StudentId) : QuestSt
 
         in buttons -> {
           send("$DOG_EMOJI Дуся: \"Хм… Ты правда думаешь, что ЭТО вкусно пахнет?\"")
-          NewState(DefaultErrorState(context, userId, L3S1(context, userId)))
+          NewState(DefaultErrorState(context, userId, this@L3S0))
         }
 
         else -> Unhandled
@@ -49,7 +49,7 @@ class L3S0(override val context: User, override val userId: StudentId) : QuestSt
 class L3S1(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
     sendMarkdown("*Склон 2*")
-    sendImage("/cats.tiff")
+    sendImage("/cats.png")
     send(
       "По террасе прыгают и мяукают двузначные числа, но не обычные, " +
         "а все такие, что если вычеркнуть из числа одну цифру, то мы получим число, " +
@@ -75,7 +75,7 @@ class L3S1(override val context: User, override val userId: StudentId) : QuestSt
 class L3S2(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
     sendMarkdown("*Склон 3*")
-    sendImage("/deputies.tiff")
+    sendImage("/deputies.png")
     send(
       "На последнем склоне расположена дума, в которой за круглым столом заседают лесные депутаты."
     )

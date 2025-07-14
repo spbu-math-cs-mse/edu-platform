@@ -91,7 +91,7 @@ class L1S2(override val context: User, override val userId: StudentId) : QuestSt
 
 class L1S3Bellyrub(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    sendImage("/bellyrub_1.tiff")
+    sendImage("/bellyrub_1.png")
     val buttons = listOf("\uD83C\uDFDE Перейти к речке")
     send(
         "Мррр... \uD83D\uDE0C Спасибо! Это было чудесно. " +
@@ -153,7 +153,7 @@ class L1S4(override val context: User, override val userId: StudentId) : QuestSt
 
 class L1S4Bellyrub(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    sendImage("/bellyrub_2.tiff")
+    sendImage("/bellyrub_2.png")
     val buttons = listOf("\uD83C\uDFDE Подойти к дубу")
     send(
         "Ах, да! Ты — самый лучший пузочесатель на свете! \uD83D\uDC3E",
@@ -171,7 +171,7 @@ class L1S4Bellyrub(override val context: User, override val userId: StudentId) :
 
 class L1S5(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    sendImage("/ent.tiff")
+    sendImage("/ent.png")
     val treeEmoji = "🌳"
     send(
       "$treeEmoji: \"Я не дерево. Я ЭНТ! Никто не пройдет дальше. Это моя дорога, и она платная\""
@@ -198,7 +198,7 @@ class L1S5(override val context: User, override val userId: StudentId) : QuestSt
       7,
       this@L1S5,
       {
-        sendImage("/leaving_forest.tiff")
+        sendImage("/leaving_forest.png")
         send(
           "$treeEmoji: \"Листья молвят, что ты не ошибся. " +
             "Спасибо тебе за помощь, человеческое дитя! Теперь ты можешь идти дальше…\""

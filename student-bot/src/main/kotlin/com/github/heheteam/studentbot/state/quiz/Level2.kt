@@ -22,7 +22,7 @@ class L2S0(override val context: User, override val userId: StudentId) : QuestSt
           "$DOG_EMOJI Дуся: \"Ах-ах, что за имя такое вышло, кошачье что ли? " +
             "Наверное мы в какой-то момент пошли не туда…\""
         )
-        DefaultErrorState(context, userId, L2S0(context, userId))
+        DefaultErrorState(context, userId, this@L2S0)
       },
     )
   }
@@ -30,7 +30,7 @@ class L2S0(override val context: User, override val userId: StudentId) : QuestSt
 
 class L2Boss(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    sendImage("/innokenty.tiff")
+    sendImage("/innokenty.png")
     send(
       "\uD83D\uDC29 БУМ! Появляется он... \uD83D\uDCA5 ПУДЕЛЬ ИННОКЕНТИЙ! В бантиках. С калькулятором."
     )
@@ -51,17 +51,17 @@ class L2Boss(override val context: User, override val userId: StudentId) : Quest
       1,
       this@L2Boss,
       {
-        sendImage("/loser_innokenty.tiff")
+        sendImage("/loser_innokenty.png")
         send("$DOG_EMOJI Дуся: \"Аф-аф! Враг повержен, знай наших!\"")
         L3S0(context, userId)
       },
       {
         send("\uD83D\uDC29 Иннокентий хохочет: \"Ахаха! Ну давай, попробуй ещё...\"")
-        sendImage("/loser_dusya.tiff")
+        sendImage("/loser_dusya.png")
         send(
-          "$DOG_EMOJI \uD83D\uDC36 Дуся (шепчет): \"Ай-ай, больно! Попробуй ещё, только следи внимательнее!\""
+          "$DOG_EMOJI Дуся (шепчет): \"Ай-ай, больно! Попробуй ещё, только следи внимательнее!\""
         )
-        DefaultErrorState(context, userId, L3S0(context, userId))
+        DefaultErrorState(context, userId, this@L2Boss)
       },
     )
   }

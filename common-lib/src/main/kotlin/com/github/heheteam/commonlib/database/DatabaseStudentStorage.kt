@@ -76,6 +76,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
                 it[StudentTable.name],
                 it[StudentTable.name],
                 it[StudentTable.tgId].toRawChatId(),
+                it[StudentTable.lastQuestState],
               )
             }
             .single()
@@ -108,6 +109,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
         row[StudentTable.name],
         row[StudentTable.surname],
         row[StudentTable.tgId].toRawChatId(),
+        row[StudentTable.lastQuestState],
       )
     }
 
@@ -121,6 +123,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
         row[StudentTable.name],
         row[StudentTable.surname],
         row[StudentTable.tgId].toRawChatId(),
+        row[StudentTable.lastQuestState],
       )
     }
   }
@@ -133,6 +136,23 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       transaction(database) {
         StudentTable.update({ StudentTable.id eq studentId.long }) {
           it[StudentTable.tgId] = newTgId.chatId.long
+        }
+      }
+    return if (rows == 1) {
+      Ok(Unit)
+    } else {
+      Err(ResolveError(studentId))
+    }
+  }
+
+  override fun updateLastQuestState(
+    studentId: StudentId,
+    lastQuestState: String,
+  ): Result<Unit, EduPlatformError> {
+    val rows =
+      transaction(database) {
+        StudentTable.update({ StudentTable.id eq studentId.long }) {
+          it[StudentTable.lastQuestState] = lastQuestState
         }
       }
     return if (rows == 1) {

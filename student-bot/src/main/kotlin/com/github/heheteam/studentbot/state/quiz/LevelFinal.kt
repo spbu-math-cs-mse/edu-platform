@@ -1,9 +1,9 @@
 package com.github.heheteam.studentbot.state.quiz
 
-import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.interfaces.CommonUserId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.studentbot.state.MenuState
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
@@ -12,8 +12,11 @@ import dev.inmo.tgbotapi.utils.row
 
 private const val DABROMAT_URL = "https://dabromat.ru/start"
 
-class L4Final(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendImage("/star.png")
     send("Ты стоишь на вершине. Перед тобой — сияющая звезда.\n")
     send(
@@ -46,8 +49,11 @@ class L4Final(override val context: User, override val userId: StudentId) : Ques
   }
 }
 
-class L4Certificate(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendMarkdown("Поздравляем! Ты получаешь *Сертификат Героя Матемаланда* \uD83C\uDFC6\n")
     val buttons = listOf("\uD83C\uDF93 Узнать о курсе\n", "\uD83D\uDD19 В меню!")
     send(
@@ -61,7 +67,10 @@ class L4Certificate(override val context: User, override val userId: StudentId) 
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[1] -> NewState(MenuState(context, userId))
+        buttons[1] -> {
+          saveState(service)
+          NewState(menuState())
+        }
         else -> Unhandled
       }
     }

@@ -1,10 +1,14 @@
 package com.github.heheteam.studentbot.state.quiz
 
-import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.interfaces.CommonUserId
 import dev.inmo.tgbotapi.types.chat.User
 
-class L2S0(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L2S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendImage("/maze.png")
     send(
       "Вы входите в каменный лабиринт. На стенах — буквы. " +
@@ -28,8 +32,11 @@ class L2S0(override val context: User, override val userId: StudentId) : QuestSt
   }
 }
 
-class L2Boss(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendImage("/innokenty.png")
     send(
       "\uD83D\uDC29 БУМ! Появляется он... \uD83D\uDCA5 ПУДЕЛЬ ИННОКЕНТИЙ! В бантиках. С калькулятором."

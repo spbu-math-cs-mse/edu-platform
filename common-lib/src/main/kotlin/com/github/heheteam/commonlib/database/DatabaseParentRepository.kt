@@ -30,6 +30,7 @@ class DatabaseParentRepository : ParentRepository {
         it[ParentTable.name] = richParent.firstName
         it[ParentTable.surname] = richParent.lastName
         it[ParentTable.tgId] = richParent.tgId.long
+        it[ParentTable.lastQuestState] = richParent.lastQuestState
       }
     } else {
       ParentTable.insert {
@@ -37,6 +38,7 @@ class DatabaseParentRepository : ParentRepository {
         it[ParentTable.name] = richParent.firstName
         it[ParentTable.surname] = richParent.lastName
         it[ParentTable.tgId] = richParent.tgId.long
+        it[ParentTable.lastQuestState] = richParent.lastQuestState
       }
     }
 
@@ -70,6 +72,7 @@ class DatabaseParentRepository : ParentRepository {
             firstName = row[ParentTable.name],
             lastName = row[ParentTable.surname],
             tgId = RawChatId(row[ParentTable.tgId]),
+            lastQuestState = row[ParentTable.lastQuestState],
             children = children,
           )
         )
@@ -94,6 +97,7 @@ class DatabaseParentRepository : ParentRepository {
             firstName = row[ParentTable.name],
             lastName = row[ParentTable.surname],
             tgId = RawChatId(row[ParentTable.tgId]),
+            lastQuestState = row[ParentTable.lastQuestState],
             children = children,
           )
         )

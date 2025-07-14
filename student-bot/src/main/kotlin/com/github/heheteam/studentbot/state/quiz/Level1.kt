@@ -1,13 +1,16 @@
 package com.github.heheteam.studentbot.state.quiz
 
-import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.interfaces.CommonUserId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.studentbot.state.MenuState
 import dev.inmo.tgbotapi.types.chat.User
 
-class L1S0(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     send(
       "\uD83C\uDF32 Ты входишь в Числовой Лес. " +
         "Всё здесь построено из чисел: деревья считают листья, кусты шепчут примеры."
@@ -24,15 +27,21 @@ class L1S0(override val context: User, override val userId: StudentId) : QuestSt
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
         buttons[0] -> NewState(L1S1(context, userId))
-        buttons[1] -> NewState(MenuState(context, userId))
+        buttons[1] -> {
+          saveState(service)
+          NewState(menuState())
+        }
         else -> Unhandled
       }
     }
   }
 }
 
-class L1S1(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     send("$DOG_EMOJI Дуся: \"Осторожно! Только тот, кто решит задачу, может пройти дальше.\"")
     send(
       "На очень длинных воротах кто-то выписал все числа от 1 до 25 в порядке убывания без пробелов, " +
@@ -61,8 +70,11 @@ class L1S1(override val context: User, override val userId: StudentId) : QuestSt
   }
 }
 
-class L1S2(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     send(
       "\uD83C\uDF0A Перед тобой — речка. " +
         "Через неё можно перебраться только по камням, если прыгать по ним в нужном порядке."
@@ -82,15 +94,21 @@ class L1S2(override val context: User, override val userId: StudentId) : QuestSt
       when (callbackQuery.data) {
         buttons[0] -> NewState(L1S3(context, userId))
         buttons[1] -> NewState(L1S3Bellyrub(context, userId))
-        buttons[2] -> NewState(MenuState(context, userId))
+        buttons[2] -> {
+          saveState(service)
+          NewState(menuState())
+        }
         else -> Unhandled
       }
     }
   }
 }
 
-class L1S3Bellyrub(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S3Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendImage("/bellyrub_1.png")
     val buttons = listOf("\uD83C\uDFDE Перейти к речке")
     send(
@@ -108,8 +126,11 @@ class L1S3Bellyrub(override val context: User, override val userId: StudentId) :
   }
 }
 
-class L1S3(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     send(
       "\uD83E\uDEA8 Ты стоишь на берегу и видишь перед собой 101 камешек выложенных в ряд. " +
         "Можно делать либо короткие прыжки через 4 камешка, либо длинные – через 12 " +
@@ -135,8 +156,11 @@ class L1S3(override val context: User, override val userId: StudentId) : QuestSt
 
 const val TREE_EMOJI = "🌳"
 
-class L1S4(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S4<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendImage("/ent.png")
     send(
       "$TREE_EMOJI Энт: \"Я не дерево. Я ЭНТ! Никто не пройдет дальше. Это моя дорога, и она платная\""
@@ -168,8 +192,11 @@ class L1S4(override val context: User, override val userId: StudentId) : QuestSt
   }
 }
 
-class L1S4Wrong(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     val buttons =
       listOf("$TREE_EMOJI Подойти к дубу", "\uD83E\uDD17 Почесать ещё раз", "\uD83D\uDD19  Назад")
     send(
@@ -181,15 +208,21 @@ class L1S4Wrong(override val context: User, override val userId: StudentId) : Qu
       when (callbackQuery.data) {
         buttons[0] -> NewState(L1S4(context, userId))
         buttons[1] -> NewState(L1S4Bellyrub(context, userId))
-        buttons[2] -> NewState(MenuState(context, userId))
+        buttons[2] -> {
+          saveState(service)
+          NewState(menuState())
+        }
         else -> Unhandled
       }
     }
   }
 }
 
-class L1S4Bellyrub(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
+class L1S4Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+  override val context: User,
+  override val userId: UserId,
+) : QuestState<ApiService, UserId>() {
+  override suspend fun BotContext.run(service: ApiService) {
     sendImage("/bellyrub_2.png")
     val buttons = listOf("\uD83C\uDFDE Подойти к дубу")
     send(

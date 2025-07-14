@@ -34,7 +34,6 @@ import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.parent.registerParentStates
-import com.github.heheteam.studentbot.state.quiz.DefaultErrorState
 import com.github.heheteam.studentbot.state.quiz.FirstQuestion
 import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
 import com.github.heheteam.studentbot.state.quiz.registerQuest
@@ -56,7 +55,6 @@ internal class StateRegister(
     with(bot) {
       strictlyOn<SelectStudentGradeState> { it.handle(this, studentApi) }
       strictlyOn<ConfirmAndGoToQuestState> { it.handle(this, studentApi) }
-      strictlyOn<DefaultErrorState> { it.handle(this, studentApi) }
       registerStateForBotState<StartState, StudentApi>(studentApi)
       registerStateForBotState<AskStudentFirstNameState, StudentApi>(studentApi)
       registerState<AskStudentLastNameState, StudentApi>(studentApi)
@@ -99,6 +97,7 @@ internal class StateRegister(
       registerStateWithStudentId<ZeroQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<FirstQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerQuest(studentApi, ::initializeHandlers)
+      registerQuest(parentApi)
       strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }
       strictlyOn<AskParentFirstNameState> { it.handle(this, parentApi) }
       strictlyOn<AskParentLastNameState> { it.handle(this, parentApi) }

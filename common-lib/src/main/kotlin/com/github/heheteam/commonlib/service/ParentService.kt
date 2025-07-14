@@ -37,7 +37,7 @@ class ParentService(
     tgId: RawChatId,
   ): EduPlatformResult<RichParent> = binding {
     transaction {
-      val parent = RichParent(ParentId(0L), firstName, lastName, tgId, mutableListOf())
+      val parent = RichParent(ParentId(0L), firstName, lastName, tgId, null, mutableListOf())
       parentRepository.save(parent).bind()
     }
   }

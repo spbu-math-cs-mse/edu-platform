@@ -40,12 +40,14 @@ data class Student(
   val name: String = "",
   val surname: String = "",
   val tgId: RawChatId,
+  val lastQuestState: String? = null,
 )
 
 data class Parent(
   val id: ParentId,
   val name: String = "",
   val surname: String = "",
+  val lastQuestState: String? = null,
   val children: List<StudentId> = listOf(),
 )
 

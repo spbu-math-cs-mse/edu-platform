@@ -1,38 +1,104 @@
 package com.github.heheteam.studentbot.state.quiz
 
-import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.api.CommonUserApi
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.interfaces.StudentId
-import com.github.heheteam.commonlib.state.registerStateWithStudentId
+import com.github.heheteam.commonlib.interfaces.CommonUserId
+import com.github.heheteam.commonlib.state.registerStateForBotStateWithHandlersAndUserId
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
 
-inline fun DefaultBehaviourContextWithFSM<State>.registerQuest(
-  studentApi: StudentApi,
+inline fun <
+  ApiService : CommonUserApi<UserId>,
+  UserId : CommonUserId,
+> DefaultBehaviourContextWithFSM<State>.registerQuest(
+  studentApi: ApiService,
   noinline initUpdateHandlers:
-    (UpdateHandlersController<() -> Unit, out Any?, FrontendError>, User, StudentId) -> Unit =
+    (UpdateHandlersController<() -> Unit, out Any?, FrontendError>, User, UserId) -> Unit =
     { _, _, _ ->
     },
 ) {
-  registerStateWithStudentId<L0, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S0, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S1, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S2, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S3, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S3Bellyrub, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S4, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S4Bellyrub, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L1S4Wrong, StudentApi>(studentApi, initUpdateHandlers)
 
-  registerStateWithStudentId<L2S0, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L2Boss, StudentApi>(studentApi, initUpdateHandlers)
+  strictlyOn<DefaultErrorState<ApiService, UserId>> { it.handle(this, studentApi) }
 
-  registerStateWithStudentId<L3S0, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L3S1, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L3S2, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateForBotStateWithHandlersAndUserId<L0<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L1S0<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L1S1<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L1S2<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L1S3<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<
+    L1S3Bellyrub<ApiService, UserId>,
+    ApiService,
+    UserId,
+  >(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L1S4<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<
+    L1S4Bellyrub<ApiService, UserId>,
+    ApiService,
+    UserId,
+  >(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L1S4Wrong<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
 
-  registerStateWithStudentId<L4Final, StudentApi>(studentApi, initUpdateHandlers)
-  registerStateWithStudentId<L4Certificate, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateForBotStateWithHandlersAndUserId<L2S0<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L2Boss<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+
+  registerStateForBotStateWithHandlersAndUserId<L3S0<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L3S1<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<L3S2<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+
+  registerStateForBotStateWithHandlersAndUserId<L4Final<ApiService, UserId>, ApiService, UserId>(
+    studentApi,
+    initUpdateHandlers,
+  )
+  registerStateForBotStateWithHandlersAndUserId<
+    L4Certificate<ApiService, UserId>,
+    ApiService,
+    UserId,
+  >(
+    studentApi,
+    initUpdateHandlers,
+  )
 }

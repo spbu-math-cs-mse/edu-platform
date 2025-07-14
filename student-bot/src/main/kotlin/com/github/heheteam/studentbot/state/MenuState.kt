@@ -20,10 +20,11 @@ import com.github.heheteam.studentbot.Keyboards.FREE_ACTIVITY
 import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
 import com.github.heheteam.studentbot.Keyboards.PET_THE_DACHSHUND
 import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
-import com.github.heheteam.studentbot.state.quiz.L0
-import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
+import com.github.heheteam.studentbot.state.quiz.QuestState
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -53,12 +54,10 @@ data class MenuState(override val context: User, override val userId: StudentId)
       bot.send(context, text = Dialogues.menu, replyMarkup = Keyboards.menu(isNewUser))
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
-    updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
+    updateHandlersController.addDataCallbackHandler(processKeyboardButtonPresses(service))
   }
 
-  private fun processKeyboardButtonPresses(
-    callback: DataCallbackQuery
-  ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
+  private fun processKeyboardButtonPresses(service: StudentApi) = { callback: DataCallbackQuery ->
     val state =
       when (callback.data) {
         SEND_SOLUTION -> QueryCourseForSubmissionSendingState(context, userId)
@@ -66,13 +65,16 @@ data class MenuState(override val context: User, override val userId: StudentId)
         CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
         MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)
         COURSES_CATALOG -> ApplyForCoursesState(context, userId)
-        //        PET_THE_DACHSHUND -> PetTheDachshundState(context, userId) TODO
-        PET_THE_DACHSHUND -> ZeroQuestion(context, userId)
-        FREE_ACTIVITY -> L0(context, userId)
+        PET_THE_DACHSHUND -> PetTheDachshundState(context, userId)
+        FREE_ACTIVITY -> {
+          val state = service.resolveCurrentQuestState(userId).get()
+          QuestState.restoreState<StudentApi, StudentId>(state, context, userId).getOr(Unhandled)
+        }
+
         else -> null
       }
-    return if (state != null) {
-      UserInput(state)
+    if (state != null) {
+      UserInput(state) as HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing>
     } else {
       Unhandled
     }

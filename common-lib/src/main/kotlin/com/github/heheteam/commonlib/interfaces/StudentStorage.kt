@@ -25,4 +25,9 @@ interface StudentStorage {
   fun resolveByTgId(tgId: UserId): Result<Student?, EduPlatformError>
 
   fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, EduPlatformError>
+
+  fun updateLastQuestState(
+    studentId: StudentId,
+    lastQuestState: String,
+  ): Result<Unit, EduPlatformError>
 }

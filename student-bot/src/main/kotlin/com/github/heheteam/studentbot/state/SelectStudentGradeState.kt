@@ -14,8 +14,11 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
 
-class SelectGradeState(override val context: User, val firstName: String, val lastName: String) :
-  NavigationBotStateWithHandlers<StudentApi>() {
+class SelectStudentGradeState(
+  override val context: User,
+  val firstName: String,
+  val lastName: String,
+) : NavigationBotStateWithHandlers<StudentApi>() {
   override val introMessageContent: TextSourcesList = buildEntities { +"Меню" }
 
   override fun createKeyboard(service: StudentApi): MenuKeyboardData<State?> {
@@ -24,13 +27,15 @@ class SelectGradeState(override val context: User, val firstName: String, val la
 
   override fun createKeyboardOrResult(
     service: StudentApi
-  ): Result<MenuKeyboardData<State?>, FrontendError> =
-    buildColumnMenu(
-        simpleButtonData("4 класс") { ConfirmAndGoToQuestState(context, firstName, lastName, 4) },
-        simpleButtonData("5 класс") { ConfirmAndGoToQuestState(context, firstName, lastName, 4) },
-        simpleButtonData("6 класс") { ConfirmAndGoToQuestState(context, firstName, lastName, 4) },
+  ): Result<MenuKeyboardData<State?>, FrontendError> {
+    val data = (1..11).map { "$it класс" to it } + listOf("Студент" to null)
+    return buildColumnMenu(
+        data.map { (label, grade) ->
+          simpleButtonData(label) { ConfirmAndGoToQuestState(context, firstName, lastName, grade) }
+        }
       )
       .ok()
+  }
 
   override fun menuState(): State = this
 

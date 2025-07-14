@@ -55,7 +55,7 @@ class StartState(override val context: User, private val token: String?) :
     if (input != null) {
         MenuState(context, input) to Unit
       } else {
-        AskFirstNameState(context, token) to Unit
+        AskStudentFirstNameState(context, token) to Unit
       }
       .ok()
 

@@ -1,8 +1,9 @@
 package com.github.heheteam.studentbot
 
+import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
-import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.SelectStudentParentState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
@@ -10,18 +11,20 @@ import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
-import dev.inmo.tgbotapi.extensions.utils.extensions.parseCommandsWithArgs
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import dev.inmo.tgbotapi.utils.RiskFeature
-import kotlin.collections.firstOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class StudentRunner(private val botToken: String, private val studentApi: StudentApi) {
+class StudentRunner(
+  private val botToken: String,
+  private val studentApi: StudentApi,
+  private val parentApi: ParentApi,
+) {
 
   @OptIn(RiskFeature::class, PreviewFeature::class)
   suspend fun run() =
@@ -39,7 +42,7 @@ class StudentRunner(private val botToken: String, private val studentApi: Studen
         command("start", requireOnlyCommandInMessage = false) { startFromStartCommand(it) }
         startStateOnUnhandledUpdate { user -> startFromUnhandledUpdate(user) }
 
-        StateRegister(studentApi, this).registerStates(botToken)
+        StateRegister(studentApi, parentApi, this).registerStates(botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
       }
@@ -48,7 +51,7 @@ class StudentRunner(private val botToken: String, private val studentApi: Studen
 
   private suspend fun DefaultBehaviourContextWithFSM<State>.startFromUnhandledUpdate(user: User?) {
     if (user != null) {
-      val startingState = StartState(user, null)
+      val startingState = SelectStudentParentState(user)
       startChain(startingState)
     }
   }
@@ -59,9 +62,9 @@ class StudentRunner(private val botToken: String, private val studentApi: Studen
   ) {
     val user = message.from
     if (user != null) {
-      val token = message.parseCommandsWithArgs(" ")["start"]?.firstOrNull()
-      val startingState = StartState(user, token)
-      startChain(startingState)
+      //      val token = message.parseCommandsWithArgs(" ")["start"]?.firstOrNull()
+      //      val startingState = StartState(user, token)
+      startChain(SelectStudentParentState(user))
     }
   }
 

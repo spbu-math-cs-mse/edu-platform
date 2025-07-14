@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.NewState
+import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards
@@ -20,7 +21,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class AskLastNameState(
+class AskStudentLastNameState(
   override val context: User,
   private val firstName: String,
   private val token: String?,
@@ -51,7 +52,14 @@ class AskLastNameState(
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
-      NewState(SelectGradeState(context, firstName, lastName))
+      NewState(SelectStudentGradeState(context, firstName, lastName))
+    }
+    updateHandlersController.addDataCallbackHandler { callBack ->
+      if (callBack.data == Keyboards.RETURN_BACK) {
+        NewState(SelectStudentParentState(context))
+      } else {
+        Unhandled
+      }
     }
   }
 

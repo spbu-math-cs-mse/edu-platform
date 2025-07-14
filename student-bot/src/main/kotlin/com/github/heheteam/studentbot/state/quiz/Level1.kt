@@ -121,7 +121,10 @@ class L1S3(override val context: User, override val userId: StudentId) : QuestSt
     addIntegerReadHandler(
       7,
       this@L1S3,
-      { L1S4(context, userId) },
+      {
+        send("Ты перепрыгнул речку! \uD83C\uDF89 Вас встречает древний говорящий дуб.\n")
+        L1S4(context, userId)
+      },
       {
         sendMarkdown("*Бульк!* — чуть не оступился!")
         DefaultErrorState(context, userId, this@L1S3)
@@ -130,11 +133,45 @@ class L1S3(override val context: User, override val userId: StudentId) : QuestSt
   }
 }
 
+const val TREE_EMOJI = "🌳"
+
 class L1S4(override val context: User, override val userId: StudentId) : QuestState() {
   override suspend fun BotContext.run() {
-    send("Ты перепрыгнул речку! \uD83C\uDF89 Вас встречает древний говорящий дуб.\n")
+    sendImage("/ent.png")
+    send(
+      "$TREE_EMOJI Энт: \"Я не дерево. Я ЭНТ! Никто не пройдет дальше. Это моя дорога, и она платная\""
+    )
+    send(
+      "$DOG_EMOJI Дуся (шёпотом): \"(Поскуливает) Но у нас нет денег — я собака, а это человеческий щенок…\""
+    )
+    send(
+      "$TREE_EMOJI Энт: \"Чтож. Вы можете помочь мне и иначе — у меня очень сильно чешется голова: " +
+        "в листьях я своих запутался, которых аж 500. " +
+        "Часть листьев у меня жадные: они любят отнимать — их у меня 300. " +
+        "Часть листьев у меня предприимчивые: они любят делить, таких у меня 400. " +
+        "Понять мне надо бы, сколько листьев одновременно любят и отнимать, и делить —  " +
+        "они красного цвета уже, надо их сбрасывать.\""
+    )
+    addIntegerReadHandler(
+      200,
+      this@L1S4,
+      {
+        sendImage("/leaving_forest.png")
+        send(
+          "$TREE_EMOJI: \"Листья молвят, что ты не ошибся. " +
+            "Спасибо тебе за помощь, человеческое дитя! Теперь ты можешь идти дальше…\""
+        )
+        L2S0(context, userId)
+      },
+      { L1S4Wrong(context, userId) },
+    )
+  }
+}
+
+class L1S4Wrong(override val context: User, override val userId: StudentId) : QuestState() {
+  override suspend fun BotContext.run() {
     val buttons =
-      listOf("\uD83E\uDDE0 Подойти к дубу", "\uD83E\uDD17 Почесать ещё раз", "\uD83D\uDD19  Назад")
+      listOf("$TREE_EMOJI Подойти к дубу", "\uD83E\uDD17 Почесать ещё раз", "\uD83D\uDD19  Назад")
     send(
         "$DOG_EMOJI Дуся: \"А пока ты отдыхаешь, может, почешешь мне пузо? Ну пожааалуйста! \uD83E\uDD7A\"\n",
         replyMarkup = verticalKeyboard(buttons),
@@ -142,7 +179,7 @@ class L1S4(override val context: User, override val userId: StudentId) : QuestSt
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S5(context, userId))
+        buttons[0] -> NewState(L1S4(context, userId))
         buttons[1] -> NewState(L1S4Bellyrub(context, userId))
         buttons[2] -> NewState(MenuState(context, userId))
         else -> Unhandled
@@ -162,50 +199,9 @@ class L1S4Bellyrub(override val context: User, override val userId: StudentId) :
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S5(context, userId))
+        buttons[0] -> NewState(L1S4(context, userId))
         else -> Unhandled
       }
     }
-  }
-}
-
-class L1S5(override val context: User, override val userId: StudentId) : QuestState() {
-  override suspend fun BotContext.run() {
-    sendImage("/ent.png")
-    val treeEmoji = "🌳"
-    send(
-      "$treeEmoji: \"Я не дерево. Я ЭНТ! Никто не пройдет дальше. Это моя дорога, и она платная\""
-    )
-    send(
-      "$DOG_EMOJI Дуся (шёпотом): \"(Поскуливает) Но у нас нет денег — я собака, а это человеческий щенок…\""
-    )
-    send(
-      "$treeEmoji: \"Чтож. Вы можете помочь мне и иначе — у меня очень сильно чешется голова: " +
-        "в листьях я своих запутался, которых аж 500. " +
-        "Часть листьев у меня жадные: они любят отнимать — их у меня 300. " +
-        "Часть листьев у меня предприимчивые: они любят делить, таких у меня 400. " +
-        "Понять мне надо бы, сколько листьев одновременно любят и отнимать, и делить —  " +
-        "они красного цвета уже, надо их сбрасывать.\""
-    )
-
-    val buttons = listOf("\uD83C\uDFDE Перескочить речку", "\uD83D\uDD19  Назад")
-    send(
-        "$DOG_EMOJI Дуся: \"Ты справишься! Главное — не оступиться!\"",
-        replyMarkup = verticalKeyboard(buttons),
-      )
-      .also { messagesWithKeyboard.add(it) }
-    addIntegerReadHandler(
-      7,
-      this@L1S5,
-      {
-        sendImage("/leaving_forest.png")
-        send(
-          "$treeEmoji: \"Листья молвят, что ты не ошибся. " +
-            "Спасибо тебе за помощь, человеческое дитя! Теперь ты можешь идти дальше…\""
-        )
-        L2S0(context, userId)
-      },
-      { DefaultErrorState(context, userId, this@L1S5) },
-    )
   }
 }

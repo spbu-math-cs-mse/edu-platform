@@ -24,6 +24,7 @@ inline fun DefaultBehaviourContextWithFSM<State>.registerQuest(
   registerStateWithStudentId<L1S3Bellyrub, StudentApi>(studentApi, initUpdateHandlers)
   registerStateWithStudentId<L1S4, StudentApi>(studentApi, initUpdateHandlers)
   registerStateWithStudentId<L1S4Bellyrub, StudentApi>(studentApi, initUpdateHandlers)
+  registerStateWithStudentId<L1S4Wrong, StudentApi>(studentApi, initUpdateHandlers)
 
   registerStateWithStudentId<L2S0, StudentApi>(studentApi, initUpdateHandlers)
   registerStateWithStudentId<L2Boss, StudentApi>(studentApi, initUpdateHandlers)

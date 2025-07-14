@@ -4,13 +4,13 @@
   <CurrentIssues>
     <ID>DoubleMutabilityForCollection:QuestState.kt$QuestState$var messagesWithKeyboard: MutableList&lt;ContentMessage&lt;*&gt;&gt; = mutableListOf()</ID>
     <ID>ForbiddenComment:LevelFinal.kt$L4Final$// TODO: buttons[1] -&gt; NewState(TODO())</ID>
-    <ID>LongMethod:Level1.kt$L1S5$override suspend fun BotContext.run()</ID>
+    <ID>LongMethod:Level1.kt$L1S4$override suspend fun BotContext.run()</ID>
     <ID>LongMethod:Level2.kt$L2Boss$override suspend fun BotContext.run()</ID>
     <ID>LongMethod:Level3.kt$L3S0$override suspend fun BotContext.run()</ID>
     <ID>LongMethod:Level3.kt$L3S2$override suspend fun BotContext.run()</ID>
     <ID>MagicNumber:Level1.kt$L1S1$4</ID>
     <ID>MagicNumber:Level1.kt$L1S3$7</ID>
-    <ID>MagicNumber:Level1.kt$L1S5$7</ID>
+    <ID>MagicNumber:Level1.kt$L1S4$200</ID>
     <ID>MagicNumber:Level3.kt$L3S0$3</ID>
     <ID>MagicNumber:Level3.kt$L3S1$48</ID>
     <ID>MagicNumber:Level3.kt$L3S2$500L</ID>

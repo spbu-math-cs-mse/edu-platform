@@ -207,7 +207,12 @@ open class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       },
       {
         sendMarkdown("*Бульк!* — чуть не оступился!")
-        DefaultErrorState(context, userId, this@L1S3)
+        val userId = userId
+        when (userId) {
+          is StudentId -> DefaultErrorStateStudent(context, userId, this@L1S3)
+          is ParentId -> DefaultErrorStateParent(context, userId, this@L1S3)
+          else -> error("unreachable")
+        }
       },
     )
   }

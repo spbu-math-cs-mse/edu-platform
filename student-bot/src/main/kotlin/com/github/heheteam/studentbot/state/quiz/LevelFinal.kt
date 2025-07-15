@@ -36,7 +36,7 @@ open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       replyMarkup =
         inlineKeyboard {
           row { dataButton(buttons[0], buttons[0]) }
-          row { urlButton(buttons[1], DABROMAT_URL) }
+          row { dataButton(buttons[1], buttons[1]) }
         },
     )
 
@@ -48,6 +48,16 @@ open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
             when (userId) {
               is StudentId -> L4CertificateStudent(context, userId)
               is ParentId -> L4CertificateParent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
+        buttons[1] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> StudentAboutCourseState(context, userId)
+              is ParentId -> ParentAboutCourseState(context, userId)
               else -> error("unreachable")
             }
           )

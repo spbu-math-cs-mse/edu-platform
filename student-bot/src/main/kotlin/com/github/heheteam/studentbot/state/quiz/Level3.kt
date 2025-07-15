@@ -41,6 +41,7 @@ open class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       when (callbackQuery.data) {
         buttons[3] -> {
           send("$DOG_EMOJI Дуся: \"Ням-ням! Спасибо тебе за косточку!\"")
+          sendImage("/bone.png")
           val userId = userId
           NewState(
             when (userId) {

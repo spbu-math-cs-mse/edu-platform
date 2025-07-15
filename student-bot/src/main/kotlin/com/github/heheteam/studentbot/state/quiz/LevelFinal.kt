@@ -8,18 +8,27 @@ import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.studentbot.state.StudentAboutCourseState
 import com.github.heheteam.studentbot.state.parent.ParentAboutCourseState
+import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.utils.row
 
 open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
+  var messageToDelete: AccessibleMessage? = null
+
+  override suspend fun outro(bot: BehaviourContext, service: ApiService) {
+    super.outro(bot, service)
+    messageToDelete?.let { bot.delete(it) }
+  }
+
   override suspend fun BotContext.run(service: ApiService) {
     saveState(service)
     sendImage("/star.png")
@@ -29,14 +38,15 @@ open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         "В ней — сила, которая помогает учиться, понимать и придумывать.\""
     )
     val buttons = listOf("\uD83C\uDFC5 Получить Сертификат", "\uD83C\uDF93 Узнать о курсе")
-    send(
-      text,
-      replyMarkup =
-        inlineKeyboard {
-          row { dataButton(buttons[0], buttons[0]) }
-          row { dataButton(buttons[1], buttons[1]) }
-        },
-    )
+    messageToDelete =
+      send(
+        text,
+        replyMarkup =
+          inlineKeyboard {
+            row { dataButton(buttons[0], buttons[0]) }
+            row { dataButton(buttons[1], buttons[1]) }
+          },
+      )
 
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
@@ -87,7 +97,7 @@ open class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUser
         "$DOG_EMOJI Дуся: \"Покажи его родителям! А я расскажу им, как ты можешь учиться дальше.\"",
         replyMarkup =
           inlineKeyboard {
-            row { urlButton(buttons[0], buttons[0]) }
+            row { dataButton(buttons[0], buttons[0]) }
             row { dataButton(buttons[1], buttons[1]) }
           },
       )

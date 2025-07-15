@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.linkln
 
-class FirstQuestion(context: User, userId: StudentId) :
+open class FirstQuestion(context: User, userId: StudentId) :
   QuestionWithTextAnswerBotState<StudentApi, StudentId>(context, userId) {
 
   override val question: TextWithMediaAttachments by lazy {
@@ -52,3 +52,5 @@ class FirstQuestion(context: User, userId: StudentId) :
 
   override val menuState = { user: User, studentId: StudentId -> MenuState(user, studentId) }
 }
+
+class FirstQuestionStudent(context: User, userId: StudentId) : FirstQuestion(context, userId)

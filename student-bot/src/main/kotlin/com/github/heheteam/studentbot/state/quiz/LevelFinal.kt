@@ -1,7 +1,11 @@
 package com.github.heheteam.studentbot.state.quiz
 
 import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.api.ParentApi
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CommonUserId
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
@@ -12,7 +16,7 @@ import dev.inmo.tgbotapi.utils.row
 
 private const val DABROMAT_URL = "https://dabromat.ru/start"
 
-class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -36,7 +40,16 @@ class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
 
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L4Certificate(context, userId))
+        buttons[0] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L4CertificateStudent(context, userId)
+              is ParentId -> L4CertificateParent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         else -> Unhandled
       }
     }
@@ -52,7 +65,7 @@ class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       "столь же увлеченных решением сложных задач, как и ты! \""
 }
 
-class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -80,3 +93,15 @@ class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     }
   }
 }
+
+class L4FinalStudent(context: User, userId: StudentId) :
+  L4Final<StudentApi, StudentId>(context, userId)
+
+class L4FinalParent(context: User, userId: ParentId) :
+  L4Final<ParentApi, ParentId>(context, userId)
+
+class L4CertificateStudent(context: User, userId: StudentId) :
+  L4Certificate<StudentApi, StudentId>(context, userId)
+
+class L4CertificateParent(context: User, userId: ParentId) :
+  L4Certificate<ParentApi, ParentId>(context, userId)

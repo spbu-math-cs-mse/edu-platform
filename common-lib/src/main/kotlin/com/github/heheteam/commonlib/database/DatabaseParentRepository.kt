@@ -4,11 +4,9 @@ import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.ParentTable
 import com.github.heheteam.commonlib.domain.RichParent
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.repository.ParentRepository
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -54,7 +52,7 @@ class DatabaseParentRepository : ParentRepository {
     richParent
   }
 
-  override fun findById(parentId: ParentId): Result<RichParent, EduPlatformError> {
+  override fun findById(parentId: ParentId): Result<RichParent?, EduPlatformError> {
     return ParentTable.selectAll()
       .where { ParentTable.id eq parentId.long }
       .singleOrNull()
@@ -76,7 +74,7 @@ class DatabaseParentRepository : ParentRepository {
             children = children,
           )
         )
-      } ?: Err(NamedError("Parent not found"))
+      } ?: Ok(null)
   }
 
   override fun findByTgId(tgId: RawChatId): Result<RichParent?, EduPlatformError> {

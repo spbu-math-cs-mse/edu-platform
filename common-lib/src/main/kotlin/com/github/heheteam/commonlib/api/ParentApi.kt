@@ -27,7 +27,7 @@ internal constructor(
   private val parentService: ParentService,
   private val courseService: CourseService,
   private val problemStorage: ProblemStorage,
-) : CommonUserApi<StudentId> {
+) : CommonUserApi<ParentId> {
   private fun <V> withErrorManagement(
     block: BindingScope<EduPlatformError>.() -> V
   ): Result<V, NumberedError> {
@@ -70,14 +70,15 @@ internal constructor(
       parentService.addChild(parentId, studentId).bind()
     }
 
-  override fun resolveCurrentQuestState(userId: StudentId): Result<String?, NumberedError> {
-    TODO("Not yet implemented")
-  }
+  override fun resolveCurrentQuestState(userId: ParentId): Result<String?, NumberedError> =
+    withErrorManagement {
+      parentService.resolveCurrentQuestState(userId).bind()
+    }
 
   override fun saveCurrentQuestState(
-    userId: StudentId,
+    userId: ParentId,
     questState: String,
-  ): Result<Unit, NumberedError> {
-    TODO("Not yet implemented")
+  ): Result<Unit, NumberedError> = withErrorManagement {
+    parentService.saveCurrentQuestSave(userId, questState).bind()
   }
 }

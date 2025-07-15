@@ -87,10 +87,14 @@ abstract class QuestState<ApiService : CommonUserApi<UserId>, UserId : CommonUse
       className: String?,
       context: User,
       userId: UserId,
-    ): Result<QuestState<ApiService, UserId>, FrontendError> =
+    ): Result<State, FrontendError> =
       runCatching {
           if (className == null) {
-            return@runCatching L0<ApiService, UserId>(context, userId)
+            return@runCatching when (userId) {
+              is StudentId -> L0Student(context, userId)
+              is ParentId -> L0Parent(context, userId)
+              else -> error("unreahcalbe")
+            }
           }
           val constructor = Class.forName(className).kotlin.primaryConstructor
           constructor?.call(context, userId) as QuestState<ApiService, UserId>

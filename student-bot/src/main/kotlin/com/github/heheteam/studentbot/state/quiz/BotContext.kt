@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
+import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -81,8 +82,8 @@ class BotContext(
   fun <ApiService : CommonUserApi<UserId>, UserId : CommonUserId> addIntegerReadHandler(
     trueAnswer: Int,
     thisState: QuestState<ApiService, UserId>,
-    actionOnCorrectAnswer: (suspend BotContext.() -> QuestState<ApiService, UserId>),
-    actionOnWrongAnswer: (suspend BotContext.() -> QuestState<ApiService, UserId>),
+    actionOnCorrectAnswer: (suspend BotContext.() -> State),
+    actionOnWrongAnswer: (suspend BotContext.() -> State),
   ) {
     addTextMessageHandler { message ->
       when (message.content.text.trim().toIntOrNull()) {
@@ -98,10 +99,10 @@ class BotContext(
     }
   }
 
-  fun <ApiService : CommonUserApi<UserId>, UserId : CommonUserId> addStringReadHandler(
+  fun addStringReadHandler(
     trueAnswer: String,
-    actionOnCorrectAnswer: (suspend BotContext.() -> QuestState<ApiService, UserId>),
-    actionOnWrongAnswer: (suspend BotContext.() -> QuestState<ApiService, UserId>),
+    actionOnCorrectAnswer: (suspend BotContext.() -> State),
+    actionOnWrongAnswer: (suspend BotContext.() -> State),
   ) {
     addTextMessageHandler { message ->
       when (message.content.text.trim()) {

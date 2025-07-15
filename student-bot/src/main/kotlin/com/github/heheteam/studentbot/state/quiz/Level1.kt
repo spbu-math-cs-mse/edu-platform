@@ -1,12 +1,16 @@
 package com.github.heheteam.studentbot.state.quiz
 
 import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.api.ParentApi
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CommonUserId
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import dev.inmo.tgbotapi.types.chat.User
 
-class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -27,7 +31,16 @@ class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
 
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S1(context, userId))
+        buttons[0] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S1Student(context, userId)
+              is ParentId -> L1S1Parent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         buttons[1] -> {
           saveState(service)
           NewState(menuState())
@@ -38,7 +51,7 @@ class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   }
 }
 
-class L1S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -59,20 +72,30 @@ class L1S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
           "✅ Щёлк! — ворота распахнулись, и ты входишь в чащу. " +
             "Тропинка уходит вперёд, но вдруг ты слышишь плеск воды..."
         )
-        L1S2(context, userId)
+        val userId = userId
+        when (userId) {
+          is StudentId -> L1S2Student(context, userId)
+          is ParentId -> L1S2Parent(context, userId)
+          else -> error("unreachable")
+        }
       },
       {
         send(
           "\uD83D\uDD12 Ворота задрожали… но остались закрыты. " +
             "Наверное, ответ был неверный. Деревья недовольно зашумели."
         )
-        DefaultErrorState(context, userId, this@L1S1)
+        val userId = userId
+        when (userId) {
+          is StudentId -> DefaultErrorStateStudent(context, userId, this@L1S1)
+          is ParentId -> DefaultErrorStateParent(context, userId, this@L1S1)
+          else -> error("unreachable")
+        }
       },
     )
   }
 }
 
-class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -95,8 +118,26 @@ class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S3(context, userId))
-        buttons[1] -> NewState(L1S3Bellyrub(context, userId))
+        buttons[0] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S3Student(context, userId)
+              is ParentId -> L1S3Parent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
+        buttons[1] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S3BellyrubStudent(context, userId)
+              is ParentId -> L1S3BellyrubParent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         buttons[2] -> {
           NewState(menuState())
         }
@@ -106,7 +147,7 @@ class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   }
 }
 
-class L1S3Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S3Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -122,14 +163,23 @@ class L1S3Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S3(context, userId))
+        buttons[0] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S3Student(context, userId)
+              is ParentId -> L1S3Parent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         else -> Unhandled
       }
     }
   }
 }
 
-class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -148,7 +198,12 @@ class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       this@L1S3,
       {
         send("Ты перепрыгнул речку! \uD83C\uDF89 Вас встречает древний говорящий дуб.\n")
-        L1S4(context, userId)
+        val userId = userId
+        when (userId) {
+          is StudentId -> L1S4Student(context, userId)
+          is ParentId -> L1S4Parent(context, userId)
+          else -> error("unreachable")
+        }
       },
       {
         sendMarkdown("*Бульк!* — чуть не оступился!")
@@ -160,7 +215,7 @@ class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
 
 const val TREE_EMOJI = "🌳"
 
-class L1S4<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S4<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -190,14 +245,26 @@ class L1S4<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
           "$TREE_EMOJI: \"Листья молвят, что ты не ошибся. " +
             "Спасибо тебе за помощь, человеческое дитя! Теперь ты можешь идти дальше…\""
         )
-        L2S0(context, userId)
+        val userId = userId
+        when (userId) {
+          is StudentId -> L2S0Student(context, userId)
+          is ParentId -> L2S0Parent(context, userId)
+          else -> error("unreachable")
+        }
       },
-      { L1S4Wrong(context, userId) },
+      {
+        val userId = userId
+        when (userId) {
+          is StudentId -> L1S4WrongStudent(context, userId)
+          is ParentId -> L1S4WrongParent(context, userId)
+          else -> error("unreachable")
+        }
+      },
     )
   }
 }
 
-class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -212,8 +279,26 @@ class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S4(context, userId))
-        buttons[1] -> NewState(L1S4Bellyrub(context, userId))
+        buttons[0] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S4Student(context, userId)
+              is ParentId -> L1S4Parent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
+        buttons[1] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S4BellyrubStudent(context, userId)
+              is ParentId -> L1S4BellyrubParent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         buttons[2] -> {
           saveState(service)
           NewState(menuState())
@@ -224,7 +309,7 @@ class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   }
 }
 
-class L1S4Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L1S4Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -239,9 +324,56 @@ class L1S4Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
-        buttons[0] -> NewState(L1S4(context, userId))
+        buttons[0] -> {
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L1S4Student(context, userId)
+              is ParentId -> L1S4Parent(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         else -> Unhandled
       }
     }
   }
 }
+
+class L1S0Student(context: User, userId: StudentId) : L1S0<StudentApi, StudentId>(context, userId)
+
+class L1S0Parent(context: User, userId: ParentId) : L1S0<ParentApi, ParentId>(context, userId)
+
+class L1S1Student(context: User, userId: StudentId) : L1S1<StudentApi, StudentId>(context, userId)
+
+class L1S1Parent(context: User, userId: ParentId) : L1S1<ParentApi, ParentId>(context, userId)
+
+class L1S2Student(context: User, userId: StudentId) : L1S2<StudentApi, StudentId>(context, userId)
+
+class L1S2Parent(context: User, userId: ParentId) : L1S2<ParentApi, ParentId>(context, userId)
+
+class L1S3BellyrubStudent(context: User, userId: StudentId) :
+  L1S3Bellyrub<StudentApi, StudentId>(context, userId)
+
+class L1S3BellyrubParent(context: User, userId: ParentId) :
+  L1S3Bellyrub<ParentApi, ParentId>(context, userId)
+
+class L1S3Student(context: User, userId: StudentId) : L1S3<StudentApi, StudentId>(context, userId)
+
+class L1S3Parent(context: User, userId: ParentId) : L1S3<ParentApi, ParentId>(context, userId)
+
+class L1S4Student(context: User, userId: StudentId) : L1S4<StudentApi, StudentId>(context, userId)
+
+class L1S4Parent(context: User, userId: ParentId) : L1S4<ParentApi, ParentId>(context, userId)
+
+class L1S4WrongStudent(context: User, userId: StudentId) :
+  L1S4Wrong<StudentApi, StudentId>(context, userId)
+
+class L1S4WrongParent(context: User, userId: ParentId) :
+  L1S4Wrong<ParentApi, ParentId>(context, userId)
+
+class L1S4BellyrubStudent(context: User, userId: StudentId) :
+  L1S4Bellyrub<StudentApi, StudentId>(context, userId)
+
+class L1S4BellyrubParent(context: User, userId: ParentId) :
+  L1S4Bellyrub<ParentApi, ParentId>(context, userId)

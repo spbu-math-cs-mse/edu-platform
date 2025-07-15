@@ -1,10 +1,14 @@
 package com.github.heheteam.studentbot.state.quiz
 
 import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.api.ParentApi
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CommonUserId
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import dev.inmo.tgbotapi.types.chat.User
 
-class L2S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L2S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -20,19 +24,31 @@ class L2S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     )
     addStringReadHandler(
       "Иннокентий",
-      { L2Boss(context, userId) },
+      {
+        val userId = userId
+        when (userId) {
+          is StudentId -> L2BossStudent(context, userId)
+          is ParentId -> L2BossParent(context, userId)
+          else -> error("unreachable")
+        }
+      },
       {
         send(
           "$DOG_EMOJI Дуся: \"Ах-ах, что за имя такое вышло, кошачье что ли? " +
             "Наверное мы в какой-то момент пошли не туда…\""
         )
-        DefaultErrorState(context, userId, this@L2S0)
+        val userId = userId
+        when (userId) {
+          is StudentId -> DefaultErrorStateStudent(context, userId, this@L2S0)
+          is ParentId -> DefaultErrorStateParent(context, userId, this@L2S0)
+          else -> error("unreachable")
+        }
       },
     )
   }
 }
 
-class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -61,7 +77,12 @@ class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       {
         sendImage("/loser_innokenty.png")
         send("$DOG_EMOJI Дуся: \"Аф-аф! Враг повержен, знай наших!\"")
-        L3S0(context, userId)
+        val userId = userId
+        when (userId) {
+          is StudentId -> L3S0Student(context, userId)
+          is ParentId -> L3S0Parent(context, userId)
+          else -> error("unreachable")
+        }
       },
       {
         send("\uD83D\uDC29 Иннокентий хохочет: \"Ахаха! Ну давай, попробуй ещё...\"")
@@ -69,8 +90,22 @@ class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         send(
           "$DOG_EMOJI Дуся (шепчет): \"Ай-ай, больно! Попробуй ещё, только следи внимательнее!\""
         )
-        DefaultErrorState(context, userId, this@L2Boss)
+        val userId = userId
+        when (userId) {
+          is StudentId -> DefaultErrorStateStudent(context, userId, this@L2Boss)
+          is ParentId -> DefaultErrorStateParent(context, userId, this@L2Boss)
+          else -> error("unreachable")
+        }
       },
     )
   }
 }
+
+class L2S0Student(context: User, userId: StudentId) : L2S0<StudentApi, StudentId>(context, userId)
+
+class L2S0Parent(context: User, userId: ParentId) : L2S0<ParentApi, ParentId>(context, userId)
+
+class L2BossStudent(context: User, userId: StudentId) :
+  L2Boss<StudentApi, StudentId>(context, userId)
+
+class L2BossParent(context: User, userId: ParentId) : L2Boss<ParentApi, ParentId>(context, userId)

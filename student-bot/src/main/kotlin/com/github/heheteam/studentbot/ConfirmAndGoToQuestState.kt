@@ -10,7 +10,7 @@ import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.simpleButtonData
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.StudentStartState
-import com.github.heheteam.studentbot.state.quiz.L0
+import com.github.heheteam.studentbot.state.quiz.L0Student
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import dev.inmo.micro_utils.fsm.common.State
@@ -48,7 +48,7 @@ class ConfirmAndGoToQuestState(
     service: StudentApi
   ): Result<MenuKeyboardData<State?>, FrontendError> =
     buildColumnMenu(
-        simpleButtonData("Да, начинаем!") { L0(context, id) },
+        simpleButtonData("Да, начинаем!") { L0Student(context, id) },
         simpleButtonData("Меню") { MenuState(context, id) },
       )
       .ok()

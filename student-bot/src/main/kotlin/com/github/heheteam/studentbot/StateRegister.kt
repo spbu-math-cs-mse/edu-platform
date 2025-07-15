@@ -37,7 +37,8 @@ import com.github.heheteam.studentbot.state.StudentStartState
 import com.github.heheteam.studentbot.state.parent.registerParentStates
 import com.github.heheteam.studentbot.state.quiz.FirstQuestion
 import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
-import com.github.heheteam.studentbot.state.quiz.registerQuest
+import com.github.heheteam.studentbot.state.quiz.registerParentQuests
+import com.github.heheteam.studentbot.state.quiz.registerStudentQuests
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
@@ -96,8 +97,8 @@ internal class StateRegister(
       )
       registerStateWithStudentId<ZeroQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<FirstQuestion, StudentApi>(studentApi, ::initializeHandlers)
-      registerQuest(studentApi, ::initializeHandlers)
-      registerQuest(parentApi)
+      registerStudentQuests(studentApi, ::initializeHandlers)
+      registerParentQuests(parentApi)
       strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }
       strictlyOn<AskParentFirstNameState> { it.handle(this, parentApi) }
       strictlyOn<AskParentLastNameState> { it.handle(this, parentApi) }

@@ -1,13 +1,17 @@
 package com.github.heheteam.studentbot.state.quiz
 
 import com.github.heheteam.commonlib.api.CommonUserApi
+import com.github.heheteam.commonlib.api.ParentApi
+import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.CommonUserId
+import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.delay
 
-class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -37,12 +41,26 @@ class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       when (callbackQuery.data) {
         buttons[3] -> {
           send("$DOG_EMOJI Дуся: \"Ням-ням! Спасибо тебе за косточку!\"")
-          NewState(L3S1(context, userId))
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> L3S1Student(context, userId)
+              is ParentId -> L3S1Parent(context, userId)
+              else -> error("unreachable")
+            }
+          )
         }
 
         in buttons -> {
           send("$DOG_EMOJI Дуся: \"Хм… Ты правда думаешь, что ЭТО вкусно пахнет?\"")
-          NewState(DefaultErrorState(context, userId, this@L3S0))
+          val userId = userId
+          NewState(
+            when (userId) {
+              is StudentId -> DefaultErrorStateStudent(context, userId, this@L3S0)
+              is ParentId -> DefaultErrorStateParent(context, userId, this@L3S0)
+              else -> error("unreachable")
+            }
+          )
         }
 
         else -> Unhandled
@@ -51,7 +69,7 @@ class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   }
 }
 
-class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -71,17 +89,27 @@ class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         send(
           "$DOG_EMOJI Дуся: \"Размяукались тут! Ну ничего, мы вас пересчитали и скоро вернемся…\""
         )
-        L3S2(context, userId)
+        val userId = userId
+        when (userId) {
+          is StudentId -> L3S2Student(context, userId)
+          is ParentId -> L3S2Parent(context, userId)
+          else -> error("unreachable")
+        }
       },
       {
         send("$DOG_EMOJI Дуся: \"Тяф! Даже ежу понятно, что ты не прав!\"\n")
-        DefaultErrorState(context, userId, this@L3S1)
+        val userId = userId
+        when (userId) {
+          is StudentId -> DefaultErrorStateStudent(context, userId, this@L3S1)
+          is ParentId -> DefaultErrorStateParent(context, userId, this@L3S1)
+          else -> error("unreachable")
+        }
       },
     )
   }
 }
 
-class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
+open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
@@ -132,14 +160,36 @@ class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       this@L3S2,
       {
         send("$DOG_EMOJI Дуся: \"Победа! Это почти вершина... вижу свет звезды!\"")
-        L4Final(context, userId)
+        val userId = userId
+        when (userId) {
+          is StudentId -> L4FinalStudent(context, userId)
+          is ParentId -> L4FinalParent(context, userId)
+          else -> error("unreachable")
+        }
       },
       {
         send(
           "$DOG_EMOJI Дуся: \"Ээээ… таксы в политике ничего не понимают, но тут ясен пень ты ошибся!\""
         )
-        DefaultErrorState(context, userId, this@L3S2)
+        val userId = userId
+        when (userId) {
+          is StudentId -> DefaultErrorStateStudent(context, userId, this@L3S2)
+          is ParentId -> DefaultErrorStateParent(context, userId, this@L3S2)
+          else -> error("unreachable")
+        }
       },
     )
   }
 }
+
+class L3S0Student(context: User, userId: StudentId) : L3S0<StudentApi, StudentId>(context, userId)
+
+class L3S0Parent(context: User, userId: ParentId) : L3S0<ParentApi, ParentId>(context, userId)
+
+class L3S1Student(context: User, userId: StudentId) : L3S1<StudentApi, StudentId>(context, userId)
+
+class L3S1Parent(context: User, userId: ParentId) : L3S1<ParentApi, ParentId>(context, userId)
+
+class L3S2Student(context: User, userId: StudentId) : L3S2<StudentApi, StudentId>(context, userId)
+
+class L3S2Parent(context: User, userId: ParentId) : L3S2<ParentApi, ParentId>(context, userId)

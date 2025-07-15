@@ -11,8 +11,11 @@ import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
+import com.github.heheteam.studentbot.state.quiz.L0Parent
+import com.github.heheteam.studentbot.state.quiz.QuestState
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
@@ -35,15 +38,16 @@ class ParentStartQuestState(override val context: User, override val userId: Par
   ): Result<Unit, FrontendError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
-        //        ButtonData("\uD83D\uDC49 Начать игру (от лица ребёнка)", "yes") { true },
-        ButtonData("\uD83D\uDD19 Назад", "no") { false }
+        ButtonData("\uD83D\uDC49 Начать игру (от лица ребёнка)", "yes") { true },
+        ButtonData("\uD83D\uDD19 Назад", "no") { false },
       )
     confirmMessage =
       bot.sendMessage(
         context,
-        "Этот функционал пока доступен только в боте у ученика, но обязательно скоро появится и здесь!",
-        //        "Если ваш ребёнок рядом — передайте ему телефон, и мы начнём игру!\n" +
-        //          "Если хотите посмотреть самостоятельно, нажмите кнопку ниже.",
+        //        "Этот функционал пока доступен только в боте у ученика, но обязательно скоро
+        // появится и здесь!",
+        "Если ваш ребёнок рядом — передайте ему телефон, и мы начнём игру!\n" +
+          "Если хотите посмотреть самостоятельно, нажмите кнопку ниже.",
         replyMarkup = confirmMessageKeyboard.keyboard,
       )
     updateHandlersController.addDataCallbackHandler { value: DataCallbackQuery ->
@@ -55,9 +59,21 @@ class ParentStartQuestState(override val context: User, override val userId: Par
   override suspend fun computeNewState(
     service: ParentApi,
     input: Boolean,
-  ): Result<Pair<State, Unit>, FrontendError> =
-    ((if (input) ParentMenuState(context, userId) else ParentMenuState(context, userId)) to Unit)
+  ): Result<Pair<State, Unit>, FrontendError> {
+
+    return if (input) {
+        val stateNAme = service.resolveCurrentQuestState(userId).get()
+        val state = QuestState.restoreState<ParentApi, ParentId>(stateNAme, context, userId).get()
+        if (state != null) {
+          state to Unit
+        } else {
+          L0Parent(context, userId) to Unit
+        }
+      } else {
+        ParentMenuState(context, userId) to Unit
+      }
       .ok()
+  }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

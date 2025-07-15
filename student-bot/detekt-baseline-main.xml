@@ -2,14 +2,24 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>CyclomaticComplexMethod:Level1.kt$L1S2$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>CyclomaticComplexMethod:Level1.kt$L1S4Wrong$override suspend fun BotContext.run(service: ApiService)</ID>
     <ID>DoubleMutabilityForCollection:QuestState.kt$QuestState$var messagesWithKeyboard: MutableList&lt;ContentMessage&lt;*&gt;&gt; = mutableListOf()</ID>
-    <ID>ForbiddenComment:LevelFinal.kt$L4Final$// TODO: buttons[1] -&gt; NewState(TODO())</ID>
     <ID>LongMethod:Level0.kt$L0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S1$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S2$override suspend fun BotContext.run(service: ApiService)</ID>
     <ID>LongMethod:Level1.kt$L1S4$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S4Wrong$override suspend fun BotContext.run(service: ApiService)</ID>
     <ID>LongMethod:Level2.kt$L2Boss$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level2.kt$L2S0$override suspend fun BotContext.run(service: ApiService)</ID>
     <ID>LongMethod:Level3.kt$L3S0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level3.kt$L3S1$override suspend fun BotContext.run(service: ApiService)</ID>
     <ID>LongMethod:Level3.kt$L3S2$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:LevelFinal.kt$L4Final$override suspend fun BotContext.run(service: ApiService)</ID>
     <ID>LongMethod:QuestStateRegister.kt$inline fun &lt; ApiService : CommonUserApi&lt;UserId&gt;, UserId : CommonUserId, &gt; DefaultBehaviourContextWithFSM&lt;State&gt;.registerQuest( studentApi: ApiService, noinline initUpdateHandlers: (UpdateHandlersController&lt;() -&gt; Unit, out Any?, FrontendError&gt;, User, UserId) -&gt; Unit = { _, _, _ -&gt; }, )</ID>
+    <ID>LongMethod:QuestStateRegister.kt$inline fun DefaultBehaviourContextWithFSM&lt;State&gt;.registerParentQuests( parentApi: ParentApi, noinline initUpdateHandlers: (UpdateHandlersController&lt;() -&gt; Unit, out Any?, FrontendError&gt;, User, ParentId) -&gt; Unit = { _, _, _ -&gt; }, )</ID>
+    <ID>LongMethod:QuestStateRegister.kt$inline fun DefaultBehaviourContextWithFSM&lt;State&gt;.registerStudentQuests( studentApi: StudentApi, noinline initUpdateHandlers: (UpdateHandlersController&lt;() -&gt; Unit, out Any?, FrontendError&gt;, User, StudentId) -&gt; Unit = { _, _, _ -&gt; }, )</ID>
     <ID>MagicNumber:Level1.kt$L1S1$4</ID>
     <ID>MagicNumber:Level1.kt$L1S3$7</ID>
     <ID>MagicNumber:Level1.kt$L1S4$200</ID>

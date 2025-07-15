@@ -9,7 +9,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.link
 
-class ZeroQuestion(context: User, userId: StudentId) :
+open class ZeroQuestion(context: User, userId: StudentId) :
   MultipleChoiceQuestionBotState<StudentApi, StudentId>(context, userId) {
 
   override val question: TextWithMediaAttachments =
@@ -43,3 +43,7 @@ class ZeroQuestion(context: User, userId: StudentId) :
   override val nextState = { user: User, studentId: StudentId -> FirstQuestion(user, studentId) }
   override val menuState = { user: User, studentId: StudentId -> MenuState(user, studentId) }
 }
+
+class ZeroQuestionStudent(context: User, userId: StudentId) : ZeroQuestion(context, userId)
+// class ZeroQuestionParent(context: User, userId: ParentId) :
+//  ZeroQuestion(context, userId)

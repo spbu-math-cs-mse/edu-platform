@@ -96,6 +96,13 @@ abstract class QuestState<ApiService : CommonUserApi<UserId>, UserId : CommonUse
               else -> error("unreahcalbe")
             }
           }
+          if (!className.contains("Student") && !className.contains("Parent")) {
+            return@runCatching when (userId) {
+              is StudentId -> L0Student(context, userId)
+              is ParentId -> L0Parent(context, userId)
+              else -> error("unreahcalbe")
+            }
+          }
           val constructor = Class.forName(className).kotlin.primaryConstructor
           constructor?.call(context, userId) as QuestState<ApiService, UserId>
         }

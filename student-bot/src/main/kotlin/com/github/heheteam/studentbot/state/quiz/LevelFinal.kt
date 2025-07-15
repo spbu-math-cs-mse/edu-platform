@@ -8,6 +8,8 @@ import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
+import com.github.heheteam.studentbot.state.StudentAboutCourseState
+import com.github.heheteam.studentbot.state.parent.ParentAboutCourseState
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
@@ -77,13 +79,23 @@ open class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUser
         "$DOG_EMOJI Дуся: \"Покажи его родителям! А я расскажу им, как ты можешь учиться дальше.\"",
         replyMarkup =
           inlineKeyboard {
-            row { urlButton(buttons[0], DABROMAT_URL) }
+            row { urlButton(buttons[0], buttons[0]) }
             row { dataButton(buttons[1], buttons[1]) }
           },
       )
       .also { messagesWithKeyboard.add(it) }
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
+        buttons[0] -> {
+          val userId = this@L4Certificate.userId
+          NewState(
+            when (userId) {
+              is StudentId -> StudentAboutCourseState(context, userId)
+              is ParentId -> ParentAboutCourseState(context, userId)
+              else -> error("unreachable")
+            }
+          )
+        }
         buttons[1] -> {
           saveState(service)
           NewState(menuState())

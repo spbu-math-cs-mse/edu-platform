@@ -34,6 +34,10 @@ import com.github.heheteam.studentbot.state.SelectParentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
+import com.github.heheteam.studentbot.state.StudentAboutCourseState
+import com.github.heheteam.studentbot.state.StudentAboutTeachersState
+import com.github.heheteam.studentbot.state.StudentCourseResultsState
+import com.github.heheteam.studentbot.state.StudentMethodologyState
 import com.github.heheteam.studentbot.state.StudentStartState
 import com.github.heheteam.studentbot.state.parent.ParentMenuState
 import com.github.heheteam.studentbot.state.parent.registerParentStates
@@ -56,6 +60,22 @@ internal class StateRegister(
   @Suppress("LongMethod") // ok, as it only initializes states
   fun registerStates(botToken: String) {
     with(bot) {
+      registerStateWithStudentId<StudentAboutCourseState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
+      registerStateWithStudentId<StudentAboutTeachersState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
+      registerStateWithStudentId<StudentCourseResultsState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
+      registerStateWithStudentId<StudentMethodologyState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
       strictlyOn<SelectStudentGradeState> { it.handle(this, studentApi) }
       strictlyOn<ConfirmAndGoToQuestState> { it.handle(this, studentApi) }
       registerStateForBotState<StudentStartState, StudentApi>(studentApi)

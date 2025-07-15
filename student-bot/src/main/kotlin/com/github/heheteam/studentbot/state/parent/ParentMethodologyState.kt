@@ -18,6 +18,7 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.MarkdownParseMode
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
@@ -35,7 +36,8 @@ class ParentMethodologyState(override val context: User, override val userId: Pa
     val initialMessage =
       bot.send(
         context,
-        text = ParentDialogues.aboutMethodology,
+        text = ParentDialogues.aboutMethodologyMarkdown,
+        parseMode = MarkdownParseMode,
         replyMarkup = ParentKeyboards.defaultKeyboard(),
       )
     sentMessages.add(initialMessage)

@@ -156,7 +156,7 @@ open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     )
 
     addIntegerReadHandler(
-      9,
+      10,
       this@L3S2,
       {
         send("$DOG_EMOJI Дуся: \"Победа! Это почти вершина... вижу свет звезды!\"")

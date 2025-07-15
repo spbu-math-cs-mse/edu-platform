@@ -16,8 +16,6 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.row
 
-private const val DABROMAT_URL = "https://dabromat.ru/start"
-
 open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,

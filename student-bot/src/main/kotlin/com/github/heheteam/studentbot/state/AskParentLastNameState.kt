@@ -32,7 +32,7 @@ class AskParentLastNameState(override val context: User, private val firstName: 
   ) = Unit.ok()
 
   override fun defaultState(): State {
-    return StartState(context, null)
+    return SelectStudentParentState(context)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: ParentApi) = Unit

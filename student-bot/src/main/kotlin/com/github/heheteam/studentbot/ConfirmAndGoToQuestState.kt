@@ -9,7 +9,7 @@ import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.simpleButtonData
 import com.github.heheteam.studentbot.state.MenuState
-import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.StudentStartState
 import com.github.heheteam.studentbot.state.quiz.L0
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -55,5 +55,5 @@ class ConfirmAndGoToQuestState(
 
   override fun menuState(): State = this
 
-  override fun defaultState(): State = StartState(context, null)
+  override fun defaultState(): State = StudentStartState(context, null)
 }

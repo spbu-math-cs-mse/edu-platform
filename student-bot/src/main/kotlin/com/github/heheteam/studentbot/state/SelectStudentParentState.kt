@@ -27,9 +27,9 @@ class SelectStudentParentState(override val context: User) :
     service: StudentApi
   ): Result<MenuKeyboardData<State?>, FrontendError> =
     buildColumnMenu(
-        simpleButtonData("\uD83D\uDC66 Я — ученик") { AskStudentFirstNameState(context, null) },
+        simpleButtonData("\uD83D\uDC66 Я — ученик") { StudentStartState(context, null) },
         simpleButtonData("\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67 Я — родитель") {
-          AskParentFirstNameState(context)
+          ParentStartState(context)
         },
       )
       .ok()

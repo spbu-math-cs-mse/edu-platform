@@ -39,7 +39,7 @@ class AskStudentLastNameState(
   ) = Unit.ok()
 
   override fun defaultState(): State {
-    return StartState(context, token)
+    return SelectStudentParentState(context)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit

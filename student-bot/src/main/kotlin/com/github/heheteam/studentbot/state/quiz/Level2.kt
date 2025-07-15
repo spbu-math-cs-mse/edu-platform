@@ -37,6 +37,7 @@ class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/innokenty.png")
     send(
       "\uD83D\uDC29 БУМ! Появляется он... \uD83D\uDCA5 ПУДЕЛЬ ИННОКЕНТИЙ! В бантиках. С калькулятором."

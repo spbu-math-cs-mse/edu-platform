@@ -17,7 +17,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class StartState(override val context: User, private val token: String?) :
+class StudentStartState(override val context: User, private val token: String?) :
   BotState<StudentId?, Unit, StudentApi> {
   override suspend fun readUserInput(
     bot: BehaviourContext,

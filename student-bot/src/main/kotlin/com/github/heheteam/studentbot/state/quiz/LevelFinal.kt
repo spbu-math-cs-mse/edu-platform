@@ -17,6 +17,7 @@ class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/star.png")
     send("Ты стоишь на вершине. Перед тобой — сияющая звезда.\n")
     send(
@@ -25,13 +26,7 @@ class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     )
     val buttons = listOf("\uD83C\uDFC5 Получить Сертификат", "\uD83C\uDF93 Узнать о курсе")
     send(
-      "\uD83D\uDC3E \"Ты герой. А хочешь дальше решать класснее сложные задачи — " +
-        "приходи к нам в онлайн-школу Дабромат! " +
-        "В учебе я тебя не брошу, не переживай — буду продолжать помогать тебе. " +
-        "Но помимо этого ты познакомишься с лучшими преподавателями страны, " +
-        "которые прокачают твой мозг так, что ты сможешь стать интеллектуальной элитой, " +
-        "зарабатывать горы денег (и подкармливать меня!) и найти много новых друзей, " +
-        "столь же увлеченных решением сложных задач, как и ты! \"",
+      text,
       replyMarkup =
         inlineKeyboard {
           row { dataButton(buttons[0], buttons[0]) }
@@ -42,11 +37,19 @@ class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     addDataCallbackHandler { callbackQuery ->
       when (callbackQuery.data) {
         buttons[0] -> NewState(L4Certificate(context, userId))
-        // TODO: buttons[1] -> NewState(TODO())
         else -> Unhandled
       }
     }
   }
+
+  val text =
+    "\uD83D\uDC3E \"Ты герой. А хочешь дальше решать класснее сложные задачи — " +
+      "приходи к нам в онлайн-школу Дабромат! " +
+      "В учебе я тебя не брошу, не переживай — буду продолжать помогать тебе. " +
+      "Но помимо этого ты познакомишься с лучшими преподавателями страны, " +
+      "которые прокачают твой мозг так, что ты сможешь стать интеллектуальной элитой, " +
+      "зарабатывать горы денег (и подкармливать меня!) и найти много новых друзей, " +
+      "столь же увлеченных решением сложных задач, как и ты! \""
 }
 
 class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
@@ -54,6 +57,7 @@ class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendMarkdown("Поздравляем! Ты получаешь *Сертификат Героя Матемаланда* \uD83C\uDFC6\n")
     val buttons = listOf("\uD83C\uDF93 Узнать о курсе\n", "\uD83D\uDD19 В меню!")
     send(

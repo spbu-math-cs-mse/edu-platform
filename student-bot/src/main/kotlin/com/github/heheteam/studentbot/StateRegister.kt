@@ -20,6 +20,7 @@ import com.github.heheteam.studentbot.state.AskStudentLastNameState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.MenuState
+import com.github.heheteam.studentbot.state.ParentStartState
 import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
@@ -32,7 +33,7 @@ import com.github.heheteam.studentbot.state.SelectParentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
-import com.github.heheteam.studentbot.state.StartState
+import com.github.heheteam.studentbot.state.StudentStartState
 import com.github.heheteam.studentbot.state.parent.registerParentStates
 import com.github.heheteam.studentbot.state.quiz.FirstQuestion
 import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
@@ -42,7 +43,6 @@ import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
-import dev.inmo.tgbotapi.extensions.behaviour_builder.strictlyOn
 import dev.inmo.tgbotapi.types.chat.User
 
 internal class StateRegister(
@@ -55,7 +55,7 @@ internal class StateRegister(
     with(bot) {
       strictlyOn<SelectStudentGradeState> { it.handle(this, studentApi) }
       strictlyOn<ConfirmAndGoToQuestState> { it.handle(this, studentApi) }
-      registerStateForBotState<StartState, StudentApi>(studentApi)
+      registerStateForBotState<StudentStartState, StudentApi>(studentApi)
       registerStateForBotState<AskStudentFirstNameState, StudentApi>(studentApi)
       registerState<AskStudentLastNameState, StudentApi>(studentApi)
       registerSendSubmissionState(botToken, studentApi)
@@ -102,6 +102,7 @@ internal class StateRegister(
       strictlyOn<AskParentFirstNameState> { it.handle(this, parentApi) }
       strictlyOn<AskParentLastNameState> { it.handle(this, parentApi) }
       strictlyOn<SelectParentGradeState> { it.handle(this, parentApi) }
+      strictlyOn<ParentStartState> { it.handle(this, parentApi) }
       registerParentStates(parentApi)
     }
   }

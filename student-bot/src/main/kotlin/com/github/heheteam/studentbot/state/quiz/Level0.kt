@@ -13,6 +13,7 @@ class L0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/forest.png")
     send(
       "\uD83C\uDF0C Дуся идёт рядом с тобой по лесной тропинке. " +
@@ -35,7 +36,6 @@ class L0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
       when (callbackQuery.data) {
         buttons[0] -> NewState(L1S0(context, userId))
         buttons[1] -> {
-          saveState(service)
           NewState(menuState())
         }
         else -> Unhandled

@@ -11,6 +11,7 @@ class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     send(
       "\uD83C\uDF32 Ты входишь в Числовой Лес. " +
         "Всё здесь построено из чисел: деревья считают листья, кусты шепчут примеры."
@@ -42,6 +43,7 @@ class L1S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     send("$DOG_EMOJI Дуся: \"Осторожно! Только тот, кто решит задачу, может пройти дальше.\"")
     send(
       "На очень длинных воротах кто-то выписал все числа от 1 до 25 в порядке убывания без пробелов, " +
@@ -75,6 +77,7 @@ class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     send(
       "\uD83C\uDF0A Перед тобой — речка. " +
         "Через неё можно перебраться только по камням, если прыгать по ним в нужном порядке."
@@ -95,7 +98,6 @@ class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         buttons[0] -> NewState(L1S3(context, userId))
         buttons[1] -> NewState(L1S3Bellyrub(context, userId))
         buttons[2] -> {
-          saveState(service)
           NewState(menuState())
         }
         else -> Unhandled
@@ -109,6 +111,7 @@ class L1S3Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/bellyrub_1.png")
     val buttons = listOf("\uD83C\uDFDE Перейти к речке")
     send(
@@ -131,6 +134,7 @@ class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     send(
       "\uD83E\uDEA8 Ты стоишь на берегу и видишь перед собой 101 камешек выложенных в ряд. " +
         "Можно делать либо короткие прыжки через 4 камешка, либо длинные – через 12 " +
@@ -161,6 +165,7 @@ class L1S4<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/ent.png")
     send(
       "$TREE_EMOJI Энт: \"Я не дерево. Я ЭНТ! Никто не пройдет дальше. Это моя дорога, и она платная\""
@@ -197,6 +202,7 @@ class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     val buttons =
       listOf("$TREE_EMOJI Подойти к дубу", "\uD83E\uDD17 Почесать ещё раз", "\uD83D\uDD19  Назад")
     send(
@@ -223,6 +229,7 @@ class L1S4Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/bellyrub_2.png")
     val buttons = listOf("\uD83C\uDFDE Подойти к дубу")
     send(

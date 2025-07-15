@@ -39,8 +39,8 @@ open class L2S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         )
         val userId = userId
         when (userId) {
-          is StudentId -> DefaultErrorStateStudent(context, userId, this@L2S0)
-          is ParentId -> DefaultErrorStateParent(context, userId, this@L2S0)
+          is StudentId -> DefaultErrorStateStudent(context, userId, L2S0Student(context, userId))
+          is ParentId -> DefaultErrorStateParent(context, userId, L2S0Parent(context, userId))
           else -> error("unreachable")
         }
       },
@@ -92,8 +92,8 @@ open class L2Boss<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         )
         val userId = userId
         when (userId) {
-          is StudentId -> DefaultErrorStateStudent(context, userId, this@L2Boss)
-          is ParentId -> DefaultErrorStateParent(context, userId, this@L2Boss)
+          is StudentId -> DefaultErrorStateStudent(context, userId, L2BossStudent(context, userId))
+          is ParentId -> DefaultErrorStateParent(context, userId, L2BossParent(context, userId))
           else -> error("unreachable")
         }
       },

@@ -56,8 +56,9 @@ open class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
           val userId = userId
           NewState(
             when (userId) {
-              is StudentId -> DefaultErrorStateStudent(context, userId, this@L3S0)
-              is ParentId -> DefaultErrorStateParent(context, userId, this@L3S0)
+              is StudentId ->
+                DefaultErrorStateStudent(context, userId, L3S0Student(context, userId))
+              is ParentId -> DefaultErrorStateParent(context, userId, L3S0Parent(context, userId))
               else -> error("unreachable")
             }
           )
@@ -68,6 +69,8 @@ open class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     }
   }
 }
+
+private const val L3S1_ANSWER = 54
 
 open class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
@@ -83,7 +86,7 @@ open class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         "которое делится на 3. Сколько всего чисел на террасе?"
     )
     addIntegerReadHandler(
-      48,
+      L3S1_ANSWER,
       this@L3S1,
       {
         send(
@@ -100,14 +103,16 @@ open class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         send("$DOG_EMOJI Дуся: \"Тяф! Даже ежу понятно, что ты не прав!\"\n")
         val userId = userId
         when (userId) {
-          is StudentId -> DefaultErrorStateStudent(context, userId, this@L3S1)
-          is ParentId -> DefaultErrorStateParent(context, userId, this@L3S1)
+          is StudentId -> DefaultErrorStateStudent(context, userId, L3S1Student(context, userId))
+          is ParentId -> DefaultErrorStateParent(context, userId, L3S1Parent(context, userId))
           else -> error("unreachable")
         }
       },
     )
   }
 }
+
+private const val L3S2_ANSWER = 10
 
 open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
@@ -156,7 +161,7 @@ open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     )
 
     addIntegerReadHandler(
-      10,
+      L3S2_ANSWER,
       this@L3S2,
       {
         send("$DOG_EMOJI Дуся: \"Победа! Это почти вершина... вижу свет звезды!\"")
@@ -173,8 +178,8 @@ open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
         )
         val userId = userId
         when (userId) {
-          is StudentId -> DefaultErrorStateStudent(context, userId, this@L3S2)
-          is ParentId -> DefaultErrorStateParent(context, userId, this@L3S2)
+          is StudentId -> DefaultErrorStateStudent(context, userId, L3S2Student(context, userId))
+          is ParentId -> DefaultErrorStateParent(context, userId, L3S2Parent(context, userId))
           else -> error("unreachable")
         }
       },

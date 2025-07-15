@@ -24,8 +24,6 @@ inline fun <
     },
 ) {
 
-  strictlyOn<DefaultErrorState<ApiService, UserId>> { it.handle(this, studentApi) }
-
   registerStateForBotStateWithHandlersAndUserId<L0<ApiService, UserId>, ApiService, UserId>(
     studentApi,
     initUpdateHandlers,
@@ -114,9 +112,6 @@ inline fun DefaultBehaviourContextWithFSM<State>.registerStudentQuests(
     { _, _, _ ->
     },
 ) {
-  strictlyOn<DefaultErrorState<StudentApi, StudentId>> {
-    it.handle(this, studentApi, initUpdateHandlers)
-  }
   strictlyOn<DefaultErrorStateStudent> { it.handle(this, studentApi, initUpdateHandlers) }
   registerStateForBotStateWithHandlersAndUserId<L0Student, StudentApi, StudentId>(
     studentApi,
@@ -191,9 +186,6 @@ inline fun DefaultBehaviourContextWithFSM<State>.registerParentQuests(
     { _, _, _ ->
     },
 ) {
-  strictlyOn<DefaultErrorState<ParentApi, ParentId>> {
-    it.handle(this, parentApi, initUpdateHandlers)
-  }
   strictlyOn<DefaultErrorStateParent> { it.handle(this, parentApi, initUpdateHandlers) }
   registerStateForBotStateWithHandlersAndUserId<L0Parent, ParentApi, ParentId>(
     parentApi,

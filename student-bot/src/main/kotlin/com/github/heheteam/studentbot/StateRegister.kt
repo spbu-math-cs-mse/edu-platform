@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.TokenError
+import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
@@ -34,6 +35,7 @@ import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.StudentStartState
+import com.github.heheteam.studentbot.state.parent.ParentMenuState
 import com.github.heheteam.studentbot.state.parent.registerParentStates
 import com.github.heheteam.studentbot.state.quiz.FirstQuestion
 import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
@@ -98,13 +100,13 @@ internal class StateRegister(
       registerStateWithStudentId<ZeroQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<FirstQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)
-      registerParentQuests(parentApi)
+      registerParentQuests(parentApi, ::initializeParentsHandlers)
       strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }
       strictlyOn<AskParentFirstNameState> { it.handle(this, parentApi) }
       strictlyOn<AskParentLastNameState> { it.handle(this, parentApi) }
       strictlyOn<SelectParentGradeState> { it.handle(this, parentApi) }
       strictlyOn<ParentStartState> { it.handle(this, parentApi) }
-      registerParentStates(parentApi)
+      registerParentStates(parentApi, ::initializeParentsHandlers)
     }
   }
 
@@ -131,6 +133,20 @@ internal class StateRegister(
     handlersController.addTextMessageHandler { maybeCommandMessage ->
       if (maybeCommandMessage.content.text == "/menu") {
         NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    }
+  }
+
+  private fun initializeParentsHandlers(
+    handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+    context: User,
+    studentId: ParentId,
+  ) {
+    handlersController.addTextMessageHandler { maybeCommandMessage ->
+      if (maybeCommandMessage.content.text == "/menu") {
+        NewState(ParentMenuState(context, studentId))
       } else {
         Unhandled
       }

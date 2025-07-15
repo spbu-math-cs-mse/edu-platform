@@ -60,10 +60,9 @@ class ParentStartQuestState(override val context: User, override val userId: Par
     service: ParentApi,
     input: Boolean,
   ): Result<Pair<State, Unit>, FrontendError> {
-
     return if (input) {
-        val stateNAme = service.resolveCurrentQuestState(userId).get()
-        val state = QuestState.restoreState<ParentApi, ParentId>(stateNAme, context, userId).get()
+        val stateName = service.resolveCurrentQuestState(userId).get()
+        val state = QuestState.restoreState<ParentApi, ParentId>(stateName, context, userId).get()
         if (state != null) {
           state to Unit
         } else {

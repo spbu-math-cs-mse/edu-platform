@@ -11,20 +11,11 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
-import com.github.heheteam.studentbot.Dialogues
-import com.github.heheteam.studentbot.Keyboards
-import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
-import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
-import com.github.heheteam.studentbot.Keyboards.COURSES_CATALOG
-import com.github.heheteam.studentbot.Keyboards.FREE_ACTIVITY
-import com.github.heheteam.studentbot.Keyboards.MOVE_DEADLINES
-import com.github.heheteam.studentbot.Keyboards.PET_THE_DACHSHUND
-import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
+import com.github.heheteam.studentbot.state.quiz.L0Student
 import com.github.heheteam.studentbot.state.quiz.QuestState
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
-import com.github.michaelbull.result.getOr
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -34,7 +25,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
-data class MenuState(override val context: User, override val userId: StudentId) :
+class MenuState(override val context: User, override val userId: StudentId) :
   BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
@@ -45,36 +36,33 @@ data class MenuState(override val context: User, override val userId: StudentId)
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    service.updateTgId(userId, context.id)
-    val stickerMessage = bot.sendSticker(context.id, Dialogues.typingSticker)
-
-    val isNewUser = service.getStudentCourses(userId).bind().isEmpty()
-
+    val stickerMessage = bot.sendSticker(context.id, StudentDialogues.typingSticker)
     val initialMessage =
-      bot.send(context, text = Dialogues.menu, replyMarkup = Keyboards.menu(isNewUser))
+      bot.send(context, text = StudentDialogues.menu, replyMarkup = StudentKeyboards.menu())
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
-    updateHandlersController.addDataCallbackHandler(processKeyboardButtonPresses(service))
+    updateHandlersController.addDataCallbackHandler { it ->
+      processKeyboardButtonPresses(it, service)
+    }
   }
 
-  private fun processKeyboardButtonPresses(service: StudentApi) = { callback: DataCallbackQuery ->
+  private fun processKeyboardButtonPresses(
+    callback: DataCallbackQuery,
+    service: StudentApi,
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
     val state =
       when (callback.data) {
-        SEND_SOLUTION -> QueryCourseForSubmissionSendingState(context, userId)
-        CHECK_GRADES -> QueryCourseForCheckingGradesState(context, userId)
-        CHECK_DEADLINES -> QueryCourseForCheckingDeadlinesState(context, userId)
-        MOVE_DEADLINES -> RescheduleDeadlinesState(context, userId)
-        COURSES_CATALOG -> ApplyForCoursesState(context, userId)
-        PET_THE_DACHSHUND -> PetTheDachshundState(context, userId)
-        FREE_ACTIVITY -> {
-          val state = service.resolveCurrentQuestState(userId).get()
-          QuestState.restoreState<StudentApi, StudentId>(state, context, userId).getOr(Unhandled)
+        StudentKeyboards.ABOUT_COURSE -> StudentAboutCourseState(context, userId)
+        StudentKeyboards.FREE_ACTIVITY -> {
+          val stateName = service.resolveCurrentQuestState(userId).get()
+          val state =
+            QuestState.restoreState<StudentApi, StudentId>(stateName, context, userId).get()
+          state ?: L0Student(context, userId)
         }
-
         else -> null
       }
-    if (state != null) {
-      UserInput(state) as HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing>
+    return if (state != null) {
+      UserInput(state)
     } else {
       Unhandled
     }

@@ -26,7 +26,7 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 typealias HandlersController = UpdateHandlersController<() -> Unit, String, FrontendError>
 
 class BotContext(
-  private val bot: BehaviourContext,
+  val bot: BehaviourContext,
   private val context: User,
   private val handlersController: HandlersController,
 ) {

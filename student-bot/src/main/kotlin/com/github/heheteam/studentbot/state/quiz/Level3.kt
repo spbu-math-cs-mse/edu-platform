@@ -115,6 +115,8 @@ open class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
 
 private const val L3S2_ANSWER = 10
 
+private const val DELAY_MILLIS = 1500L
+
 open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
@@ -126,7 +128,7 @@ open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     send(
       "На последнем склоне расположена дума, в которой за круглым столом заседают лесные депутаты."
     )
-    val timeMillis = 500L
+    val timeMillis = DELAY_MILLIS
     delay(timeMillis)
     send("\"Стой, кто идет, не положено!\"")
     delay(timeMillis)

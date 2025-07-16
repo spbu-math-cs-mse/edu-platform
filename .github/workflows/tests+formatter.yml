@@ -163,8 +163,8 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd /root/edu-platform
-            echo $DBUSER > secrets/db_user
-            echo $DBPASSWORD > secrets/db_password
+            echo "${{ secrets.PROD_DB_USER }}" > secrets/db_user
+            echo "${{ secrets.PROD_DB_PASSWORD }}" > secrets/db_password
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull backend
             docker compose up -d --force-recreate backend

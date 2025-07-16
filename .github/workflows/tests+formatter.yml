@@ -116,6 +116,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set passwords
+        run: |
+          echo "${{ secrets.PROD_DB_USER }}" > secrets/db_user
+          echo "${{ secrets.PROD_DB_PASSWORD }}" > secrets/db_password
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:

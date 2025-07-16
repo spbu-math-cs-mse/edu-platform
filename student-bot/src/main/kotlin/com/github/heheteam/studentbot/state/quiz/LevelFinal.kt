@@ -120,7 +120,9 @@ abstract class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : Common
         File(object {}.javaClass.getResource("/certificate-pure.png")?.file ?: return null)
       val templateImage: BufferedImage =
         read(templateFile)
-          ?: throw IllegalArgumentException("Could not read image from: ${"/certificate-pure.png"}")
+          ?: throw IllegalArgumentException(
+            "Could not read image from: ${templateFile.canonicalPath}"
+          )
 
       val g2d: Graphics2D = templateImage.createGraphics()
       g2d.setRenderingHint(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_ON)

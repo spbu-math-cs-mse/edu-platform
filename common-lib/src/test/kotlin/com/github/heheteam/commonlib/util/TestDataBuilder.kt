@@ -54,7 +54,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
 
   fun student(name: String, surname: String, tgId: Long = defaultChatId): Student =
     binding {
-        val studentId = apis.studentApi.createStudent(name, surname, tgId, grade, from).value
+        val studentId = apis.studentApi.createStudent(name, surname, tgId, null, null).value
         val student = apis.studentApi.loginById(studentId).bind()!!
         student
       }

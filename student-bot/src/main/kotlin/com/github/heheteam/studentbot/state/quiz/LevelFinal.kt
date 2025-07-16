@@ -1,5 +1,7 @@
 package com.github.heheteam.studentbot.state.quiz
 
+import com.github.heheteam.commonlib.AttachmentKind
+import com.github.heheteam.commonlib.LocalMediaAttachment
 import com.github.heheteam.commonlib.api.CommonUserApi
 import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
@@ -112,12 +114,13 @@ abstract class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : Common
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  @Suppress("TooGenericExceptionCaught") // should ban it over the whole repo
+  @Suppress("TooGenericExceptionCaught")
+  suspend // should ban it over the whole repo
   fun createCertificateImage(name: String): File? {
     val temporaryFile = File.createTempFile("img", ".png")
     try {
       val templateFile =
-        File(object {}.javaClass.getResource("/certificate-pure.png")?.file ?: return null)
+        LocalMediaAttachment(AttachmentKind.PHOTO, "/certificate-pure.png").openFile()
       val templateImage: BufferedImage =
         read(templateFile)
           ?: throw IllegalArgumentException(

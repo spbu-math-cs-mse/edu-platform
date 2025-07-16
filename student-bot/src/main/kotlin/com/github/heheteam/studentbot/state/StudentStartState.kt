@@ -10,7 +10,6 @@ import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
@@ -18,7 +17,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class StartState(override val context: User, private val token: String?) :
+class StudentStartState(override val context: User, private val token: String?) :
   BotState<StudentId?, Unit, StudentApi> {
   override suspend fun readUserInput(
     bot: BehaviourContext,
@@ -35,14 +34,10 @@ class StartState(override val context: User, private val token: String?) :
                   bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
                 },
                 failure = { error ->
-                  when (error) {
-                    else -> {
-                      val deepError = error.error
-                      if (deepError is TokenError)
-                        bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
-                      else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
-                    }
-                  }
+                  val deepError = error.error
+                  if (deepError is TokenError)
+                    bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+                  else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
                 },
               )
           }
@@ -60,7 +55,7 @@ class StartState(override val context: User, private val token: String?) :
     if (input != null) {
         MenuState(context, input) to Unit
       } else {
-        AskFirstNameState(context, token) to Unit
+        AskStudentFirstNameState(context, token) to Unit
       }
       .ok()
 

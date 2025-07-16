@@ -10,6 +10,7 @@ class RichParent(
   var firstName: String,
   var lastName: String,
   val tgId: RawChatId,
+  var lastQuestState: String? = null,
   val children: MutableList<StudentId>,
 ) {
   fun addChild(student: Student) {

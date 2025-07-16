@@ -69,7 +69,7 @@ class DatabaseAdminStorage(val database: Database) : AdminStorage {
   override fun resolveByTgId(tgId: UserId): Result<Admin?, EduPlatformError> =
     catchingTransaction(database) {
       val row =
-        AdminTable.selectAll().where { AdminTable.tgId eq (tgId.chatId.long) }.singleOrNull()
+        AdminTable.selectAll().where { AdminTable.tgId eq (tgId.chatId.long) }.firstOrNull()
           ?: return@catchingTransaction null
       Admin(
         row[AdminTable.id].value.toAdminId(),

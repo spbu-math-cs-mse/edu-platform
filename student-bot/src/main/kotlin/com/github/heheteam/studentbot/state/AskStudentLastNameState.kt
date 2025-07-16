@@ -8,7 +8,6 @@ import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlerManager
-import com.github.heheteam.commonlib.util.HandlingError
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
@@ -22,7 +21,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class AskLastNameState(
+class AskStudentLastNameState(
   override val context: User,
   private val firstName: String,
   private val token: String?,
@@ -40,7 +39,7 @@ class AskLastNameState(
   ) = Unit.ok()
 
   override fun defaultState(): State {
-    return StartState(context, token)
+    return SelectStudentParentState(context)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: StudentApi) = Unit
@@ -53,18 +52,11 @@ class AskLastNameState(
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
-      val maybeStudentId = service.createStudent(firstName, lastName, context.id.chatId.long)
-      maybeStudentId.mapBoth(
-        success = { studentId ->
-          greetUser(lastName, service, studentId, bot)
-          NewState(MenuState(context, studentId))
-        },
-        failure = { HandlingError(it) },
-      )
+      NewState(SelectStudentGradeState(context, firstName, lastName))
     }
-    updateHandlersController.addDataCallbackHandler { callback ->
-      if (callback.data == Keyboards.RETURN_BACK) {
-        NewState(AskFirstNameState(context, token))
+    updateHandlersController.addDataCallbackHandler { callBack ->
+      if (callBack.data == Keyboards.RETURN_BACK) {
+        NewState(SelectStudentParentState(context))
       } else {
         Unhandled
       }

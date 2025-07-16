@@ -1,5 +1,48 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues></CurrentIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:Level1.kt$L1S2$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>CyclomaticComplexMethod:Level1.kt$L1S4Wrong$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>DoubleMutabilityForCollection:QuestState.kt$QuestState$var messagesWithKeyboard: MutableList&lt;ContentMessage&lt;*&gt;&gt; = mutableListOf()</ID>
+    <ID>ExplicitItLambdaParameter:MenuState.kt$MenuState${ it -&gt; processKeyboardButtonPresses(it, service) }</ID>
+    <ID>LongMethod:Level0.kt$L0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S1$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S2$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S3$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S4$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level1.kt$L1S4Wrong$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level2.kt$L2Boss$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level2.kt$L2S0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level3.kt$L3S0$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level3.kt$L3S1$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:Level3.kt$L3S2$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:LevelFinal.kt$L4Certificate$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:LevelFinal.kt$L4Final$override suspend fun BotContext.run(service: ApiService)</ID>
+    <ID>LongMethod:QuestStateRegister.kt$inline fun &lt; ApiService : CommonUserApi&lt;UserId&gt;, UserId : CommonUserId, &gt; DefaultBehaviourContextWithFSM&lt;State&gt;.registerQuest( studentApi: ApiService, noinline initUpdateHandlers: (UpdateHandlersController&lt;() -&gt; Unit, out Any?, FrontendError&gt;, User, UserId) -&gt; Unit = { _, _, _ -&gt; }, )</ID>
+    <ID>LongMethod:QuestStateRegister.kt$inline fun DefaultBehaviourContextWithFSM&lt;State&gt;.registerParentQuests( parentApi: ParentApi, noinline initUpdateHandlers: (UpdateHandlersController&lt;() -&gt; Unit, out Any?, FrontendError&gt;, User, ParentId) -&gt; Unit = { _, _, _ -&gt; }, )</ID>
+    <ID>LongMethod:QuestStateRegister.kt$inline fun DefaultBehaviourContextWithFSM&lt;State&gt;.registerStudentQuests( studentApi: StudentApi, noinline initUpdateHandlers: (UpdateHandlersController&lt;() -&gt; Unit, out Any?, FrontendError&gt;, User, StudentId) -&gt; Unit = { _, _, _ -&gt; }, )</ID>
+    <ID>MagicNumber:Level1.kt$L1S1$4</ID>
+    <ID>MagicNumber:Level1.kt$L1S3$7</ID>
+    <ID>MagicNumber:Level1.kt$L1S4$200</ID>
+    <ID>MagicNumber:Level3.kt$L3S0$3</ID>
+    <ID>MagicNumber:Level3.kt$L3S1$48</ID>
+    <ID>MagicNumber:Level3.kt$L3S2$500L</ID>
+    <ID>MagicNumber:Level3.kt$L3S2$9</ID>
+    <ID>MagicNumber:SelectParentGradeState.kt$SelectParentGradeState$11</ID>
+    <ID>MagicNumber:SelectStudentGradeState.kt$SelectStudentGradeState$11</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"*Главная цель курса* — подготовить ученика к *дальнейшему обучению* на наших *регулярных курсах* по олимпиадной математике.\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"\uD83C\uDFC6 У нас есть *рейтинг участников* — можно увидеть, кто что решил. Это не только мотивирует, но и помогает понять, какие задачи были особенно сложными или простыми.\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"\uD83D\uDCCC А если даже не идти по математическому пути — *умение думать, анализировать и решать нестандартные задачи* останется с ребёнком навсегда. Это инвестиция, которая работает в любом направлении.\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"\uD83D\uDCDA *Главный принцип курса* — не просто решать задачи, а *выстраивать понимание*. Каждая задача в курсе — часть продуманной системы, направленной на отработку конкретного навыка. Все задачи идут в *единой нумерации* и логической последовательности.\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"\uD83D\uDCDD После каждого занятия — домашка. Решения отправляются *через Таксу Дусю*, она передаёт их преподавателю. Домашка состоит из ~5 задач, но:\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"\uD83D\uDD27 Мы адаптировали эту методику под онлайн-формат — с полноценной системой взаимодействия, домашками, рейтингами и *Таксой Дусей*, которая помогает сделать процесс весёлым и увлекательным \uD83D\uDC36\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"А ещё… иногда Дуся может неожиданно прислать дополнительную задачу или загадку. Она же охотничья такса — постоянно что-то находит! \uD83D\uDC3E\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"Как видно из названия, курс — это *введение в олимпиадную математику*, и *не требует специальных знаний* за пределами школьной программы.\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"Наш курс создан на основе *проверенной временем методики* преподавания олимпиадной математики, которая десятилетиями применяется в лучших физмат-школах страны — включая *ФМЛ №239, Л2Ш, ЦПМ* и другие топовые математические центры.\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"⏰ Курс “Введение в олимпиадную математику” длится *4 недели*. Каждую неделю — *два живых интерактивных занятия* по 45 минут:\n"</ID>
+    <ID>MaxLineLength:ParentDialogues.kt$ParentDialogues$"❗ Даже если у ребёнка *есть трудности на школьных уроках*, это *не помеха*! Иногда достаточно просто *показать математику с другой стороны*, через игру, вызов и настоящее мышление.\n"</ID>
+    <ID>UnusedPrivateMember:AskStudentLastNameState.kt$AskStudentLastNameState$private suspend fun greetUser( lastName: String, service: StudentApi, studentId: StudentId, bot: BehaviourContext, )</ID>
+  </CurrentIssues>
 </SmellBaseline>

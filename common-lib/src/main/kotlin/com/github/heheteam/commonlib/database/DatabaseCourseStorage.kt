@@ -170,9 +170,10 @@ class DatabaseCourseStorage(private val courseRepository: CourseRepository) : Co
         .map {
           Student(
             it[CourseStudents.studentId].value.toStudentId(),
-            it[StudentTable.name].toString(),
-            it[StudentTable.surname].toString(),
+            it[StudentTable.name],
+            it[StudentTable.surname],
             it[StudentTable.tgId].toRawChatId(),
+            it[StudentTable.lastQuestState],
           )
         }
     }

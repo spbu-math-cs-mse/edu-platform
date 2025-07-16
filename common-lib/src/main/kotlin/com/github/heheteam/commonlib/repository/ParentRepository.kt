@@ -9,7 +9,7 @@ import dev.inmo.tgbotapi.types.RawChatId
 interface ParentRepository {
   fun save(richParent: RichParent): Result<RichParent, EduPlatformError>
 
-  fun findById(parentId: ParentId): Result<RichParent, EduPlatformError>
+  fun findById(parentId: ParentId): Result<RichParent?, EduPlatformError>
 
   fun findByTgId(tgId: RawChatId): Result<RichParent?, EduPlatformError>
 }

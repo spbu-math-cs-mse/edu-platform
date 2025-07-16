@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.util
 
 import com.github.heheteam.commonlib.AttachmentKind
 import com.github.heheteam.commonlib.MediaAttachment
+import com.github.heheteam.commonlib.RemoteMediaAttachment
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.errors.TelegramError
 import com.github.michaelbull.result.Result
@@ -41,22 +42,6 @@ import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.extensions.makeMarkdownV2String
 import dev.inmo.tgbotapi.utils.extensions.makeString
 import java.io.File
-import java.io.FileOutputStream
-import java.net.URI
-import java.net.URL
-import java.nio.channels.Channels
-
-fun downloadFile(fileURL: String, outputFileName: String): File {
-  val extension = fileURL.substringAfterLast(".")
-  val url: URL = URI(fileURL).toURL()
-  val file = File("$outputFileName.$extension")
-  url.openStream().use {
-    Channels.newChannel(it).use { rbc ->
-      FileOutputStream(file).use { fos -> fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE) }
-    }
-  }
-  return file
-}
 
 suspend fun TelegramBot.sendTextWithMediaAttachments(
   chatId: ChatId,
@@ -89,7 +74,7 @@ private suspend fun TelegramBot.sendSingleMedia(
   submissionContent: TextSourcesList,
   replyTo: MessageId? = null,
 ): ContentMessage<MediaGroupPartContent> {
-  val file = downloadFile(singleAttachment.downloadUrl, singleAttachment.uniqueString)
+  val file = singleAttachment.openFile()
   return when (singleAttachment.kind) {
     AttachmentKind.PHOTO -> {
       sendTextWithPhoto(replyTo, chatId, file, submissionContent)
@@ -158,7 +143,7 @@ private suspend fun TelegramBot.sendSubmissionAsGroupMedia(
     attachments
       .mapIndexed { index, media ->
         val firstMediaText = if (index == 0) text else null
-        val file = downloadFile(media.downloadUrl, media.uniqueString)
+        val file = media.openFile()
         when (media.kind) {
           AttachmentKind.PHOTO -> {
             TelegramMediaPhoto(file.asMultipartFile(), firstMediaText.orEmpty())
@@ -216,7 +201,11 @@ private suspend fun extractSingleAttachment(
   TextWithMediaAttachments(
     text,
     listOf(
-      MediaAttachment(attachmentKind, makeURL(content, botToken, bot), content.media.fileId.fileId)
+      RemoteMediaAttachment(
+        attachmentKind,
+        makeURL(content, botToken, bot),
+        content.media.fileId.fileId,
+      )
     ),
   )
 
@@ -235,6 +224,10 @@ private suspend fun extractMultipleAttachments(
           is AudioContent -> return null
           is VideoContent -> return null
         }
-      MediaAttachment(kind, makeURL(it.content, botToken, bot), it.content.media.fileId.fileId)
+      RemoteMediaAttachment(
+        kind,
+        makeURL(it.content, botToken, bot),
+        it.content.media.fileId.fileId,
+      )
     },
   )

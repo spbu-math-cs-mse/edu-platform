@@ -16,7 +16,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.coroutines.flow.first
 
-class AskFirstNameState(override val context: User, private val token: String?) :
+class AskStudentFirstNameState(override val context: User, private val token: String?) :
   BotState<String, Unit, StudentApi> {
   override suspend fun readUserInput(
     bot: BehaviourContext,
@@ -35,7 +35,7 @@ class AskFirstNameState(override val context: User, private val token: String?) 
     service: StudentApi,
     input: String,
   ): Result<Pair<State, Unit>, FrontendError> =
-    (AskLastNameState(context, input, token) to Unit).ok()
+    (AskStudentLastNameState(context, input, token) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

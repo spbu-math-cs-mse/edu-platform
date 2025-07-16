@@ -18,6 +18,8 @@ interface StudentStorage {
     name: String = "defaultName",
     surname: String = "defaultSurname",
     tgId: Long = 0L,
+    grade: Int?,
+    from: String?,
   ): Result<StudentId, EduPlatformError>
 
   fun resolveStudent(studentId: StudentId): Result<Student?, EduPlatformError>

@@ -18,6 +18,7 @@ class SelectParentGradeState(
   override val context: User,
   val firstName: String,
   val lastName: String,
+  private val from: String?,
 ) : NavigationBotStateWithHandlers<ParentApi>() {
   override val introMessageContent: TextSourcesList = buildEntities {
     +"А в каком классе учится ваш ребёнок? "
@@ -30,7 +31,7 @@ class SelectParentGradeState(
   override fun createKeyboardOrResult(
     service: ParentApi
   ): Result<MenuKeyboardData<State?>, FrontendError> = binding {
-    val parent = service.createParent(firstName, lastName, context.id.chatId).bind()
+    val parent = service.createParent(firstName, lastName, context.id.chatId, from).bind()
     val data = (1..11).map { "$it класс" to it } + listOf("Студент" to null)
     buildColumnMenu(
       data.map { (label, grade) -> simpleButtonData(label) { ParentMenuState(context, parent.id) } }

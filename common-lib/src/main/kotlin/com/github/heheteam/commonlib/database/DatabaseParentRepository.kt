@@ -28,6 +28,7 @@ class DatabaseParentRepository : ParentRepository {
         it[ParentTable.name] = richParent.firstName
         it[ParentTable.surname] = richParent.lastName
         it[ParentTable.tgId] = richParent.tgId.long
+        it[ParentTable.discoverySource] = richParent.from
         it[ParentTable.lastQuestState] = richParent.lastQuestState
       }
     } else {
@@ -37,6 +38,7 @@ class DatabaseParentRepository : ParentRepository {
         it[ParentTable.surname] = richParent.lastName
         it[ParentTable.tgId] = richParent.tgId.long
         it[ParentTable.lastQuestState] = richParent.lastQuestState
+        it[ParentTable.discoverySource] = richParent.from
       }
     }
 
@@ -71,6 +73,7 @@ class DatabaseParentRepository : ParentRepository {
             lastName = row[ParentTable.surname],
             tgId = RawChatId(row[ParentTable.tgId]),
             lastQuestState = row[ParentTable.lastQuestState],
+            from = row[ParentTable.discoverySource],
             children = children,
           )
         )
@@ -96,6 +99,7 @@ class DatabaseParentRepository : ParentRepository {
             lastName = row[ParentTable.surname],
             tgId = RawChatId(row[ParentTable.tgId]),
             lastQuestState = row[ParentTable.lastQuestState],
+            from = row[ParentTable.discoverySource],
             children = children,
           )
         )

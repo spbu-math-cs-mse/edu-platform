@@ -12,7 +12,8 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class ParentStartState(override val context: User) : BotState<ParentId?, Unit, ParentApi> {
+class ParentStartState(override val context: User, private val from: String?) :
+  BotState<ParentId?, Unit, ParentApi> {
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: ParentApi,
@@ -28,7 +29,7 @@ class ParentStartState(override val context: User) : BotState<ParentId?, Unit, P
     if (input != null) {
         ParentMenuState(context, input) to Unit
       } else {
-        AskParentFirstNameState(context) to Unit
+        AskParentFirstNameState(context, from) to Unit
       }
       .ok()
 

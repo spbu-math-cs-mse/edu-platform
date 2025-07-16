@@ -18,6 +18,7 @@ class SelectStudentGradeState(
   override val context: User,
   val firstName: String,
   val lastName: String,
+  private val from: String?,
 ) : NavigationBotStateWithHandlers<StudentApi>() {
   override val introMessageContent: TextSourcesList = buildEntities { +"Меню" }
 
@@ -31,7 +32,9 @@ class SelectStudentGradeState(
     val data = (1..11).map { "$it класс" to it } + listOf("Студент" to null)
     return buildColumnMenu(
         data.map { (label, grade) ->
-          simpleButtonData(label) { ConfirmAndGoToQuestState(context, firstName, lastName, grade) }
+          simpleButtonData(label) {
+            ConfirmAndGoToQuestState(context, firstName, lastName, grade, from)
+          }
         }
       )
       .ok()

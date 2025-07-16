@@ -17,8 +17,11 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class AskParentLastNameState(override val context: User, private val firstName: String) :
-  BotStateWithHandlers<StudentId, Unit, ParentApi> {
+class AskParentLastNameState(
+  override val context: User,
+  private val firstName: String,
+  private val from: String?,
+) : BotStateWithHandlers<StudentId, Unit, ParentApi> {
   override suspend fun computeNewState(
     service: ParentApi,
     input: StudentId,
@@ -32,7 +35,7 @@ class AskParentLastNameState(override val context: User, private val firstName: 
   ) = Unit.ok()
 
   override fun defaultState(): State {
-    return SelectStudentParentState(context)
+    return SelectStudentParentState(context, from)
   }
 
   override suspend fun outro(bot: BehaviourContext, service: ParentApi) = Unit
@@ -45,12 +48,12 @@ class AskParentLastNameState(override val context: User, private val firstName: 
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
-      NewState(SelectParentGradeState(context, firstName, lastName))
+      NewState(SelectParentGradeState(context, firstName, lastName, from))
     }
 
     updateHandlersController.addDataCallbackHandler { callBack ->
       if (callBack.data == Keyboards.RETURN_BACK) {
-        NewState(SelectStudentParentState(context))
+        NewState(SelectStudentParentState(context, from))
       } else {
         Unhandled
       }

@@ -17,8 +17,11 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 
-class StudentStartState(override val context: User, private val token: String?) :
-  BotState<StudentId?, Unit, StudentApi> {
+class StudentStartState(
+  override val context: User,
+  private val token: String?,
+  private val from: String? = null,
+) : BotState<StudentId?, Unit, StudentApi> {
   override suspend fun readUserInput(
     bot: BehaviourContext,
     service: StudentApi,
@@ -55,7 +58,7 @@ class StudentStartState(override val context: User, private val token: String?) 
     if (input != null) {
         MenuState(context, input) to Unit
       } else {
-        AskStudentFirstNameState(context, token) to Unit
+        AskStudentFirstNameState(context, token, from) to Unit
       }
       .ok()
 

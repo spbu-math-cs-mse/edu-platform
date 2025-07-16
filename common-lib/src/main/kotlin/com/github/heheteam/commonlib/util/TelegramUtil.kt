@@ -5,10 +5,7 @@ import dev.inmo.kslog.common.warning
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onContentMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onDataCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onMessageCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onUnhandledCommand
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
@@ -41,8 +38,8 @@ suspend fun BehaviourContext.delete(vararg messages: AccessibleMessage) {
 
 @OptIn(RiskFeature::class, PreviewFeature::class)
 suspend fun BehaviourContext.startStateOnUnhandledUpdate(handleAction: suspend (User?) -> Unit) {
-  onUnhandledCommand { handleAction(it.from) }
-  onMessageCallbackQuery { handleAction(it.from) }
+  //  onUnhandledCommand { handleAction(it.from) }
+  //  onMessageCallbackQuery { handleAction(it.from) }
   onDataCallbackQuery { handleAction(it.from) }
-  onContentMessage { handleAction(it.from) }
+  //  onContentMessage { handleAction(it.from) }
 }

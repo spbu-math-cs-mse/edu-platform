@@ -55,9 +55,10 @@ internal constructor(
     firstName: String,
     lastName: String,
     tgId: RawChatId,
+    from: String?,
   ): Result<RichParent, NumberedError> =
     errorManagementService.serviceBinding {
-      parentService.createParent(firstName, lastName, tgId).bind()
+      parentService.createParent(firstName, lastName, tgId, from).bind()
     }
 
   fun getStudentCourses(studentId: StudentId): Result<List<RichCourse>, NumberedError> =

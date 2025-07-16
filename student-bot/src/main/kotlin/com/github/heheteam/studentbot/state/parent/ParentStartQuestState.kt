@@ -44,8 +44,6 @@ class ParentStartQuestState(override val context: User, override val userId: Par
     confirmMessage =
       bot.sendMessage(
         context,
-        //        "Этот функционал пока доступен только в боте у ученика, но обязательно скоро
-        // появится и здесь!",
         "Если ваш ребёнок рядом — передайте ему телефон, и мы начнём игру!\n" +
           "Если хотите посмотреть самостоятельно, нажмите кнопку ниже.",
         replyMarkup = confirmMessageKeyboard.keyboard,

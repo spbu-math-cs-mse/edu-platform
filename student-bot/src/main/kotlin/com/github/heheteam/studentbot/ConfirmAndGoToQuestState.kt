@@ -23,6 +23,7 @@ class ConfirmAndGoToQuestState(
   val firstName: String,
   val lastName: String,
   val grade: Int? = null,
+  val from: String? = null,
 ) : NavigationBotStateWithHandlers<StudentApi>() {
   lateinit var id: StudentId
   override val introMessageContent: TextSourcesList = buildEntities {
@@ -36,7 +37,8 @@ class ConfirmAndGoToQuestState(
   override fun createIntroMessageContent(
     service: StudentApi
   ): Result<TextSourcesList, FrontendError> = binding {
-    val studentId = service.createStudent(firstName, lastName, context.id.chatId.long).bind()
+    val studentId =
+      service.createStudent(firstName, lastName, context.id.chatId.long, grade, from).bind()
     id = studentId
     buildEntities {
       +"Отлично, $firstName! Ты записан(а) как $firstName $lastName!\n\n"

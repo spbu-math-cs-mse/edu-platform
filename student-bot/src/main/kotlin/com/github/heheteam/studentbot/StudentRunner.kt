@@ -11,6 +11,7 @@ import dev.inmo.tgbotapi.extensions.api.bot.setMyCommands
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
+import dev.inmo.tgbotapi.extensions.utils.extensions.parseCommandsWithNamedArgs
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.chat.User
@@ -51,7 +52,7 @@ class StudentRunner(
 
   private suspend fun DefaultBehaviourContextWithFSM<State>.startFromUnhandledUpdate(user: User?) {
     if (user != null) {
-      val startingState = SelectStudentParentState(user)
+      val startingState = SelectStudentParentState(user, null)
       startChain(startingState)
     }
   }
@@ -62,9 +63,14 @@ class StudentRunner(
   ) {
     val user = message.from
     if (user != null) {
-      //      val token = message.parseCommandsWithArgs(" ")["start"]?.firstOrNull()
-      //      val startingState = StartState(user, token)
-      startChain(SelectStudentParentState(user))
+      val args =
+        message.parseCommandsWithNamedArgs(" ")["start"]?.toMap()?.mapKeys { (key, value) ->
+          val index = key.indexOf('=')
+          if (index == -1) key else key.substring(0, index)
+        }
+      val from = args?.get("from")
+      val state = SelectStudentParentState(user, from)
+      startChain(state)
     }
   }
 

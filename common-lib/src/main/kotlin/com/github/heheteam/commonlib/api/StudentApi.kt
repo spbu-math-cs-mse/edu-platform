@@ -79,9 +79,15 @@ internal constructor(
   fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, NumberedError> =
     errorManagementService.serviceBinding { studentStorage.updateTgId(studentId, newTgId).bind() }
 
-  fun createStudent(name: String, surname: String, tgId: Long): Result<StudentId, NumberedError> =
+  fun createStudent(
+    name: String,
+    surname: String,
+    tgId: Long,
+    grade: Int?,
+    from: String?,
+  ): Result<StudentId, NumberedError> =
     errorManagementService.serviceBinding {
-      studentStorage.createStudent(name, surname, tgId).bind()
+      studentStorage.createStudent(name, surname, tgId, grade, from).bind()
     }
 
   suspend fun requestReschedulingDeadlines(

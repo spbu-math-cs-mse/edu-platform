@@ -89,12 +89,16 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
     name: String,
     surname: String,
     tgId: Long,
+    grade: Int?,
+    from: String?,
   ): Result<StudentId, EduPlatformError> =
     catchingTransaction(database) {
         StudentTable.insert {
           it[StudentTable.name] = name
           it[StudentTable.surname] = surname
           it[StudentTable.tgId] = tgId
+          it[StudentTable.grade] = grade
+          it[StudentTable.discoverySource] = from
         } get StudentTable.id
       }
       .map { it.value.toStudentId() }

@@ -123,13 +123,11 @@ abstract class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : Common
           ?: throw IllegalArgumentException(
             "Could not read image from: ${templateFile.canonicalPath}"
           )
-
       val g2d: Graphics2D = templateImage.createGraphics()
       g2d.setRenderingHint(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_ON)
       g2d.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON)
       g2d.setRenderingHint(KEY_RENDERING, VALUE_RENDER_QUALITY)
-      val font = Font("Serif", BOLD, STUDENT_FONT_SIZE)
-      g2d.font = font
+      g2d.font = Font("Serif", BOLD, STUDENT_FONT_SIZE)
       g2d.color = Color.BLACK
       val fontMetrics = g2d.fontMetrics
       val textWidth = fontMetrics.stringWidth(name)

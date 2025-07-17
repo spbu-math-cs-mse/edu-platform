@@ -2,9 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>LongMethod:DatabaseGradeTable.kt$DatabaseGradeTable$override fun getStudentPerformance( studentId: StudentId, assignmentId: AssignmentId, ): List&lt;Pair&lt;Problem, ProblemGrade&gt;&gt;</ID>
     <ID>LongParameterList:GoogleSheetsService.kt$GoogleSheetsService$( courseSpreadsheetId: String, course: Course, assignments: List&lt;Assignment&gt;, problems: List&lt;Problem&gt;, students: List&lt;Student&gt;, performance: Map&lt;StudentId, Map&lt;ProblemId, Grade?&gt;&gt;, )</ID>
-    <ID>LongParameterList:ProblemStorage.kt$ProblemStorage$( assignmentId: AssignmentId, serialNumber: Int, number: String, maxScore: Grade, description: String, deadline: LocalDateTime? = null, )</ID>
     <ID>MagicNumber:AdminTable.kt$AdminTable$255</ID>
     <ID>MagicNumber:AssignmentTable.kt$AssignmentTable$100</ID>
     <ID>MagicNumber:CourseTable.kt$CourseTable$255</ID>
@@ -18,7 +16,7 @@
     <ID>SpreadOperator:Init.kt$(*allTables)</ID>
     <ID>SuspendFunWithFlowReturnType:CallbackWithUser.kt$suspend</ID>
     <ID>TooGenericExceptionCaught:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
-    <ID>TooGenericExceptionCaught:RedisBotEventBus.kt$RedisBotEventBus$e: Exception</ID>
+    <ID>TooManyFunctions:TeacherBotTelegramControllerImpl.kt$TeacherBotTelegramControllerImpl : TeacherBotTelegramController</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>

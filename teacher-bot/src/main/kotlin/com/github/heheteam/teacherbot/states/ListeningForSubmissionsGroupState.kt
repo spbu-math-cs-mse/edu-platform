@@ -57,11 +57,11 @@ class ListeningForSubmissionsGroupState(override val context: Chat, val courseId
               val maybeCounter = dataCallback.data.toIntOrNull()
               if (maybeCounter != null) {
                 tryProcessConfirmingAssessment(maybeCounter, teacherApi, dataCallback)
-              } else if (dataCallback.data == "no") {
-                with(bot) { dataCallback.message?.let { delete(it) } }
-              } else {
-                tryProcessGradingByButtonPress(dataCallback, teacherApi)
-              }
+              } else
+                when (dataCallback.data) {
+                  "no" -> with(bot) { dataCallback.message?.let { delete(it) } }
+                  else -> tryProcessGradingByButtonPress(dataCallback, teacherApi)
+                }
             },
           )
           .first()

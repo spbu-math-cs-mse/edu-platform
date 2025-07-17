@@ -66,6 +66,7 @@ internal constructor(
 
   suspend fun updateGroupMenuMessage(courseId: CourseId): Result<Unit, NumberedError> =
     errorManagementService.coroutineServiceBinding {
-      menuMessageUpdater.updateMenuMessageInGroupChat(courseId).bind()
+      val course = courseStorage.resolveCourse(courseId).bind()
+      menuMessageUpdater.updateMenuMessageInGroupChat(course).bind()
     }
 }

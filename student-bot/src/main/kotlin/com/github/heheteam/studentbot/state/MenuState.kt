@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.WHO_AM_I
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
@@ -67,6 +68,7 @@ data class MenuState(override val context: User, override val userId: StudentId)
         COURSES_CATALOG -> ApplyForCoursesState(context, userId)
         PET_THE_DACHSHUND -> PetTheDachshundState(context, userId)
         FREE_ACTIVITY -> RandomActivityState(context, userId)
+        WHO_AM_I -> WhoAmIState(context, userId)
         else -> null
       }
     return if (state != null) {

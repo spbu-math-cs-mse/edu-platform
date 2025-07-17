@@ -32,13 +32,11 @@ class ParentAboutTeachersState(override val context: User, override val userId: 
     service: ParentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val initialMessage =
-      bot.send(
-        context,
-        text = ParentDialogues.aboutTeachers,
-        replyMarkup = ParentKeyboards.defaultKeyboard(),
-      )
-    sentMessages.add(initialMessage)
+    bot.send(
+      context,
+      text = ParentDialogues.aboutTeachers,
+      replyMarkup = ParentKeyboards.defaultKeyboard(includeMax = true, includeKamen = true),
+    )
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
   }
 
@@ -48,6 +46,8 @@ class ParentAboutTeachersState(override val context: User, override val userId: 
     val state =
       when (callback.data) {
         ParentKeyboards.RETURN_BACK -> ParentAboutCourseState(context, userId)
+        ParentKeyboards.KAMEN -> ParentAboutKamenetskiState(context, userId)
+        ParentKeyboards.MAXIMOV -> ParentAboutMaximovState(context, userId)
         else -> null
       }
     return if (state != null) {

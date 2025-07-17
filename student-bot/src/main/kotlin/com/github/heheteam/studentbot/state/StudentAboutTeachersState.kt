@@ -13,6 +13,8 @@ import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.state.parent.ParentDialogues
 import com.github.heheteam.studentbot.state.parent.ParentKeyboards
+import com.github.heheteam.studentbot.state.student.StudentAboutKamenetskiState
+import com.github.heheteam.studentbot.state.student.StudentAboutMaximovState
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.runCatching
@@ -38,7 +40,7 @@ class StudentAboutTeachersState(override val context: User, override val userId:
       bot.send(
         context,
         text = ParentDialogues.aboutTeachers,
-        replyMarkup = ParentKeyboards.defaultKeyboard(),
+        replyMarkup = ParentKeyboards.defaultKeyboard(includeKamen = true, includeMax = true),
       )
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler(::processKeyboardButtonPresses)
@@ -49,6 +51,8 @@ class StudentAboutTeachersState(override val context: User, override val userId:
   ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
     val state =
       when (callback.data) {
+        ParentKeyboards.KAMEN -> StudentAboutKamenetskiState(context, userId)
+        ParentKeyboards.MAXIMOV -> StudentAboutMaximovState(context, userId)
         ParentKeyboards.RETURN_BACK -> StudentAboutCourseState(context, userId)
         else -> null
       }

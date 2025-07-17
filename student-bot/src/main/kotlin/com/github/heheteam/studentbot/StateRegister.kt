@@ -46,6 +46,8 @@ import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
 import com.github.heheteam.studentbot.state.quiz.registerParentQuests
 import com.github.heheteam.studentbot.state.quiz.registerStudentQuests
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
+import com.github.heheteam.studentbot.state.student.StudentAboutKamenetskiState
+import com.github.heheteam.studentbot.state.student.StudentAboutMaximovState
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -114,6 +116,14 @@ internal class StateRegister(
         ::initializeHandlers,
       )
       registerStateWithStudentId<QueryProblemForSubmissionSendingState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
+      registerStateWithStudentId<StudentAboutMaximovState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
+      registerStateWithStudentId<StudentAboutKamenetskiState, StudentApi>(
         studentApi,
         ::initializeHandlers,
       )

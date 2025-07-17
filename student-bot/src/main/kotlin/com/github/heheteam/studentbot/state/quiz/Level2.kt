@@ -13,6 +13,7 @@ open class L2S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
   override suspend fun BotContext.run(service: ApiService) {
+    saveState(service)
     sendImage("/maze.png")
     send(
       "Вы входите в каменный лабиринт. На стенах — буквы. " +

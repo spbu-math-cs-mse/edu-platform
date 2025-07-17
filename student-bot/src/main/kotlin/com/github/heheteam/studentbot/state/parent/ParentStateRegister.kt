@@ -22,4 +22,6 @@ inline fun DefaultBehaviourContextWithFSM<State>.registerParentStates(
   registerStateWithParentId<ParentMenuState, ParentApi>(parentApi, initUpdateHandlers)
   registerStateWithParentId<ParentMethodologyState, ParentApi>(parentApi, initUpdateHandlers)
   registerStateWithParentId<ParentStartQuestState, ParentApi>(parentApi, initUpdateHandlers)
+  registerStateWithParentId<ParentAboutKamenetskiState, ParentApi>(parentApi, initUpdateHandlers)
+  registerStateWithParentId<ParentAboutMaximovState, ParentApi>(parentApi, initUpdateHandlers)
 }

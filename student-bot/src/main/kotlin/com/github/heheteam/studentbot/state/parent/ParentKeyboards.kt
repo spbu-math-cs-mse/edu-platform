@@ -12,6 +12,8 @@ object ParentKeyboards {
   const val RETURN_BACK = "returnBack"
   const val ABOUT_COURSE = "aboutCourse"
   const val FREE_ACTIVITY = "freeActivity"
+  const val MAXIMOV = "maximov"
+  const val KAMEN = "kamen"
 
   fun menu() = inlineKeyboard {
     row { dataButton("\uD83D\uDCD6 Подробнее о курсе", ABOUT_COURSE) }
@@ -45,7 +47,13 @@ object ParentKeyboards {
     row { dataButton("\uD83D\uDD19 Назад", RETURN_BACK) }
   }
 
-  fun defaultKeyboard() = inlineKeyboard {
+  fun defaultKeyboard(includeMax: Boolean = false, includeKamen: Boolean = false) = inlineKeyboard {
+    if (includeMax) {
+      row { dataButton("\uD83C\uDFA5 Дмитрий Максимов", MAXIMOV) }
+    }
+    if (includeKamen) {
+      row { dataButton("\uD83C\uDFA5 Вадим Каменецкий", KAMEN) }
+    }
     row { urlButton("\uD83D\uDECD Купить курс", "https://dabromat.ru/start") }
     row {
       urlButton("\uD83D\uDCE2 Подписаться на наш Telegram-канал", "https://t.me/+4brJbkfpd7xhNWE6")

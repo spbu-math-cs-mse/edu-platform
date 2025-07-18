@@ -3,7 +3,6 @@ package com.github.heheteam.studentbot
 import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.registerState
@@ -48,9 +47,7 @@ import com.github.heheteam.studentbot.state.quiz.registerStudentQuests
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.heheteam.studentbot.state.student.StudentAboutKamenetskiState
 import com.github.heheteam.studentbot.state.student.StudentAboutMaximovState
-import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
 
@@ -159,56 +156,32 @@ internal class StateRegister(
       val text = maybeCommandMessage.content.text
       parseCommand(text, studentId, context)
     }
-
-    handlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(MenuState(context, studentId))
-      } else {
-        Unhandled
-      }
-    }
   }
 
   private fun initializeParentsHandlers(
     handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
     context: User,
-    studentId: ParentId,
+    parentId: ParentId,
   ) {
     handlersController.addTextMessageHandler { maybeCommandMessage ->
-      if (maybeCommandMessage.content.text == "/menu") {
-        NewState(ParentMenuState(context, studentId))
+      if (
+        maybeCommandMessage.content.text == "/menu" ||
+          maybeCommandMessage.content.text.startsWith("/start")
+      ) {
+        NewState(ParentMenuState(context, parentId))
       } else {
         Unhandled
       }
     }
   }
 
-  private suspend fun parseCommand(
+  private fun parseCommand(
     text: String,
     studentId: StudentId,
     context: User,
   ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, FrontendError> =
-    if (text.startsWith("/start")) {
-      val parts = text.split(" ")
-      if (parts.size != 2) {
-        NewState(MenuState(context, studentId))
-      } else {
-        val token = parts[1].trim()
-        studentApi
-          .registerForCourseWithToken(token, studentId)
-          .mapBoth(
-            success = { course ->
-              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
-            },
-            failure = { error ->
-              val deepError = error.error
-              if (deepError is TokenError)
-                bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
-              else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
-            },
-          )
-        NewState(MenuState(context, studentId))
-      }
+    if (text.startsWith("/menu") || text.startsWith("/start")) {
+      NewState(MenuState(context, studentId))
     } else {
       Unhandled
     }

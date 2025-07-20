@@ -1,5 +1,7 @@
 package com.github.heheteam.studentbot.state.student
 
+import com.github.heheteam.commonlib.AttachmentKind
+import com.github.heheteam.commonlib.LocalMediaAttachment
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
@@ -18,8 +20,10 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.send.media.sendVideoNote
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
@@ -35,9 +39,8 @@ class StudentAboutMaximovState(override val context: User, override val userId: 
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    //    val file = LocalMediaAttachment(AttachmentKind.PHOTO, "kamen.mp4").openFile()
-    //    bot.sendVideoNote(context, file.asMultipartFile())
-    bot.sendMessage(context, "Скоро здесь появится кружочек про Дмитрия Максимова!")
+    val file = LocalMediaAttachment(AttachmentKind.PHOTO, "/maximov.mp4").openFile()
+    bot.sendVideoNote(context, file.asMultipartFile())
     bot.sendMessage(
       context,
       "\uD83D\uDC36 Дуся:" +

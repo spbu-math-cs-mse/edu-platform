@@ -43,6 +43,7 @@ abstract class QuizBotStateWithHandlersAndUserId<ApiService, UserId>(
     bot: BehaviourContext,
     service: ApiService,
     response: Boolean,
+    input: String,
   ): Result<Unit, FrontendError> =
     runCatching {
         if (response) {

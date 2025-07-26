@@ -10,7 +10,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.MenuKeyboardData
@@ -74,7 +74,7 @@ class QueryScheduledMessageDateState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<State?>,
+    updateHandlersController: UpdateHandlersControllerDefault<State?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     super.intro(bot, service, updateHandlersController).bind()
     error?.let {

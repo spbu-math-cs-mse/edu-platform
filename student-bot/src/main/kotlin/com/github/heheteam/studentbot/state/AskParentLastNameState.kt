@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
@@ -43,7 +43,7 @@ class AskParentLastNameState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: ParentApi,
-    updateHandlersController: UpdateHandlerManager<StudentId>,
+    updateHandlersController: UpdateHandlersControllerDefault<StudentId>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->

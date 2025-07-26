@@ -37,7 +37,7 @@ abstract class TextQueryBotStateWithHandlersAndUserId<Service, UserId> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, FrontendError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, String, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.sendMessage(context, introMessageContent)
     sentMessages.add(introMessage)
@@ -61,6 +61,7 @@ abstract class TextQueryBotStateWithHandlersAndUserId<Service, UserId> :
     bot: BehaviourContext,
     service: Service,
     response: UserInputParsingResult,
+    input: String,
   ): Result<Unit, FrontendError> = coroutineBinding {
     when (response) {
       is UserInputParsingResult.Failure -> bot.send(context, response.errorMessage)

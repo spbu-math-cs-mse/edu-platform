@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
@@ -32,7 +32,7 @@ data class QueryNumberOfRecentMessagesState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<String>,
+    updateHandlersController: UpdateHandlersControllerDefault<String>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.sendMessage(
       context.id,

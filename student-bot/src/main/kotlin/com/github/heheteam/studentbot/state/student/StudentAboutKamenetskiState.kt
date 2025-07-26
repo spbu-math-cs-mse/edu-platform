@@ -7,9 +7,9 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
@@ -37,7 +37,7 @@ class StudentAboutKamenetskiState(override val context: User, override val userI
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val file = LocalMediaAttachment(AttachmentKind.PHOTO, "/kamen.mp4").openFile()
     bot.sendVideoNote(context, file.asMultipartFile())
@@ -78,6 +78,7 @@ class StudentAboutKamenetskiState(override val context: User, override val userI
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
+    input: State,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

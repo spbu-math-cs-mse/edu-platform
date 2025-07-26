@@ -7,9 +7,9 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndParentId
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
@@ -34,7 +34,7 @@ class ParentAboutMaximovState(override val context: User, override val userId: P
   override suspend fun intro(
     bot: BehaviourContext,
     service: ParentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val file = LocalMediaAttachment(AttachmentKind.PHOTO, "/maximov.mp4").openFile()
     bot.sendVideoNote(context, file.asMultipartFile())
@@ -75,6 +75,7 @@ class ParentAboutMaximovState(override val context: User, override val userId: P
     bot: BehaviourContext,
     service: ParentApi,
     response: Unit,
+    input: State,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

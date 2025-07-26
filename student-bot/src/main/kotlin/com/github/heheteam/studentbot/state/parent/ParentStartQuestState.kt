@@ -4,9 +4,9 @@ import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndParentId
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.delete
@@ -34,7 +34,7 @@ class ParentStartQuestState(override val context: User, override val userId: Par
   override suspend fun intro(
     bot: BehaviourContext,
     service: ParentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, FrontendError>,
+    updateHandlersController: UpdateHandlersControllerDefault<Boolean>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
@@ -76,6 +76,7 @@ class ParentStartQuestState(override val context: User, override val userId: Par
     bot: BehaviourContext,
     service: ParentApi,
     response: Unit,
+    input: Boolean,
   ): Result<Unit, FrontendError> = Unit.ok()
 
   override suspend fun outro(bot: BehaviourContext, service: ParentApi) {

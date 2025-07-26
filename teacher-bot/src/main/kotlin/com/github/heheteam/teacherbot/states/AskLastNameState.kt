@@ -4,7 +4,7 @@ import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
@@ -40,7 +40,7 @@ class AskLastNameState(override val context: User, private val firstName: String
   override suspend fun intro(
     bot: BehaviourContext,
     service: TeacherApi,
-    updateHandlersController: UpdateHandlerManager<TeacherId>,
+    updateHandlersController: UpdateHandlersControllerDefault<TeacherId>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->

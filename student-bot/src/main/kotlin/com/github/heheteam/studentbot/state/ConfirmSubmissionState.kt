@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
@@ -49,7 +50,7 @@ class ConfirmSubmissionState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, Boolean, FrontendError>,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, Boolean, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val confirmMessageKeyboard =
       buildColumnMenu(
@@ -86,6 +87,7 @@ class ConfirmSubmissionState(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionSendingResult?,
+    input: Boolean,
   ): Result<Unit, FrontendError> =
     runCatching {
         with(bot) {

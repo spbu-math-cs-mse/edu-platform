@@ -6,9 +6,10 @@ import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.CommonUserApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.CommonUserId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -23,7 +24,7 @@ import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
-typealias HandlersController = UpdateHandlersController<() -> Unit, String, FrontendError>
+typealias HandlersController = UpdateHandlerManager<String>
 
 class BotContext(
   val bot: BehaviourContext,
@@ -64,7 +65,7 @@ class BotContext(
   fun addDataCallbackHandler(
     arg:
       suspend (DataCallbackQuery) -> HandlerResultWithUserInputOrUnhandled<
-          () -> Unit,
+          SuspendableBotAction,
           String,
           FrontendError,
         >
@@ -73,7 +74,7 @@ class BotContext(
   fun addTextMessageHandler(
     arg:
       suspend (CommonMessage<TextContent>) -> HandlerResultWithUserInputOrUnhandled<
-          () -> Unit,
+          SuspendableBotAction,
           String,
           FrontendError,
         >

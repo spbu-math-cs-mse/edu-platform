@@ -5,9 +5,9 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndParentId
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
@@ -31,7 +31,7 @@ class ParentMenuState(override val context: User, override val userId: ParentId)
   override suspend fun intro(
     bot: BehaviourContext,
     service: ParentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val stickerMessage = bot.sendSticker(context.id, ParentDialogues.typingSticker)
     val initialMessage =
@@ -68,6 +68,7 @@ class ParentMenuState(override val context: User, override val userId: ParentId)
     bot: BehaviourContext,
     service: ParentApi,
     response: Unit,
+    input: State,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

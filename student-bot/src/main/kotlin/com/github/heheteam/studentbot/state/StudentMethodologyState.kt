@@ -5,9 +5,9 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
@@ -33,7 +33,7 @@ class StudentMethodologyState(override val context: User, override val userId: S
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController: UpdateHandlersController<() -> Unit, State, FrontendError>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val initialMessage =
       bot.send(
@@ -72,6 +72,7 @@ class StudentMethodologyState(override val context: User, override val userId: S
     bot: BehaviourContext,
     service: StudentApi,
     response: Unit,
+    input: State,
   ): Result<Unit, FrontendError> =
     runCatching { sentMessages.forEach { message -> bot.delete(message) } }.toTelegramError()
 

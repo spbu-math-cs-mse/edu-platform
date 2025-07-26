@@ -10,7 +10,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
 import com.github.heheteam.commonlib.util.ok
@@ -41,8 +41,7 @@ data class SendSubmissionState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: StudentApi,
-    updateHandlersController:
-      UpdateHandlersController<() -> Unit, SubmissionInputRequest?, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<SubmissionInputRequest?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.tellValidSubmissionTypes, replyMarkup = back())
     updateHandlersController.addTextMessageHandler { message ->
@@ -80,6 +79,7 @@ data class SendSubmissionState(
     bot: BehaviourContext,
     service: StudentApi,
     response: SubmissionInputRequest?,
+    input: SubmissionInputRequest?,
   ): Result<Unit, FrontendError> =
     runCatching {
         if (response == null) {

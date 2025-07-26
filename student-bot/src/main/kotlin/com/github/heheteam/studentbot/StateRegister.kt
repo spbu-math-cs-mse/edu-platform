@@ -5,13 +5,14 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.state.registerStateWithStudentId
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.studentbot.state.ApplyForCoursesState
 import com.github.heheteam.studentbot.state.AskParentFirstNameState
 import com.github.heheteam.studentbot.state.AskParentLastNameState
@@ -148,7 +149,7 @@ internal class StateRegister(
   }
 
   private fun initializeHandlers(
-    handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+    handlersController: UpdateHandlerManager<out Any?>,
     context: User,
     studentId: StudentId,
   ) {
@@ -159,7 +160,7 @@ internal class StateRegister(
   }
 
   private fun initializeParentsHandlers(
-    handlersController: UpdateHandlersController<() -> Unit, out Any?, FrontendError>,
+    handlersController: UpdateHandlerManager<out Any?>,
     context: User,
     parentId: ParentId,
   ) {
@@ -179,7 +180,7 @@ internal class StateRegister(
     text: String,
     studentId: StudentId,
     context: User,
-  ): HandlerResultWithUserInputOrUnhandled<() -> Unit, Nothing, FrontendError> =
+  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, Nothing, FrontendError> =
     if (text.startsWith("/menu") || text.startsWith("/start")) {
       NewState(MenuState(context, studentId))
     } else {

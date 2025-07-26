@@ -3,7 +3,7 @@ package com.github.heheteam.commonlib.state
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.TelegramBotError
 import com.github.heheteam.commonlib.util.Unhandled
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
@@ -27,7 +27,7 @@ abstract class MultipleChoiceQuestionBotState<ApiService, UserId>(
   final override suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<String>,
   ): Result<Unit, FrontendError> =
     coroutineBinding {
         bot

@@ -7,7 +7,7 @@ import com.github.heheteam.commonlib.interfaces.CommonUserId
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndUserId
-import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.parent.ParentMenuState
@@ -54,7 +54,7 @@ abstract class QuestState<ApiService : CommonUserApi<UserId>, UserId : CommonUse
   override suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlersController<() -> Unit, String, FrontendError>,
+    updateHandlersController: UpdateHandlerManager<String>,
   ): Result<Unit, FrontendError> =
     runCatching { BotContext(bot, context, updateHandlersController).run(service) }
       .toTelegramError()
@@ -76,6 +76,7 @@ abstract class QuestState<ApiService : CommonUserApi<UserId>, UserId : CommonUse
     bot: BehaviourContext,
     service: ApiService,
     response: Unit,
+    input: String,
   ): Result<Unit, FrontendError> = Unit.ok()
 
   fun saveState(service: ApiService) {

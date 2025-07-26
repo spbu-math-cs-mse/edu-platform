@@ -8,7 +8,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
@@ -52,7 +52,7 @@ class QueryScheduledMessageContentState(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController:
-      UpdateHandlerManager<Result<ScheduledMessageTextField, EduPlatformError>>,
+      UpdateHandlersControllerDefault<Result<ScheduledMessageTextField, EduPlatformError>>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.queryScheduledMessageContent)
     sentMessages.add(introMessage)

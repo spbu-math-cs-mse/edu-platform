@@ -11,7 +11,7 @@ import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
@@ -57,7 +57,7 @@ class EnterScheduledMessageDateManuallyState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<Result<LocalDate, EduPlatformError>>,
+    updateHandlersController: UpdateHandlersControllerDefault<Result<LocalDate, EduPlatformError>>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.enterScheduledMessageDateManually)
     sentMessages.add(introMessage)

@@ -103,7 +103,7 @@ class MultiBotRunner : CliktCommand() {
       apiFabric.createApis(initDatabase, TeacherResolverKind.FIRST, config.botConfig.adminIds)
 
     runBlocking {
-      launch { StudentRunner(studentBotToken, apis.studentApi).run() }
+      launch { StudentRunner(studentBotToken, apis.studentApi, apis.parentApi).run() }
       launch {
         while (true) {
           val timestamp = LocalDateTime.now().toKotlinLocalDateTime()

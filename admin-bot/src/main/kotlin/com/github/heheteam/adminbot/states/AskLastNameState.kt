@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
@@ -30,7 +30,7 @@ class AskLastNameState(override val context: User, private val firstName: String
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<AdminId>,
+    updateHandlersController: UpdateHandlersControllerDefault<AdminId>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = AdminKeyboards.returnBack())
 

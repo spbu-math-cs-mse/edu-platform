@@ -109,6 +109,6 @@ private fun createStudent(studentStorage: StudentStorage): List<StudentId> {
         "Андрей" to "Михайлов",
         "Николай" to "Васильев",
       )
-      .map { studentStorage.createStudent(it.first, it.second).value }
+      .map { studentStorage.createStudent(it.first, it.second, grade = null, from = null).value }
   return students
 }

@@ -32,7 +32,7 @@ object Keyboards {
           }
           row { dataButton("Каталог курсов", COURSES_CATALOG) }
           row { dataButton("Почесать Таксе пузо", PET_THE_DACHSHUND) }
-          row { dataButton("Бесплатная активность", FREE_ACTIVITY) }
+          row { dataButton("Квест от Таксы Дуси", FREE_ACTIVITY) }
         }
     )
 

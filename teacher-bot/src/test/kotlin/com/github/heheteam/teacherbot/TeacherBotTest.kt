@@ -47,7 +47,7 @@ class TeacherBotTest {
   fun setUp() {
     reset(database)
     teacherId = teacherStorage.createTeacher()
-    studentId = studentStorage.createStudent().value
+    studentId = studentStorage.createStudent(grade = null, from = null).value
     val courseId = courseStorage.createCourse("test course").value
     courseStorage.addTeacherToCourse(teacherId, courseId)
     courseStorage.addStudentToCourse(studentId, courseId)

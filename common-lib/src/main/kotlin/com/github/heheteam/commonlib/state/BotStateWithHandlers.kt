@@ -17,7 +17,7 @@ import dev.inmo.tgbotapi.types.chat.User
 
 typealias SuspendableBotAction = suspend BehaviourContext.() -> Unit
 
-typealias UpdateHandlerManager<In> =
+typealias UpdateHandlersControllerDefault<In> =
   UpdateHandlersController<SuspendableBotAction, In, FrontendError>
 
 interface BotStateWithHandlers<In, Out, ApiService> : State {
@@ -28,7 +28,7 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
   suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
-    updateHandlersController: UpdateHandlerManager<In>,
+    updateHandlersController: UpdateHandlersControllerDefault<In>,
   ): Result<Unit, FrontendError>
 
   suspend fun computeNewState(
@@ -48,9 +48,9 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
-    initUpdateHandlers: (UpdateHandlerManager<In>, context: User) -> Unit = { _, _ -> },
+    initUpdateHandlers: (UpdateHandlersControllerDefault<In>, context: User) -> Unit = { _, _ -> },
   ): State {
-    val updateHandlersController = UpdateHandlerManager<In>()
+    val updateHandlersController = UpdateHandlersControllerDefault<In>()
     initUpdateHandlers(updateHandlersController, context)
     return handleWithUpdateManager(bot, service, updateHandlersController)
   }

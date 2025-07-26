@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -19,7 +20,15 @@ abstract class NavigationBotStateWithHandlers<Service> :
   BotStateWithHandlers<State?, Unit, Service> {
   abstract val introMessageContent: TextSourcesList
 
+  open fun createIntroMessageContent(service: Service): Result<TextSourcesList, FrontendError> {
+    return introMessageContent.ok()
+  }
+
   abstract fun createKeyboard(service: Service): MenuKeyboardData<State?>
+
+  open fun createKeyboardOrResult(
+    service: Service
+  ): Result<MenuKeyboardData<State?>, FrontendError> = createKeyboard(service).ok()
 
   abstract fun menuState(): State
 
@@ -28,9 +37,10 @@ abstract class NavigationBotStateWithHandlers<Service> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlerManager<State?>,
+    updateHandlersController: UpdateHandlersControllerDefault<State?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val keyboardData = createKeyboard(service)
+    val keyboardData = createKeyboardOrResult(service).bind()
+    val introMessageContent = createIntroMessageContent(service).bind()
     val introMessage =
       bot.sendMessage(context, introMessageContent, replyMarkup = keyboardData.keyboard)
     sentMessages.add(introMessage)

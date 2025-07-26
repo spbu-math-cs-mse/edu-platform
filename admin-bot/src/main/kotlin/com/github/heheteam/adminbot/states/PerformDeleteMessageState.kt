@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -26,7 +26,7 @@ data class PerformDeleteMessageState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<Unit>,
+    updateHandlersController: UpdateHandlersControllerDefault<Unit>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val result = service.deleteScheduledMessage(scheduledMessageId)
     result.mapBoth(

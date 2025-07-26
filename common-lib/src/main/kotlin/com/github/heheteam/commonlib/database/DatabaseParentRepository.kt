@@ -4,11 +4,9 @@ import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.ParentTable
 import com.github.heheteam.commonlib.domain.RichParent
 import com.github.heheteam.commonlib.errors.EduPlatformError
-import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.repository.ParentRepository
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -30,6 +28,8 @@ class DatabaseParentRepository : ParentRepository {
         it[ParentTable.name] = richParent.firstName
         it[ParentTable.surname] = richParent.lastName
         it[ParentTable.tgId] = richParent.tgId.long
+        it[ParentTable.discoverySource] = richParent.from
+        it[ParentTable.lastQuestState] = richParent.lastQuestState
       }
     } else {
       ParentTable.insert {
@@ -37,6 +37,8 @@ class DatabaseParentRepository : ParentRepository {
         it[ParentTable.name] = richParent.firstName
         it[ParentTable.surname] = richParent.lastName
         it[ParentTable.tgId] = richParent.tgId.long
+        it[ParentTable.lastQuestState] = richParent.lastQuestState
+        it[ParentTable.discoverySource] = richParent.from
       }
     }
 
@@ -52,7 +54,7 @@ class DatabaseParentRepository : ParentRepository {
     richParent
   }
 
-  override fun findById(parentId: ParentId): Result<RichParent, EduPlatformError> {
+  override fun findById(parentId: ParentId): Result<RichParent?, EduPlatformError> {
     return ParentTable.selectAll()
       .where { ParentTable.id eq parentId.long }
       .singleOrNull()
@@ -70,10 +72,12 @@ class DatabaseParentRepository : ParentRepository {
             firstName = row[ParentTable.name],
             lastName = row[ParentTable.surname],
             tgId = RawChatId(row[ParentTable.tgId]),
+            lastQuestState = row[ParentTable.lastQuestState],
+            from = row[ParentTable.discoverySource],
             children = children,
           )
         )
-      } ?: Err(NamedError("Parent not found"))
+      } ?: Ok(null)
   }
 
   override fun findByTgId(tgId: RawChatId): Result<RichParent?, EduPlatformError> {
@@ -94,6 +98,8 @@ class DatabaseParentRepository : ParentRepository {
             firstName = row[ParentTable.name],
             lastName = row[ParentTable.surname],
             tgId = RawChatId(row[ParentTable.tgId]),
+            lastQuestState = row[ParentTable.lastQuestState],
+            from = row[ParentTable.discoverySource],
             children = children,
           )
         )

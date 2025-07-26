@@ -6,7 +6,7 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.ButtonData
 import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.NewState
@@ -50,7 +50,7 @@ class EditCourseState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<State>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val editCourseKeyboard = createEditCourseOptionsKeyboard()
 

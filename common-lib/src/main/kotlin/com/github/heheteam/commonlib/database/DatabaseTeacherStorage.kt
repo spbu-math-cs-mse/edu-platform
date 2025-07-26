@@ -73,7 +73,7 @@ class DatabaseTeacherStorage(val database: Database) : TeacherStorage {
   override fun resolveByTgId(tgId: UserId): Result<Teacher?, EduPlatformError> =
     catchingTransaction(database) {
       val row =
-        TeacherTable.selectAll().where(TeacherTable.tgId eq tgId.chatId.long).singleOrNull()
+        TeacherTable.selectAll().where(TeacherTable.tgId eq tgId.chatId.long).firstOrNull()
           ?: return@catchingTransaction null
       Teacher(
         row[TeacherTable.id].value.toTeacherId(),

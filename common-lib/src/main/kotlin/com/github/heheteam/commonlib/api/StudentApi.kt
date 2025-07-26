@@ -5,7 +5,9 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.SubmissionInputRequest
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.NamedError
 import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -18,6 +20,8 @@ import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
+import com.github.heheteam.commonlib.util.ok
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.datetime.LocalDateTime
@@ -32,7 +36,7 @@ internal constructor(
   private val studentStorage: StudentStorage,
   private val courseTokenService: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
-) {
+) : CommonUserApi<StudentId> {
   suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, NumberedError> =
     errorManagementService.coroutineServiceBinding {
       scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
@@ -75,9 +79,15 @@ internal constructor(
   fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, NumberedError> =
     errorManagementService.serviceBinding { studentStorage.updateTgId(studentId, newTgId).bind() }
 
-  fun createStudent(name: String, surname: String, tgId: Long): Result<StudentId, NumberedError> =
+  fun createStudent(
+    name: String,
+    surname: String,
+    tgId: Long,
+    grade: Int?,
+    from: String?,
+  ): Result<StudentId, NumberedError> =
     errorManagementService.serviceBinding {
-      studentStorage.createStudent(name, surname, tgId).bind()
+      studentStorage.createStudent(name, surname, tgId, grade, from).bind()
     }
 
   suspend fun requestReschedulingDeadlines(
@@ -105,5 +115,24 @@ internal constructor(
   ): Result<Course, NumberedError> =
     errorManagementService.serviceBinding {
       courseTokenService.registerStudentForToken(studentId, token).bind()
+    }
+
+  override fun resolveCurrentQuestState(userId: StudentId): Result<String?, NumberedError> =
+    errorManagementService.serviceBinding {
+      val student = studentStorage.resolveStudent(userId).bind()
+      if (student == null) {
+          Err(NamedError("Cannot resolve student with id: $userId") as EduPlatformError)
+        } else {
+          student.lastQuestState.ok()
+        }
+        .bind()
+    }
+
+  override fun saveCurrentQuestState(
+    userId: StudentId,
+    questState: String,
+  ): Result<Unit, NumberedError> =
+    errorManagementService.serviceBinding {
+      studentStorage.updateLastQuestState(userId, questState).bind()
     }
 }

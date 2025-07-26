@@ -76,6 +76,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
                 it[StudentTable.name],
                 it[StudentTable.name],
                 it[StudentTable.tgId].toRawChatId(),
+                it[StudentTable.lastQuestState],
               )
             }
             .single()
@@ -88,12 +89,16 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
     name: String,
     surname: String,
     tgId: Long,
+    grade: Int?,
+    from: String?,
   ): Result<StudentId, EduPlatformError> =
     catchingTransaction(database) {
         StudentTable.insert {
           it[StudentTable.name] = name
           it[StudentTable.surname] = surname
           it[StudentTable.tgId] = tgId
+          it[StudentTable.grade] = grade
+          it[StudentTable.discoverySource] = from
         } get StudentTable.id
       }
       .map { it.value.toStudentId() }
@@ -108,19 +113,21 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
         row[StudentTable.name],
         row[StudentTable.surname],
         row[StudentTable.tgId].toRawChatId(),
+        row[StudentTable.lastQuestState],
       )
     }
 
   override fun resolveByTgId(tgId: UserId): Result<Student?, EduPlatformError> {
     return catchingTransaction(database) {
       val row =
-        StudentTable.selectAll().where { StudentTable.tgId eq (tgId.chatId.long) }.singleOrNull()
+        StudentTable.selectAll().where { StudentTable.tgId eq (tgId.chatId.long) }.firstOrNull()
           ?: return@catchingTransaction null
       Student(
         row[StudentTable.id].value.toStudentId(),
         row[StudentTable.name],
         row[StudentTable.surname],
         row[StudentTable.tgId].toRawChatId(),
+        row[StudentTable.lastQuestState],
       )
     }
   }
@@ -133,6 +140,23 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       transaction(database) {
         StudentTable.update({ StudentTable.id eq studentId.long }) {
           it[StudentTable.tgId] = newTgId.chatId.long
+        }
+      }
+    return if (rows == 1) {
+      Ok(Unit)
+    } else {
+      Err(ResolveError(studentId))
+    }
+  }
+
+  override fun updateLastQuestState(
+    studentId: StudentId,
+    lastQuestState: String,
+  ): Result<Unit, EduPlatformError> {
+    val rows =
+      transaction(database) {
+        StudentTable.update({ StudentTable.id eq studentId.long }) {
+          it[StudentTable.lastQuestState] = lastQuestState
         }
       }
     return if (rows == 1) {

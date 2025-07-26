@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
@@ -33,7 +33,7 @@ abstract class QueryCourseState(override val context: User, val adminId: AdminId
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<Course?>,
+    updateHandlersController: UpdateHandlersControllerDefault<Course?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val courses = service.getCourses().bind().map { it.value }
     val coursesPicker = createCoursePicker(courses)

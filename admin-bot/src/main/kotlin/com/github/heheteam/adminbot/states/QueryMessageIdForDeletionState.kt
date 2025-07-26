@@ -7,7 +7,7 @@ import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
@@ -30,7 +30,7 @@ data class QueryMessageIdForDeletionState(override val context: User, val adminI
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<String>,
+    updateHandlersController: UpdateHandlersControllerDefault<String>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.sendMessage(
       context.id,

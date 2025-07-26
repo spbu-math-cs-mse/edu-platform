@@ -30,7 +30,7 @@ abstract class TextQueryBotStateWithHandlers<Service> :
   override suspend fun intro(
     bot: BehaviourContext,
     service: Service,
-    updateHandlersController: UpdateHandlerManager<String>,
+    updateHandlersController: UpdateHandlersControllerDefault<String>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.sendMessage(context, introMessageContent)
     sentMessages.add(introMessage)

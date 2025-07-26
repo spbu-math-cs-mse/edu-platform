@@ -9,6 +9,8 @@ import dev.inmo.tgbotapi.types.buttons.Matrix
 
 data class ButtonData<T>(val text: String, val uniqueData: String, val getData: suspend (() -> T))
 
+fun <T> simpleButtonData(text: String, getData: suspend (() -> T)) = ButtonData(text, text, getData)
+
 // handler returns Err<Unit> when wrong button (with unhandled unique data) is pressed
 // handler does not delete the menu message, be warned!
 data class MenuKeyboardData<out T>(

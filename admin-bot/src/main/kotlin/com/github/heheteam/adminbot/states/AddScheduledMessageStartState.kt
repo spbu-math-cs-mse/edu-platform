@@ -7,7 +7,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
@@ -43,7 +43,7 @@ class AddScheduledMessageStartState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<State>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.addScheduledMessageStartSummary)
     sentMessages.add(introMessage)

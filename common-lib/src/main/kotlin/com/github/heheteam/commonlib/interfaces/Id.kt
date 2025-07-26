@@ -16,8 +16,10 @@ data class AdminId(val long: Long) {
   override fun toString(): String = "$long"
 }
 
+sealed interface CommonUserId
+
 @Serializable
-data class StudentId(val long: Long) {
+data class StudentId(val long: Long) : CommonUserId {
   override fun toString(): String = "$long"
 }
 
@@ -26,7 +28,7 @@ data class TeacherId(val long: Long) {
   override fun toString(): String = "$long"
 }
 
-data class ParentId(val long: Long) {
+data class ParentId(val long: Long) : CommonUserId {
   override fun toString(): String = "$long"
 }
 

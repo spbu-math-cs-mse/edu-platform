@@ -11,7 +11,7 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.UpdateHandlerManager
+import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
@@ -49,7 +49,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlerManager<State>,
+    updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val menuMessage = bot.send(context, Dialogues.menu, replyMarkup = AdminKeyboards.menu())
     sentMessages.add(menuMessage)

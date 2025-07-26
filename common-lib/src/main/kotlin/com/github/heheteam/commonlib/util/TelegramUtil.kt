@@ -8,10 +8,8 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onContentMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onDataCallbackQuery
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onMessageCallbackQuery
-import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onUnhandledCommand
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
-import dev.inmo.tgbotapi.extensions.utils.extensions.raw.message
-import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
+import dev.inmo.tgbotapi.extensions.utils.textContentOrNull
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
@@ -43,8 +41,17 @@ suspend fun BehaviourContext.delete(vararg messages: AccessibleMessage) {
 
 @OptIn(RiskFeature::class, PreviewFeature::class)
 suspend fun BehaviourContext.startStateOnUnhandledUpdate(handleAction: suspend (User?) -> Unit) {
-  onUnhandledCommand { if (it.chat.groupChatOrNull() == null) handleAction(it.from) }
-  onMessageCallbackQuery { if (it.message.chat.groupChatOrNull() == null) handleAction(it.from) }
-  onDataCallbackQuery { if (it.message?.chat?.groupChatOrNull() == null) handleAction(it.from) }
-  onContentMessage { if (it.chat.groupChatOrNull() == null) handleAction(it.from) }
+  onMessageCallbackQuery {
+    val text = it.message.content.textContentOrNull()?.text.orEmpty()
+    if (!text.startsWith("/start")) {
+      handleAction(it.from)
+    }
+  }
+  onDataCallbackQuery { handleAction(it.from) }
+  onContentMessage {
+    val text = it.content.textContentOrNull()?.text.orEmpty()
+    if (!text.startsWith("/start")) {
+      handleAction(it.from)
+    }
+  }
 }

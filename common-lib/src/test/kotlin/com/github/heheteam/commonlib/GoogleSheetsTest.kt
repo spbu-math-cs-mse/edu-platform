@@ -56,9 +56,9 @@ class GoogleSheetsTest {
   fun `update rating works`() {
     val course1Id = courseStorage.createCourse("course 1").value
     val course2Id = courseStorage.createCourse("course 2").value
-    val student1Id = studentStorage.createStudent().value
-    val student2Id = studentStorage.createStudent().value
-    val student3Id = studentStorage.createStudent().value
+    val student1Id = studentStorage.createStudent(grade = null, from = null).value
+    val student2Id = studentStorage.createStudent(grade = null, from = null).value
+    val student3Id = studentStorage.createStudent(grade = null, from = null).value
     courseStorage.addStudentToCourse(student1Id, course1Id)
     courseStorage.addStudentToCourse(student1Id, course2Id)
     courseStorage.addStudentToCourse(student2Id, course1Id)

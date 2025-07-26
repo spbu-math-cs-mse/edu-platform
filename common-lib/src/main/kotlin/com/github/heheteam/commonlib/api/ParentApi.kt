@@ -27,7 +27,7 @@ internal constructor(
   private val parentService: ParentService,
   private val courseService: CourseService,
   private val problemStorage: ProblemStorage,
-) {
+) : CommonUserApi<ParentId> {
   private fun <V> withErrorManagement(
     block: BindingScope<EduPlatformError>.() -> V
   ): Result<V, NumberedError> {
@@ -55,9 +55,10 @@ internal constructor(
     firstName: String,
     lastName: String,
     tgId: RawChatId,
+    from: String?,
   ): Result<RichParent, NumberedError> =
     errorManagementService.serviceBinding {
-      parentService.createParent(firstName, lastName, tgId).bind()
+      parentService.createParent(firstName, lastName, tgId, from).bind()
     }
 
   fun getStudentCourses(studentId: StudentId): Result<List<RichCourse>, NumberedError> =
@@ -69,4 +70,16 @@ internal constructor(
     withErrorManagement {
       parentService.addChild(parentId, studentId).bind()
     }
+
+  override fun resolveCurrentQuestState(userId: ParentId): Result<String?, NumberedError> =
+    withErrorManagement {
+      parentService.resolveCurrentQuestState(userId).bind()
+    }
+
+  override fun saveCurrentQuestState(
+    userId: ParentId,
+    questState: String,
+  ): Result<Unit, NumberedError> = withErrorManagement {
+    parentService.saveCurrentQuestSave(userId, questState).bind()
+  }
 }

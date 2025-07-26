@@ -18,11 +18,12 @@ interface BotStateWithHandlersAndUserId<In, Out, ApiService, UserId> :
   suspend fun handleWithIds(
     bot: BehaviourContext,
     service: ApiService,
-    initUpdateHandlers: (UpdateHandlerManager<In>, context: User, userId: UserId) -> Unit =
+    initUpdateHandlers:
+      (UpdateHandlersControllerDefault<In>, context: User, userId: UserId) -> Unit =
       { _, _, _ ->
       },
   ): State {
-    val updateHandlersController = UpdateHandlerManager<In>()
+    val updateHandlersController = UpdateHandlersControllerDefault<In>()
     initUpdateHandlers(updateHandlersController, context, userId)
 
     return handleWithUpdateManager(bot, service, updateHandlersController)
@@ -68,6 +69,9 @@ inline fun <
 
 interface BotStateWithHandlersAndTeacherId<In, Out, ApiService> :
   BotStateWithHandlersAndUserId<In, Out, ApiService, TeacherId>
+
+interface BotStateWithHandlersAndParentId<In, Out, ApiService> :
+  BotStateWithHandlersAndUserId<In, Out, ApiService, ParentId>
 
 inline fun <
   reified S : BotStateWithHandlersAndUserId<*, *, HelperService, TeacherId>,

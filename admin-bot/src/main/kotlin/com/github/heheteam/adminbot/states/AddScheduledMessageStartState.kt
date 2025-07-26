@@ -53,7 +53,7 @@ class AddScheduledMessageStartState(
     service: AdminApi,
     input: State,
   ): Result<Pair<State, Unit>, FrontendError> {
-    return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit).ok()
+    return Pair(QueryScheduledMessageUserGroupState(context, course, adminId), Unit).ok()
   }
 
   override suspend fun handle(
@@ -62,7 +62,7 @@ class AddScheduledMessageStartState(
     initUpdateHandlers:
       (UpdateHandlersController<SuspendableBotAction, State, FrontendError>, context: User) -> Unit,
   ): State {
-    return QueryScheduledMessageContentState(context, course, adminId)
+    return QueryScheduledMessageUserGroupState(context, course, adminId)
   }
 
   override suspend fun sendResponse(

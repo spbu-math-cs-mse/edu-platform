@@ -18,6 +18,7 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.michaelbull.result.binding
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
@@ -176,7 +177,22 @@ class TestDataBuilder(internal val apis: ApiCollection) {
       timestamp.toJavaLocalDateTime(),
       content,
       shortName,
-      courseId,
+      UserGroup.CourseGroup(courseId),
+    )
+
+  fun sendScheduledMessage(
+    adminId: AdminId,
+    timestamp: LocalDateTime,
+    content: TelegramMessageContent,
+    shortName: String,
+    userGroup: UserGroup,
+  ) =
+    apis.adminApi.sendScheduledMessage(
+      adminId,
+      timestamp.toJavaLocalDateTime(),
+      content,
+      shortName,
+      userGroup,
     )
 
   fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =

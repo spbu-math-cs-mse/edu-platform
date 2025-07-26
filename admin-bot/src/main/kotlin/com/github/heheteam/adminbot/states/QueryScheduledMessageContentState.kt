@@ -7,6 +7,7 @@ import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
@@ -31,6 +32,7 @@ class QueryScheduledMessageContentState(
   override val context: User,
   val course: Course,
   val adminId: AdminId,
+  val userGroup: UserGroup,
   val error: EduPlatformError? = null,
 ) : BotStateWithHandlers<Result<ScheduledMessageTextField, EduPlatformError>, Unit, AdminApi> {
 
@@ -83,12 +85,18 @@ class QueryScheduledMessageContentState(
       .mapBoth(
         success = { scheduledMessageTextField ->
           Pair(
-            QueryScheduledMessageDateState(context, course, adminId, scheduledMessageTextField),
+            QueryScheduledMessageDateState(
+              context,
+              course,
+              adminId,
+              userGroup,
+              scheduledMessageTextField,
+            ),
             Unit,
           )
         },
         failure = { error ->
-          Pair(QueryScheduledMessageContentState(context, course, adminId, error), Unit)
+          Pair(QueryScheduledMessageContentState(context, course, adminId, userGroup, error), Unit)
         },
       )
       .ok()

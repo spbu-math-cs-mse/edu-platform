@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
@@ -37,6 +38,7 @@ class QueryScheduledMessageTimeState(
   override val context: User,
   val course: Course,
   val adminId: AdminId,
+  val userGroup: UserGroup,
   val scheduledMessageTextField: ScheduledMessageTextField,
   val date: LocalDate,
   val error: EduPlatformError? = null,
@@ -95,6 +97,7 @@ class QueryScheduledMessageTimeState(
               context,
               course,
               adminId,
+              userGroup,
               scheduledMessageTextField,
               date,
               time,

@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.Unhandled
@@ -41,6 +42,7 @@ class ConfirmScheduledMessageState(
   override val context: User,
   val course: Course,
   val adminId: AdminId,
+  val userGroup: UserGroup,
   val scheduledMessageTextField: ScheduledMessageTextField,
   val date: LocalDate,
   val time: LocalTime,
@@ -106,7 +108,7 @@ class ConfirmScheduledMessageState(
               LocalDateTime.of(date, time),
               TelegramMessageContent(scheduledMessageTextField.content),
               scheduledMessageTextField.shortDescription,
-              course.id,
+              userGroup,
             )
             .bind()
         Pair(MenuState(context, adminId), scheduledMessage)

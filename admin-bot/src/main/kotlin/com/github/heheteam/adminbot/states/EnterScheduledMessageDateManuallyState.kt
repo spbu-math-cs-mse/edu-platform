@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
@@ -36,6 +37,7 @@ class EnterScheduledMessageDateManuallyState(
   override val context: User,
   val course: Course,
   val adminId: AdminId,
+  val userGroup: UserGroup,
   val scheduledMessageTextField: ScheduledMessageTextField,
   val error: EduPlatformError? = null,
 ) : BotStateWithHandlers<Result<LocalDate, EduPlatformError>, EduPlatformError?, AdminApi> {
@@ -93,6 +95,7 @@ class EnterScheduledMessageDateManuallyState(
               context,
               course,
               adminId,
+              userGroup,
               scheduledMessageTextField,
               date,
             ),
@@ -105,6 +108,7 @@ class EnterScheduledMessageDateManuallyState(
               context,
               course,
               adminId,
+              userGroup,
               scheduledMessageTextField,
               error,
             ),

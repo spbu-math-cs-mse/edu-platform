@@ -18,6 +18,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import dev.inmo.tgbotapi.utils.RiskFeature
+import io.ktor.http.escapeIfNeeded
 import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ class StudentRunner(
         StateRegister(studentApi, parentApi, this).registerStates(botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-          println(LocalDateTime.now().toString() + " " + it.toString())
+          println(LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
         }
       }
       .second

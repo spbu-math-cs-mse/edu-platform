@@ -58,6 +58,7 @@ import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.code
+import io.ktor.http.escapeIfNeeded
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDateTime
@@ -106,7 +107,9 @@ class AdminRunner(private val adminApi: AdminApi) {
 
         registerAllStates()
 
-        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
+        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
+          println(java.time.LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
+        }
       }
       .second
       .join()

@@ -24,6 +24,8 @@ import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
+import io.ktor.http.escapeIfNeeded
+import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -47,7 +49,9 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
         onContentMessage { startFsm(it) }
         stateRegister.registerTeacherStates(this, botToken)
 
-        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) { println(it) }
+        allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
+          println(LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
+        }
       }
       .second
       .join()

@@ -37,7 +37,7 @@ class EnterScheduledMessageDateManuallyState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
-  val scheduledMessageTextField: ScheduledMessageTextField,
+  val scheduledMessageContentField: ScheduledMessageContentField,
   val error: EduPlatformError? = null,
 ) : BotStateWithHandlers<Result<LocalDate, EduPlatformError>, EduPlatformError?, AdminApi> {
 
@@ -94,7 +94,7 @@ class EnterScheduledMessageDateManuallyState(
               context,
               adminId,
               userGroup,
-              scheduledMessageTextField,
+              scheduledMessageContentField,
               date,
             ),
             null,
@@ -106,7 +106,7 @@ class EnterScheduledMessageDateManuallyState(
               context,
               adminId,
               userGroup,
-              scheduledMessageTextField,
+              scheduledMessageContentField,
               error,
             ),
             error,

@@ -107,7 +107,7 @@ class AdminRunner(private val adminApi: AdminApi) {
           if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
         }
 
-        registerAllStates()
+        registerAllStates(botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
           println(java.time.LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
@@ -136,7 +136,7 @@ class AdminRunner(private val adminApi: AdminApi) {
     }
   }
 
-  private fun DefaultBehaviourContextWithFSM<State>.registerAllStates() {
+  private fun DefaultBehaviourContextWithFSM<State>.registerAllStates(botToken: String) {
     registerStateForBotState<StartState, AdminApi>(adminApi)
     registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
     registerState<AskLastNameState, AdminApi>(adminApi)
@@ -158,12 +158,15 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotStateWithHandlers<ConfirmDeleteMessageState>(::registerHandlers)
     registerStateForBotStateWithHandlers<PerformDeleteMessageState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddScheduledMessageStartState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<QueryScheduledMessageContentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryScheduledMessageDateState>(::registerHandlers)
     registerStateForBotStateWithHandlers<EnterScheduledMessageDateManuallyState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryScheduledMessageTimeState>(::registerHandlers)
     registerStateForBotStateWithHandlers<ConfirmScheduledMessageState>(::registerHandlers)
     onStateOrSubstate<AdminHandleable> { it.handleAdmin(this, adminApi, ::registerHandlers) }
+    strictlyOn<QueryScheduledMessageContentState> { state ->
+      state.adminBotToken = botToken
+      state.handle(this, adminApi, ::registerHandlers)
+    }
   }
 
   private fun registerHandlers(

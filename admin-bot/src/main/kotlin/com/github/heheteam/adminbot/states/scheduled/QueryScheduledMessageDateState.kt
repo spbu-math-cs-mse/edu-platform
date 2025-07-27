@@ -35,7 +35,7 @@ class QueryScheduledMessageDateState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
-  val scheduledMessageTextField: ScheduledMessageTextField,
+  val scheduledMessageContentField: ScheduledMessageContentField,
   val error: EduPlatformError? = null,
 ) : NavigationBotStateWithHandlers<AdminApi>() {
 
@@ -59,7 +59,7 @@ class QueryScheduledMessageDateState(
             context,
             adminId,
             userGroup,
-            scheduledMessageTextField,
+            scheduledMessageContentField,
             date,
           )
             as State
@@ -72,7 +72,7 @@ class QueryScheduledMessageDateState(
           context,
           adminId,
           userGroup,
-          scheduledMessageTextField,
+          scheduledMessageContentField,
         )
           as State
       }

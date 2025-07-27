@@ -19,10 +19,8 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
-import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.extensions.makeString
-import dev.inmo.tgbotapi.utils.regularln
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -85,16 +83,10 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
     course: UserGroup,
     replyMarkup: InlineKeyboardMarkup?,
   ): Result<MessageId, EduPlatformError> {
-    val messageText = buildEntities {
-      regularln("Сообщение:")
-      bold("Тема: ")
-      regularln(scheduledMessage.shortName)
-      scheduledMessage.content.text.forEach { +it }
-    }
     val sentMessage =
       studentBot.sendTextWithMediaAttachments(
         chatId.toChatId(),
-        scheduledMessage.content.copy(text = messageText),
+        scheduledMessage.content,
         replyMarkup = replyMarkup,
       )
     return sentMessage.map { it.messageId }

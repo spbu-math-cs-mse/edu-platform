@@ -86,7 +86,8 @@ enum class AttachmentKind {
   DOCUMENT,
 }
 
-interface MediaAttachment {
+@Serializable
+sealed interface MediaAttachment {
   val kind: AttachmentKind
 
   suspend fun openFile(): File

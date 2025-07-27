@@ -38,7 +38,7 @@ class QueryScheduledMessageTimeState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
-  val scheduledMessageTextField: ScheduledMessageTextField,
+  val scheduledMessageContentField: ScheduledMessageContentField,
   val date: LocalDate,
   val error: EduPlatformError? = null,
 ) : BotStateWithHandlers<Result<LocalTime, EduPlatformError>, EduPlatformError?, AdminApi> {
@@ -96,7 +96,7 @@ class QueryScheduledMessageTimeState(
               context,
               adminId,
               userGroup,
-              scheduledMessageTextField,
+              scheduledMessageContentField,
               date,
               time,
             ),

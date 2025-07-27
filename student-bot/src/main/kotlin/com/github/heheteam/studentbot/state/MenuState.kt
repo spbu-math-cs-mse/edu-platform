@@ -60,6 +60,8 @@ class MenuState(override val context: User, override val userId: StudentId) :
             QuestState.restoreState<StudentApi, StudentId>(stateName, context, userId).get()
           state ?: L0Student(context, userId)
         }
+
+        StudentKeyboards.SOLUTIONS -> SolutionsStudentMenuState(context, userId)
         else -> null
       }
     return if (state != null) {

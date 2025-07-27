@@ -34,6 +34,7 @@ object StudentDialogues {
     "Рад знакомству, $firstName $lastName!\nВ каком классе ты учишься?"
 
   const val menu: String = "\u2705 Главное меню"
+  const val solutionsIntro: String = "Здесь вы можете посмотреть на разборы задач"
 
   const val aboutCourse: String = "\uD83D\uDCD6 Подробнее о курсе"
 }

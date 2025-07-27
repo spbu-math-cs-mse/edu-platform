@@ -34,6 +34,7 @@ import com.github.heheteam.studentbot.state.SelectParentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
+import com.github.heheteam.studentbot.state.SolutionsStudentMenuState
 import com.github.heheteam.studentbot.state.StudentAboutCourseState
 import com.github.heheteam.studentbot.state.StudentAboutTeachersState
 import com.github.heheteam.studentbot.state.StudentCourseResultsState
@@ -89,6 +90,10 @@ internal class StateRegister(
       registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::initializeHandlers)
+      registerStateWithStudentId<SolutionsStudentMenuState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
       registerStateWithStudentId<ConfirmSubmissionState, StudentApi>(
         studentApi,
         ::initializeHandlers,

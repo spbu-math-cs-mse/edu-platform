@@ -13,6 +13,13 @@ sealed interface UserGroup {
   }
 
   @Serializable
+  data object OnlyAdmins : UserGroup {
+    override fun toString(): String {
+      return "Для админов"
+    }
+  }
+
+  @Serializable
   data object CompletedQuest : UserGroup {
     override fun toString(): String {
       return "Для закончивших квест"

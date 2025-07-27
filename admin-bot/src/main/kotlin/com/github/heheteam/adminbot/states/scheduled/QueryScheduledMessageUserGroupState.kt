@@ -44,6 +44,7 @@ class QueryScheduledMessageUserGroupState(
       listOf(
         "Все зарегистрированные пользователи" to UserGroup.AllRegisteredUsers,
         "Завершившие квест" to UserGroup.CompletedQuest,
+        "Только админы" to UserGroup.OnlyAdmins,
       )
     val dateButtons =
       groups.map { (groupName, group) ->

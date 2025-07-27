@@ -118,6 +118,7 @@ internal constructor(
     return when (userGroup) {
       is UserGroup.AllRegisteredUsers -> studentStorage.getAll()
       is UserGroup.CompletedQuest -> studentStorage.getWithCompletedQuest()
+      is UserGroup.OnlyAdmins -> studentStorage.getAdmins()
       is UserGroup.CourseGroup ->
         return binding {
           val course = courseRepository.findById(userGroup.courseId).bind()

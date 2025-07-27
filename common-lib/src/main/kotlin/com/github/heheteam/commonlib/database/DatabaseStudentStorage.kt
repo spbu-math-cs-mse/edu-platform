@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.database.table.AdminTable
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.errors.BindError
@@ -20,6 +21,7 @@ import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.map
 import dev.inmo.tgbotapi.types.UserId
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
@@ -112,6 +114,28 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
             it[StudentTable.lastQuestState],
           )
         }
+      }
+      .bind()
+  }
+
+  override fun getAdmins(): Result<List<Student>, EduPlatformError> = binding {
+    catchingTransaction(database) {
+        StudentTable.join(
+            AdminTable,
+            JoinType.INNER,
+            onColumn = StudentTable.tgId,
+            otherColumn = AdminTable.tgId,
+          )
+          .selectAll()
+          .map {
+            Student(
+              it[StudentTable.id].value.toStudentId(),
+              it[StudentTable.name],
+              it[StudentTable.name],
+              it[StudentTable.tgId].toRawChatId(),
+              it[StudentTable.lastQuestState],
+            )
+          }
       }
       .bind()
   }

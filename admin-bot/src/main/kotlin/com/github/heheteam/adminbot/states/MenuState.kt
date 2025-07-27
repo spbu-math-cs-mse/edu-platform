@@ -6,11 +6,12 @@ import com.github.heheteam.adminbot.AdminKeyboards.COURSE_INFO
 import com.github.heheteam.adminbot.AdminKeyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.AdminKeyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.AdminKeyboards.EDIT_COURSE
+import com.github.heheteam.adminbot.AdminKeyboards.SEND_SCHEDULED
 import com.github.heheteam.adminbot.Dialogues
+import com.github.heheteam.adminbot.states.general.AdminBotStateWithHandlers
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
-import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
@@ -30,7 +31,7 @@ import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 
 class MenuState(override val context: User, val adminId: AdminId) :
-  BotStateWithHandlers<State, Unit, AdminApi> {
+  AdminBotStateWithHandlers<State, Unit>() {
 
   private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
 
@@ -66,7 +67,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
           } ?: Unhandled
         }
         ADD_ADMIN -> NewState(AddAdminState(context, adminId))
-
+        SEND_SCHEDULED -> NewState(AddScheduledMessageStartState(context, adminId))
         else -> Unhandled
       }
     }

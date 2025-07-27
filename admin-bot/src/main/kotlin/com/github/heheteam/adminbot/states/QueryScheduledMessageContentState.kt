@@ -1,7 +1,6 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -30,7 +29,6 @@ import dev.inmo.tgbotapi.utils.buildEntities
 
 class QueryScheduledMessageContentState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val error: EduPlatformError? = null,
@@ -85,18 +83,12 @@ class QueryScheduledMessageContentState(
       .mapBoth(
         success = { scheduledMessageTextField ->
           Pair(
-            QueryScheduledMessageDateState(
-              context,
-              course,
-              adminId,
-              userGroup,
-              scheduledMessageTextField,
-            ),
+            QueryScheduledMessageDateState(context, adminId, userGroup, scheduledMessageTextField),
             Unit,
           )
         },
         failure = { error ->
-          Pair(QueryScheduledMessageContentState(context, course, adminId, userGroup, error), Unit)
+          Pair(QueryScheduledMessageContentState(context, adminId, userGroup, error), Unit)
         },
       )
       .ok()

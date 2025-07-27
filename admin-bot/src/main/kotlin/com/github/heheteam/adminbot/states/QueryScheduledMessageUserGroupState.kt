@@ -1,7 +1,6 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -27,9 +26,10 @@ import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
 
+private const val DATACALLBACK_MESSAGE_LENGTH_LIMIT = 10
+
 class QueryScheduledMessageUserGroupState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
   val error: EduPlatformError? = null,
 ) : NavigationBotStateWithHandlers<AdminApi>() {
@@ -46,8 +46,8 @@ class QueryScheduledMessageUserGroupState(
       )
     val dateButtons =
       groups.map { (groupName, group) ->
-        ButtonData(groupName, groupName) {
-          QueryScheduledMessageContentState(context, course, adminId, group) as State
+        ButtonData(groupName, groupName.slice(0..DATACALLBACK_MESSAGE_LENGTH_LIMIT)) {
+          QueryScheduledMessageContentState(context, adminId, group) as State
         }
       }
 

@@ -3,7 +3,6 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.timeFormatter
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -40,7 +39,6 @@ import java.time.LocalTime
 
 class ConfirmScheduledMessageState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val scheduledMessageTextField: ScheduledMessageTextField,
@@ -80,7 +78,7 @@ class ConfirmScheduledMessageState(
             " " +
             date.format(dateFormatter) +
             "\n"
-          bold("Курс: ") + course.name + "\n"
+          bold("Группа: ") + userGroup.toString() + "\n"
         },
         replyMarkup = confirmationKeyboard(),
       )

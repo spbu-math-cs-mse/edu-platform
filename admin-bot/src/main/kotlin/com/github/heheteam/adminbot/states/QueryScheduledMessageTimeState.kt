@@ -2,7 +2,6 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.timeFormatter
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -36,7 +35,6 @@ import java.time.format.DateTimeParseException
 
 class QueryScheduledMessageTimeState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val scheduledMessageTextField: ScheduledMessageTextField,
@@ -95,7 +93,6 @@ class QueryScheduledMessageTimeState(
           Pair(
             ConfirmScheduledMessageState(
               context,
-              course,
               adminId,
               userGroup,
               scheduledMessageTextField,

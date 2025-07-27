@@ -87,7 +87,7 @@ class EditCourseState(
           CreateAssignmentState(context, adminId, course)
         },
         ButtonData("➕ Добавить отложенное сообщение", AdminKeyboards.ADD_SCHEDULED_MESSAGE) {
-          AddScheduledMessageStartState(context, course, adminId)
+          AddScheduledMessageStartState(context, adminId, course)
         },
         ButtonData(
           "\uD83D\uDCC3 Просмотреть запланированные сообщения",

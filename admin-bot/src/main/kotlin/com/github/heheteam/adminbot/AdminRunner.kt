@@ -23,9 +23,11 @@ import com.github.heheteam.adminbot.states.QueryNumberOfRecentMessagesState
 import com.github.heheteam.adminbot.states.QueryScheduledMessageContentState
 import com.github.heheteam.adminbot.states.QueryScheduledMessageDateState
 import com.github.heheteam.adminbot.states.QueryScheduledMessageTimeState
+import com.github.heheteam.adminbot.states.QueryScheduledMessageUserGroupState
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.StartState
+import com.github.heheteam.adminbot.states.general.AdminHandleable
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.toAdminId
@@ -138,7 +140,7 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotState<StartState, AdminApi>(adminApi)
     registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
     registerState<AskLastNameState, AdminApi>(adminApi)
-    registerStateForBotStateWithHandlers<MenuState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryScheduledMessageUserGroupState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
@@ -161,6 +163,7 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotStateWithHandlers<EnterScheduledMessageDateManuallyState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryScheduledMessageTimeState>(::registerHandlers)
     registerStateForBotStateWithHandlers<ConfirmScheduledMessageState>(::registerHandlers)
+    onStateOrSubstate<AdminHandleable> { it.handleAdmin(this, adminApi, ::registerHandlers) }
   }
 
   private fun registerHandlers(

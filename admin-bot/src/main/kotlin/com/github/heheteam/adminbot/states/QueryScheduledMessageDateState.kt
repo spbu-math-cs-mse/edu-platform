@@ -3,7 +3,6 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.toRussian
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -33,7 +32,6 @@ import java.time.LocalDate
 @Suppress("MagicNumber") // working with dates
 class QueryScheduledMessageDateState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val scheduledMessageTextField: ScheduledMessageTextField,
@@ -58,7 +56,6 @@ class QueryScheduledMessageDateState(
         ButtonData(text, date.format(dateFormatter)) {
           QueryScheduledMessageTimeState(
             context,
-            course,
             adminId,
             userGroup,
             scheduledMessageTextField,
@@ -72,7 +69,6 @@ class QueryScheduledMessageDateState(
       ButtonData("Ввести с клавиатуры", "enter date") {
         EnterScheduledMessageDateManuallyState(
           context,
-          course,
           adminId,
           userGroup,
           scheduledMessageTextField,

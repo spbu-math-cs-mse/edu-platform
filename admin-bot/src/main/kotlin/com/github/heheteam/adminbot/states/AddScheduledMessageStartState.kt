@@ -24,8 +24,8 @@ import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 class AddScheduledMessageStartState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
+  val course: Course? = null,
 ) : BotStateWithHandlers<State, Unit, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
@@ -53,16 +53,22 @@ class AddScheduledMessageStartState(
     service: AdminApi,
     input: State,
   ): Result<Pair<State, Unit>, FrontendError> {
-    return Pair(QueryScheduledMessageUserGroupState(context, course, adminId), Unit).ok()
+    if (course == null) {
+      return Pair(QueryScheduledMessageUserGroupState(context, adminId), Unit).ok()
+    } else {
+      TODO("Not implemented")
+    }
   }
 
   override suspend fun handle(
     bot: BehaviourContext,
     service: AdminApi,
     initUpdateHandlers:
-      (UpdateHandlersController<SuspendableBotAction, State, FrontendError>, context: User) -> Unit,
+      (
+        UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>, context: User,
+      ) -> Unit,
   ): State {
-    return QueryScheduledMessageUserGroupState(context, course, adminId)
+    return QueryScheduledMessageUserGroupState(context, adminId)
   }
 
   override suspend fun sendResponse(

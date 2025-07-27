@@ -23,12 +23,14 @@ object AdminKeyboards {
   const val CREATE_ASSIGNMENT = "create assignment"
   const val COURSE_INFO = "course info"
   const val ADD_ADMIN = "add admin"
+  const val SEND_SCHEDULED = "send scheduled"
 
   fun menu() = inlineKeyboard {
     row { dataButton("➕ Создать курс", CREATE_COURSE) }
     row { dataButton("➖ Изменить курс", EDIT_COURSE) }
     row { dataButton("❔ Информация о курсе", COURSE_INFO) }
     row { dataButton("\uD83D\uDEC2 Добавить администратора", ADD_ADMIN) }
+    row { dataButton("⌚ Отправить отложенное сообщение", SEND_SCHEDULED) }
   }
 
   const val ADD_STUDENT = "add a student"

@@ -2,8 +2,13 @@ package com.github.heheteam.studentbot
 
 import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
+import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.UncaughtExceptionError
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
-import com.github.heheteam.studentbot.state.SelectStudentParentState
+import com.github.heheteam.studentbot.state.ExceptionErrorMessageState
+import com.github.heheteam.studentbot.state.StartState
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
@@ -18,6 +23,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import dev.inmo.tgbotapi.utils.RiskFeature
+import dev.inmo.tgbotapi.utils.buildEntities
 import io.ktor.http.escapeIfNeeded
 import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +33,7 @@ class StudentRunner(
   private val botToken: String,
   private val studentApi: StudentApi,
   private val parentApi: ParentApi,
+  private val errorManagementService: ErrorManagementService,
 ) {
 
   @OptIn(RiskFeature::class, PreviewFeature::class)
@@ -56,7 +63,7 @@ class StudentRunner(
 
   private suspend fun DefaultBehaviourContextWithFSM<State>.startFromUnhandledUpdate(user: User?) {
     if (user != null) {
-      val startingState = SelectStudentParentState(user, null)
+      val startingState = StartState(user)
       startChain(startingState)
     }
   }
@@ -74,7 +81,7 @@ class StudentRunner(
         }
       val from = args?.get("from")
       val courseToken = args?.get("course")
-      val state = SelectStudentParentState(user, from, courseToken)
+      val state = StartState(user, from, courseToken)
       startChain(state)
     }
   }
@@ -84,8 +91,17 @@ class StudentRunner(
     e.printStackTrace()
     val context = state.context
     if (context is User) {
-      return SelectStudentParentState(context, from = null)
+      val error = errorManagementService.registerError(UncaughtExceptionError(e))
+      return ExceptionErrorMessageState(
+        context,
+        buildEntities {
+          +"Случилась ошибка! Не волнуйтесь, разработчики уже в пути ее решения!\n"
+          +"Ошибка #${error.number}"
+        },
+      )
+    } else {
+      logger.error("context is not User in state $state")
+      return state
     }
-    return state
   }
 }

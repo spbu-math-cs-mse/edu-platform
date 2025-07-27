@@ -21,6 +21,7 @@ import com.github.heheteam.studentbot.state.AskStudentFirstNameState
 import com.github.heheteam.studentbot.state.AskStudentLastNameState
 import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
+import com.github.heheteam.studentbot.state.ExceptionErrorMessageState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.ParentStartState
 import com.github.heheteam.studentbot.state.PetTheDachshundState
@@ -36,6 +37,7 @@ import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
 import com.github.heheteam.studentbot.state.SolutionsStudentMenuState
+import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.StudentAboutCourseState
 import com.github.heheteam.studentbot.state.StudentAboutTeachersState
 import com.github.heheteam.studentbot.state.StudentCourseResultsState
@@ -147,6 +149,8 @@ internal class StateRegister(
       strictlyOn<SelectParentGradeState> { it.handle(this, parentApi) }
       strictlyOn<ParentStartState> { it.handle(this, parentApi) }
       registerParentStates(parentApi, ::initializeParentsHandlers)
+      strictlyOn<ExceptionErrorMessageState> { it.handle(this) }
+      strictlyOn<StartState> { it.handle(studentApi, parentApi) }
     }
   }
 

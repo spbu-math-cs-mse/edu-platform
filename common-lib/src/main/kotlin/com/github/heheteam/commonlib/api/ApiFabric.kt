@@ -61,6 +61,7 @@ data class ApiCollection(
   val teacherApi: TeacherApi,
   val adminApi: AdminApi,
   val parentApi: ParentApi,
+  val errorManagementService: ErrorManagementService,
 )
 
 enum class TeacherResolverKind {
@@ -261,6 +262,6 @@ class ApiFabric(
         menuMessageUpdaterService,
         errorManagementService,
       )
-    return ApiCollection(studentApi, teacherApi, adminApi, parentApi)
+    return ApiCollection(studentApi, teacherApi, adminApi, parentApi, errorManagementService)
   }
 }

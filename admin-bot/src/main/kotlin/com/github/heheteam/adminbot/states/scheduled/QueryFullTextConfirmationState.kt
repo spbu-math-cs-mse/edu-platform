@@ -1,5 +1,6 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -30,7 +31,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 data class QueryFullTextConfirmationState(
   override val context: User,
   val adminId: AdminId,
-  val courseId: CourseId,
+  val courseId: CourseId? = null,
   val numberOfMessages: Int,
 ) : BotStateWithHandlers<Boolean, Result<List<ScheduledMessage>, FrontendError>, AdminApi> {
 
@@ -58,7 +59,7 @@ data class QueryFullTextConfirmationState(
     service: AdminApi,
     input: Boolean,
   ): Result<Pair<State, Result<List<ScheduledMessage>, FrontendError>>, FrontendError> {
-    val messages = service.viewScheduledMessages(null, courseId)
+    val messages = service.viewScheduledMessages(null, null, numberOfMessages)
     return (MenuState(context, adminId) to messages).ok()
   }
 
@@ -92,6 +93,7 @@ data class QueryFullTextConfirmationState(
   ) {
     bold("ID: ${message.id.long}\n")
     bold("Время: ") + "${toReadableTimestampString(message.timestamp)}\n"
+    bold("Группа: ") + "${message.userGroup.toString()}\n"
     bold("Тема: ") + "${message.shortName}\n"
     bold("Администратор: id=") + "${message.adminId.long}\n"
     bold("Содержание: ")

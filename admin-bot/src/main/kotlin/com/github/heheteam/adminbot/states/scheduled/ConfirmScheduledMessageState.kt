@@ -1,22 +1,24 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.timeFormatter
-import com.github.heheteam.commonlib.Course
-import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
@@ -39,9 +41,9 @@ import java.time.LocalTime
 
 class ConfirmScheduledMessageState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
-  val scheduledMessageTextField: ScheduledMessageTextField,
+  val userGroup: UserGroup,
+  val scheduledMessageContentField: ScheduledMessageContentField,
   val date: LocalDate,
   val time: LocalTime,
 ) : BotStateWithHandlers<Boolean, ScheduledMessageId?, AdminApi> {
@@ -55,7 +57,7 @@ class ConfirmScheduledMessageState(
       try {
         bot.delete(it)
       } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
+        KSLog.Companion.warning("Failed to delete message", e)
       }
     }
   }
@@ -71,18 +73,23 @@ class ConfirmScheduledMessageState(
         buildEntities {
           +Dialogues.confirmScheduledMessage
           +"\n"
-          bold("Тема:") + scheduledMessageTextField.shortDescription + "\n"
-          bold("Текст:\n") + scheduledMessageTextField.content + "\n"
+          bold("Тема:") + scheduledMessageContentField.shortDescription + "\n"
+          bold("Текст:\n") + scheduledMessageContentField.content.text + "\n"
           bold("Время отправки: ") +
             time.format(timeFormatter) +
             " " +
             date.format(dateFormatter) +
             "\n"
-          bold("Курс: ") + course.name + "\n"
+          bold("Группа: ") + userGroup.toString() + "\n"
+          bold("Сообщение: ") + "\n"
         },
         replyMarkup = confirmationKeyboard(),
       )
     sentMessages.add(confirmationMessage)
+
+    bot.sendTextWithMediaAttachments(context.id, scheduledMessageContentField.content).get()?.also {
+      sentMessages.add(it)
+    }
 
     updateHandlersController.addDataCallbackHandler { callback ->
       when (callback.data) {
@@ -104,9 +111,9 @@ class ConfirmScheduledMessageState(
             .sendScheduledMessage(
               adminId,
               LocalDateTime.of(date, time),
-              TelegramMessageContent(scheduledMessageTextField.content),
-              scheduledMessageTextField.shortDescription,
-              course.id,
+              scheduledMessageContentField.content,
+              scheduledMessageContentField.shortDescription,
+              userGroup,
             )
             .bind()
         Pair(MenuState(context, adminId), scheduledMessage)

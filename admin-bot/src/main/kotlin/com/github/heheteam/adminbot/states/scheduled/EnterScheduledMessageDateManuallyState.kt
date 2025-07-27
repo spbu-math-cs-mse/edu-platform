@@ -1,8 +1,8 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
-import com.github.heheteam.commonlib.Course
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
@@ -34,9 +35,9 @@ import java.time.format.DateTimeParseException
 
 class EnterScheduledMessageDateManuallyState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
-  val scheduledMessageTextField: ScheduledMessageTextField,
+  val userGroup: UserGroup,
+  val scheduledMessageContentField: ScheduledMessageContentField,
   val error: EduPlatformError? = null,
 ) : BotStateWithHandlers<Result<LocalDate, EduPlatformError>, EduPlatformError?, AdminApi> {
 
@@ -49,7 +50,7 @@ class EnterScheduledMessageDateManuallyState(
       try {
         bot.delete(it)
       } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
+        KSLog.Companion.warning("Failed to delete message", e)
       }
     }
   }
@@ -91,9 +92,9 @@ class EnterScheduledMessageDateManuallyState(
           Pair(
             QueryScheduledMessageTimeState(
               context,
-              course,
               adminId,
-              scheduledMessageTextField,
+              userGroup,
+              scheduledMessageContentField,
               date,
             ),
             null,
@@ -103,9 +104,9 @@ class EnterScheduledMessageDateManuallyState(
           Pair(
             EnterScheduledMessageDateManuallyState(
               context,
-              course,
               adminId,
-              scheduledMessageTextField,
+              userGroup,
+              scheduledMessageContentField,
               error,
             ),
             error,

@@ -48,7 +48,9 @@ interface BotStateWithHandlers<In, Out, ApiService> : State {
   suspend fun handle(
     bot: BehaviourContext,
     service: ApiService,
-    initUpdateHandlers: (UpdateHandlersControllerDefault<In>, context: User) -> Unit = { _, _ -> },
+    initUpdateHandlers: (UpdateHandlersControllerDefault<out Any?>, context: User) -> Unit =
+      { _, _ ->
+      },
   ): State {
     val updateHandlersController = UpdateHandlersControllerDefault<In>()
     initUpdateHandlers(updateHandlersController, context)

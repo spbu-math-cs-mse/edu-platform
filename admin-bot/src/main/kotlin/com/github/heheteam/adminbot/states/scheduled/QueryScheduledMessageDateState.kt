@@ -1,13 +1,14 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.dateFormatter
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.toRussian
-import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.NavigationBotStateWithHandlers
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
@@ -32,9 +33,9 @@ import java.time.LocalDate
 @Suppress("MagicNumber") // working with dates
 class QueryScheduledMessageDateState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
-  val scheduledMessageTextField: ScheduledMessageTextField,
+  val userGroup: UserGroup,
+  val scheduledMessageContentField: ScheduledMessageContentField,
   val error: EduPlatformError? = null,
 ) : NavigationBotStateWithHandlers<AdminApi>() {
 
@@ -54,14 +55,25 @@ class QueryScheduledMessageDateState(
             else -> date.format(dateFormatter) + " (" + toRussian(date.dayOfWeek) + ")"
           }
         ButtonData(text, date.format(dateFormatter)) {
-          QueryScheduledMessageTimeState(context, course, adminId, scheduledMessageTextField, date)
+          QueryScheduledMessageTimeState(
+            context,
+            adminId,
+            userGroup,
+            scheduledMessageContentField,
+            date,
+          )
             as State
         }
       }
 
     val enterManuallyButton =
       ButtonData("Ввести с клавиатуры", "enter date") {
-        EnterScheduledMessageDateManuallyState(context, course, adminId, scheduledMessageTextField)
+        EnterScheduledMessageDateManuallyState(
+          context,
+          adminId,
+          userGroup,
+          scheduledMessageContentField,
+        )
           as State
       }
 

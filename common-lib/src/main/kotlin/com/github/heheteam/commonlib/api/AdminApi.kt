@@ -29,6 +29,7 @@ import com.github.heheteam.commonlib.logic.AdminAuthService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.util.toUrl
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
@@ -59,13 +60,13 @@ internal constructor(
     timestamp: LocalDateTime,
     content: TelegramMessageContent,
     shortName: String,
-    courseId: CourseId,
+    userGroup: UserGroup,
   ): Result<ScheduledMessageId, NumberedError> =
     errorManagementService.serviceBinding {
       scheduledMessagesService
         .sendScheduledMessage(
           adminId,
-          NewScheduledMessageInfo(timestamp, content, shortName, courseId),
+          NewScheduledMessageInfo(timestamp, content, shortName, userGroup),
         )
         .bind()
     }

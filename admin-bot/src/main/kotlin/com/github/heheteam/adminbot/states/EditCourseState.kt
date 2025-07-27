@@ -86,18 +86,6 @@ class EditCourseState(
         ButtonData("Создать задание", AdminKeyboards.CREATE_ASSIGNMENT) {
           CreateAssignmentState(context, adminId, course)
         },
-        ButtonData("➕ Добавить отложенное сообщение", AdminKeyboards.ADD_SCHEDULED_MESSAGE) {
-          AddScheduledMessageStartState(context, course, adminId)
-        },
-        ButtonData(
-          "\uD83D\uDCC3 Просмотреть запланированные сообщения",
-          AdminKeyboards.VIEW_SCHEDULED_MESSAGES,
-        ) {
-          QueryNumberOfRecentMessagesState(context, adminId, course.id)
-        },
-        ButtonData("❌ Удалить запланированное сообщение", AdminKeyboards.DELETE_SCHEDULED_MESSAGE) {
-          QueryMessageIdForDeletionState(context, adminId)
-        },
         ButtonData("Назад \uD83D\uDD19", AdminKeyboards.RETURN_BACK) { MenuState(context, adminId) },
       )
     return editCourseKeyboard

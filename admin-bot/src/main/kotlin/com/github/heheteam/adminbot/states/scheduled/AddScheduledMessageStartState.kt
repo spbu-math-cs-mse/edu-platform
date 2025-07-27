@@ -1,6 +1,7 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -24,8 +25,8 @@ import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 
 class AddScheduledMessageStartState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
+  val course: Course? = null,
 ) : BotStateWithHandlers<State, Unit, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
@@ -35,7 +36,7 @@ class AddScheduledMessageStartState(
       try {
         bot.delete(it)
       } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
+        KSLog.Companion.warning("Failed to delete message", e)
       }
     }
   }
@@ -53,16 +54,18 @@ class AddScheduledMessageStartState(
     service: AdminApi,
     input: State,
   ): Result<Pair<State, Unit>, FrontendError> {
-    return Pair(QueryScheduledMessageContentState(context, course, adminId), Unit).ok()
+    return Pair(QueryScheduledMessageUserGroupState(context, adminId), Unit).ok()
   }
 
   override suspend fun handle(
     bot: BehaviourContext,
     service: AdminApi,
     initUpdateHandlers:
-      (UpdateHandlersController<SuspendableBotAction, State, FrontendError>, context: User) -> Unit,
+      (
+        UpdateHandlersController<SuspendableBotAction, out Any?, FrontendError>, context: User,
+      ) -> Unit,
   ): State {
-    return QueryScheduledMessageContentState(context, course, adminId)
+    return QueryScheduledMessageUserGroupState(context, adminId)
   }
 
   override suspend fun sendResponse(

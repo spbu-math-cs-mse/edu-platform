@@ -1,31 +1,33 @@
 package com.github.heheteam.adminbot
 
 import com.github.heheteam.adminbot.states.AddAdminState
-import com.github.heheteam.adminbot.states.AddScheduledMessageStartState
 import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.AskFirstNameState
 import com.github.heheteam.adminbot.states.AskLastNameState
 import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
-import com.github.heheteam.adminbot.states.ConfirmScheduledMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateAssignmentErrorState
 import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
-import com.github.heheteam.adminbot.states.EnterScheduledMessageDateManuallyState
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.states.PerformDeleteMessageState
 import com.github.heheteam.adminbot.states.QueryCourseForEditing
-import com.github.heheteam.adminbot.states.QueryFullTextConfirmationState
-import com.github.heheteam.adminbot.states.QueryMessageIdForDeletionState
-import com.github.heheteam.adminbot.states.QueryNumberOfRecentMessagesState
-import com.github.heheteam.adminbot.states.QueryScheduledMessageContentState
-import com.github.heheteam.adminbot.states.QueryScheduledMessageDateState
-import com.github.heheteam.adminbot.states.QueryScheduledMessageTimeState
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.StartState
+import com.github.heheteam.adminbot.states.general.AdminHandleable
+import com.github.heheteam.adminbot.states.scheduled.AddScheduledMessageStartState
+import com.github.heheteam.adminbot.states.scheduled.ConfirmScheduledMessageState
+import com.github.heheteam.adminbot.states.scheduled.EnterScheduledMessageDateManuallyState
+import com.github.heheteam.adminbot.states.scheduled.QueryFullTextConfirmationState
+import com.github.heheteam.adminbot.states.scheduled.QueryMessageIdForDeletionState
+import com.github.heheteam.adminbot.states.scheduled.QueryNumberOfRecentMessagesState
+import com.github.heheteam.adminbot.states.scheduled.QueryScheduledMessageContentState
+import com.github.heheteam.adminbot.states.scheduled.QueryScheduledMessageDateState
+import com.github.heheteam.adminbot.states.scheduled.QueryScheduledMessageTimeState
+import com.github.heheteam.adminbot.states.scheduled.QueryScheduledMessageUserGroupState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.toAdminId
@@ -105,7 +107,7 @@ class AdminRunner(private val adminApi: AdminApi) {
           if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
         }
 
-        registerAllStates()
+        registerAllStates(botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
           println(java.time.LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
@@ -134,11 +136,11 @@ class AdminRunner(private val adminApi: AdminApi) {
     }
   }
 
-  private fun DefaultBehaviourContextWithFSM<State>.registerAllStates() {
+  private fun DefaultBehaviourContextWithFSM<State>.registerAllStates(botToken: String) {
     registerStateForBotState<StartState, AdminApi>(adminApi)
     registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
     registerState<AskLastNameState, AdminApi>(adminApi)
-    registerStateForBotStateWithHandlers<MenuState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryScheduledMessageUserGroupState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
@@ -156,11 +158,15 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerStateForBotStateWithHandlers<ConfirmDeleteMessageState>(::registerHandlers)
     registerStateForBotStateWithHandlers<PerformDeleteMessageState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddScheduledMessageStartState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<QueryScheduledMessageContentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryScheduledMessageDateState>(::registerHandlers)
     registerStateForBotStateWithHandlers<EnterScheduledMessageDateManuallyState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryScheduledMessageTimeState>(::registerHandlers)
     registerStateForBotStateWithHandlers<ConfirmScheduledMessageState>(::registerHandlers)
+    onStateOrSubstate<AdminHandleable> { it.handleAdmin(this, adminApi, ::registerHandlers) }
+    strictlyOn<QueryScheduledMessageContentState> { state ->
+      state.adminBotToken = botToken
+      state.handle(this, adminApi, ::registerHandlers)
+    }
   }
 
   private fun registerHandlers(

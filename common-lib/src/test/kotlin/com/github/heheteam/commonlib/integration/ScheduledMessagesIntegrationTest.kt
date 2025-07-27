@@ -2,6 +2,8 @@ package com.github.heheteam.commonlib.integration
 
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.TextWithMediaAttachments
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.testdouble.StudentBotTelegramControllerTestDouble
 import com.github.heheteam.commonlib.util.buildData
 import com.github.heheteam.commonlib.util.defaultInstant
@@ -16,6 +18,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -83,10 +87,10 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
           timestamp = scheduledTimestamp,
           content = content,
           shortName = "Resolution Test",
-          courseId = course.id,
           isSent = false,
           isDeleted = false,
           adminId = admin.id,
+          userGroup = UserGroup.CourseGroup(course.id),
         )
 
       val messageBeforeDelivery = resolveScheduledMessage(scheduledMessageId).value
@@ -112,10 +116,10 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
           timestamp = scheduledTimestamp,
           content = content,
           shortName = "Resolution Test",
-          courseId = course.id,
           isSent = false,
           isDeleted = false,
           adminId = admin.id,
+          userGroup = UserGroup.CourseGroup(course.id),
         )
 
       checkAndSentMessages(at(2.minutes)).value
@@ -182,6 +186,8 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
 
   @Test
   fun `scenario 6 - viewScheduledMessages filters by courseId`() = runTest {
+    val value: UserGroup = UserGroup.CourseGroup(CourseId(13L))
+    println(Json.encodeToString(value))
     buildData(createDefaultApis()) {
       val admin = admin("Admin1", "Admin1", 100L)
       val course1 = course("Course1")
@@ -193,7 +199,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
 
       val messagesForCourse1 = viewRecordedMessages(courseId = course1.id, limit = 3).value
       assertEquals(2, messagesForCourse1.size)
-      assertTrue(messagesForCourse1.all { it.courseId == course1.id })
+      assertTrue(messagesForCourse1.all { it.userGroup == UserGroup.CourseGroup(course1.id) })
       assertEquals("MsgC", messagesForCourse1[0].shortName)
       assertEquals("MsgA", messagesForCourse1[1].shortName)
     }
@@ -216,7 +222,11 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val messagesFiltered =
         viewRecordedMessages(adminId = admin1.id, courseId = course1.id, limit = 3).value
       assertEquals(2, messagesFiltered.size)
-      assertTrue(messagesFiltered.all { it.adminId == admin1.id && it.courseId == course1.id })
+      assertTrue(
+        messagesFiltered.all {
+          it.adminId == admin1.id && (it.userGroup as UserGroup.CourseGroup).courseId == course1.id
+        }
+      )
       assertEquals("MsgC", messagesFiltered[0].shortName)
       assertEquals("MsgA", messagesFiltered[1].shortName)
     }

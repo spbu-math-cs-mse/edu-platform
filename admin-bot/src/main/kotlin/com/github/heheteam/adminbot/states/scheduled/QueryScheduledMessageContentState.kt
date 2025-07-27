@@ -1,39 +1,40 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.commonlib.Course
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
+import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.UserInput
+import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
 import com.github.heheteam.commonlib.util.ok
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
+import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
-import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
+import dev.inmo.tgbotapi.utils.extensions.makeString
 
 class QueryScheduledMessageContentState(
   override val context: User,
-  val course: Course,
   val adminId: AdminId,
+  val userGroup: UserGroup,
   val error: EduPlatformError? = null,
-) : BotStateWithHandlers<Result<ScheduledMessageTextField, EduPlatformError>, Unit, AdminApi> {
-
+) : BotStateWithHandlers<ScheduledMessageContentField?, Unit, AdminApi> {
+  lateinit var adminBotToken: String
   val sentMessages = mutableListOf<AccessibleMessage>()
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
@@ -51,8 +52,7 @@ class QueryScheduledMessageContentState(
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController:
-      UpdateHandlersControllerDefault<Result<ScheduledMessageTextField, EduPlatformError>>,
+    updateHandlersController: UpdateHandlersControllerDefault<ScheduledMessageContentField?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val introMessage = bot.send(context, Dialogues.queryScheduledMessageContent)
     sentMessages.add(introMessage)
@@ -63,34 +63,26 @@ class QueryScheduledMessageContentState(
     }
 
     updateHandlersController.addTextMessageHandler { message ->
-      val text = message.content.text
-      if (text.isBlank()) {
-        UserInput(Err(newStateError(Dialogues.scheduledMessageContentEmptyError)))
-      } else {
-        val lines = text.lines()
-        val shortDescription = lines.first()
-        val content = buildEntities { +lines.drop(1).joinToString("\n") }
-        UserInput(Ok(ScheduledMessageTextField(shortDescription, content)))
-      }
+      bot.parseSentSubmission(message, adminBotToken)
+    }
+    updateHandlersController.addMediaMessageHandler { message ->
+      bot.setMessageReaction(message, "\uD83E\uDD23")
+      bot.parseSentSubmission(message, adminBotToken)
+    }
+    updateHandlersController.addDocumentMessageHandler { message ->
+      bot.parseSentSubmission(message, adminBotToken)
     }
   }
 
   override suspend fun computeNewState(
     service: AdminApi,
-    input: Result<ScheduledMessageTextField, EduPlatformError>,
+    input: ScheduledMessageContentField?,
   ): Result<Pair<State, Unit>, FrontendError> {
-    return input
-      .mapBoth(
-        success = { scheduledMessageTextField ->
-          Pair(
-            QueryScheduledMessageDateState(context, course, adminId, scheduledMessageTextField),
-            Unit,
-          )
-        },
-        failure = { error ->
-          Pair(QueryScheduledMessageContentState(context, course, adminId, error), Unit)
-        },
-      )
+    return if (input != null) {
+        QueryScheduledMessageDateState(context, adminId, userGroup, input) to Unit
+      } else {
+        QueryScheduledMessageContentState(context, adminId, userGroup, error) to Unit
+      }
       .ok()
   }
 
@@ -98,6 +90,17 @@ class QueryScheduledMessageContentState(
     bot: BehaviourContext,
     service: AdminApi,
     response: Unit,
-    input: Result<ScheduledMessageTextField, EduPlatformError>,
+    input: ScheduledMessageContentField?,
   ): Result<Unit, FrontendError> = Unit.ok()
+
+  private suspend fun BehaviourContext.parseSentSubmission(
+    submissionMessage: CommonMessage<*>,
+    adminBotToken: String,
+  ): HandlerResultWithUserInputOrUnhandled<Nothing, ScheduledMessageContentField?, FrontendError> {
+    val content =
+      extractTextWithMediaAttachments(submissionMessage, adminBotToken, this)
+        ?: return UserInput(null)
+    val shortDescription = content.text.makeString().lines().firstOrNull().orEmpty()
+    return UserInput(ScheduledMessageContentField(shortDescription, content))
+  }
 }

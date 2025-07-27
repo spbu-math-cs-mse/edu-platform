@@ -14,6 +14,7 @@ object ParentKeyboards {
   const val FREE_ACTIVITY = "freeActivity"
   const val MAXIMOV = "maximov"
   const val KAMEN = "kamen"
+  const val SOLUTIONS = "solutions"
 
   fun menu() = inlineKeyboard {
     row { dataButton("\uD83D\uDCD6 Подробнее о курсе", ABOUT_COURSE) }
@@ -23,6 +24,7 @@ object ParentKeyboards {
     }
     row { urlButton("❓ Задать вопрос", "https://t.me/m/7qK9yUD5YWE6") }
     row { dataButton("\uD83C\uDFAE Квест от Таксы Дуси", FREE_ACTIVITY) }
+    row { dataButton("Разборы задач", SOLUTIONS) }
   }
 
   const val ABOUT_TEACHERS = "aboutTeachers"

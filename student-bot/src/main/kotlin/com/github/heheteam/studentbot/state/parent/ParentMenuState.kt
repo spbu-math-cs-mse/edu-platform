@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
+import com.github.heheteam.studentbot.state.SolutionsParentMenuState
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.runCatching
@@ -48,6 +49,7 @@ class ParentMenuState(override val context: User, override val userId: ParentId)
       when (callback.data) {
         ParentKeyboards.ABOUT_COURSE -> ParentAboutCourseState(context, userId)
         ParentKeyboards.FREE_ACTIVITY -> ParentStartQuestState(context, userId)
+        ParentKeyboards.SOLUTIONS -> SolutionsParentMenuState(context, userId)
         else -> null
       }
     return if (state != null) {

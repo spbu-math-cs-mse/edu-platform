@@ -1,31 +1,31 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
+import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.newStateError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
-import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.runCatching
+import com.github.michaelbull.result.toResultOr
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
-import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
 
-private const val MAXIMUM_SCHEDULED_MSGS_DISPLAYED = 100
-
-data class QueryNumberOfRecentMessagesState(
-  override val context: User,
-  val adminId: AdminId,
-  val courseId: CourseId,
-) : BotStateWithHandlers<String, String, AdminApi> {
+data class QueryMessageIdForDeletionState(override val context: User, val adminId: AdminId) :
+  BotStateWithHandlers<String, String, AdminApi> {
 
   override fun defaultState(): State = MenuState(context, adminId)
 
@@ -36,11 +36,7 @@ data class QueryNumberOfRecentMessagesState(
   ): Result<Unit, FrontendError> = coroutineBinding {
     bot.sendMessage(
       context.id,
-      buildEntities {
-        +"Введите количество последних запланированных сообщений для отображения (рекомендуется "
-        bold("5")
-        +"): "
-      },
+      buildEntities { +"Введите ID сообщения, которое вы хотите удалить:" },
     )
     updateHandlersController.addTextMessageHandler { message -> UserInput(message.content.text) }
   }
@@ -48,17 +44,25 @@ data class QueryNumberOfRecentMessagesState(
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, String>, FrontendError> {
-    val number = input.toIntOrNull()
-    return if (number == null || number <= 0 || number > MAXIMUM_SCHEDULED_MSGS_DISPLAYED) {
-        QueryNumberOfRecentMessagesState(context, adminId, courseId) to
-          "Пожалуйста, введите число от 1 до 100."
-      } else {
-        QueryFullTextConfirmationState(context, adminId, courseId, number) to
-          "Загрузка сообщений..."
+  ): Result<Pair<State, String>, FrontendError> =
+    binding {
+        val messageIdLong =
+          input.toLongOrNull().toResultOr { newStateError("Invalid message ID format") }.bind()
+        val scheduledMessageId = messageIdLong.toScheduledMessageId()
+
+        val message = service.resolveScheduledMessage(scheduledMessageId).bind()
+        if (message.isDeleted) {
+          return@binding MenuState(context, adminId) to "Сообщение с таким ID уже удалено."
+        }
+
+        ConfirmDeleteMessageState(context, adminId, scheduledMessageId) to
+          "Загрузка информации о сообщении..."
       }
+      .mapBoth(
+        success = { it },
+        failure = { MenuState(context, adminId) to "Не удалось найти сообщение с указанным ID." },
+      )
       .ok()
-  }
 
   override suspend fun sendResponse(
     bot: BehaviourContext,

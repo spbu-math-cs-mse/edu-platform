@@ -1,6 +1,7 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -35,7 +36,7 @@ class AddScheduledMessageStartState(
       try {
         bot.delete(it)
       } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
+        KSLog.Companion.warning("Failed to delete message", e)
       }
     }
   }
@@ -53,11 +54,7 @@ class AddScheduledMessageStartState(
     service: AdminApi,
     input: State,
   ): Result<Pair<State, Unit>, FrontendError> {
-    if (course == null) {
-      return Pair(QueryScheduledMessageUserGroupState(context, adminId), Unit).ok()
-    } else {
-      TODO("Not implemented")
-    }
+    return Pair(QueryScheduledMessageUserGroupState(context, adminId), Unit).ok()
   }
 
   override suspend fun handle(

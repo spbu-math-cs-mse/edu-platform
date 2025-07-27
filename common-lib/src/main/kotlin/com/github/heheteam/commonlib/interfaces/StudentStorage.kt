@@ -14,6 +14,10 @@ interface StudentStorage {
 
   fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError>
 
+  fun getAll(): Result<List<Student>, EduPlatformError>
+
+  fun getWithCompletedQuest(): Result<List<Student>, EduPlatformError>
+
   fun createStudent(
     name: String = "defaultName",
     surname: String = "defaultSurname",

@@ -1,4 +1,4 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 

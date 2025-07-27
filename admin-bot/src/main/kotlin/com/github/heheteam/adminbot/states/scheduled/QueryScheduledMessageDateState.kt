@@ -1,6 +1,9 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
+import com.github.heheteam.adminbot.dateFormatter
+import com.github.heheteam.adminbot.states.MenuState
+import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -25,34 +28,57 @@ import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
+import java.time.LocalDate
 
-private const val DATACALLBACK_MESSAGE_LENGTH_LIMIT = 10
-
-class QueryScheduledMessageUserGroupState(
+@Suppress("MagicNumber") // working with dates
+class QueryScheduledMessageDateState(
   override val context: User,
   val adminId: AdminId,
+  val userGroup: UserGroup,
+  val scheduledMessageTextField: ScheduledMessageTextField,
   val error: EduPlatformError? = null,
 ) : NavigationBotStateWithHandlers<AdminApi>() {
 
   override val introMessageContent: TextSourcesList = buildEntities {
-    +Dialogues.queryScheduledMessageUserGroup
+    +Dialogues.queryScheduledMessageDate
   }
 
   override fun createKeyboard(service: AdminApi): MenuKeyboardData<State?> {
-    val groups =
-      listOf(
-        "Все зарегистрированные пользователи" to UserGroup.AllRegisteredUsers(),
-        "Завершившие квест" to UserGroup.CompletedQuest(),
-      )
+    val today = LocalDate.now()
+    val dates = (0..6).map { today.plusDays(it.toLong()) }
     val dateButtons =
-      groups.map { (groupName, group) ->
-        ButtonData(groupName, groupName.slice(0..DATACALLBACK_MESSAGE_LENGTH_LIMIT)) {
-          QueryScheduledMessageContentState(context, adminId, group) as State
+      dates.mapIndexed { index, date ->
+        val text =
+          when (index) {
+            0 -> date.format(dateFormatter) + " (сегодня)"
+            1 -> date.format(dateFormatter) + " (завтра)"
+            else -> date.format(dateFormatter) + " (" + toRussian(date.dayOfWeek) + ")"
+          }
+        ButtonData(text, date.format(dateFormatter)) {
+          QueryScheduledMessageTimeState(
+            context,
+            adminId,
+            userGroup,
+            scheduledMessageTextField,
+            date,
+          )
+            as State
         }
       }
 
+    val enterManuallyButton =
+      ButtonData("Ввести с клавиатуры", "enter date") {
+        EnterScheduledMessageDateManuallyState(
+          context,
+          adminId,
+          userGroup,
+          scheduledMessageTextField,
+        )
+          as State
+      }
+
     val cancelButton = ButtonData("Отмена", "cancel") { menuState() }
-    return buildColumnMenu(dateButtons + cancelButton)
+    return buildColumnMenu(dateButtons + enterManuallyButton + cancelButton)
   }
 
   override fun menuState(): State = MenuState(context, adminId)

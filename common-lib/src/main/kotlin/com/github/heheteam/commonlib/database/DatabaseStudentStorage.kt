@@ -23,6 +23,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.json.contains
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -80,6 +81,36 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
               )
             }
             .single()
+        }
+      }
+      .bind()
+  }
+
+  override fun getAll(): Result<List<Student>, EduPlatformError> = binding {
+    catchingTransaction(database) {
+        StudentTable.selectAll().map {
+          Student(
+            it[StudentTable.id].value.toStudentId(),
+            it[StudentTable.name],
+            it[StudentTable.name],
+            it[StudentTable.tgId].toRawChatId(),
+            it[StudentTable.lastQuestState],
+          )
+        }
+      }
+      .bind()
+  }
+
+  override fun getWithCompletedQuest(): Result<List<Student>, EduPlatformError> = binding {
+    catchingTransaction(database) {
+        StudentTable.selectAll().where(StudentTable.lastQuestState.contains("L4")).map {
+          Student(
+            it[StudentTable.id].value.toStudentId(),
+            it[StudentTable.name],
+            it[StudentTable.name],
+            it[StudentTable.tgId].toRawChatId(),
+            it[StudentTable.lastQuestState],
+          )
         }
       }
       .bind()

@@ -116,8 +116,8 @@ internal constructor(
 
   private fun resolveByUserGroup(userGroup: UserGroup): EduPlatformResult<List<Student>> {
     return when (userGroup) {
-      is UserGroup.AllRegisteredUsers -> TODO()
-      is UserGroup.CompletedQuest -> TODO()
+      is UserGroup.AllRegisteredUsers -> studentStorage.getAll()
+      is UserGroup.CompletedQuest -> studentStorage.getWithCompletedQuest()
       is UserGroup.CourseGroup ->
         return binding {
           val course = courseRepository.findById(userGroup.courseId).bind()

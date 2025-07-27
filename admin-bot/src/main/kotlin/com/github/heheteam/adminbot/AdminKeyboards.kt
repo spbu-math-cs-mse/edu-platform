@@ -30,7 +30,7 @@ object AdminKeyboards {
     row { dataButton("➖ Изменить курс", EDIT_COURSE) }
     row { dataButton("❔ Информация о курсе", COURSE_INFO) }
     row { dataButton("\uD83D\uDEC2 Добавить администратора", ADD_ADMIN) }
-    row { dataButton("⌚ Отправить отложенное сообщение", SEND_SCHEDULED) }
+    row { dataButton("⌚ Отложенные сообщение", SEND_SCHEDULED) }
   }
 
   const val ADD_STUDENT = "add a student"
@@ -41,21 +41,6 @@ object AdminKeyboards {
   const val ADD_SCHEDULED_MESSAGE = "add scheduled message"
   const val VIEW_SCHEDULED_MESSAGES = "view scheduled messages"
   const val DELETE_SCHEDULED_MESSAGE = "delete scheduled message"
-
-  fun editCourse() = inlineKeyboard {
-    row { dataButton("➕ Создать серию", CREATE_ASSIGNMENT) }
-    row { dataButton("➕ Добавить учеников", ADD_STUDENT) }
-    row { dataButton("➖ Убрать учеников", REMOVE_STUDENT) }
-    row { dataButton("➕ Добавить преподавателей", ADD_TEACHER) }
-    row { dataButton("➖ Убрать преподавателей", REMOVE_TEACHER) }
-    row { dataButton("\uD83D\uDD04 Изменить описание", EDIT_DESCRIPTION) }
-    row { dataButton("➕ Добавить отложенное сообщение", ADD_SCHEDULED_MESSAGE) }
-    row {
-      dataButton("\uD83D\uDCC3 Просмотреть запланированные сообщения", VIEW_SCHEDULED_MESSAGES)
-    }
-    row { dataButton("❌ Удалить запланированное сообщение", DELETE_SCHEDULED_MESSAGE) }
-    row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) }
-  }
 
   const val REGENERATE_TOKEN = "regenerate token"
 

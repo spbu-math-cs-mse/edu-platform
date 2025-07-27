@@ -141,8 +141,7 @@ object Dialogues {
       "Вам потребуется выбрать таргет-группу пользователей, ввести текст сообщения, " +
       "затем выбрать дату и время отправки. "
 
-  const val queryScheduledMessageUserGroup: String =
-    "Выберите дату или введите её в формате дд.мм.гггг"
+  const val queryScheduledMessageUserGroup: String = "Выберите, кому будет адресована рассылка"
   const val queryScheduledMessageContent: String =
     "Введите текст сообщения. Первая строка будет использоваться как краткое описание."
   const val scheduledMessageContentEmptyError: String = "Сообщение не может быть пустым."

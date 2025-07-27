@@ -1,13 +1,11 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.timeFormatter
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.errors.OperationCancelledError
 import com.github.heheteam.commonlib.errors.newStateError
-import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -19,7 +17,6 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
-import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -29,22 +26,16 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeParseException
+import dev.inmo.tgbotapi.utils.buildEntities
 
-class QueryScheduledMessageTimeState(
+class QueryScheduledMessageContentState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
-  val scheduledMessageTextField: ScheduledMessageTextField,
-  val date: LocalDate,
   val error: EduPlatformError? = null,
-) : BotStateWithHandlers<Result<LocalTime, EduPlatformError>, EduPlatformError?, AdminApi> {
+) : BotStateWithHandlers<Result<ScheduledMessageTextField, EduPlatformError>, Unit, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
-
-  override fun defaultState(): State = MenuState(context, adminId)
 
   override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
     sentMessages.forEach {
@@ -56,12 +47,15 @@ class QueryScheduledMessageTimeState(
     }
   }
 
+  override fun defaultState(): State = MenuState(context, adminId)
+
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
-    updateHandlersController: UpdateHandlersControllerDefault<Result<LocalTime, EduPlatformError>>,
+    updateHandlersController:
+      UpdateHandlersControllerDefault<Result<ScheduledMessageTextField, EduPlatformError>>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val introMessage = bot.send(context, Dialogues.queryScheduledMessageTime)
+    val introMessage = bot.send(context, Dialogues.queryScheduledMessageContent)
     sentMessages.add(introMessage)
 
     error?.let {
@@ -71,43 +65,31 @@ class QueryScheduledMessageTimeState(
 
     updateHandlersController.addTextMessageHandler { message ->
       val text = message.content.text
-      if (text == "/stop") {
-        UserInput(Err(OperationCancelledError()))
+      if (text.isBlank()) {
+        UserInput(Err(newStateError(Dialogues.scheduledMessageContentEmptyError)))
       } else {
-        try {
-          UserInput(Ok(LocalTime.parse(text, timeFormatter)))
-        } catch (_: DateTimeParseException) {
-          UserInput(Err(newStateError(Dialogues.invalidTimeFormat)))
-        }
+        val lines = text.lines()
+        val shortDescription = lines.first()
+        val content = buildEntities { +lines.drop(1).joinToString("\n") }
+        UserInput(Ok(ScheduledMessageTextField(shortDescription, content)))
       }
     }
   }
 
   override suspend fun computeNewState(
     service: AdminApi,
-    input: Result<LocalTime, EduPlatformError>,
-  ): Result<Pair<State, EduPlatformError?>, FrontendError> {
+    input: Result<ScheduledMessageTextField, EduPlatformError>,
+  ): Result<Pair<State, Unit>, FrontendError> {
     return input
       .mapBoth(
-        success = { time ->
+        success = { scheduledMessageTextField ->
           Pair(
-            ConfirmScheduledMessageState(
-              context,
-              adminId,
-              userGroup,
-              scheduledMessageTextField,
-              date,
-              time,
-            ),
-            null,
+            QueryScheduledMessageDateState(context, adminId, userGroup, scheduledMessageTextField),
+            Unit,
           )
         },
         failure = { error ->
-          if (error is OperationCancelledError) {
-            Pair(MenuState(context, adminId), null)
-          } else {
-            Pair(this, error)
-          }
+          Pair(QueryScheduledMessageContentState(context, adminId, userGroup, error), Unit)
         },
       )
       .ok()
@@ -116,15 +98,7 @@ class QueryScheduledMessageTimeState(
   override suspend fun sendResponse(
     bot: BehaviourContext,
     service: AdminApi,
-    response: EduPlatformError?,
-    input: Result<LocalTime, EduPlatformError>,
-  ): Result<Unit, FrontendError> =
-    runCatching {
-        response?.let {
-          val errorMessage = bot.send(context, it.shortDescription)
-          sentMessages.add(errorMessage)
-        }
-        Unit
-      }
-      .toTelegramError()
+    response: Unit,
+    input: Result<ScheduledMessageTextField, EduPlatformError>,
+  ): Result<Unit, FrontendError> = Unit.ok()
 }

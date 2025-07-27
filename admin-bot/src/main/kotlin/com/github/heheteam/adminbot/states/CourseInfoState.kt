@@ -2,6 +2,7 @@ package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.formatters.CourseStatisticsFormatter
+import com.github.heheteam.adminbot.states.scheduled.QueryNumberOfRecentMessagesState
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError

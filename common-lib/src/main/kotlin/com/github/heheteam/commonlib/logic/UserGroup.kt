@@ -1,11 +1,13 @@
 package com.github.heheteam.commonlib.logic
 
 import com.github.heheteam.commonlib.interfaces.CourseId
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface UserGroup {
-  data class CourseGroup(val courseId: CourseId) : UserGroup
+  @Serializable data class CourseGroup(val courseId: CourseId) : UserGroup
 
-  class CompletedQuest : UserGroup
+  @Serializable class CompletedQuest : UserGroup
 
-  class AllRegisteredUsers : UserGroup
+  @Serializable class AllRegisteredUsers : UserGroup
 }

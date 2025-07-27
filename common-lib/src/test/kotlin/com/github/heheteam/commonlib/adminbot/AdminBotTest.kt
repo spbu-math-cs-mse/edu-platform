@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseProblemStorage
 import com.github.heheteam.commonlib.database.DatabaseScheduledMessagesStorage
 import com.github.heheteam.commonlib.database.DatabaseSentMessageLogStorage
+import com.github.heheteam.commonlib.database.DatabaseStudentStorage
 import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
@@ -42,15 +43,21 @@ class AdminBotTest {
   init {
     val problemStorage = DatabaseProblemStorage(database)
     val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
-    val courseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
+    val courseRepository = DatabaseCourseRepository()
+    val courseStorage = DatabaseCourseStorage(courseRepository)
+    val studentStorage = DatabaseStudentStorage(database)
+    val scheduledMessagesService =
+      ScheduledMessageService(
+        DatabaseScheduledMessagesStorage(database),
+        sentMessageLogStorage,
+        studentBotController,
+        courseRepository,
+        studentStorage,
+        database,
+      )
     core =
       AdminApi(
-        ScheduledMessageService(
-          DatabaseScheduledMessagesStorage(database),
-          sentMessageLogStorage,
-          courseStorage,
-          studentBotController,
-        ),
+        scheduledMessagesService,
         courseStorage,
         AdminAuthService(DatabaseAdminStorage(database)),
         DatabaseTeacherStorage(database),

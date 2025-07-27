@@ -11,10 +11,12 @@ import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.toScheduledMessageId
+import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import kotlinx.datetime.LocalDateTime
@@ -40,10 +42,10 @@ class DatabaseScheduledMessagesStorage(private val database: Database) {
               it[timestamp] = messageInfo.timestamp.toKotlinLocalDateTime()
               it[content] = messageInfo.content
               it[shortName] = messageInfo.shortName
-              it[courseId] = messageInfo.courseId.long
               it[isSent] = false
               it[isDeleted] = false
               it[this.adminId] = adminId.long
+              it[userGroup] = messageInfo.sendingFilter
             }
           id.value.toScheduledMessageId()
         }
@@ -70,10 +72,10 @@ class DatabaseScheduledMessagesStorage(private val database: Database) {
         timestamp = it[ScheduledMessageTable.timestamp],
         content = it[ScheduledMessageTable.content],
         shortName = it[ScheduledMessageTable.shortName],
-        courseId = CourseId(it[ScheduledMessageTable.courseId]),
         isSent = it[ScheduledMessageTable.isSent],
         isDeleted = it[ScheduledMessageTable.isDeleted],
         adminId = AdminId(it[ScheduledMessageTable.adminId]),
+        userGroup = it[ScheduledMessageTable.userGroup],
       )
     } ?: Err(ResolveError(scheduledMessageId, "ScheduledMessage")).bind()
   }
@@ -84,23 +86,28 @@ class DatabaseScheduledMessagesStorage(private val database: Database) {
     lastN: Int,
   ): Result<List<ScheduledMessage>, EduPlatformError> =
     catchingTransaction(database) {
-      val query = ScheduledMessageTable.selectAll()
-      adminId?.let { query.andWhere { ScheduledMessageTable.adminId eq it.long } }
-      courseId?.let { query.andWhere { ScheduledMessageTable.courseId eq it.long } }
-
-      query.orderBy(ScheduledMessageTable.timestamp to SortOrder.DESC).limit(lastN).map {
-        ScheduledMessage(
-          id = it[ScheduledMessageTable.id].value.toScheduledMessageId(),
-          timestamp = it[ScheduledMessageTable.timestamp],
-          content = it[ScheduledMessageTable.content],
-          shortName = it[ScheduledMessageTable.shortName],
-          courseId = CourseId(it[ScheduledMessageTable.courseId]),
-          isSent = it[ScheduledMessageTable.isSent],
-          isDeleted = it[ScheduledMessageTable.isDeleted],
-          adminId = AdminId(it[ScheduledMessageTable.adminId]),
-        )
+        val query = ScheduledMessageTable.selectAll()
+        adminId?.let { query.andWhere { ScheduledMessageTable.adminId eq it.long } }
+        query.orderBy(ScheduledMessageTable.timestamp to SortOrder.DESC).limit(lastN).map {
+          ScheduledMessage(
+            id = it[ScheduledMessageTable.id].value.toScheduledMessageId(),
+            timestamp = it[ScheduledMessageTable.timestamp],
+            content = it[ScheduledMessageTable.content],
+            shortName = it[ScheduledMessageTable.shortName],
+            isSent = it[ScheduledMessageTable.isSent],
+            isDeleted = it[ScheduledMessageTable.isDeleted],
+            adminId = AdminId(it[ScheduledMessageTable.adminId]),
+            userGroup = it[ScheduledMessageTable.userGroup],
+          )
+        }
       }
-    }
+      .map { courses ->
+        if (courseId != null) {
+          courses.filter {
+            it.userGroup is UserGroup.CourseGroup && it.userGroup.courseId == courseId
+          }
+        } else courses
+      }
 
   fun setIsDeleted(scheduledMessageId: ScheduledMessageId): Result<Int, DatabaseExceptionError> =
     this.runCatching {
@@ -126,10 +133,10 @@ class DatabaseScheduledMessagesStorage(private val database: Database) {
             timestamp = it[ScheduledMessageTable.timestamp],
             content = it[ScheduledMessageTable.content],
             shortName = it[ScheduledMessageTable.shortName],
-            courseId = CourseId(it[ScheduledMessageTable.courseId]),
             isSent = it[ScheduledMessageTable.isSent],
             isDeleted = it[ScheduledMessageTable.isDeleted],
             adminId = AdminId(it[ScheduledMessageTable.adminId]),
+            userGroup = it[ScheduledMessageTable.userGroup],
           )
         }
     }

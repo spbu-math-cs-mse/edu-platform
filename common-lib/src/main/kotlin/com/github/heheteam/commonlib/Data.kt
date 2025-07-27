@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.ScheduledMessageId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.logic.UserGroup
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
@@ -182,7 +183,7 @@ data class NewScheduledMessageInfo(
   val timestamp: java.time.LocalDateTime,
   val content: TelegramMessageContent,
   val shortName: String,
-  val courseId: CourseId,
+  val sendingFilter: UserGroup,
 )
 
 data class SentMessageLog(
@@ -199,7 +200,7 @@ data class ScheduledMessage(
   val timestamp: LocalDateTime,
   val content: TelegramMessageContent,
   val shortName: String,
-  val courseId: CourseId,
+  val userGroup: UserGroup,
   val isSent: Boolean,
   val isDeleted: Boolean,
   val adminId: AdminId,

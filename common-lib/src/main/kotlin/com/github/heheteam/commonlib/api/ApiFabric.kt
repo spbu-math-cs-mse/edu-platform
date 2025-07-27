@@ -81,7 +81,8 @@ class ApiFabric(
     teacherResolverKind: TeacherResolverKind,
     adminIds: List<Long> = listOf(),
   ): ApiCollection {
-    val databaseCourseStorage = DatabaseCourseStorage(DatabaseCourseRepository())
+    val courseRepository = DatabaseCourseRepository()
+    val databaseCourseStorage = DatabaseCourseStorage(courseRepository)
     val problemStorage: ProblemStorage = DatabaseProblemStorage(database)
     val databaseAssignmentStorage: AssignmentStorage =
       DatabaseAssignmentStorage(database, problemStorage)
@@ -91,12 +92,15 @@ class ApiFabric(
     val teacherStorage: TeacherStorage = DatabaseTeacherStorage(database)
     val sentMessageLogStorage = DatabaseSentMessageLogStorage(database)
     val scheduledMessagesStorage = DatabaseScheduledMessagesStorage(database)
+    val studentStorage = DatabaseStudentStorage(database)
     val scheduledMessageService =
       ScheduledMessageService(
         scheduledMessagesStorage,
         sentMessageLogStorage,
-        databaseCourseStorage,
         studentBotTelegramController,
+        courseRepository,
+        studentStorage,
+        database,
       )
     val personalDeadlineStorage: PersonalDeadlineStorage = DatabasePersonalDeadlineStorage(database)
     val courseTokenService =
@@ -111,7 +115,6 @@ class ApiFabric(
         databaseSubmissionDistributor,
         AcademicWorkflowLogic(databaseSubmissionDistributor, databaseGradeTable),
       )
-    val studentStorage = DatabaseStudentStorage(database)
 
     val courseStorage =
       CourseStorageDecorator(databaseCourseStorage, ratingRecorder, courseTokenService)
@@ -226,7 +229,7 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
       )
-    val courseService = CourseService(DatabaseCourseRepository(), studentStorage, database)
+    val courseService = CourseService(courseRepository, studentStorage, database)
     val adminApi =
       AdminApi(
         scheduledMessageService,

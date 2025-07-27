@@ -63,18 +63,12 @@ internal constructor(
     userGroup: UserGroup,
   ): Result<ScheduledMessageId, NumberedError> =
     errorManagementService.serviceBinding {
-      when (userGroup) {
-        is UserGroup.CourseGroup -> {
-          scheduledMessagesService
-            .sendScheduledMessage(
-              adminId,
-              NewScheduledMessageInfo(timestamp, content, shortName, userGroup.courseId),
-            )
-            .bind()
-        }
-
-        else -> TODO()
-      }
+      scheduledMessagesService
+        .sendScheduledMessage(
+          adminId,
+          NewScheduledMessageInfo(timestamp, content, shortName, userGroup),
+        )
+        .bind()
     }
 
   fun resolveScheduledMessage(

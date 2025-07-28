@@ -14,6 +14,7 @@ object StudentKeyboards {
   const val SOLUTIONS = "solutions"
   const val FIRST_SOLUTION = "solution-1"
   const val MENU = "menu"
+  const val MY_COURSES = "my courses"
 
   fun menu() = inlineKeyboard {
     row { dataButton("\uD83C\uDFAE Квест от Таксы Дуси", FREE_ACTIVITY) }
@@ -23,6 +24,7 @@ object StudentKeyboards {
       urlButton("\uD83D\uDCE2 Подписаться на наш Telegram-канал", "https://t.me/+4brJbkfpd7xhNWE6")
     }
     row { dataButton("Разборы квеста", SOLUTIONS) }
+    row { dataButton("✍\uFE0F Мои курсы", MY_COURSES) }
   }
 
   fun solutionMenu() = inlineKeyboard {

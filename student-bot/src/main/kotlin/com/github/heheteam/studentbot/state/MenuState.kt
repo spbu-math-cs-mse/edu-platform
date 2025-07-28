@@ -1,10 +1,12 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
+import com.github.heheteam.commonlib.state.InformationState
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.Unhandled
@@ -25,6 +27,8 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.link
 
 class MenuState(override val context: User, override val userId: StudentId) :
   BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
@@ -62,6 +66,7 @@ class MenuState(override val context: User, override val userId: StudentId) :
         }
 
         StudentKeyboards.SOLUTIONS -> SolutionsStudentMenuState(context, userId)
+        StudentKeyboards.MY_COURSES -> noCourseStubState()
         else -> null
       }
     return if (state != null) {
@@ -70,6 +75,22 @@ class MenuState(override val context: User, override val userId: StudentId) :
       Unhandled
     }
   }
+
+  private fun noCourseStubState(): InformationState<StudentApi, StudentId> =
+    InformationState<StudentApi, StudentId>(
+      context,
+      userId,
+      {
+        TextWithMediaAttachments(
+            buildEntities {
+              +"Пока ты не занимаешься ни на каких наших курсах :(\n"
+              +"Записаться на курсы можно " + link("здесь", "https://dabromat.ru/")
+            }
+          )
+          .ok()
+      },
+      MenuState(context, userId),
+    )
 
   override suspend fun computeNewState(
     service: StudentApi,

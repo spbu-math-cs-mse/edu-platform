@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.state.InformationState
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
@@ -127,6 +128,10 @@ internal class StateRegister(
         ::initializeHandlers,
       )
       registerStateWithStudentId<StudentAboutKamenetskiState, StudentApi>(
+        studentApi,
+        ::initializeHandlers,
+      )
+      registerStateWithStudentId<InformationState<StudentApi, StudentId>, StudentApi>(
         studentApi,
         ::initializeHandlers,
       )

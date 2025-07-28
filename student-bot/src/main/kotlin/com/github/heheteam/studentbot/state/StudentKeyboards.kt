@@ -13,6 +13,7 @@ object StudentKeyboards {
   const val FREE_ACTIVITY = "freeActivity"
   const val SOLUTIONS = "solutions"
   const val FIRST_SOLUTION = "solution-1"
+  const val SECOND_SOLUTION = "solution-2"
   const val MENU = "menu"
   const val MY_COURSES = "my courses"
 
@@ -29,6 +30,7 @@ object StudentKeyboards {
 
   fun solutionMenu() = inlineKeyboard {
     row { dataButton("Первая задача", FIRST_SOLUTION) }
+    row { dataButton("Вторая задача", SECOND_SOLUTION) }
     row { dataButton("В главное меню", MENU) }
   }
 

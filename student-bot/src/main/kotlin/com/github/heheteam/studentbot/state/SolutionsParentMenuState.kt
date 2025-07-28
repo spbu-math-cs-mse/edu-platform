@@ -24,6 +24,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
+import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 class SolutionsParentMenuState(override val context: User, override val userId: ParentId) :
   BotStateWithHandlersAndParentId<State, Unit, ParentApi> {
@@ -44,18 +45,7 @@ class SolutionsParentMenuState(override val context: User, override val userId: 
       )
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
-      val state =
-        when (dataCallbackQuery.data) {
-          StudentKeyboards.FIRST_SOLUTION -> {
-            val resourcePath = "/quiz-solution-1.mp4"
-            sendResourceFromPath(resourcePath, bot)
-            ParentMenuState(context, userId)
-          }
-          StudentKeyboards.MENU -> {
-            ParentMenuState(context, userId)
-          }
-          else -> null
-        }
+      val state = dataCallbackToState(dataCallbackQuery, bot)
       if (state != null) {
         UserInput(state)
       } else {
@@ -63,6 +53,30 @@ class SolutionsParentMenuState(override val context: User, override val userId: 
       }
     }
   }
+
+  private suspend fun dataCallbackToState(
+    dataCallbackQuery: DataCallbackQuery,
+    bot: BehaviourContext,
+  ): ParentMenuState? =
+    when (dataCallbackQuery.data) {
+      StudentKeyboards.FIRST_SOLUTION -> {
+        val resourcePath = "/quiz-solution-1.mp4"
+        sendResourceFromPath(resourcePath, bot)
+        ParentMenuState(context, userId)
+      }
+
+      StudentKeyboards.SECOND_SOLUTION -> {
+        val resourcePath = "/quiz-solution-1.mp4"
+        sendResourceFromPath(resourcePath, bot)
+        ParentMenuState(context, userId)
+      }
+
+      StudentKeyboards.MENU -> {
+        ParentMenuState(context, userId)
+      }
+
+      else -> null
+    }
 
   private suspend fun sendResourceFromPath(resourcePath: String, bot: BehaviourContext) {
     val resouce = LocalMediaAttachment(AttachmentKind.PHOTO, resourcePath).openFile()

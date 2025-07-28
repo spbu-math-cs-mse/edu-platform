@@ -23,6 +23,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.requests.abstracts.asMultipartFile
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
+import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 class SolutionsStudentMenuState(override val context: User, override val userId: StudentId) :
   BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
@@ -43,18 +44,7 @@ class SolutionsStudentMenuState(override val context: User, override val userId:
       )
     sentMessages.add(initialMessage)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
-      val state =
-        when (dataCallbackQuery.data) {
-          StudentKeyboards.FIRST_SOLUTION -> {
-            val resourcePath = "/quiz-solution-1.mp4"
-            sendVideoFromResource(resourcePath, bot)
-            MenuState(context, userId)
-          }
-          StudentKeyboards.MENU -> {
-            MenuState(context, userId)
-          }
-          else -> null
-        }
+      val state = dataCallbackToState(dataCallbackQuery, bot)
       if (state != null) {
         UserInput(state)
       } else {
@@ -62,6 +52,30 @@ class SolutionsStudentMenuState(override val context: User, override val userId:
       }
     }
   }
+
+  private suspend fun dataCallbackToState(
+    dataCallbackQuery: DataCallbackQuery,
+    bot: BehaviourContext,
+  ): MenuState? =
+    when (dataCallbackQuery.data) {
+      StudentKeyboards.FIRST_SOLUTION -> {
+        val resourcePath = "/quiz-solution-1.mp4"
+        sendVideoFromResource(resourcePath, bot)
+        MenuState(context, userId)
+      }
+
+      StudentKeyboards.SECOND_SOLUTION -> {
+        val resourcePath = "/quiz-solution-2.mp4"
+        sendVideoFromResource(resourcePath, bot)
+        MenuState(context, userId)
+      }
+
+      StudentKeyboards.MENU -> {
+        MenuState(context, userId)
+      }
+
+      else -> null
+    }
 
   private suspend fun sendVideoFromResource(resourcePath: String, bot: BehaviourContext) {
     val resouce = LocalMediaAttachment(AttachmentKind.PHOTO, resourcePath).openFile()

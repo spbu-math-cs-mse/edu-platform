@@ -18,7 +18,6 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.extensions.behaviour_builder.telegramBotWithBehaviourAndFSMAndStartLongPolling
 import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
-import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.onContentMessage
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
 import dev.inmo.tgbotapi.types.BotCommand
@@ -46,7 +45,6 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
           listOf(BotCommand("start", "Start bot"), BotCommand("menu", "Resend menu message"))
         )
         command("start") { startFsm(it) }
-        onContentMessage { startFsm(it) }
         stateRegister.registerTeacherStates(this, botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
@@ -61,7 +59,7 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
   private suspend fun DefaultBehaviourContextWithFSM<State>.startFsm(it: AccessibleMessage) {
     val user = it.from
     if (it.chat.groupChatOrNull() != null) {
-      sendMessage(it.chat, "greetings!")
+      sendMessage(it.chat, "Привет!")
       startChain(ChooseGroupCourseState(it.chat))
     } else if (user != null) {
       val startingState = StartState(user)

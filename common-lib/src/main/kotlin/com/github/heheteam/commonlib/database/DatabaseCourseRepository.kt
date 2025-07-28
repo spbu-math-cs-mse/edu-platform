@@ -87,7 +87,7 @@ class DatabaseCourseRepository : CourseRepository {
             id = CourseId(row[CourseTable.id].value),
             description = row[CourseTable.name],
             spreadsheetId = row[CourseTable.spreadsheetId]?.let { SpreadsheetId(it) },
-            groupChatId = 0L.toRawChatId(),
+            groupChatId = row[CourseTable.groupRawChatId]?.toRawChatId(),
             students = students,
             teachers = teachers,
           )
@@ -116,7 +116,7 @@ class DatabaseCourseRepository : CourseRepository {
           id = courseId,
           description = name,
           spreadsheetId = row[CourseTable.spreadsheetId]?.let { SpreadsheetId(it) },
-          groupChatId = 0L.toRawChatId(),
+          groupChatId = row[CourseTable.groupRawChatId]?.toRawChatId(),
           students = students,
           teachers = teachers,
         )

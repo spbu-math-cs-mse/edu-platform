@@ -13,8 +13,11 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
 
-data class SelectStudentParentState(override val context: User, val from: String?) :
-  NavigationBotStateWithHandlers<StudentApi>() {
+data class SelectStudentParentState(
+  override val context: User,
+  val from: String?,
+  val courseToken: String? = null,
+) : NavigationBotStateWithHandlers<StudentApi>() {
   override val introMessageContent: TextSourcesList = buildEntities {
     +"\uD83D\uDC36 Привет! Я Такса Дуся — умная собака, которая любит математику и приключения.\n"
   }
@@ -27,7 +30,9 @@ data class SelectStudentParentState(override val context: User, val from: String
     service: StudentApi
   ): Result<MenuKeyboardData<State?>, FrontendError> =
     buildColumnMenu(
-        simpleButtonData("\uD83D\uDC66 Я — ученик") { StudentStartState(context, null, from) },
+        simpleButtonData("\uD83D\uDC66 Я — ученик") {
+          StudentStartState(context, courseToken, from)
+        },
         simpleButtonData("\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67 Я — родитель") {
           ParentStartState(context, from)
         },

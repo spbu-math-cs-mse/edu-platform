@@ -13,6 +13,7 @@ import com.github.heheteam.studentbot.state.StudentStartState
 import com.github.heheteam.studentbot.state.quiz.L0Student
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
+import com.github.michaelbull.result.get
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
@@ -24,6 +25,7 @@ class ConfirmAndGoToQuestState(
   val lastName: String,
   val grade: Int? = null,
   val from: String? = null,
+  val token: String? = null,
 ) : NavigationBotStateWithHandlers<StudentApi>() {
   lateinit var id: StudentId
   override val introMessageContent: TextSourcesList = buildEntities {
@@ -40,9 +42,13 @@ class ConfirmAndGoToQuestState(
     val studentId =
       service.createStudent(firstName, lastName, context.id.chatId.long, grade, from).bind()
     id = studentId
+    val result = token?.let { service.registerForCourseWithToken(it, studentId).get() }
     buildEntities {
       +"Отлично, $firstName! Ты записан(а) как $firstName $lastName!\n\n"
-      +"Готов(а) к путешествию по Матемаланду? Там нас ждёт столько всего интересного!"
+      +"Готов(а) к путешествию по Матемаланду? Там нас ждёт столько всего интересного!\n"
+      if (result != null) {
+        +"(А еще ты записан на курс \"${result.name}\", но это вполне может подождать)"
+      }
     }
   }
 

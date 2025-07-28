@@ -30,7 +30,7 @@ class AskStudentLastNameState(
   override suspend fun computeNewState(
     service: StudentApi,
     input: StudentId,
-  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, input) to Unit).ok()
+  ): Result<Pair<State, Unit>, FrontendError> = (MenuState(context, input, token) to Unit).ok()
 
   override suspend fun sendResponse(
     bot: BehaviourContext,
@@ -53,11 +53,11 @@ class AskStudentLastNameState(
     bot.send(context, Dialogues.askLastName(firstName), replyMarkup = Keyboards.back())
     updateHandlersController.addTextMessageHandler { message ->
       val lastName = message.content.text
-      NewState(SelectStudentGradeState(context, firstName, lastName, from))
+      NewState(SelectStudentGradeState(context, firstName, lastName, from, token))
     }
     updateHandlersController.addDataCallbackHandler { callBack ->
       if (callBack.data == Keyboards.RETURN_BACK) {
-        NewState(SelectStudentParentState(context, from))
+        NewState(SelectStudentParentState(context, from, token))
       } else {
         Unhandled
       }

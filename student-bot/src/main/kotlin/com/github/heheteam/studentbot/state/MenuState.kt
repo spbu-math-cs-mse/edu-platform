@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
+import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
@@ -15,6 +16,7 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
+import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.MyCoursesState
 import com.github.heheteam.studentbot.state.quiz.L0Student
 import com.github.heheteam.studentbot.state.quiz.QuestState
@@ -22,6 +24,7 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
@@ -33,8 +36,11 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.link
 
-class MenuState(override val context: User, override val userId: StudentId) :
-  BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
+class MenuState(
+  override val context: User,
+  override val userId: StudentId,
+  val courseToken: String? = null,
+) : BotStateWithHandlersAndStudentId<State, Unit, StudentApi> {
   private val sentMessages = mutableListOf<AccessibleMessage>()
 
   override fun defaultState(): State = MenuState(context, userId)
@@ -44,6 +50,21 @@ class MenuState(override val context: User, override val userId: StudentId) :
     service: StudentApi,
     updateHandlersController: UpdateHandlersController<SuspendableBotAction, State, FrontendError>,
   ): Result<Unit, FrontendError> = coroutineBinding {
+    if (courseToken != null) {
+      val registerForCourseWithToken =
+        service.registerForCourseWithToken(token = courseToken, userId)
+      registerForCourseWithToken.mapBoth(
+        success = { course ->
+          bot.send(context, Dialogues.successfullyRegisteredForCourse(course, courseToken))
+        },
+        failure = { error ->
+          val deepError = error.error
+          if (deepError is TokenError)
+            bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+          else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
+        },
+      )
+    }
     val stickerMessage = bot.sendSticker(context.id, StudentDialogues.typingSticker)
     val initialMessage =
       bot.send(context, text = StudentDialogues.menu, replyMarkup = StudentKeyboards.menu())

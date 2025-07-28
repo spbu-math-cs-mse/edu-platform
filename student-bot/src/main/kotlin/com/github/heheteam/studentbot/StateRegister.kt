@@ -135,6 +135,8 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
+      registerStateWithStudentId<CourseMenuState, StudentApi>(studentApi, ::initializeHandlers)
+      registerStateWithStudentId<MyCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<ZeroQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<FirstQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)

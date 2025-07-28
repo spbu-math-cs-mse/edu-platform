@@ -3,6 +3,7 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
@@ -14,9 +15,11 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
+import com.github.heheteam.studentbot.MyCoursesState
 import com.github.heheteam.studentbot.state.quiz.L0Student
 import com.github.heheteam.studentbot.state.quiz.QuestState
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.runCatching
@@ -66,7 +69,7 @@ class MenuState(override val context: User, override val userId: StudentId) :
         }
 
         StudentKeyboards.SOLUTIONS -> SolutionsStudentMenuState(context, userId)
-        StudentKeyboards.MY_COURSES -> noCourseStubState()
+        StudentKeyboards.MY_COURSES -> noCourseStubState(service).get()
         else -> null
       }
     return if (state != null) {
@@ -76,21 +79,27 @@ class MenuState(override val context: User, override val userId: StudentId) :
     }
   }
 
-  private fun noCourseStubState(): InformationState<StudentApi, StudentId> =
-    InformationState<StudentApi, StudentId>(
-      context,
-      userId,
-      {
-        TextWithMediaAttachments(
-            buildEntities {
-              +"Пока ты не занимаешься ни на каких наших курсах :(\n"
-              +"Записаться на курсы можно " + link("здесь", "https://dabromat.ru/")
-            }
-          )
-          .ok()
-      },
-      MenuState(context, userId),
-    )
+  private fun noCourseStubState(api: StudentApi): Result<State, NumberedError> = binding {
+    val courses = api.getStudentCourses(userId).bind()
+    if (courses.isEmpty()) {
+      InformationState<StudentApi, StudentId>(
+        context,
+        userId,
+        {
+          TextWithMediaAttachments(
+              buildEntities {
+                +"Пока ты не занимаешься ни на каких наших курсах :(\n"
+                +"Записаться на курсы можно " + link("здесь", "https://dabromat.ru/")
+              }
+            )
+            .ok()
+        },
+        MenuState(context, userId),
+      )
+    } else {
+      MyCoursesState(context, userId, courses)
+    }
+  }
 
   override suspend fun computeNewState(
     service: StudentApi,

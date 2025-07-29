@@ -19,8 +19,9 @@ class SelectStudentGradeState(
   val firstName: String,
   val lastName: String,
   private val from: String?,
+  private val token: String? = null,
 ) : NavigationBotStateWithHandlers<StudentApi>() {
-  override val introMessageContent: TextSourcesList = buildEntities { +"Меню" }
+  override val introMessageContent: TextSourcesList = buildEntities { +"Выберите класс" }
 
   override fun createKeyboard(service: StudentApi): MenuKeyboardData<State?> {
     TODO("Not yet implemented")
@@ -33,7 +34,7 @@ class SelectStudentGradeState(
     return buildColumnMenu(
         data.map { (label, grade) ->
           simpleButtonData(label) {
-            ConfirmAndGoToQuestState(context, firstName, lastName, grade, from)
+            ConfirmAndGoToQuestState(context, firstName, lastName, grade, from, token)
           }
         }
       )

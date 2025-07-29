@@ -192,10 +192,22 @@ internal class StateRegister(
     text: String,
     studentId: StudentId,
     context: User,
-  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, Nothing, FrontendError> =
-    if (text.startsWith("/menu") || text.startsWith("/start")) {
-      NewState(MenuState(context, studentId))
-    } else {
-      Unhandled
+  ): HandlerResultWithUserInputOrUnhandled<SuspendableBotAction, Nothing, FrontendError> {
+    if (text.startsWith("/start")) {
+      val tokens = text.split(" ")
+      val good =
+        tokens.firstNotNullOfOrNull { token ->
+          val prefix = "course="
+          if (token.startsWith(prefix)) token.drop(prefix.length) else null
+        }
+      return NewState(MenuState(context, studentId, good))
     }
+    val result =
+      if (text.startsWith("/menu") || text.startsWith("/start")) {
+        NewState(MenuState(context, studentId))
+      } else {
+        Unhandled
+      }
+    return result
+  }
 }

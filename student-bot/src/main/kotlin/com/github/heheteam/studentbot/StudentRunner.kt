@@ -73,7 +73,8 @@ class StudentRunner(
           if (index == -1) key else key.substring(0, index)
         }
       val from = args?.get("from")
-      val state = SelectStudentParentState(user, from)
+      val courseToken = args?.get("course")
+      val state = SelectStudentParentState(user, from, courseToken)
       startChain(state)
     }
   }

@@ -66,7 +66,7 @@ object CourseStatisticsFormatter {
 
     if (!token.isNullOrBlank()) {
       add(RegularTextSource("\nСсылка для записи:\n"))
-      add(URLTextSource("https://t.me/$studentBotUsername?start=$token"))
+      add(URLTextSource("https://t.me/$studentBotUsername?start=course=$token"))
     }
   }
 }

@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.CourseTeachers
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.TeacherTable
+import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.domain.RichCourse
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -36,13 +37,13 @@ class DatabaseCourseStorage(private val courseRepository: CourseRepository) : Co
   override fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ): Result<Unit, EduPlatformError> = binding {
+  ): Result<AddStudentStatus, EduPlatformError> = binding {
     transaction { // Ensures the entire operation is atomic
       val richCourse = courseRepository.findById(courseId).bind()
-      richCourse.addStudent(studentId).bind()
+      val addStudentStatus = richCourse.addStudent(studentId)
       courseRepository.save(richCourse).bind()
+      addStudentStatus
     }
-    Unit
   }
 
   override fun addTeacherToCourse(

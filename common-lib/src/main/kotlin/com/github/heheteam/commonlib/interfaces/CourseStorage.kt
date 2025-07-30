@@ -3,13 +3,17 @@ package com.github.heheteam.commonlib.interfaces
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
+import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.RawChatId
 
 @Suppress("TooManyFunctions") // ok, as it is a database access class
 internal interface CourseStorage {
-  fun addStudentToCourse(studentId: StudentId, courseId: CourseId): Result<Unit, EduPlatformError>
+  fun addStudentToCourse(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<AddStudentStatus, EduPlatformError>
 
   fun addTeacherToCourse(teacherId: TeacherId, courseId: CourseId): Result<Unit, EduPlatformError>
 

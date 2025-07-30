@@ -55,7 +55,8 @@ class MenuState(
         service.registerForCourseWithToken(token = courseToken, userId)
       registerForCourseWithToken.mapBoth(
         success = { course ->
-          bot.send(context, Dialogues.successfullyRegisteredForCourse(course, courseToken))
+          if (course != null)
+            bot.send(context, Dialogues.successfullyRegisteredForCourse(course, courseToken))
         },
         failure = { error ->
           val deepError = error.error

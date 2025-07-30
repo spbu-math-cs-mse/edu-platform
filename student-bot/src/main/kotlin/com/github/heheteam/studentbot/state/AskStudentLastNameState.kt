@@ -76,7 +76,8 @@ class AskStudentLastNameState(
         .registerForCourseWithToken(token, studentId)
         .mapBoth(
           success = { course ->
-            bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
+            if (course != null)
+              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
           },
           failure = { error ->
             when (error) {

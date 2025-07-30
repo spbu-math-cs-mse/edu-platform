@@ -34,7 +34,8 @@ class StudentStartState(
               .registerForCourseWithToken(token, id)
               .mapBoth(
                 success = { course ->
-                  bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
+                  if (course != null)
+                    bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
                 },
                 failure = { error ->
                   val deepError = error.error

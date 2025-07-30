@@ -26,7 +26,6 @@ class MyCoursesState(
   override fun createKeyboard(
     service: StudentApi
   ): Result<MenuKeyboardData<State?>, FrontendError> = binding {
-    val courses = service.getStudentCourses(userId).bind()
     val coursesPicker = createCoursePicker(courses)
     coursesPicker.map { course ->
       if (course != null) {

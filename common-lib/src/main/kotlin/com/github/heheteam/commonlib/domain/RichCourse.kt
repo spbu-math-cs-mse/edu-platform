@@ -33,17 +33,16 @@ data class RichCourse(
   val students: MutableList<StudentId>,
   val teachers: MutableList<TeacherId>,
 ) {
-  fun addStudent(studentId: StudentId): Result<Unit, EduPlatformError> {
+  fun addStudent(studentId: StudentId): AddStudentStatus {
+    if (studentId in students) {
+      return AddStudentStatus.ExistsInCourse
+    }
     students.add(studentId)
-    return Ok(Unit)
+    return AddStudentStatus.Success
   }
 
   fun addStudent(student: Student): AddStudentStatus {
-    if (student.id in students) {
-      return AddStudentStatus.ExistsInCourse
-    }
-    students.add(student.id)
-    return AddStudentStatus.Success
+    return addStudent(student.id)
   }
 
   fun removeStudent(student: Student): RemoveStudentStatus {

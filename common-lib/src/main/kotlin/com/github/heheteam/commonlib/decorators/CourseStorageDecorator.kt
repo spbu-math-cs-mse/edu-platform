@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.Teacher
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
+import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -28,7 +29,7 @@ internal class CourseStorageDecorator(
   override fun addStudentToCourse(
     studentId: StudentId,
     courseId: CourseId,
-  ): Result<Unit, EduPlatformError> =
+  ): Result<AddStudentStatus, EduPlatformError> =
     courseStorage.addStudentToCourse(studentId, courseId).also {
       ratingRecorder.updateRating(courseId)
     }

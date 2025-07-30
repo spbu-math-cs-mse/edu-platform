@@ -9,7 +9,7 @@ import dev.inmo.tgbotapi.types.buttons.Matrix
 
 data class ButtonData<T>(val text: String, val uniqueData: String, val getData: suspend (() -> T))
 
-private const val DATACALLBACK_LENGTH_RESTRICTION = 10
+private const val DATACALLBACK_LENGTH_RESTRICTION = 20
 
 fun <T> simpleButtonData(text: String, getData: suspend (() -> T)) =
   ButtonData(text, text.take(DATACALLBACK_LENGTH_RESTRICTION), getData)

@@ -19,6 +19,13 @@ interface EduPlatformError {
     get() = null
 }
 
+data class UncaughtExceptionError(val exception: Throwable) : EduPlatformError {
+  override val shortDescription: String = "uncaught exception"
+  override val causedBy: EduPlatformError? = null
+  override val longDescription: String
+    get() = "Exception stack trace:\n" + exception.stackTraceToString()
+}
+
 data class StateError(
   override val shortDescription: String,
   override val causedIn: KClass<*>,

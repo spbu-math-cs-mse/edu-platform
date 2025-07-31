@@ -28,14 +28,18 @@ class ErrorManagementService(val adminBotController: AdminBotTelegramController)
   private var boundChat: RawChatId? = null
 
   private fun EduPlatformError.toNumberedError(): NumberedError {
+    return registerError(this)
+  }
+
+  fun registerError(error: EduPlatformError): NumberedError {
     val errorNumber = newErrorNumber()
     KSLog.error(
       "error $errorNumber\t" +
-        "error description: ${this.longDescription}\n" +
+        "error description: ${error.longDescription}\n" +
         "stack trace:\n" +
-        this.toStackedString()
+        error.toStackedString()
     )
-    return NumberedError(errorNumber, this)
+    return NumberedError(errorNumber, error)
   }
 
   private fun <U> Result<U, EduPlatformError>.toNumberedError(): Result<U, NumberedError> =

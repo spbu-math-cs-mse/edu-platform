@@ -66,7 +66,13 @@ class SolutionsParentMenuState(override val context: User, override val userId: 
       }
 
       StudentKeyboards.SECOND_SOLUTION -> {
-        val resourcePath = "/quiz-solution-1.mp4"
+        val resourcePath = "/quiz-solution-2.mp4"
+        sendResourceFromPath(resourcePath, bot)
+        ParentMenuState(context, userId)
+      }
+
+      StudentKeyboards.THIRD_SOLUTION -> {
+        val resourcePath = "/quiz-solution-3.mp4"
         sendResourceFromPath(resourcePath, bot)
         ParentMenuState(context, userId)
       }

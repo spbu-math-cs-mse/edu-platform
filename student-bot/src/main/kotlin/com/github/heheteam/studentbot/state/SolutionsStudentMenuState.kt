@@ -70,6 +70,12 @@ class SolutionsStudentMenuState(override val context: User, override val userId:
         MenuState(context, userId)
       }
 
+      StudentKeyboards.THIRD_SOLUTION -> {
+        val resourcePath = "/quiz-solution-3.mp4"
+        sendVideoFromResource(resourcePath, bot)
+        MenuState(context, userId)
+      }
+
       StudentKeyboards.MENU -> {
         MenuState(context, userId)
       }

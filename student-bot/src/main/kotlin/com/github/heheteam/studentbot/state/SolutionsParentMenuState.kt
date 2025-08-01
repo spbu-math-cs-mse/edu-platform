@@ -54,28 +54,16 @@ class SolutionsParentMenuState(override val context: User, override val userId: 
     }
   }
 
+  @Suppress("MagicNumber")
   private suspend fun dataCallbackToState(
     dataCallbackQuery: DataCallbackQuery,
     bot: BehaviourContext,
-  ): ParentMenuState? =
+  ): State? =
     when (dataCallbackQuery.data) {
-      StudentKeyboards.FIRST_SOLUTION -> {
-        val resourcePath = "/quiz-solution-1.mp4"
-        sendResourceFromPath(resourcePath, bot)
-        ParentMenuState(context, userId)
-      }
-
-      StudentKeyboards.SECOND_SOLUTION -> {
-        val resourcePath = "/quiz-solution-2.mp4"
-        sendResourceFromPath(resourcePath, bot)
-        ParentMenuState(context, userId)
-      }
-
-      StudentKeyboards.THIRD_SOLUTION -> {
-        val resourcePath = "/quiz-solution-3.mp4"
-        sendResourceFromPath(resourcePath, bot)
-        ParentMenuState(context, userId)
-      }
+      StudentKeyboards.FIRST_SOLUTION -> handleSolution(bot, 1)
+      StudentKeyboards.SECOND_SOLUTION -> handleSolution(bot, 2)
+      StudentKeyboards.THIRD_SOLUTION -> handleSolution(bot, 3)
+      StudentKeyboards.SOLUTION4 -> handleSolution(bot, 4)
 
       StudentKeyboards.MENU -> {
         ParentMenuState(context, userId)
@@ -83,6 +71,12 @@ class SolutionsParentMenuState(override val context: User, override val userId: 
 
       else -> null
     }
+
+  private suspend fun handleSolution(bot: BehaviourContext, i: Int): State {
+    val resourcePath = "/quiz-solution-$i.mp4"
+    sendResourceFromPath(resourcePath, bot)
+    return ParentMenuState(context, userId)
+  }
 
   private suspend fun sendResourceFromPath(resourcePath: String, bot: BehaviourContext) {
     val resouce = LocalMediaAttachment(AttachmentKind.PHOTO, resourcePath).openFile()

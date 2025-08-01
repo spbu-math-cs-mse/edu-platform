@@ -15,6 +15,10 @@ object StudentKeyboards {
   const val FIRST_SOLUTION = "solution-1"
   const val SECOND_SOLUTION = "solution-2"
   const val THIRD_SOLUTION = "solution-3"
+  const val SOLUTION4 = "solution-4"
+  //  const val SOLUTION5 = "solution-5"
+  //  const val SOLUTION6 = "solution-6"
+  //  const val SOLUTION7 = "solution-7"
   const val MENU = "menu"
   const val MY_COURSES = "my courses"
 
@@ -33,6 +37,10 @@ object StudentKeyboards {
     row { dataButton("Первая задача", FIRST_SOLUTION) }
     row { dataButton("Вторая задача", SECOND_SOLUTION) }
     row { dataButton("Третья задача", THIRD_SOLUTION) }
+    row { dataButton("Четвертая задача", SOLUTION4) }
+    //    row { dataButton("Пятая задача", SOLUTION5) }
+    //    row { dataButton("Шестая задача", SOLUTION6) }
+    //    row { dataButton("Седьмая задача", SOLUTION7) }
     row { dataButton("В главное меню", MENU) }
   }
 

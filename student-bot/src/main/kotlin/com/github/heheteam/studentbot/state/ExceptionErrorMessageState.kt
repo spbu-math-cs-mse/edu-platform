@@ -14,6 +14,6 @@ class ExceptionErrorMessageState(override val context: User, val text: TextSourc
   suspend fun handle(bot: BehaviourContext): State {
     bot.send(context.id, text, replyMarkup = InlineKeyboardMarkup(dataInlineButton("Ок", "ok")))
     bot.waitDataCallbackQuery().first()
-    return SelectStudentParentState(context, null)
+    return StartState(context)
   }
 }

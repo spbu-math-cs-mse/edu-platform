@@ -24,10 +24,13 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.message.Markdown
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.extensions.toMarkdown
 import dev.inmo.tgbotapi.utils.row
+import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.regularln
 
 class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   TeacherBotTelegramController {
@@ -161,29 +164,30 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
 
   private fun submissionStatusInfoToMessageContent(
     submissionStatusMessageInfo: SubmissionStatusMessageInfo
-  ): String {
+  ): TextSourcesList {
     val student = submissionStatusMessageInfo.student
     val responsibleTeacher = submissionStatusMessageInfo.responsibleTeacher
     val gradingEntries = submissionStatusMessageInfo.gradingEntries
-    return buildString {
-      appendLine("(Ответьте на это сообщение или нажмите на кнопки внизу для проверки)")
-      appendLine("Отправка #${submissionStatusMessageInfo.submissionId.long}")
-      appendLine(
+    return buildEntities {
+      regularln("(Ответьте на это сообщение или нажмите на кнопки внизу для проверки)")
+      regularln("Отправка #${submissionStatusMessageInfo.submissionId.long}")
+      regularln(
         "Задача ${submissionStatusMessageInfo.assignmentDisplayName}:${submissionStatusMessageInfo.problemDisplayName}"
       )
-      appendLine("Решение отправил ${student.name} ${student.surname} (id=${student.id})")
+      regularln("Решение отправил ${student.name} ${student.surname} (id=${student.id})")
       if (responsibleTeacher != null)
-        appendLine(
+        regularln(
           "Проверяющий: ${responsibleTeacher.name} ${responsibleTeacher.surname} (id=${responsibleTeacher.id})"
         )
-      appendLine()
+      regularln("")
 
       gradingEntries.forEach { entry: GradingEntry ->
-        appendLine("Проверил учитель id=${entry.teacherId.long}}")
-        appendLine("Дата: ${entry.timestamp}")
-        appendLine("Оценка: ${entry.assessment.grade}")
-        appendLine("Комментарий: \"${entry.assessment.comment.text}\"")
-        appendLine("---")
+        regularln("Проверил учитель id=${entry.teacherId.long}")
+        regularln("Дата: ${entry.timestamp}")
+        regularln("Оценка: ${entry.assessment.grade}")
+        regularln("Комментарий: ")
+        addAll(entry.assessment.comment.text)
+        regularln("\n---\n")
       }
     }
   }

@@ -40,6 +40,7 @@ import com.github.heheteam.commonlib.util.ActionWrapper
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlersController
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
 import com.github.michaelbull.result.get
 import dev.inmo.kslog.common.KSLog
@@ -110,7 +111,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         registerAllStates(botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-          println(java.time.LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
+          println(getCurrentMoscowTime().toString() + " " + it.toString().escapeIfNeeded())
         }
       }
       .second

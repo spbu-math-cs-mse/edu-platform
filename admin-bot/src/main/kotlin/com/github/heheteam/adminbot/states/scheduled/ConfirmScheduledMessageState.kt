@@ -35,17 +35,15 @@ import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import kotlinx.datetime.format
 
 class ConfirmScheduledMessageState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val scheduledMessageContentField: ScheduledMessageContentField,
-  val date: LocalDate,
-  val time: LocalTime,
+  val date: kotlinx.datetime.LocalDate,
+  val time: kotlinx.datetime.LocalTime,
 ) : BotStateWithHandlers<Boolean, ScheduledMessageId?, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
@@ -110,7 +108,7 @@ class ConfirmScheduledMessageState(
           service
             .sendScheduledMessage(
               adminId,
-              LocalDateTime.of(date, time),
+              kotlinx.datetime.LocalDateTime(date, time),
               scheduledMessageContentField.content,
               scheduledMessageContentField.shortDescription,
               userGroup,

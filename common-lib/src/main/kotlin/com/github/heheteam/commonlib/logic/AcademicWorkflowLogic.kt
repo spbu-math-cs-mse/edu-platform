@@ -16,7 +16,6 @@ import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.michaelbull.result.Result
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 
 class AcademicWorkflowLogic
 internal constructor(
@@ -33,7 +32,7 @@ internal constructor(
       submissionInputRequest.telegramMessageInfo.messageId,
       submissionInputRequest.submissionContent,
       submissionInputRequest.problemId,
-      submissionInputRequest.timestamp.toJavaLocalDateTime(),
+      submissionInputRequest.timestamp,
       responsibleTeacher,
     )
   }

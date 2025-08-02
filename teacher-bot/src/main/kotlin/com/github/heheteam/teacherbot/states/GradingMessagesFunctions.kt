@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
@@ -20,7 +21,6 @@ import dev.inmo.tgbotapi.extensions.utils.textedContentOrNull
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.extensions.makeString
-import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -63,7 +63,7 @@ suspend fun tryProcessGradingByButtonPress(
     gradingButtonContent.submissionId,
     teacherId,
     SubmissionAssessment(gradingButtonContent.grade),
-    java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+    getCurrentMoscowTime(),
   )
 }
 

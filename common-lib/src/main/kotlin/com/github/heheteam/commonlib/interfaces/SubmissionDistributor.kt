@@ -9,7 +9,7 @@ import com.github.heheteam.commonlib.errors.SubmissionResolveError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
 
 internal interface SubmissionDistributor {
   @Suppress("LongParameterList")
@@ -19,7 +19,7 @@ internal interface SubmissionDistributor {
     messageId: MessageId,
     submissionContent: TextWithMediaAttachments,
     problemId: ProblemId,
-    timestamp: LocalDateTime = LocalDateTime.now(),
+    timestamp: LocalDateTime,
     teacherId: TeacherId? = null,
   ): SubmissionId
 

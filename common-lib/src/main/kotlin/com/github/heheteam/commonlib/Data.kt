@@ -22,7 +22,6 @@ import java.net.URI
 import java.net.URL
 import java.nio.channels.Channels
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.Serializable
 
 typealias Grade = Int
@@ -146,7 +145,7 @@ data class Submission(
   val problemId: ProblemId,
   val content: TextWithMediaAttachments,
   val responsibleTeacherId: TeacherId?,
-  val timestamp: LocalDateTime = java.time.LocalDateTime.now().toKotlinLocalDateTime(),
+  val timestamp: LocalDateTime,
 )
 
 data class Course(val id: CourseId, val name: String)
@@ -181,7 +180,7 @@ data class SubmissionInputRequest(
 )
 
 data class NewScheduledMessageInfo(
-  val timestamp: java.time.LocalDateTime,
+  val timestamp: LocalDateTime,
   val content: TelegramMessageContent,
   val shortName: String,
   val sendingFilter: UserGroup,

@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.errors.UncaughtExceptionError
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
 import com.github.heheteam.studentbot.state.ExceptionErrorMessageState
 import com.github.heheteam.studentbot.state.StartState
@@ -25,7 +26,6 @@ import dev.inmo.tgbotapi.utils.PreviewFeature
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.buildEntities
 import io.ktor.http.escapeIfNeeded
-import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -55,7 +55,7 @@ class StudentRunner(
         StateRegister(studentApi, parentApi, this).registerStates(botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-          println(LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
+          println(getCurrentMoscowTime().toString() + " " + it.toString().escapeIfNeeded())
         }
       }
       .second

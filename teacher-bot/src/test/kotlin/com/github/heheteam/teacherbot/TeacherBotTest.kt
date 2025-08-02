@@ -14,9 +14,9 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.TeacherId
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import java.time.LocalDateTime
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -89,7 +89,7 @@ class TeacherBotTest {
       MessageId(0),
       TextWithMediaAttachments.fromString("text"),
       problemId,
-      LocalDateTime.now(),
+      getCurrentMoscowTime(),
       teacherId,
     )
     val submission = submissionDistributor.querySubmission(teacherId).value!!

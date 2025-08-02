@@ -30,8 +30,7 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
-import java.time.LocalDate
-import java.time.format.DateTimeParseException
+import kotlinx.datetime.LocalDate
 
 class EnterScheduledMessageDateManuallyState(
   override val context: User,
@@ -75,7 +74,7 @@ class EnterScheduledMessageDateManuallyState(
       } else {
         try {
           UserInput(Ok(LocalDate.parse(text, dateFormatter)))
-        } catch (_: DateTimeParseException) {
+        } catch (_: kotlin.IllegalArgumentException) {
           UserInput(Err(newStateError(Dialogues.invalidDateFormat)))
         }
       }

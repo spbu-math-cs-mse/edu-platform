@@ -6,15 +6,14 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.ProblemGrade.Graded
 import com.github.michaelbull.result.Result
-import java.time.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class GradingEntry(
   val teacherId: TeacherId,
   val assessment: SubmissionAssessment,
-  val timestamp: kotlinx.datetime.LocalDateTime,
+  val timestamp: LocalDateTime,
 )
 
 sealed class ProblemGrade(open val grade: Grade?) {
@@ -62,7 +61,7 @@ internal interface GradeTable {
     submissionId: SubmissionId,
     teacherId: TeacherId,
     assessment: SubmissionAssessment,
-    timestamp: kotlinx.datetime.LocalDateTime = LocalDateTime.now().toKotlinLocalDateTime(),
+    timestamp: LocalDateTime,
   ): Result<Unit, EduPlatformError>
 
   fun getGradingsForSubmission(

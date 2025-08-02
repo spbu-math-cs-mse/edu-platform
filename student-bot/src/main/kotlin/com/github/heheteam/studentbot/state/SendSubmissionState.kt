@@ -13,6 +13,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.extractTextWithMediaAttachments
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
@@ -26,8 +27,6 @@ import dev.inmo.tgbotapi.extensions.api.send.setMessageReaction
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import java.time.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 
 data class SendSubmissionState(
   override val context: User,
@@ -102,7 +101,7 @@ data class SendSubmissionState(
           problem.id,
           attachment,
           TelegramMessageInfo(submissionMessage.chat.id.chatId, submissionMessage.messageId),
-          LocalDateTime.now().toKotlinLocalDateTime(),
+          getCurrentMoscowTime(),
         )
       )
     }

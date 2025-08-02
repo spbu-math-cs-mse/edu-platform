@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.GradeTable
 import com.github.heheteam.commonlib.interfaces.GradingEntry
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.SubmissionId
@@ -23,7 +24,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 class DatabaseTest {
@@ -70,7 +71,7 @@ class DatabaseTest {
       MessageId(problem.id.long),
       TextWithMediaAttachments.fromString("sample${problem.number}"),
       problem.id,
-      clock.next().toJavaLocalDateTime(),
+      clock.next(),
       teacherId,
     )
 
@@ -100,6 +101,12 @@ class DatabaseTest {
     assertEquals(sampleDescription, resolvedCourse.value.name)
   }
 
+  val constTime = LocalDateTime(2025, 1, 1, 13, 0, 0, 0)
+
+  private fun GradeTable.recordBadSubmission(submissionId: SubmissionId, teacherId: TeacherId) {
+    this.recordSubmissionAssessment(submissionId, teacherId, SubmissionAssessment(0), constTime)
+  }
+
   @Test
   fun `query submission returns last unchecked submission`() {
     val chatId = RawChatId(0)
@@ -111,17 +118,17 @@ class DatabaseTest {
         inputSampleSubmission(studentId, chatId, problem, clock, teacherId)
       }
 
-    gradeTable.recordSubmissionAssessment(submissions[0], teacherId, SubmissionAssessment(0))
-    gradeTable.recordSubmissionAssessment(submissions[2], teacherId, SubmissionAssessment(0))
-    gradeTable.recordSubmissionAssessment(submissions[3], teacherId, SubmissionAssessment(0))
+    gradeTable.recordBadSubmission(submissions[0], teacherId)
+    gradeTable.recordBadSubmission(submissions[2], teacherId)
+    gradeTable.recordBadSubmission(submissions[3], teacherId)
 
     val submissionId1 = submissionDistributor.querySubmission(teacherId)
     assertEquals(submissions[1], submissionId1.value!!.id)
-    gradeTable.recordSubmissionAssessment(submissions[1], teacherId, SubmissionAssessment(0))
+    gradeTable.recordBadSubmission(submissions[1], teacherId)
 
     val submissionId2 = submissionDistributor.querySubmission(teacherId)
     assertEquals(submissions[4], submissionId2.value!!.id)
-    gradeTable.recordSubmissionAssessment(submissions[4], teacherId, SubmissionAssessment(0))
+    gradeTable.recordBadSubmission(submissions[4], teacherId)
 
     assertEquals(null, submissionDistributor.querySubmission(teacherId).value)
   }
@@ -137,17 +144,17 @@ class DatabaseTest {
         inputSampleSubmission(studentId, chatId, problem, clock, teacherId)
       }
 
-    gradeTable.recordSubmissionAssessment(submissions[0], teacherId, bad)
-    gradeTable.recordSubmissionAssessment(submissions[2], teacherId, bad)
-    gradeTable.recordSubmissionAssessment(submissions[3], teacherId, bad)
+    gradeTable.recordSubmissionAssessment(submissions[0], teacherId, bad, constTime)
+    gradeTable.recordSubmissionAssessment(submissions[2], teacherId, bad, constTime)
+    gradeTable.recordSubmissionAssessment(submissions[3], teacherId, bad, constTime)
 
     val submissionId1 = submissionDistributor.querySubmission(courseId)
     assertEquals(submissions[1], submissionId1.value!!.id)
-    gradeTable.recordSubmissionAssessment(submissions[1], teacherId, bad)
+    gradeTable.recordSubmissionAssessment(submissions[1], teacherId, bad, constTime)
 
     val submissionId2 = submissionDistributor.querySubmission(courseId)
     assertEquals(submissions[4], submissionId2.value!!.id)
-    gradeTable.recordSubmissionAssessment(submissions[4], teacherId, bad)
+    gradeTable.recordSubmissionAssessment(submissions[4], teacherId, bad, constTime)
 
     assertEquals(null, submissionDistributor.querySubmission(courseId).value)
   }
@@ -189,6 +196,7 @@ class DatabaseTest {
         MessageId(0L),
         emptyContent,
         someProblem.id,
+        constTime,
       )
     return Pair(teachers, submission)
   }

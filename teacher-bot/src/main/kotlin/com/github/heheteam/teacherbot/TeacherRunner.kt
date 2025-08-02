@@ -3,6 +3,7 @@ package com.github.heheteam.teacherbot
 import com.github.heheteam.commonlib.api.TeacherApi
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.teacherbot.states.AskFirstNameState
 import com.github.heheteam.teacherbot.states.AskLastNameState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
@@ -24,7 +25,6 @@ import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
 import io.ktor.http.escapeIfNeeded
-import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -48,7 +48,7 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
         stateRegister.registerTeacherStates(this, botToken)
 
         allUpdatesFlow.subscribeSafelyWithoutExceptions(this) {
-          println(LocalDateTime.now().toString() + " " + it.toString().escapeIfNeeded())
+          println(getCurrentMoscowTime().toString() + " " + it.toString().escapeIfNeeded())
         }
       }
       .second

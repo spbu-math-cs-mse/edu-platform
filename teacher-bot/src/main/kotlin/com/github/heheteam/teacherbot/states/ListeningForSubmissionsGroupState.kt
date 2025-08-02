@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.SubmissionId
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Result
@@ -27,11 +28,9 @@ import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.datetime.toKotlinLocalDateTime
 
 class ListeningForSubmissionsGroupState(override val context: Chat, val courseId: CourseId) :
   State {
@@ -77,12 +76,7 @@ class ListeningForSubmissionsGroupState(override val context: Chat, val courseId
   ): Unit? {
     val data = storedInfo[maybeCounter]
     return if (data != null) {
-      teacherApi.assessSubmission(
-        data.first,
-        TeacherId(1L),
-        data.second,
-        LocalDateTime.now().toKotlinLocalDateTime(),
-      )
+      teacherApi.assessSubmission(data.first, TeacherId(1L), data.second, getCurrentMoscowTime())
       dataCallback.message?.let { delete(it) }
     } else {
       KSLog.info("null")

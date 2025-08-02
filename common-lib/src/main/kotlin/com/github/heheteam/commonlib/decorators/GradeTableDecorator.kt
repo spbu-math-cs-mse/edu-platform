@@ -44,7 +44,7 @@ internal class GradeTableDecorator(
     assessment: SubmissionAssessment,
     timestamp: LocalDateTime,
   ): Result<Unit, EduPlatformError> =
-    gradeTable.recordSubmissionAssessment(submissionId, teacherId, assessment).apply {
+    gradeTable.recordSubmissionAssessment(submissionId, teacherId, assessment, timestamp).apply {
       ratingRecorder.updateRating(submissionId)
     }
 

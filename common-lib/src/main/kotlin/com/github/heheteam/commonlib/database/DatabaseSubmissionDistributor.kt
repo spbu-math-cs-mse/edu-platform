@@ -30,7 +30,6 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 import java.time.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -46,7 +45,7 @@ class DatabaseSubmissionDistributor(val database: Database) : SubmissionDistribu
     messageId: MessageId,
     submissionContent: TextWithMediaAttachments,
     problemId: ProblemId,
-    timestamp: LocalDateTime,
+    timestamp: kotlinx.datetime.LocalDateTime,
     teacherId: TeacherId?,
   ): SubmissionId {
     val submissionId =
@@ -56,7 +55,7 @@ class DatabaseSubmissionDistributor(val database: Database) : SubmissionDistribu
             it[SubmissionTable.chatId] = chatId.toChatId().chatId.long
             it[SubmissionTable.messageId] = messageId.long
             it[SubmissionTable.problemId] = problemId.long
-            it[SubmissionTable.timestamp] = timestamp.toKotlinLocalDateTime()
+            it[SubmissionTable.timestamp] = timestamp
             it[SubmissionTable.submissionContent] = submissionContent
             it[SubmissionTable.responsibleTeacher] = teacherId?.long
           } get SubmissionTable.id

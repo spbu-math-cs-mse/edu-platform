@@ -2,7 +2,7 @@ package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.states.MenuState
-import com.github.heheteam.adminbot.timeFormatter
+import com.github.heheteam.adminbot.timeFormatterKotlin
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -30,16 +30,14 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeParseException
+import kotlinx.datetime.LocalTime
 
 class QueryScheduledMessageTimeState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val scheduledMessageContentField: ScheduledMessageContentField,
-  val date: LocalDate,
+  val date: kotlinx.datetime.LocalDate,
   val error: EduPlatformError? = null,
 ) : BotStateWithHandlers<Result<LocalTime, EduPlatformError>, EduPlatformError?, AdminApi> {
 
@@ -76,8 +74,8 @@ class QueryScheduledMessageTimeState(
         UserInput(Err(OperationCancelledError()))
       } else {
         try {
-          UserInput(Ok(LocalTime.parse(text, timeFormatter)))
-        } catch (_: DateTimeParseException) {
+          UserInput(Ok(LocalTime.parse(text, timeFormatterKotlin)))
+        } catch (_: IllegalArgumentException) {
           UserInput(Err(newStateError(Dialogues.invalidTimeFormat)))
         }
       }

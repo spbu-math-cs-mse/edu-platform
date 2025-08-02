@@ -8,12 +8,17 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
+import kotlinx.datetime.LocalDateTime
 
-fun buildProblemSendingSelector(availableProblems: Map<Assignment, List<Problem>>) =
+fun buildProblemSendingSelector(
+  availableProblems: Map<Assignment, List<Problem>>,
+  currentMoscowTime: LocalDateTime,
+) =
   InlineKeyboardMarkup(
     keyboard =
       matrix {
-        availableProblems.filterByDeadlineAndSort().forEach { (assignment, problems) ->
+        availableProblems.filterByDeadlineAndSort(currentMoscowTime).forEach {
+          (assignment, problems) ->
           row { dataButton("${assignment.description}:", Keyboards.FICTITIOUS) }
           row {
             problems.forEach { problem ->

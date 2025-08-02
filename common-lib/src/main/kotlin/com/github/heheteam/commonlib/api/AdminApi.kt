@@ -35,7 +35,6 @@ import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.UserId
-import java.time.LocalDateTime
 
 @Suppress(
   "LongParameterList",
@@ -57,7 +56,7 @@ internal constructor(
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,
-    timestamp: LocalDateTime,
+    timestamp: kotlinx.datetime.LocalDateTime,
     content: TelegramMessageContent,
     shortName: String,
     userGroup: UserGroup,

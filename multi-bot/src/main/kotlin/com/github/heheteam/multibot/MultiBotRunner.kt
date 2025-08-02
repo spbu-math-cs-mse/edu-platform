@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
+import com.github.heheteam.commonlib.util.moscowTimeZone
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
 import com.github.heheteam.teacherbot.StateRegister
@@ -25,13 +26,13 @@ import dev.inmo.kslog.common.LogLevel
 import dev.inmo.kslog.common.defaultMessageFormatter
 import dev.inmo.kslog.common.error
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
-import java.time.LocalDateTime
 import korlibs.time.fromSeconds
 import kotlin.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Database
 
 private const val HEARTBEAT_DELAY_SECONDS = 5
@@ -109,7 +110,7 @@ class MultiBotRunner : CliktCommand() {
       }
       launch {
         while (true) {
-          val timestamp = LocalDateTime.now().toKotlinLocalDateTime()
+          val timestamp = Clock.System.now().toLocalDateTime(moscowTimeZone())
           val result = apis.studentApi.checkAndSendMessages(timestamp)
           result.mapError {
             KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")

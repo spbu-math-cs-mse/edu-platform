@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.dateFormatter
+import com.github.heheteam.adminbot.dateFormatterKotlin
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.api.AdminApi
@@ -18,6 +18,7 @@ import com.github.heheteam.commonlib.util.MenuKeyboardData
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.buildColumnMenu
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.inmo.micro_utils.fsm.common.State
@@ -28,7 +29,9 @@ import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
-import java.time.LocalDate
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.format
+import kotlinx.datetime.plus
 
 @Suppress("MagicNumber") // working with dates
 class QueryScheduledMessageDateState(
@@ -44,17 +47,17 @@ class QueryScheduledMessageDateState(
   }
 
   override fun createKeyboard(service: AdminApi): MenuKeyboardData<State?> {
-    val today = LocalDate.now()
-    val dates = (0..6).map { today.plusDays(it.toLong()) }
+    val today = getCurrentMoscowTime().date
+    val dates = (0..6).map { today.plus(it, DateTimeUnit.DAY) }
     val dateButtons =
       dates.mapIndexed { index, date ->
         val text =
           when (index) {
-            0 -> date.format(dateFormatter) + " (сегодня)"
-            1 -> date.format(dateFormatter) + " (завтра)"
-            else -> date.format(dateFormatter) + " (" + toRussian(date.dayOfWeek) + ")"
+            0 -> date.format(dateFormatterKotlin) + " (сегодня)"
+            1 -> date.format(dateFormatterKotlin) + " (завтра)"
+            else -> date.format(dateFormatterKotlin) + " (" + toRussian(date.dayOfWeek) + ")"
           }
-        ButtonData(text, date.format(dateFormatter)) {
+        ButtonData(text, date.format(dateFormatterKotlin)) {
           QueryScheduledMessageTimeState(
             context,
             adminId,

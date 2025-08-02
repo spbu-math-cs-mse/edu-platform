@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlerManager
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.Keyboards.FICTITIOUS
@@ -49,7 +50,11 @@ class QueryProblemForSubmissionSendingState(
   ): Result<Unit, FrontendError> = coroutineBinding {
     val problems = service.getActiveProblems(userId, selectedCourseId).bind()
     val message =
-      bot.send(context, Dialogues.askProblem, replyMarkup = buildProblemSendingSelector(problems))
+      bot.send(
+        context,
+        Dialogues.askProblem,
+        replyMarkup = buildProblemSendingSelector(problems, getCurrentMoscowTime()),
+      )
     sentMessage.add(message)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       when (val callbackData = dataCallbackQuery.data) {

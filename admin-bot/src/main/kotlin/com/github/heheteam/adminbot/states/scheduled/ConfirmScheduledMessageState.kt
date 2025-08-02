@@ -1,9 +1,9 @@
 package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.dateFormatter
+import com.github.heheteam.adminbot.dateFormatterKotlin
 import com.github.heheteam.adminbot.states.MenuState
-import com.github.heheteam.adminbot.timeFormatter
+import com.github.heheteam.adminbot.timeFormatterKotlin
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
@@ -38,14 +38,15 @@ import dev.inmo.tgbotapi.utils.row
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlinx.datetime.format
 
 class ConfirmScheduledMessageState(
   override val context: User,
   val adminId: AdminId,
   val userGroup: UserGroup,
   val scheduledMessageContentField: ScheduledMessageContentField,
-  val date: LocalDate,
-  val time: LocalTime,
+  val date: kotlinx.datetime.LocalDate,
+  val time: kotlinx.datetime.LocalTime,
 ) : BotStateWithHandlers<Boolean, ScheduledMessageId?, AdminApi> {
 
   val sentMessages = mutableListOf<AccessibleMessage>()
@@ -76,9 +77,9 @@ class ConfirmScheduledMessageState(
           bold("Тема:") + scheduledMessageContentField.shortDescription + "\n"
           bold("Текст:\n") + scheduledMessageContentField.content.text + "\n"
           bold("Время отправки: ") +
-            time.format(timeFormatter) +
+            time.format(timeFormatterKotlin) +
             " " +
-            date.format(dateFormatter) +
+            date.format(dateFormatterKotlin) +
             "\n"
           bold("Группа: ") + userGroup.toString() + "\n"
           bold("Сообщение: ") + "\n"
@@ -110,7 +111,7 @@ class ConfirmScheduledMessageState(
           service
             .sendScheduledMessage(
               adminId,
-              LocalDateTime.of(date, time),
+              kotlinx.datetime.LocalDateTime(date, time),
               scheduledMessageContentField.content,
               scheduledMessageContentField.shortDescription,
               userGroup,

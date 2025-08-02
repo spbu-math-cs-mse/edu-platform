@@ -16,7 +16,6 @@ import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import java.time.LocalDateTime
 
 internal class SubmissionDistributorDecorator(
   private val submissionDistributor: SubmissionDistributor,
@@ -28,7 +27,7 @@ internal class SubmissionDistributorDecorator(
     messageId: MessageId,
     submissionContent: TextWithMediaAttachments,
     problemId: ProblemId,
-    timestamp: LocalDateTime,
+    timestamp: kotlinx.datetime.LocalDateTime,
     teacherId: TeacherId?,
   ): SubmissionId =
     submissionDistributor

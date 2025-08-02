@@ -20,7 +20,6 @@ import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -39,7 +38,7 @@ class DatabaseScheduledMessagesStorage(private val database: Database) {
       runCatching {
           val id =
             ScheduledMessageTable.insertAndGetId {
-              it[timestamp] = messageInfo.timestamp.toKotlinLocalDateTime()
+              it[timestamp] = messageInfo.timestamp
               it[content] = messageInfo.content
               it[shortName] = messageInfo.shortName
               it[isSent] = false

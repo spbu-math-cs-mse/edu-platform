@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.util.AnyMessageSuspendableHandler
 import com.github.heheteam.commonlib.util.HandlerResult
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.waitDataCallbackQueryWithUser
 import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
@@ -42,10 +43,8 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.RiskFeature
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
-import java.time.LocalDateTime
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 
 private const val NOT_CONFIRM_ASSESSING = "no"
@@ -142,7 +141,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
           action.submissionId,
           teacherId,
           SubmissionAssessment(action.grade),
-          LocalDateTime.now().toKotlinLocalDateTime(),
+          getCurrentMoscowTime(),
         )
 
       is GradingFromReply -> {
@@ -166,7 +165,7 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
           action.submissionId,
           teacherId,
           action.submissionAssessment,
-          LocalDateTime.now().toKotlinLocalDateTime(),
+          getCurrentMoscowTime(),
         )
         with(bot) { action.messageToDeleteOnConfirm?.let { delete(it) } }
       }

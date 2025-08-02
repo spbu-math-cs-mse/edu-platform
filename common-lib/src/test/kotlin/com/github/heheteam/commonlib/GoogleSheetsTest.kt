@@ -12,10 +12,10 @@ import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.interfaces.ProblemId
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.michaelbull.result.get
 import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
-import java.time.LocalDateTime
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Ignore
@@ -102,7 +102,7 @@ class GoogleSheetsTest {
         MessageId(0),
         TextWithMediaAttachments(),
         ProblemId(problemId.toLong()),
-        LocalDateTime.now(),
+        getCurrentMoscowTime(),
         teacher1Id,
       )
     }
@@ -113,7 +113,7 @@ class GoogleSheetsTest {
         MessageId(0),
         TextWithMediaAttachments(),
         ProblemId(problemId.toLong() * 2),
-        LocalDateTime.now(),
+        getCurrentMoscowTime(),
         teacher1Id,
       )
     }
@@ -125,6 +125,7 @@ class GoogleSheetsTest {
         submission.id,
         teacher1Id,
         SubmissionAssessment(submissionId % 2, TextWithMediaAttachments.fromString("comment")),
+        getCurrentMoscowTime(),
       )
     }
 

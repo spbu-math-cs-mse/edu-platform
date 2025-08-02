@@ -6,6 +6,7 @@ import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotState
 import com.github.heheteam.commonlib.util.filterByDeadlineAndSort
+import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -37,7 +38,7 @@ class CheckDeadlinesState(
     val messageText =
       buildEntities(" ") {
         problemsWithPersonalDeadlines
-          .filterByDeadlineAndSort()
+          .filterByDeadlineAndSort(getCurrentMoscowTime())
           .sortedBy { it.first.id.long }
           .forEach { (assignment, problems) ->
             +bold(assignment.description) + regular("\n")

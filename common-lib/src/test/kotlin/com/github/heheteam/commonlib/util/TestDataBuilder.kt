@@ -24,7 +24,6 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.toChatId
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 
 data class MonotoneCounter(private var startValue: Long = 0) {
   fun next(): Long = ++startValue
@@ -174,7 +173,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   ) =
     apis.adminApi.sendScheduledMessage(
       adminId,
-      timestamp.toJavaLocalDateTime(),
+      timestamp,
       content,
       shortName,
       UserGroup.CourseGroup(courseId),
@@ -186,14 +185,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     content: TelegramMessageContent,
     shortName: String,
     userGroup: UserGroup,
-  ) =
-    apis.adminApi.sendScheduledMessage(
-      adminId,
-      timestamp.toJavaLocalDateTime(),
-      content,
-      shortName,
-      userGroup,
-    )
+  ) = apis.adminApi.sendScheduledMessage(adminId, timestamp, content, shortName, userGroup)
 
   fun resolveScheduledMessage(scheduledMessageId: ScheduledMessageId) =
     apis.adminApi.resolveScheduledMessage(scheduledMessageId)

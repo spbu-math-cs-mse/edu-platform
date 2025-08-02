@@ -59,10 +59,11 @@ class SolutionsStudentMenuState(override val context: User, override val userId:
     bot: BehaviourContext,
   ): MenuState? =
     when (dataCallbackQuery.data) {
-      StudentKeyboards.FIRST_SOLUTION -> handleSolution(bot, 1)
-      StudentKeyboards.SECOND_SOLUTION -> handleSolution(bot, 2)
-      StudentKeyboards.THIRD_SOLUTION -> handleSolution(bot, 3)
+      StudentKeyboards.SOLUTION1 -> handleSolution(bot, 1)
+      StudentKeyboards.SOLUTION2 -> handleSolution(bot, 2)
+      StudentKeyboards.SOLUTION3 -> handleSolution(bot, 3)
       StudentKeyboards.SOLUTION4 -> handleSolution(bot, 4)
+      StudentKeyboards.SOLUTION5 -> handleSolution(bot, 5)
 
       StudentKeyboards.MENU -> {
         MenuState(context, userId)

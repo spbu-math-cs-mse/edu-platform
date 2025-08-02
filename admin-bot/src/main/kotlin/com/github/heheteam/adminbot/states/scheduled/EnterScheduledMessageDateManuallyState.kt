@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.dateFormatterKotlin
+import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
@@ -30,7 +30,6 @@ import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
-import java.lang.IllegalArgumentException
 import kotlinx.datetime.LocalDate
 
 class EnterScheduledMessageDateManuallyState(
@@ -74,7 +73,7 @@ class EnterScheduledMessageDateManuallyState(
         UserInput(Err(OperationCancelledError()))
       } else {
         try {
-          UserInput(Ok(LocalDate.parse(text, dateFormatterKotlin)))
+          UserInput(Ok(LocalDate.parse(text, dateFormatter)))
         } catch (_: kotlin.IllegalArgumentException) {
           UserInput(Err(newStateError(Dialogues.invalidDateFormat)))
         }

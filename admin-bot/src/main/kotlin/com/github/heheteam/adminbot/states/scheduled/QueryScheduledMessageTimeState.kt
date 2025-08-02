@@ -2,7 +2,7 @@ package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.states.MenuState
-import com.github.heheteam.adminbot.timeFormatterKotlin
+import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -74,7 +74,7 @@ class QueryScheduledMessageTimeState(
         UserInput(Err(OperationCancelledError()))
       } else {
         try {
-          UserInput(Ok(LocalTime.parse(text, timeFormatterKotlin)))
+          UserInput(Ok(LocalTime.parse(text, timeFormatter)))
         } catch (_: IllegalArgumentException) {
           UserInput(Err(newStateError(Dialogues.invalidTimeFormat)))
         }

@@ -1,9 +1,9 @@
 package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.dateFormatterKotlin
+import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.states.MenuState
-import com.github.heheteam.adminbot.timeFormatterKotlin
+import com.github.heheteam.adminbot.timeFormatter
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toTelegramError
@@ -35,9 +35,6 @@ import dev.inmo.tgbotapi.utils.bold
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import kotlinx.datetime.format
 
 class ConfirmScheduledMessageState(
@@ -77,9 +74,9 @@ class ConfirmScheduledMessageState(
           bold("Тема:") + scheduledMessageContentField.shortDescription + "\n"
           bold("Текст:\n") + scheduledMessageContentField.content.text + "\n"
           bold("Время отправки: ") +
-            time.format(timeFormatterKotlin) +
+            time.format(timeFormatter) +
             " " +
-            date.format(dateFormatterKotlin) +
+            date.format(dateFormatter) +
             "\n"
           bold("Группа: ") + userGroup.toString() + "\n"
           bold("Сообщение: ") + "\n"

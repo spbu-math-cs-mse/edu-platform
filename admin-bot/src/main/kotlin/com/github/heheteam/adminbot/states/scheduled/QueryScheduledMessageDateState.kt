@@ -1,7 +1,7 @@
 package com.github.heheteam.adminbot.states.scheduled
 
 import com.github.heheteam.adminbot.Dialogues
-import com.github.heheteam.adminbot.dateFormatterKotlin
+import com.github.heheteam.adminbot.dateFormatter
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.toRussian
 import com.github.heheteam.commonlib.api.AdminApi
@@ -53,11 +53,11 @@ class QueryScheduledMessageDateState(
       dates.mapIndexed { index, date ->
         val text =
           when (index) {
-            0 -> date.format(dateFormatterKotlin) + " (сегодня)"
-            1 -> date.format(dateFormatterKotlin) + " (завтра)"
-            else -> date.format(dateFormatterKotlin) + " (" + toRussian(date.dayOfWeek) + ")"
+            0 -> date.format(dateFormatter) + " (сегодня)"
+            1 -> date.format(dateFormatter) + " (завтра)"
+            else -> date.format(dateFormatter) + " (" + toRussian(date.dayOfWeek) + ")"
           }
-        ButtonData(text, date.format(dateFormatterKotlin)) {
+        ButtonData(text, date.format(dateFormatter)) {
           QueryScheduledMessageTimeState(
             context,
             adminId,

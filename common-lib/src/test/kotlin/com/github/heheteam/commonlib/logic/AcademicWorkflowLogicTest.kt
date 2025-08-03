@@ -89,6 +89,7 @@ class AcademicWorkflowLogicTest {
       .createAssignment(
         courseId,
         "assignment",
+        null,
         listOf(
           ProblemDescription(1, "p1", "", 1),
           ProblemDescription(3, "p2", "", 1),

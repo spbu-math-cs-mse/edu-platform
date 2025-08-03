@@ -13,6 +13,7 @@ internal interface AssignmentStorage {
   fun createAssignment(
     courseId: CourseId,
     description: String,
+    statementsUrl: String?,
     problemsDescriptions: List<ProblemDescription>,
   ): Result<AssignmentId, DatabaseExceptionError>
 

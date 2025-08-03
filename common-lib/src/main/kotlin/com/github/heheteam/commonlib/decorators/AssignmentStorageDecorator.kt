@@ -25,12 +25,15 @@ internal constructor(
   override fun createAssignment(
     courseId: CourseId,
     description: String,
+    statementsUrl: String?,
     problemsDescriptions: List<ProblemDescription>,
   ): Result<AssignmentId, DatabaseExceptionError> =
-    assignmentStorage.createAssignment(courseId, description, problemsDescriptions).map {
-      ratingRecorder.updateRating(courseId)
-      it
-    }
+    assignmentStorage
+      .createAssignment(courseId, description, statementsUrl, problemsDescriptions)
+      .map {
+        ratingRecorder.updateRating(courseId)
+        it
+      }
 
   override fun getAssignmentsForCourse(
     courseId: CourseId

@@ -53,7 +53,7 @@ class DatabaseTest {
   private fun createAssignment(courseId: CourseId): List<Problem> {
     val assignment =
       assignmentStorage
-        .createAssignment(courseId, "", (1..5).map { ProblemDescription(it, it.toString()) })
+        .createAssignment(courseId, "", null, (1..5).map { ProblemDescription(it, it.toString()) })
         .value
     return problemStorage.getProblemsFromAssignment(assignment).value
   }

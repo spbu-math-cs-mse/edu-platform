@@ -1,6 +1,9 @@
-package com.github.heheteam.adminbot.states
+package com.github.heheteam.adminbot.states.assignments
 
 import com.github.heheteam.adminbot.AdminKeyboards
+import com.github.heheteam.adminbot.AdminKeyboards.RETURN_BACK
+import com.github.heheteam.adminbot.Dialogues
+import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -12,6 +15,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.kslog.common.KSLog
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
@@ -19,32 +23,59 @@ import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
 import dev.inmo.tgbotapi.extensions.api.delete
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
+import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
 import dev.inmo.tgbotapi.types.message.content.TextContent
+import kotlinx.datetime.LocalDateTime
 
-class CreateAssignmentErrorState(
+class QueryProblemDescriptionsState(
   override val context: User,
-  private val course: Course,
-  private val errorMessage: String,
   val adminId: AdminId,
+  private val course: Course,
+  private var description: Pair<String, LocalDateTime?>,
 ) : BotStateWithHandlers<State, Unit, AdminApi> {
 
   private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
+  private var lastMessageId: MessageId? = null
 
   override fun defaultState(): State = MenuState(context, adminId)
+
+  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
+    sentMessages.forEach {
+      try {
+        bot.delete(it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
+  }
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: AdminApi,
     updateHandlersController: UpdateHandlersControllerDefault<State>,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val msg = bot.send(context, errorMessage, replyMarkup = AdminKeyboards.returnBack())
-    sentMessages.add(msg)
+    lastMessageId?.let {
+      try {
+        bot.delete(context.id, it)
+      } catch (e: CommonRequestException) {
+        KSLog.warning("Failed to delete message", e)
+      }
+    }
+    val msg =
+      bot.send(
+        context,
+        Dialogues.askProblemsDescriptions,
+        replyMarkup = AdminKeyboards.returnBack(),
+      )
+    sentMessages.add(msg as CommonMessage<TextContent>)
+    lastMessageId = msg.messageId
 
     updateHandlersController.addDataCallbackHandler { callback ->
-      if (callback.data == AdminKeyboards.RETURN_BACK) {
-        NewState(CreateAssignmentState(context, adminId, course))
+      if (callback.data == RETURN_BACK) {
+        NewState(MenuState(context, adminId))
       } else {
         Unhandled
       }
@@ -52,10 +83,19 @@ class CreateAssignmentErrorState(
 
     updateHandlersController.addTextMessageHandler { message ->
       when (message.content.text) {
+        "/menu" -> NewState(MenuState(context, adminId))
         "/stop" -> NewState(MenuState(context, adminId))
-        else -> Unhandled
+        else -> NewState(processProblemsInput(message.content.text))
       }
     }
+  }
+
+  private fun processProblemsInput(text: String): State {
+    return parseProblemsDescriptions(text)
+      .mapBoth(
+        { result -> QueryStatementsUrlState(context, adminId, course, description, result) },
+        { result -> CreateAssignmentErrorState(context, course, result, adminId) },
+      )
   }
 
   override suspend fun computeNewState(
@@ -69,14 +109,4 @@ class CreateAssignmentErrorState(
     response: Unit,
     input: State,
   ): Result<Unit, FrontendError> = Unit.ok()
-
-  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
-    sentMessages.forEach {
-      try {
-        bot.delete(it)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
-      }
-    }
-  }
 }

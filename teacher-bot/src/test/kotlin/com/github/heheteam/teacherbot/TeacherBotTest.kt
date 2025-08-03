@@ -56,6 +56,7 @@ class TeacherBotTest {
         .createAssignment(
           courseId,
           "test assignment",
+          null,
           listOf(ProblemDescription(1, "p1", "", 1), ProblemDescription(2, "p2", "", 1)),
         )
         .value

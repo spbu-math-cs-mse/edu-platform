@@ -1,6 +1,6 @@
 package com.github.heheteam.adminbot
 
-import com.github.heheteam.adminbot.states.parseProblemsDescriptions
+import com.github.heheteam.adminbot.states.assignments.parseProblemsDescriptions
 import com.github.heheteam.commonlib.ProblemDescription
 import kotlin.test.Test
 import kotlin.test.assertEquals

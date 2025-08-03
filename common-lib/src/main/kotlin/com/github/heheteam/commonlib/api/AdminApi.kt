@@ -155,9 +155,12 @@ internal constructor(
     courseId: CourseId,
     description: String,
     problemsDescriptions: List<ProblemDescription>,
+    statementsUrl: String?,
   ): Result<AssignmentId, NumberedError> =
     errorManagementService.serviceBinding {
-      assignmentStorage.createAssignment(courseId, description, problemsDescriptions).bind()
+      assignmentStorage
+        .createAssignment(courseId, description, statementsUrl, problemsDescriptions)
+        .bind()
     }
 
   fun createCourse(input: String): Result<CourseId, NumberedError> =

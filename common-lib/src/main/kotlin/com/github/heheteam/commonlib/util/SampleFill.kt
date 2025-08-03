@@ -28,6 +28,7 @@ internal fun generateCourse(
       .createAssignment(
         courseId,
         "assignment $courseId.$assignNum",
+        null,
         (0..<problemsPerAssignment).map {
           val timeZone = TimeZone.currentSystemDefault()
           val deadline =

@@ -8,11 +8,19 @@ import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
 object AdminKeyboards {
+  const val FICTITIOUS = "fictitious"
   const val RETURN_BACK = "Назад"
 
   fun returnBack() =
     InlineKeyboardMarkup(
       keyboard = matrix { row { dataButton("Назад \uD83D\uDD19", RETURN_BACK) } }
+    )
+
+  const val SKIP_THIS_STEP = "skipThisStep"
+
+  fun skipThisStep() =
+    InlineKeyboardMarkup(
+      keyboard = matrix { row { dataButton("Пропустить этот шаг", SKIP_THIS_STEP) } }
     )
 
   fun tryAgain() =

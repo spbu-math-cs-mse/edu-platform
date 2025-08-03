@@ -45,6 +45,7 @@ class DatabaseAssignmentStorage(
           row[AssignmentTable.serialNumber],
           row[AssignmentTable.description],
           row[AssignmentTable.courseId].value.toCourseId(),
+          row[AssignmentTable.statementsUrl],
         )
       )
     }
@@ -53,6 +54,7 @@ class DatabaseAssignmentStorage(
   override fun createAssignment(
     courseId: CourseId,
     description: String,
+    statementsUrl: String?,
     problemsDescriptions: List<ProblemDescription>,
   ): Result<AssignmentId, DatabaseExceptionError> {
     val assignId =
@@ -66,6 +68,7 @@ class DatabaseAssignmentStorage(
             it[AssignmentTable.serialNumber] = serialNumber
             it[AssignmentTable.description] = description
             it[AssignmentTable.courseId] = courseId.long
+            it[AssignmentTable.statementsUrl] = statementsUrl
           }
         }
         .value
@@ -86,6 +89,7 @@ class DatabaseAssignmentStorage(
             it[AssignmentTable.serialNumber],
             it[AssignmentTable.description],
             it[AssignmentTable.courseId].value.toCourseId(),
+            it[AssignmentTable.statementsUrl],
           )
         }
       }

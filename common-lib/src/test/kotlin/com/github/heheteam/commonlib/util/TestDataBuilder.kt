@@ -101,7 +101,9 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     ): Pair<Assignment, List<Problem>> {
       val assignmentContext = AssignmentContext().apply(setup)
       val assignmentId =
-        apis.adminApi.createAssignment(courseId, description, assignmentContext.problems).value
+        apis.adminApi
+          .createAssignment(courseId, description, assignmentContext.problems, null)
+          .value
       val assignment =
         apis.studentApi.getCourseAssignments(courseId).value.first { it.id == assignmentId }
       return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId).value

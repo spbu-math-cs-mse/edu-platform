@@ -5,6 +5,8 @@ import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.TelegramError
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
@@ -21,6 +23,7 @@ import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.types.toChatId
 import dev.inmo.tgbotapi.utils.buildEntities
 import dev.inmo.tgbotapi.utils.extensions.makeString
+import kotlin.time.Duration
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -101,6 +104,26 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
         Unit
       }
       .mapError { TelegramError(it) }
+
+  override suspend fun sendQuizActivation(
+    courseId: CourseId,
+    quizId: QuizId,
+    questionText: String,
+    answers: List<String>,
+    duration: Duration,
+  ): Result<Unit, EduPlatformError> {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun notifyOnPollQuizEnd(
+    studentId: StudentId,
+    quizId: QuizId,
+    chosenAnswerIndex: Int?,
+    correctAnswerIndex: Int,
+    score: Int,
+  ): Result<Unit, EduPlatformError> {
+    TODO("Not yet implemented")
+  }
 
   private val deadlineFormat =
     LocalDateTime.Format {

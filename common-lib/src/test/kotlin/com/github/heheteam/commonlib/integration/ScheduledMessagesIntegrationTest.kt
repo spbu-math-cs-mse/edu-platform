@@ -23,7 +23,7 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-private fun at(duration: Duration): LocalDateTime {
+private fun atLocal(duration: Duration): LocalDateTime {
   return defaultInstant.plus(duration).toLocalDateTime(defaultTimezone)
 }
 
@@ -49,13 +49,16 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val messageContent3 = tgMsg("Message 3")
 
       val msg1Id =
-        sendScheduledMessage(admin.id, at((-2).hours), messageContent1, "Msg1", course1.id).value
+        sendScheduledMessage(admin.id, atLocal((-2).hours), messageContent1, "Msg1", course1.id)
+          .value
       val msg2Id =
-        sendScheduledMessage(admin.id, at((-1).hours), messageContent2, "Msg2", course2.id).value
+        sendScheduledMessage(admin.id, atLocal((-1).hours), messageContent2, "Msg2", course2.id)
+          .value
       val msg3Id =
-        sendScheduledMessage(admin.id, at((-30).minutes), messageContent3, "Msg3", course1.id).value
+        sendScheduledMessage(admin.id, atLocal((-30).minutes), messageContent3, "Msg3", course1.id)
+          .value
 
-      checkAndSentMessages(at(0.seconds)).value
+      checkAndSentMessages(atLocal(0.seconds)).value
 
       val sentMessages = viewRecordedMessages(adminId = admin.id, limit = 3).value
       assertEquals(3, sentMessages.size)
@@ -75,7 +78,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val admin = admin("Admin1", "Admin1", 100L)
       val course = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
       val content = tgMsg("Test Resolution")
-      val scheduledTimestamp = at(1.minutes)
+      val scheduledTimestamp = atLocal(1.minutes)
 
       val scheduledMessageId =
         sendScheduledMessage(admin.id, scheduledTimestamp, content, "Resolution Test", course.id)
@@ -104,7 +107,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val admin = admin("Admin1", "Admin1", 100L)
       val course = course("Course1") { withStudent(student("Student1", "Student1", 200L)) }
       val content = tgMsg("Test Resolution")
-      val scheduledTimestamp = at(1.minutes)
+      val scheduledTimestamp = atLocal(1.minutes)
 
       val scheduledMessageId =
         sendScheduledMessage(admin.id, scheduledTimestamp, content, "Resolution Test", course.id)
@@ -122,7 +125,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
           userGroup = UserGroup.CourseGroup(course.id),
         )
 
-      checkAndSentMessages(at(2.minutes)).value
+      checkAndSentMessages(atLocal(2.minutes)).value
 
       val messageAfterDelivery = resolveScheduledMessage(scheduledMessageId).value
       val expectedMessageAfterDelivery = baseExpectedMessage.copy(isSent = true)
@@ -142,7 +145,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
           withStudent(student2)
         }
       val messageContent = tgMsg("Message to delete")
-      val scheduledTimestamp = at((-1).hours)
+      val scheduledTimestamp = atLocal((-1).hours)
 
       val scheduledMessageId =
         sendScheduledMessage(
@@ -154,7 +157,7 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
           )
           .value
 
-      checkAndSentMessages(at(1.seconds)).value
+      checkAndSentMessages(atLocal(1.seconds)).value
 
       val deleteResult = deleteScheduledMessage(scheduledMessageId)
       assertTrue(deleteResult.isOk)
@@ -172,9 +175,9 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1")
       val course2 = course("Course2")
 
-      sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
-      sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
-      sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
+      sendScheduledMessage(admin1.id, atLocal(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin2.id, atLocal(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin1.id, atLocal(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
 
       val messagesForAdmin1 = viewRecordedMessages(adminId = admin1.id, limit = 3).value
       assertEquals(2, messagesForAdmin1.size)
@@ -193,9 +196,9 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1")
       val course2 = course("Course2")
 
-      sendScheduledMessage(admin.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
-      sendScheduledMessage(admin.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
-      sendScheduledMessage(admin.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
+      sendScheduledMessage(admin.id, atLocal(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin.id, atLocal(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin.id, atLocal(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
 
       val messagesForCourse1 = viewRecordedMessages(courseId = course1.id, limit = 3).value
       assertEquals(2, messagesForCourse1.size)
@@ -214,10 +217,10 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val admin2 = admin("Admin2", "Admin2", 101L)
       val course1 = course("Course1")
       val course2 = course("Course2")
-      sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
-      sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
-      sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
-      sendScheduledMessage(admin1.id, at(4.hours), tgMsg("Msg D"), "MsgD", course2.id)
+      sendScheduledMessage(admin1.id, atLocal(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin2.id, atLocal(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin1.id, atLocal(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
+      sendScheduledMessage(admin1.id, atLocal(4.hours), tgMsg("Msg D"), "MsgD", course2.id)
 
       val messagesFiltered =
         viewRecordedMessages(adminId = admin1.id, courseId = course1.id, limit = 3).value
@@ -240,9 +243,9 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
       val course1 = course("Course1")
       val course2 = course("Course2")
 
-      sendScheduledMessage(admin1.id, at(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
-      sendScheduledMessage(admin2.id, at(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
-      sendScheduledMessage(admin1.id, at(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
+      sendScheduledMessage(admin1.id, atLocal(1.hours), tgMsg("Msg A"), "MsgA", course1.id)
+      sendScheduledMessage(admin2.id, atLocal(2.hours), tgMsg("Msg B"), "MsgB", course2.id)
+      sendScheduledMessage(admin1.id, atLocal(3.hours), tgMsg("Msg C"), "MsgC", course1.id)
 
       val allMessages = viewRecordedMessages(limit = 3).value
       assertEquals(3, allMessages.size)
@@ -257,7 +260,8 @@ class ScheduledMessagesIntegrationTest : IntegrationTestEnvironment() {
     buildData(createDefaultApis()) {
       val admin = admin("Admin2", "Admin2", 101L)
       val course = course("Course2")
-      val msg = sendScheduledMessage(admin.id, at(2.hours), tgMsg("Msg B"), "MsgB", course.id).value
+      val msg =
+        sendScheduledMessage(admin.id, atLocal(2.hours), tgMsg("Msg B"), "MsgB", course.id).value
       deleteScheduledMessage(msg)
       val allMessages = viewRecordedMessages(limit = 3).value
       val single = allMessages.single()

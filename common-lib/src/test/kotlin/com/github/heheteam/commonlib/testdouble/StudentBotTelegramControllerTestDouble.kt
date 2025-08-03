@@ -6,6 +6,8 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.StateError
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
@@ -16,12 +18,32 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration
 import kotlinx.datetime.LocalDateTime
 
 class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
   private val sentMessages =
     ConcurrentHashMap<RawChatId, ConcurrentHashMap<MessageId, TelegramMessageContent>>()
   private val nextMessageId = ConcurrentHashMap<RawChatId, Long>()
+
+  val sentQuizActivations = mutableListOf<QuizActivationCall>()
+  val sentQuizEndSummaries = mutableListOf<QuizEndSummaryCall>()
+
+  data class QuizActivationCall(
+    val courseId: CourseId,
+    val quizId: QuizId,
+    val questionText: String,
+    val answers: List<String>,
+    val duration: Duration,
+  )
+
+  data class QuizEndSummaryCall(
+    val studentId: StudentId,
+    val quizId: QuizId,
+    val chosenAnswerIndex: Int?,
+    val correctAnswerIndex: Int,
+    val score: Int,
+  )
 
   override suspend fun notifyStudentOnNewAssessment(
     chatId: RawChatId,
@@ -66,14 +88,38 @@ class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
     }
   }
 
-  // Helper for tests to inspect sent messages
+  override suspend fun sendQuizActivation(
+    courseId: CourseId,
+    quizId: QuizId,
+    questionText: String,
+    answers: List<String>,
+    duration: Duration,
+  ): Result<Unit, EduPlatformError> {
+    sentQuizActivations.add(QuizActivationCall(courseId, quizId, questionText, answers, duration))
+    return Ok(Unit)
+  }
+
+  override suspend fun notifyOnPollQuizEnd(
+    studentId: StudentId,
+    quizId: QuizId,
+    chosenAnswerIndex: Int?,
+    correctAnswerIndex: Int,
+    score: Int,
+  ): Result<Unit, EduPlatformError> {
+    sentQuizEndSummaries.add(
+      QuizEndSummaryCall(studentId, quizId, chosenAnswerIndex, correctAnswerIndex, score)
+    )
+    return Ok(Unit)
+  }
+
   fun getSentMessages(chatId: RawChatId): Map<MessageId, TelegramMessageContent>? {
     return sentMessages[chatId]
   }
 
-  // Helper for tests to reset state
   fun clearState() {
     sentMessages.clear()
     nextMessageId.clear()
+    sentQuizActivations.clear()
+    sentQuizEndSummaries.clear()
   }
 }

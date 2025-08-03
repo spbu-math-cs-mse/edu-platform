@@ -13,8 +13,10 @@ import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.ParentTable
 import com.github.heheteam.commonlib.database.table.PersonalDeadlineTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
+import com.github.heheteam.commonlib.database.table.QuizTable
 import com.github.heheteam.commonlib.database.table.ScheduledMessageTable
 import com.github.heheteam.commonlib.database.table.SentMessageLogTable
+import com.github.heheteam.commonlib.database.table.StudentAnswersTable
 import com.github.heheteam.commonlib.database.table.StudentTable
 import com.github.heheteam.commonlib.database.table.SubmissionGroupMessagesTable
 import com.github.heheteam.commonlib.database.table.SubmissionPersonalMessagesTable
@@ -49,6 +51,8 @@ private val allTables =
     PersonalDeadlineTable,
     CourseTokenTable,
     AdminWhitelistTable,
+    QuizTable,
+    StudentAnswersTable,
   )
 
 fun main(args: Array<String>) {

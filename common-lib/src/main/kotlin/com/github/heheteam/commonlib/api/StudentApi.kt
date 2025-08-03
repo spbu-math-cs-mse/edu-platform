@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
+import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
@@ -20,6 +21,9 @@ import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
+import com.github.heheteam.commonlib.quiz.AnswerQuizResult
+import com.github.heheteam.commonlib.quiz.QuizService
+import com.github.heheteam.commonlib.quiz.StudentOverCourseResults
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
@@ -36,10 +40,28 @@ internal constructor(
   private val studentStorage: StudentStorage,
   private val courseTokenService: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
+  private val quizService: QuizService,
 ) : CommonUserApi<StudentId> {
   suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, NumberedError> =
     errorManagementService.coroutineServiceBinding {
       scheduledMessageDeliveryService.checkAndSendMessages(timestamp)
+    }
+
+  fun answerQuiz(
+    quizId: QuizId,
+    studentId: StudentId,
+    chosenAnswerIndex: Int,
+  ): Result<AnswerQuizResult, NumberedError> =
+    errorManagementService.serviceBinding {
+      quizService.processStudentAnswer(quizId, studentId, chosenAnswerIndex).bind()
+    }
+
+  fun getStudentQuizPerformance(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<StudentOverCourseResults, NumberedError> =
+    errorManagementService.serviceBinding {
+      quizService.studentPerformanceOverview(studentId, courseId).bind()
     }
 
   fun getGradingForAssignment(

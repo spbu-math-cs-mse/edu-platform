@@ -48,6 +48,8 @@ import com.github.heheteam.commonlib.logic.ui.TelegramMessagesJournalUpdater
 import com.github.heheteam.commonlib.logic.ui.UiControllerTelegramSender
 import com.github.heheteam.commonlib.notifications.BotEventBus
 import com.github.heheteam.commonlib.notifications.ObserverBus
+import com.github.heheteam.commonlib.quiz.QuizRepository
+import com.github.heheteam.commonlib.quiz.QuizService
 import com.github.heheteam.commonlib.service.ParentService
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
@@ -219,7 +221,16 @@ class ApiFabric(
       )
 
     val errorManagementService = ErrorManagementService(adminBotTelegramController)
-
+    val quizService =
+      QuizService(
+        QuizRepository(),
+        courseRepository,
+        studentBotTelegramController,
+        teacherBotTelegramController,
+        database,
+        studentStorage,
+        teacherStorage,
+      )
     val studentApi =
       StudentApi(
         academicWorkflowService,
@@ -229,6 +240,7 @@ class ApiFabric(
         studentStorage,
         courseTokenService,
         errorManagementService,
+        quizService,
       )
     val courseService = CourseService(courseRepository, studentStorage, database)
     val adminApi =
@@ -261,6 +273,7 @@ class ApiFabric(
         teacherStorage,
         menuMessageUpdaterService,
         errorManagementService,
+        quizService,
       )
     return ApiCollection(studentApi, teacherApi, adminApi, parentApi, errorManagementService)
   }

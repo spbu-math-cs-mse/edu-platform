@@ -15,6 +15,7 @@ import com.github.heheteam.commonlib.googlesheets.GoogleSheetsServiceImpl
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
+import com.github.heheteam.commonlib.util.getCurrentInstant
 import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
@@ -108,9 +109,12 @@ class MultiBotRunner : CliktCommand() {
       }
       launch {
         while (true) {
-          val timestamp = getCurrentMoscowTime()
-          val result = apis.studentApi.checkAndSendMessages(timestamp)
-          result.mapError {
+          val checkAndSentResults = apis.studentApi.checkAndSendMessages(getCurrentMoscowTime())
+          checkAndSentResults.mapError {
+            KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")
+          }
+          val quizUpdateResult = apis.teacherApi.updateQuizzesStati(getCurrentInstant())
+          quizUpdateResult.mapError {
             KSLog.error("Error while sending scheduled messages: ${it.toStackedString()}")
           }
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))

@@ -40,4 +40,14 @@ interface TeacherBotTelegramController {
   suspend fun deleteMessage(
     telegramMessageInfo: TelegramMessageInfo
   ): Result<Unit, EduPlatformError>
+
+  @Suppress("LongParameterList") // all the data is needed here
+  suspend fun sendQuizOverallResult(
+    chatId: RawChatId,
+    questionText: String,
+    totalParticipants: Int,
+    correctAnswers: Int,
+    incorrectAnswers: Int,
+    notAnswered: Int,
+  ): Result<Unit, EduPlatformError>
 }

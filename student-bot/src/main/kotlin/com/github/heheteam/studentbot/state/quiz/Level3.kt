@@ -15,7 +15,7 @@ open class L3S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     send(
       "$DOG_EMOJI Дуся: \"Наверху — то, зачем мы пришли. Звезда. " +
@@ -77,7 +77,7 @@ open class L3S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendMarkdown("*Склон 2*")
     sendImage("/cats.png")
@@ -121,7 +121,7 @@ open class L3S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendMarkdown("*Склон 3*")
     sendImage("/deputies.png")

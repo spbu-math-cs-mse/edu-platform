@@ -10,6 +10,7 @@ import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
 import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
+import com.github.heheteam.teacherbot.states.SimpleTeacherState
 import com.github.heheteam.teacherbot.states.StartState
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
@@ -85,6 +86,7 @@ class StateRegister(private val teacherApi: TeacherApi) {
       }
       registerStateForBotState<PresetTeacherState, TeacherApi>(teacherApi)
       registerStateForBotState<ChooseGroupCourseState, TeacherApi>(teacherApi)
+      onStateOrSubstate<SimpleTeacherState> { it.handle(this, teacherApi) { _, _ -> Unit } }
     }
   }
 }

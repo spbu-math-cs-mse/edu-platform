@@ -29,6 +29,7 @@ import com.github.heheteam.commonlib.logic.ScheduledMessageService
 import com.github.heheteam.commonlib.logic.StudentViewService
 import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
+import com.github.heheteam.commonlib.quiz.QuizService
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
 import io.mockk.mockk
 import kotlin.test.Test
@@ -72,6 +73,7 @@ class StudentBotTest {
     val mockCourseTokensService = mockk<CourseTokenService>(relaxed = true)
     val teacherNotifier = mockk<NewSubmissionTeacherNotifier>()
     val adminBotController = mockk<AdminBotTelegramController>(relaxed = true)
+    val quizService = mockk<QuizService>(relaxed = true)
     academicWorkflowService =
       AcademicWorkflowService(
         academicWorkflowLogic,
@@ -93,6 +95,7 @@ class StudentBotTest {
         studentStorage,
         mockCourseTokensService,
         ErrorManagementService(adminBotController),
+        quizService,
       )
   }
 

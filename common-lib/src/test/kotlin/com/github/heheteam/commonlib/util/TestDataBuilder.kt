@@ -38,6 +38,12 @@ class TestDataBuilder(internal val apis: ApiCollection) {
   private val defaultMessageId = MessageId(messageIdCounter.next())
   private val coursesChatId = mutableMapOf<CourseId, RawChatId>()
 
+  val teacherApi
+    get() = apis.teacherApi
+
+  val studentApi
+    get() = apis.studentApi
+
   fun whitelistAdmin(tgId: Long): Long {
     apis.adminApi.addTgIdToWhitelist(tgId.toChatId())
     return tgId

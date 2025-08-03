@@ -50,7 +50,7 @@ open class L4Final<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
     messageToDelete?.let { bot.delete(it) }
   }
 
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendImage("/star.png")
     send("Ты стоишь на вершине. Перед тобой — сияющая звезда.\n")
@@ -148,7 +148,7 @@ abstract class L4Certificate<ApiService : CommonUserApi<UserId>, UserId : Common
 
   abstract fun getName(service: ApiService): String
 
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendMarkdown("Поздравляем! Ты получаешь *Сертификат Героя Матемаланда* \uD83C\uDFC6\n")
     val name = getName(service)

@@ -26,7 +26,7 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 typealias HandlersController = UpdateHandlerManager<String>
 
-class BotContext(
+class QuestBotContext(
   val bot: BehaviourContext,
   private val context: User,
   private val handlersController: HandlersController,
@@ -83,8 +83,8 @@ class BotContext(
   fun <ApiService : CommonUserApi<UserId>, UserId : CommonUserId> addIntegerReadHandler(
     trueAnswer: Int,
     thisState: QuestState<ApiService, UserId>,
-    actionOnCorrectAnswer: (suspend BotContext.() -> State),
-    actionOnWrongAnswer: (suspend BotContext.() -> State),
+    actionOnCorrectAnswer: (suspend QuestBotContext.() -> State),
+    actionOnWrongAnswer: (suspend QuestBotContext.() -> State),
   ) {
     addTextMessageHandler { message ->
       when (message.content.text.trim().toIntOrNull()) {
@@ -102,8 +102,8 @@ class BotContext(
 
   fun addStringReadHandler(
     trueAnswer: String,
-    actionOnCorrectAnswer: (suspend BotContext.() -> State),
-    actionOnWrongAnswer: (suspend BotContext.() -> State),
+    actionOnCorrectAnswer: (suspend QuestBotContext.() -> State),
+    actionOnWrongAnswer: (suspend QuestBotContext.() -> State),
   ) {
     addTextMessageHandler { message ->
       when (message.content.text.trim()) {

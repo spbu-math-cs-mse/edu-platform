@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.michaelbull.result.Result
@@ -34,4 +35,20 @@ interface StudentBotTelegramController {
   ): Result<MessageId, EduPlatformError>
 
   suspend fun deleteMessage(chatId: RawChatId, messageId: MessageId): Result<Unit, EduPlatformError>
+
+  suspend fun sendQuizActivation(
+    rawChatId: RawChatId,
+    quizId: QuizId,
+    questionText: String,
+    answers: List<String>,
+    duration: kotlin.time.Duration,
+  ): Result<Unit, EduPlatformError>
+
+  suspend fun notifyOnPollQuizEnd(
+    chatId: RawChatId,
+    quizId: QuizId,
+    chosenAnswerIndex: Int?,
+    correctAnswerIndex: Int,
+    score: Int,
+  ): Result<Unit, EduPlatformError>
 }

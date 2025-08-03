@@ -26,7 +26,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-private fun at(duration: Duration): LocalDateTime {
+private fun atLocal(duration: Duration): LocalDateTime {
   return defaultInstant.plus(duration).toLocalDateTime(defaultTimezone)
 }
 
@@ -103,7 +103,7 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   fun `scheduled message is initially not sent`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
-      val scheduledTimestamp = at(1.minutes)
+      val scheduledTimestamp = atLocal(1.minutes)
 
       val initialScheduledMessage = scheduleMessage(context, scheduledTimestamp, "Welcome Message")
 
@@ -115,9 +115,9 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   fun `scheduled message is marked as sent after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
-      val scheduledTimestamp = at(1.minutes)
+      val scheduledTimestamp = atLocal(1.minutes)
       val initialScheduledMessage = scheduleMessage(context, scheduledTimestamp, "Welcome Message")
-      val deliveryTimestamp = at(2.minutes)
+      val deliveryTimestamp = atLocal(2.minutes)
 
       val checkAndSendResult = triggerMessageDelivery(deliveryTimestamp)
       val updatedScheduledMessage = resolveScheduledMessage(initialScheduledMessage.id).value
@@ -134,9 +134,9 @@ class ScheduledMessageScenario1IntegrationTest : IntegrationTestEnvironment() {
   fun `students receive scheduled message after delivery`() = runTest {
     buildData(createDefaultApis()) {
       val context = setupCommonScheduledMessageTestContext()
-      val scheduledTimestamp = at(1.minutes)
+      val scheduledTimestamp = atLocal(1.minutes)
       scheduleMessage(context, scheduledTimestamp, "Welcome Message")
-      val deliveryTimestamp = at(2.minutes)
+      val deliveryTimestamp = atLocal(2.minutes)
 
       triggerMessageDelivery(deliveryTimestamp)
       val student1Messages = getMessagesForStudent(context.student1.tgId)

@@ -16,7 +16,7 @@ open class L0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendImage("/forest.png")
     send(

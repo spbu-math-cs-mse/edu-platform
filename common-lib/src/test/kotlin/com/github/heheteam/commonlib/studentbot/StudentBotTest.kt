@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.studentbot
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.config.loadConfig
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseChallengeStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseGradeTable
@@ -23,6 +24,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -96,6 +98,7 @@ class StudentBotTest {
         mockCourseTokensService,
         ErrorManagementService(adminBotController),
         quizService,
+        ChallengeService(DatabaseChallengeStorage(database)),
       )
   }
 

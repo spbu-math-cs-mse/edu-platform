@@ -28,9 +28,6 @@ import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.ParentStartState
 import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
-import com.github.heheteam.studentbot.state.QueryCourseForCheckingDeadlinesState
-import com.github.heheteam.studentbot.state.QueryCourseForCheckingGradesState
-import com.github.heheteam.studentbot.state.QueryCourseForSubmissionSendingState
 import com.github.heheteam.studentbot.state.QueryProblemForSubmissionSendingState
 import com.github.heheteam.studentbot.state.RandomActivityState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
@@ -107,23 +104,7 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
-      registerStateWithStudentId<QueryCourseForSubmissionSendingState, StudentApi>(
-        studentApi,
-        ::initializeHandlers,
-      )
-      registerStateWithStudentId<QueryCourseForCheckingGradesState, StudentApi>(
-        studentApi,
-        ::initializeHandlers,
-      )
-      registerStateWithStudentId<QueryCourseForCheckingDeadlinesState, StudentApi>(
-        studentApi,
-        ::initializeHandlers,
-      )
       registerStateWithStudentId<QueryAssignmentForCheckingGradesState, StudentApi>(
-        studentApi,
-        ::initializeHandlers,
-      )
-      registerStateWithStudentId<QueryCourseForSubmissionSendingState, StudentApi>(
         studentApi,
         ::initializeHandlers,
       )

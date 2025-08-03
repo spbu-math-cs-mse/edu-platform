@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.Challenge
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
@@ -16,6 +17,7 @@ import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -41,6 +43,7 @@ internal constructor(
   private val courseTokenService: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
   private val quizService: QuizService,
+  private val challengeService: ChallengeService,
 ) : CommonUserApi<StudentId> {
   suspend fun checkAndSendMessages(timestamp: LocalDateTime): Result<Unit, NumberedError> =
     errorManagementService.coroutineServiceBinding {
@@ -98,9 +101,6 @@ internal constructor(
   fun loginById(studentId: StudentId): Result<Student?, NumberedError> =
     errorManagementService.serviceBinding { studentStorage.resolveStudent(studentId).bind() }
 
-  fun updateTgId(studentId: StudentId, newTgId: UserId): Result<Unit, NumberedError> =
-    errorManagementService.serviceBinding { studentStorage.updateTgId(studentId, newTgId).bind() }
-
   fun createStudent(
     name: String,
     surname: String,
@@ -129,6 +129,14 @@ internal constructor(
   ): Result<Map<Assignment, List<Problem>>, NumberedError> =
     errorManagementService.serviceBinding {
       personalDeadlinesService.getActiveProblems(studentId, courseId).bind()
+    }
+
+  fun getActiveChallengingProblems(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Map<Challenge, List<Problem>>, NumberedError> =
+    errorManagementService.serviceBinding {
+      challengeService.getActiveChallengingProblems(studentId, courseId).bind()
     }
 
   fun registerForCourseWithToken(

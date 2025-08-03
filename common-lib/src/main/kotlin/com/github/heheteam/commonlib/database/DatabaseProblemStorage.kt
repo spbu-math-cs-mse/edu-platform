@@ -12,6 +12,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
+import com.github.heheteam.commonlib.interfaces.toChallengeId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toProblemId
 import com.github.heheteam.commonlib.util.catchingTransaction
@@ -125,6 +126,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
             it[AssignmentTable.description],
             it[AssignmentTable.courseId].value.toCourseId(),
             it[AssignmentTable.statementsUrl],
+            it[AssignmentTable.challengeId]?.value?.toChallengeId(),
           )
         }) {
           Problem(

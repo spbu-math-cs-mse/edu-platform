@@ -11,6 +11,7 @@ import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
+import com.github.heheteam.commonlib.interfaces.toChallengeId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
@@ -46,6 +47,7 @@ class DatabaseAssignmentStorage(
           row[AssignmentTable.description],
           row[AssignmentTable.courseId].value.toCourseId(),
           row[AssignmentTable.statementsUrl],
+          row[AssignmentTable.challengeId]?.value?.toChallengeId(),
         )
       )
     }
@@ -90,6 +92,7 @@ class DatabaseAssignmentStorage(
             it[AssignmentTable.description],
             it[AssignmentTable.courseId].value.toCourseId(),
             it[AssignmentTable.statementsUrl],
+            it[AssignmentTable.challengeId]?.value?.toChallengeId(),
           )
         }
       }

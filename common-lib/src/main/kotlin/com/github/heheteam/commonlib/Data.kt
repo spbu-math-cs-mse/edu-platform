@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib
 
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
+import com.github.heheteam.commonlib.interfaces.ChallengeId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ParentId
 import com.github.heheteam.commonlib.interfaces.ProblemId
@@ -156,6 +157,14 @@ data class Assignment(
   val description: String,
   val courseId: CourseId,
   val statementsUrl: String?,
+  val challengeId: ChallengeId?,
+)
+
+data class Challenge(
+  val id: ChallengeId,
+  val assignmentId: AssignmentId,
+  val description: String,
+  val courseId: CourseId,
 )
 
 @Serializable

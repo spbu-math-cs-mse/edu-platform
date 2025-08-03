@@ -24,7 +24,7 @@ import dev.inmo.tgbotapi.utils.buildEntities
 class CourseMenuState(
   override val context: User,
   override val userId: StudentId,
-  val course: com.github.heheteam.commonlib.Course,
+  val course: Course,
 ) : NavigationBotStateWithHandlersAndStudentId<StudentApi>() {
   override val introMessageContent: TextSourcesList
     get() = buildEntities { +"Меню курса" }
@@ -39,6 +39,7 @@ class CourseMenuState(
       simpleButtonData("Посмотреть успеваемость", { viewGradesNextState(service) }),
       simpleButtonData("Посмотреть дедлайны", { CheckDeadlinesState(context, userId, course) }),
       simpleButtonData("Попросить дорешку", { RescheduleDeadlinesState(context, userId) }),
+      simpleButtonData("Челлендж!", { RescheduleDeadlinesState(context, userId) }),
       simpleButtonData("Назад", { MenuState(context, userId) }),
     )
   }

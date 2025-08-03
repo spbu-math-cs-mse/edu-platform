@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.database.reset
 import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.logic.AdminAuthService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -68,6 +69,7 @@ class AdminBotTest {
         mockk<CourseTokenService>(relaxed = true),
         ErrorManagementService(adminBotController),
         mockk<CourseService>(relaxed = true),
+        mockk<ChallengeService>(relaxed = true),
       )
   }
 

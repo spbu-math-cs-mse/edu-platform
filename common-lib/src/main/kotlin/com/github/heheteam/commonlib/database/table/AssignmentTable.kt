@@ -7,4 +7,5 @@ object AssignmentTable : LongIdTable("assignment") {
   val description = varchar("description", 100)
   val statementsUrl = varchar("statementsUrl", 100).nullable()
   val courseId = reference("courseId", CourseTable.id)
+  val challengeId = reference("challengeId", ChallengeTable.id).nullable()
 }

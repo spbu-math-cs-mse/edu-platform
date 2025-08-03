@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
+import com.github.heheteam.commonlib.interfaces.ChallengeId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
@@ -26,6 +27,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AdminAuthService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -53,6 +55,7 @@ internal constructor(
   private val tokenStorage: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
   private val courseService: CourseService,
+  private val challengeService: ChallengeService,
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,
@@ -160,6 +163,23 @@ internal constructor(
     errorManagementService.serviceBinding {
       assignmentStorage
         .createAssignment(courseId, description, statementsUrl, problemsDescriptions)
+        .bind()
+    }
+
+  fun createChallenge(
+    courseId: CourseId,
+    assignmentId: AssignmentId,
+    challengeDescription: String,
+    challengingProblemsDescriptions: List<ProblemDescription>,
+  ): Result<ChallengeId?, NumberedError> =
+    errorManagementService.serviceBinding {
+      challengeService
+        .createChallenge(
+          courseId,
+          assignmentId,
+          challengeDescription,
+          challengingProblemsDescriptions,
+        )
         .bind()
     }
 

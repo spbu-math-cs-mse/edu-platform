@@ -3,6 +3,7 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
+import com.github.heheteam.commonlib.database.DatabaseChallengeStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
@@ -37,6 +38,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.AdminAuthService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -231,6 +233,9 @@ class ApiFabric(
         studentStorage,
         teacherStorage,
       )
+    val challengeStorage = DatabaseChallengeStorage(database)
+    val challengeService = ChallengeService(challengeStorage)
+
     val studentApi =
       StudentApi(
         academicWorkflowService,
@@ -241,6 +246,7 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
         quizService,
+        challengeService,
       )
     val courseService = CourseService(courseRepository, studentStorage, database)
     val adminApi =
@@ -256,6 +262,7 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
         courseService,
+        challengeService,
       )
     val parentRepository = DatabaseParentRepository()
     val parentService = ParentService(parentRepository, studentStorage, database)

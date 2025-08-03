@@ -113,6 +113,10 @@ object Dialogues {
     "Введите название серии, которую хотите создать, и дедлайн по ней. " +
       "Например, \"Диффуры и не только\"\$2025-01-19T23:55:00"
 
+  const val askChallengeDescription: String =
+    "Введите название челленджа, и его дедлайн. " +
+      "Например, \"Диффуры и не только\"\$2025-01-19T23:55:00"
+
   const val askProblemsDescriptions: String =
     "Введите описания задач, которые хотите добавить в серию, " +
       "в формате \'<номер> \"<описание>\" <максимальное кол-во баллов за задачу>\', " +
@@ -136,7 +140,10 @@ object Dialogues {
   fun incorrectProblemDescriptionMaxScoreIsNotInt(maxScore: String): String =
     "Некорректный формат ввода (3-ий аргумент в какой-то строчке ($maxScore) не является числом). Попробуйте ещё раз!"
 
-  const val assignmentWasCreatedSuccessfully: String = "Серия успешно создана!"
+  const val assignmentWasCreatedSuccessfully: String =
+    "Серия успешно создана!\nХотите создать челлендж для этой серии?"
+
+  const val challengeWasCreatedSuccessfully: String = "Челлендж успешно создан!"
 
   const val addScheduledMessageStartSummary: String =
     "Вы начали процесс добавления отложенного сообщения. " +

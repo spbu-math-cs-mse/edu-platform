@@ -222,7 +222,15 @@ class ApiFabric(
 
     val errorManagementService = ErrorManagementService(adminBotTelegramController)
     val quizService =
-      QuizService(QuizRepository(), courseRepository, studentBotTelegramController, database)
+      QuizService(
+        QuizRepository(),
+        courseRepository,
+        studentBotTelegramController,
+        teacherBotTelegramController,
+        database,
+        studentStorage,
+        teacherStorage,
+      )
     val studentApi =
       StudentApi(
         academicWorkflowService,

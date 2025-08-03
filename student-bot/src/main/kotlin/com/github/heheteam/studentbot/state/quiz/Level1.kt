@@ -14,7 +14,7 @@ open class L1S0<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     send(
       "\uD83C\uDF32 Ты входишь в Числовой Лес. " +
@@ -55,7 +55,7 @@ open class L1S1<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     send("$DOG_EMOJI Дуся: \"Осторожно! Только тот, кто решит задачу, может пройти дальше.\"")
     send(
@@ -99,7 +99,7 @@ open class L1S2<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     send(
       "\uD83C\uDF0A Перед тобой — речка. " +
@@ -151,7 +151,7 @@ open class L1S3Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserI
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendImage("/bellyrub_1.png")
     val buttons = listOf("\uD83C\uDFDE Перейти к речке")
@@ -183,7 +183,7 @@ open class L1S3<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     send(
       "\uD83E\uDEA8 Ты стоишь на берегу и видишь перед собой 101 камешек выложенных в ряд. " +
@@ -224,7 +224,7 @@ open class L1S4<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendImage("/ent.png")
     send(
@@ -274,7 +274,7 @@ open class L1S4Wrong<ApiService : CommonUserApi<UserId>, UserId : CommonUserId>(
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     val buttons =
       listOf("$TREE_EMOJI Подойти к дубу", "\uD83E\uDD17 Почесать ещё раз", "\uD83D\uDD19  Назад")
@@ -319,7 +319,7 @@ open class L1S4Bellyrub<ApiService : CommonUserApi<UserId>, UserId : CommonUserI
   override val context: User,
   override val userId: UserId,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     saveState(service)
     sendImage("/bellyrub_2.png")
     val buttons = listOf("\uD83C\uDFDE Подойти к дубу")

@@ -16,7 +16,7 @@ open class DefaultErrorState<ApiService : CommonUserApi<UserId>, UserId : Common
   override val userId: UserId,
   val nextState: State,
 ) : QuestState<ApiService, UserId>() {
-  override suspend fun BotContext.run(service: ApiService) {
+  override suspend fun QuestBotContext.run(service: ApiService) {
     val buttons = listOf("✅ Конечно!", "\uD83D\uDD19 Назад")
     send(
         "\uD83D\uDD12 Похоже, этот ответ не совсем верный. Попробуем еще раз?",

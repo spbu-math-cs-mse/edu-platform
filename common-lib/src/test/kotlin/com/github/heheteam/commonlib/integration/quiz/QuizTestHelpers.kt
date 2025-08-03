@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.quiz.RichQuiz
 import com.github.heheteam.commonlib.util.TestDataBuilder
 import com.github.heheteam.commonlib.util.defaultInstant
 import com.github.heheteam.commonlib.util.defaultTimezone
+import com.github.heheteam.commonlib.util.toRawChatId
 import kotlin.test.assertEquals
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -48,12 +49,16 @@ val anotherQuizMeta =
     duration = 2.minutes,
   )
 
+internal val defaultTeacherChat = 100L.toRawChatId()
+
+internal fun studentChat(i: Int) = (200L + i).toRawChatId()
+
 suspend fun TestDataBuilder.setupQuizScenario(
   quizMeta: QuizMetaInformation = defaultQuizMeta,
   activationTime: Instant? = null,
   studentCount: Int = 1,
 ): QuizScenarioContext {
-  val teacher = teacher("Teacher1", "Teacher1", 100L)
+  val teacher = teacher("Teacher1", "Teacher1", defaultTeacherChat.long)
   val students = (1..studentCount).map { i -> student("Student$i", "Student$i", 200L + i) }
   val course =
     course("Course1") {

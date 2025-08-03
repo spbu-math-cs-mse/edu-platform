@@ -16,6 +16,7 @@ import com.github.heheteam.commonlib.util.waitDocumentMessageWithUser
 import com.github.heheteam.commonlib.util.waitMediaMessageWithUser
 import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.heheteam.teacherbot.Dialogues
+import com.github.heheteam.teacherbot.states.quiz.SelectCourseForQuiz
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.get
@@ -98,7 +99,17 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     )
 
   private fun createDataCallbackHandlers() =
-    listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress)
+    listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress, ::handleMenuPressess)
+
+  @OptIn(RiskFeature::class)
+  private fun handleMenuPressess(
+    data: DataCallbackQuery
+  ): Result<HandlerResult<TeacherAction>, Any>? =
+    if (data.data == "newquiz") {
+      NewState(SelectCourseForQuiz(context, teacherId)).ok()
+    } else {
+      null
+    }
 
   @OptIn(RiskFeature::class)
   private fun tryHandleConfirmButtonPress(

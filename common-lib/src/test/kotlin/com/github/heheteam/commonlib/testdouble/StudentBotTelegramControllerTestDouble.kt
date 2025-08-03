@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.StateError
-import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.UserGroup
@@ -30,7 +29,6 @@ class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
   val sentQuizEndSummaries = mutableListOf<QuizEndSummaryCall>()
 
   data class QuizActivationCall(
-    val courseId: CourseId,
     val quizId: QuizId,
     val questionText: String,
     val answers: List<String>,
@@ -38,7 +36,6 @@ class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
   )
 
   data class QuizEndSummaryCall(
-    val studentId: StudentId,
     val quizId: QuizId,
     val chosenAnswerIndex: Int?,
     val correctAnswerIndex: Int,
@@ -89,25 +86,25 @@ class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
   }
 
   override suspend fun sendQuizActivation(
-    courseId: CourseId,
+    rawChatId: RawChatId,
     quizId: QuizId,
     questionText: String,
     answers: List<String>,
     duration: Duration,
   ): Result<Unit, EduPlatformError> {
-    sentQuizActivations.add(QuizActivationCall(courseId, quizId, questionText, answers, duration))
+    sentQuizActivations.add(QuizActivationCall(quizId, questionText, answers, duration))
     return Ok(Unit)
   }
 
   override suspend fun notifyOnPollQuizEnd(
-    studentId: StudentId,
+    chatId: RawChatId,
     quizId: QuizId,
     chosenAnswerIndex: Int?,
     correctAnswerIndex: Int,
     score: Int,
   ): Result<Unit, EduPlatformError> {
     sentQuizEndSummaries.add(
-      QuizEndSummaryCall(studentId, quizId, chosenAnswerIndex, correctAnswerIndex, score)
+      QuizEndSummaryCall(quizId, chosenAnswerIndex, correctAnswerIndex, score)
     )
     return Ok(Unit)
   }

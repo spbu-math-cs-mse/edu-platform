@@ -21,6 +21,8 @@ data class ActionWrapper<ActionT>(val action: ActionT) :
 data class NewState(val state: State) :
   HandlerResult<Nothing>, HandlerResultWithUserInput<Nothing, Nothing, Nothing>
 
+fun State.toNewState() = NewState(this)
+
 data class UserInput<UserInputT>(val input: UserInputT) :
   HandlerResultWithUserInput<Nothing, UserInputT, Nothing>
 

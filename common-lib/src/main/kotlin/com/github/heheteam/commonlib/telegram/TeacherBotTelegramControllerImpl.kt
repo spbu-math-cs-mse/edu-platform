@@ -21,8 +21,13 @@ import dev.inmo.tgbotapi.extensions.api.edit.edit
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
 import dev.inmo.tgbotapi.extensions.api.send.reply
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.RawChatId
+import dev.inmo.tgbotapi.types.message.Markdown
 import dev.inmo.tgbotapi.types.toChatId
+import dev.inmo.tgbotapi.utils.extensions.toMarkdown
+import dev.inmo.tgbotapi.utils.row
 
 class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   TeacherBotTelegramController {
@@ -106,7 +111,11 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
         if (replyTo != null) {
             teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "\u2705 Главное меню")
           } else {
-            teacherBot.sendMessage(chatId.toChatId(), "\u2705 Главное меню")
+            teacherBot.sendMessage(
+              chatId.toChatId(),
+              "\u2705 Главное меню",
+              replyMarkup = inlineKeyboard { row { dataButton("Создать опрос", "newquiz") } },
+            )
           }
           .toTelegramMessageInfo()
       }
@@ -122,6 +131,32 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
         KSLog.warning("Failed to delete message", it)
         TelegramError(it)
       }
+      .map { Unit }
+
+  override suspend fun sendQuizOverallResult(
+    chatId: RawChatId,
+    questionText: String,
+    totalParticipants: Int,
+    correctAnswers: Int,
+    incorrectAnswers: Int,
+    notAnswered: Int,
+  ): Result<Unit, EduPlatformError> =
+    runCatching {
+        val messageText =
+          """
+          📊 *Результаты опроса*
+          
+          *Вопрос:* ${questionText.toMarkdown()}
+          
+          *Всего участников:* $totalParticipants
+          *Правильных ответов:* $correctAnswers
+          *Неправильных ответов:* $incorrectAnswers
+          *Не ответили:* $notAnswered
+          """
+            .trimIndent()
+        teacherBot.sendMessage(chatId.toChatId(), messageText, parseMode = Markdown)
+      }
+      .mapError { TelegramError(it) }
       .map { Unit }
 
   private fun submissionStatusInfoToMessageContent(

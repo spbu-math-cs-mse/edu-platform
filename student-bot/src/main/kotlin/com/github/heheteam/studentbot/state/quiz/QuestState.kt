@@ -49,14 +49,14 @@ abstract class QuestState<ApiService : CommonUserApi<UserId>, UserId : CommonUse
     }
   }
 
-  abstract suspend fun BotContext.run(service: ApiService)
+  abstract suspend fun QuestBotContext.run(service: ApiService)
 
   override suspend fun intro(
     bot: BehaviourContext,
     service: ApiService,
     updateHandlersController: UpdateHandlerManager<String>,
   ): Result<Unit, FrontendError> =
-    runCatching { BotContext(bot, context, updateHandlersController).run(service) }
+    runCatching { QuestBotContext(bot, context, updateHandlersController).run(service) }
       .toTelegramError()
 
   override suspend fun computeNewState(

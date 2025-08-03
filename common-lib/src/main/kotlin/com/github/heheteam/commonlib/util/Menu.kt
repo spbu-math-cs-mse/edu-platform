@@ -9,13 +9,15 @@ import dev.inmo.tgbotapi.types.buttons.Matrix
 
 data class ButtonData<T>(val text: String, val uniqueData: String, val getData: suspend (() -> T))
 
-private const val DATACALLBACK_LENGTH_RESTRICTION = 10
+private const val SIXTEEN = 16
 
 fun <T> simpleButtonData(text: String, getData: suspend (() -> T)) =
-  ButtonData(text, text.take(DATACALLBACK_LENGTH_RESTRICTION), getData)
+  ButtonData(text, text.hashCode().toString(SIXTEEN), getData)
 
-// handler returns Err<Unit> when wrong button (with unhandled unique data) is pressed
-// handler does not delete the menu message, be warned!
+/**
+ * handler returns Err<Unit> when wrong button (with unhandled unique data) is pressed handler does
+ * not delete the menu message, be warned!
+ */
 data class MenuKeyboardData<out T>(
   val keyboard: InlineKeyboardMarkup,
   val handler: suspend (String) -> Result<T, Unit>,
@@ -45,6 +47,8 @@ fun <T> buildMenu(content: Matrix<ButtonData<T>>): MenuKeyboardData<T> {
 
 fun <T> buildColumnMenu(content: List<ButtonData<T>>): MenuKeyboardData<T> =
   buildMenu(content.map { listOf(it) })
+
+fun <T> List<ButtonData<T>>.toColumnMenu() = buildColumnMenu(this)
 
 fun <T> buildColumnMenu(vararg content: ButtonData<T>): MenuKeyboardData<T> =
   buildMenu(content.map { listOf(it) })

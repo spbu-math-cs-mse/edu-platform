@@ -24,7 +24,7 @@ class StudentAnswerTest : IntegrationTestEnvironment() {
       apis.teacherApi.updateQuizzesStati(at(71.seconds)).value // Deactivate quiz
       coVerify(exactly = 1) {
         studentBotController.notifyOnPollQuizEnd(
-          studentId,
+          studentChat(1),
           quizId,
           1,
           defaultQuizMeta.correctAnswerIndex,

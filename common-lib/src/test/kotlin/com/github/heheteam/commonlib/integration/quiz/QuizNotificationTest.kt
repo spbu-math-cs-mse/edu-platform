@@ -14,13 +14,14 @@ class QuizNotificationTest : IntegrationTestEnvironment() {
   fun `should send activation message to students upon quiz activation`() = runTest {
     buildData(createDefaultApis()) {
       val activationTime = at(10.seconds)
-      val (quizId, courseId, _, _) = setupQuizScenario(activationTime = null, studentCount = 1)
+      val (quizId, courseId, teacherId, _) =
+        setupQuizScenario(activationTime = null, studentCount = 1)
 
       apis.teacherApi.activateQuiz(quizId, activationTime).value
 
       coVerify(exactly = 1) {
         studentBotController.sendQuizActivation(
-          courseId = courseId,
+          rawChatId = studentChat(1),
           quizId = quizId,
           questionText = defaultQuizMeta.questionText,
           answers = defaultQuizMeta.answers,
@@ -47,7 +48,7 @@ class QuizNotificationTest : IntegrationTestEnvironment() {
 
       coVerify(exactly = 1) {
         studentBotController.sendQuizActivation(
-          courseId = courseId,
+          studentChat(1),
           quizId = quizId,
           questionText = customQuizMeta.questionText,
           answers = customQuizMeta.answers,
@@ -72,7 +73,7 @@ class QuizNotificationTest : IntegrationTestEnvironment() {
 
       coVerify(exactly = 1) {
         studentBotController.notifyOnPollQuizEnd(
-          studentId = student1Id,
+          studentChat(1),
           quizId = quizId,
           chosenAnswerIndex = 1,
           correctAnswerIndex = 1,
@@ -81,7 +82,7 @@ class QuizNotificationTest : IntegrationTestEnvironment() {
       }
       coVerify(exactly = 1) {
         studentBotController.notifyOnPollQuizEnd(
-          studentId = student2Id,
+          studentChat(2),
           quizId = quizId,
           chosenAnswerIndex = 0,
           correctAnswerIndex = 1,
@@ -106,7 +107,7 @@ class QuizNotificationTest : IntegrationTestEnvironment() {
 
         coVerify(exactly = 1) {
           studentBotController.notifyOnPollQuizEnd(
-            studentId = student1Id,
+            studentChat(1),
             quizId = quizId,
             chosenAnswerIndex = 1,
             correctAnswerIndex = 1,
@@ -115,13 +116,43 @@ class QuizNotificationTest : IntegrationTestEnvironment() {
         }
         coVerify(exactly = 1) {
           studentBotController.notifyOnPollQuizEnd(
-            studentId = student2Id,
-            quizId = quizId,
-            chosenAnswerIndex = null, // Or a default indicating no answer
+            studentChat(2),
+            quizId = quizId, // Or a default indicating no answer
+            chosenAnswerIndex = null,
             correctAnswerIndex = 1,
             score = 0,
           )
         }
       }
     }
+
+  @Test
+  fun `should send quiz overall result to teacher upon quiz deactivation`() = runTest {
+    buildData(createDefaultApis()) {
+      val (quizId, courseId, teacherId, studentIds) =
+        setupQuizScenario(activationTime = at(10.seconds), studentCount = 3)
+      val student1Id = studentIds[0]
+      val student2Id = studentIds[1]
+      @Suppress("UnusedPrivateProperty") val student3Id = studentIds[2] // does not answer
+
+      // Student 1 answers correctly
+      apis.studentApi.answerQuiz(quizId, student1Id, 1).value
+      // Student 2 answers incorrectly
+      apis.studentApi.answerQuiz(quizId, student2Id, 0).value
+      // Student 3 does not answer
+
+      apis.teacherApi.updateQuizzesStati(at(71.seconds)).value // Deactivate quiz
+
+      coVerify(exactly = 1) {
+        teacherBotController.sendQuizOverallResult(
+          chatId = defaultTeacherChat,
+          questionText = defaultQuizMeta.questionText,
+          totalParticipants = 3,
+          correctAnswers = 1,
+          incorrectAnswers = 1,
+          notAnswered = 1,
+        )
+      }
+    }
+  }
 }

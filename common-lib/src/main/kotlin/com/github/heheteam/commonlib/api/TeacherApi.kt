@@ -80,6 +80,9 @@ internal constructor(
   fun getTeacherCourses(teacherId: TeacherId): Result<List<Course>, NumberedError> =
     errorManagementService.serviceBinding { courseStorage.getTeacherCourses(teacherId).bind() }
 
+  fun getTeacherCoursesForQuiz(teacherId: TeacherId): Result<List<Course>, NumberedError> =
+    getTeacherCourses(teacherId)
+
   fun resolveCourse(it: CourseId): Result<Course, NumberedError> =
     errorManagementService.serviceBinding { courseStorage.resolveCourse(it).bind() }
 

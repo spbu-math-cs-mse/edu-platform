@@ -3,8 +3,11 @@ package com.github.heheteam.studentbot
 import com.github.heheteam.commonlib.api.ParentApi
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.quiz.AnswerQuizResult
 import com.github.heheteam.commonlib.state.InformationState
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
@@ -52,9 +55,14 @@ import com.github.heheteam.studentbot.state.quiz.registerStudentQuests
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
 import com.github.heheteam.studentbot.state.student.StudentAboutKamenetskiState
 import com.github.heheteam.studentbot.state.student.StudentAboutMaximovState
+import com.github.michaelbull.result.mapBoth
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWithFSM
 import dev.inmo.tgbotapi.types.chat.User
+import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 
 internal class StateRegister(
   private val studentApi: StudentApi,
@@ -172,6 +180,64 @@ internal class StateRegister(
     handlersController.addTextMessageHandler { maybeCommandMessage ->
       val text = maybeCommandMessage.content.text
       parseCommand(text, studentId, context)
+    }
+    handlersController.addDataCallbackHandler { dataCallbackQuery ->
+      tryHandleQuizAnswer(dataCallbackQuery, studentId, context)
+    }
+  }
+
+  private suspend fun tryHandleQuizAnswer(
+    dataCallbackQuery: DataCallbackQuery,
+    studentId: StudentId,
+    context: User,
+  ): Unhandled {
+    val parseResult = parsePExpression(dataCallbackQuery.data)
+    if (parseResult == null) return Unhandled
+    val (quizId, answerIndex) = parseResult
+    val answer = studentApi.answerQuiz(QuizId(quizId.toLong()), studentId, answerIndex)
+    return answer.mapBoth(
+      success = {
+        when (it) {
+          is AnswerQuizResult.QuizAnswerIndexOutOfBounds -> {
+            logger.error("Out of bound problem; ${it.toString()}")
+          }
+
+          AnswerQuizResult.QuizInactive -> {
+            bot.send(context, "Время вышло")
+          }
+
+          AnswerQuizResult.QuizNotFound -> {
+            bot.send(context, "Опрос не нашелся; возможно, его уже удалили")
+          }
+
+          is AnswerQuizResult.Success ->
+            bot.send(context, "Вы выбрали ответ: \"${it.chosenAnswer}\"")
+        }
+        Unhandled
+      },
+      failure = {
+        logger.error("Failed to answer quiz: ${it.toStackedString()}")
+        Unhandled
+      },
+    )
+  }
+
+  fun parsePExpression(expression: String): Pair<Int, Int>? {
+    val regex = Regex("^p\\((\\d+)\\)\\((\\d+)\\)$")
+    val matchResult = regex.find(expression)
+
+    return if (matchResult != null) {
+      val (firstIntStr, secondIntStr) = matchResult.destructured
+      val firstInt = firstIntStr.toIntOrNull()
+      val secondInt = secondIntStr.toIntOrNull()
+
+      if (firstInt != null && secondInt != null) {
+        Pair(firstInt, secondInt)
+      } else {
+        null
+      }
+    } else {
+      null
     }
   }
 

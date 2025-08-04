@@ -120,7 +120,10 @@ class MultiBotRunner : CliktCommand() {
           delay(Duration.fromSeconds(HEARTBEAT_DELAY_SECONDS))
         }
       }
-      launch { TeacherRunner(teacherBotToken, StateRegister(apis.teacherApi)).run() }
+      launch {
+        TeacherRunner(teacherBotToken, StateRegister(apis.teacherApi), apis.errorManagementService)
+          .run()
+      }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
       launch { parentRun(parentBotToken, apis.parentApi) }
     }

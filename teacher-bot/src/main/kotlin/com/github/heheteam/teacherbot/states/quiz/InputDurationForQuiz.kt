@@ -21,7 +21,7 @@ data class InputDurationForQuiz(
 ) : SimpleTeacherState() {
   override suspend fun BotContext.run(service: TeacherApi) {
     val upperBound = UPPER_BOUND
-    send("Введите длительность в секундах теста от 0 до $upperBound")
+    send("Введите длительность в секундах теста от 0 до $upperBound").deleteLater()
     addTextMessageHandler { msg ->
       val durationSeconds = msg.content.text.toLongOrNull()
       if (durationSeconds != null && durationSeconds > 0 && durationSeconds < upperBound) {

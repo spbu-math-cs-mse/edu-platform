@@ -27,16 +27,17 @@ class CreateAndActivateQuiz(
     val menu = buildColumnMenu(ButtonData("Меню", "menu", { defaultState() })).map(::NewState)
     when (activateQuiz) {
       QuizActivationResult.QuizAlreadyActive -> {
-        send("Опрос уже активирован", replyMarkup = menu.keyboard)
+        send("Опрос уже активирован", replyMarkup = menu.keyboard).deleteLater()
       }
       QuizActivationResult.QuizNotFound -> {
         error("The quiz was just generated. How?")
       }
       QuizActivationResult.Success -> {
         send(
-          "Опрос успешно отправлен. Вам придет уведомление в свое время",
-          replyMarkup = menu.keyboard,
-        )
+            "Опрос успешно отправлен. Вам придет уведомление в свое время",
+            replyMarkup = menu.keyboard,
+          )
+          .deleteLater()
       }
     }
     addDataCallbackHandler {

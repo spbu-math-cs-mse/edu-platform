@@ -25,12 +25,14 @@ class ConfirmQuiz(
         )
         .map(::NewState)
     send(
-      "Вы выбрали правильным ответом \"${quizMetaInfo.answers.getOrNull(quizMetaInfo.correctAnswerIndex)}\""
-    )
+        "Вы выбрали правильным ответом \"${quizMetaInfo.answers.getOrNull(quizMetaInfo.correctAnswerIndex)}\""
+      )
+      .deleteLater()
     send(
-      "Подтвердить отправку сообщения? С нажатием кнопки \"Да\" опрос разошлется",
-      replyMarkup = menu.keyboard,
-    )
+        "Подтвердить отправку сообщения? С нажатием кнопки \"Да\" опрос разошлется",
+        replyMarkup = menu.keyboard,
+      )
+      .deleteLater()
     registerStateMenu(menu)
   }
 }

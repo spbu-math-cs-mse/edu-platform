@@ -14,6 +14,7 @@ import kotlinx.datetime.LocalDateTime
 fun buildProblemSendingSelector(
   availableProblems: Map<Assignment, List<Problem>>,
   currentMoscowTime: LocalDateTime,
+  useUrls: Boolean = true,
 ) =
   InlineKeyboardMarkup(
     keyboard =
@@ -22,7 +23,7 @@ fun buildProblemSendingSelector(
           (assignment, problems) ->
           row {
             val statementsUrl = assignment.statementsUrl
-            if (statementsUrl != null) {
+            if (statementsUrl != null && useUrls) {
               urlButton("${assignment.description}:", statementsUrl)
             } else {
               dataButton("${assignment.description}:", Keyboards.FICTITIOUS)

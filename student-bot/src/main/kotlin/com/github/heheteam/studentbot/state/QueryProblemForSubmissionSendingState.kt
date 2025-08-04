@@ -22,12 +22,17 @@ import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
 import com.github.heheteam.studentbot.metaData.buildProblemSendingSelector
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.runCatching
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
+import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
+import dev.inmo.tgbotapi.types.message.content.TextContent
 
 class QueryProblemForSubmissionSendingState(
   override val context: User,
@@ -49,12 +54,7 @@ class QueryProblemForSubmissionSendingState(
     updateHandlersController: UpdateHandlerManager<Problem?>,
   ): Result<Unit, FrontendError> = coroutineBinding {
     val problems = service.getActiveProblems(userId, selectedCourseId).bind()
-    val message =
-      bot.send(
-        context,
-        Dialogues.askProblem,
-        replyMarkup = buildProblemSendingSelector(problems, getCurrentMoscowTime()),
-      )
+    val message = sendMenuSafe(bot, problems)
     sentMessage.add(message)
     updateHandlersController.addDataCallbackHandler { dataCallbackQuery ->
       when (val callbackData = dataCallbackQuery.data) {
@@ -64,6 +64,30 @@ class QueryProblemForSubmissionSendingState(
       }
     }
   }
+
+  private suspend fun sendMenuSafe(
+    bot: BehaviourContext,
+    problems: Map<Assignment, List<Problem>>,
+  ): ContentMessage<TextContent> =
+    runCatching {
+        bot.send(
+          context,
+          Dialogues.askProblem,
+          replyMarkup = buildProblemSendingSelector(problems, getCurrentMoscowTime()),
+        )
+      }
+      .mapBoth(
+        success = { it },
+        failure = {
+          logger.error("Failed to send menu with urls", it)
+          bot.send(
+            context,
+            Dialogues.askProblem,
+            replyMarkup =
+              buildProblemSendingSelector(problems, getCurrentMoscowTime(), useUrls = false),
+          )
+        },
+      )
 
   private fun parseProblemFromDataCallbackQuery(
     callbackData: String,

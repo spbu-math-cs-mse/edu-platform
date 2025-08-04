@@ -31,6 +31,7 @@ class BotContext(
   private val context: User,
   private val handlersController: HandlersController,
 ) {
+
   suspend fun send(text: String, replyMarkup: KeyboardMarkup? = null): ContentMessage<TextContent> =
     bot.send(context, text, replyMarkup = replyMarkup)
 

@@ -15,7 +15,11 @@ data class InputOptionsForQuiz(
   val previousState: State?,
 ) : SimpleTeacherState() {
   override suspend fun BotContext.run(service: TeacherApi) {
-    send("Введите опции для создания опроса")
+    send(
+        "Введите опции для создания опроса, по одному варианту ответа на каждой строке. " +
+          "Указывайте от 2 до 8 возможных вариантов ответа"
+      )
+      .deleteLater()
     addTextMessageHandler { msg ->
       val options = msg.content.text.split("\n")
       NewState(

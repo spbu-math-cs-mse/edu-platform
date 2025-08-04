@@ -21,13 +21,14 @@ class ChooseCorrectAnswerInQuiz(
       metaInformationBuilder.questionText ?: throw IllegalArgumentException("null message")
     val options = metaInformationBuilder.answers ?: throw IllegalArgumentException("null  options")
     send("Нажмите на правильный ответ. Обратите внимание, именно так будет видеть ваш текст ученик")
+      .deleteLater()
     val menu =
       options
         .mapIndexed { index, option ->
           ButtonData(option, index.toString()) { inputIndexAndContinue(index).toNewState() }
         }
         .toColumnMenu()
-    send(message, replyMarkup = menu.keyboard)
+    send(message, replyMarkup = menu.keyboard).deleteLater()
     registerStateMenu(menu)
   }
 

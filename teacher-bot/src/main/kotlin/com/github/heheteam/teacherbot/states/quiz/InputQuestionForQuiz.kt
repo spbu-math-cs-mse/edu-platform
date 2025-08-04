@@ -13,7 +13,7 @@ data class InputQuestionForQuiz(
   val metaInformationBuilder: QuizMetaInformationBuilder,
 ) : SimpleTeacherState() {
   override suspend fun BotContext.run(service: TeacherApi) {
-    send("Введите текст вопроса")
+    send("Введите текст вопроса как одно текстовое сообщение").deleteLater()
     addTextMessageHandler { msg ->
       val question = msg.content.text
       NewState(

@@ -1,17 +1,22 @@
 package com.github.heheteam.teacherbot
 
 import com.github.heheteam.commonlib.api.TeacherApi
+import com.github.heheteam.commonlib.errors.ErrorManagementService
+import com.github.heheteam.commonlib.errors.UncaughtExceptionError
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
 import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.teacherbot.states.AskFirstNameState
 import com.github.heheteam.teacherbot.states.AskLastNameState
 import com.github.heheteam.teacherbot.states.ChooseGroupCourseState
+import com.github.heheteam.teacherbot.states.ExceptionState
 import com.github.heheteam.teacherbot.states.ListeningForSubmissionsGroupState
 import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.PresetTeacherState
 import com.github.heheteam.teacherbot.states.SimpleTeacherState
 import com.github.heheteam.teacherbot.states.StartState
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptions
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.bot.getMe
@@ -23,22 +28,24 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.triggers_handling.command
 import dev.inmo.tgbotapi.extensions.utils.extensions.raw.from
 import dev.inmo.tgbotapi.extensions.utils.groupChatOrNull
 import dev.inmo.tgbotapi.types.BotCommand
+import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.utils.RiskFeature
+import dev.inmo.tgbotapi.utils.buildEntities
 import io.ktor.http.escapeIfNeeded
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class TeacherRunner(private val botToken: String, private val stateRegister: StateRegister) {
+class TeacherRunner(
+  private val botToken: String,
+  private val stateRegister: StateRegister,
+  private val errorManagementService: ErrorManagementService,
+) {
   suspend fun run() {
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
         CoroutineScope(Dispatchers.IO),
-        onStateHandlingErrorHandler = { state, e ->
-          println("Thrown error in TeacherBot on $state")
-          e.printStackTrace()
-          state
-        },
+        onStateHandlingErrorHandler = { state, e -> reportExceptionAndGoToStartingState(state, e) },
       ) {
         println(getMe())
 
@@ -54,6 +61,25 @@ class TeacherRunner(private val botToken: String, private val stateRegister: Sta
       }
       .second
       .join()
+  }
+
+  private fun reportExceptionAndGoToStartingState(state: State, e: Throwable): State {
+    println("Thrown error on $state")
+    e.printStackTrace()
+    val context = state.context
+    if (context is User) {
+      val error = errorManagementService.registerError(UncaughtExceptionError(e))
+      return ExceptionState(
+        context,
+        buildEntities {
+          +"Случилась ошибка! Не волнуйтесь, разработчики уже в пути ее решения!\n"
+          +"Ошибка #${error.number}"
+        },
+      )
+    } else {
+      logger.error("context is not User in state $state")
+      return state
+    }
   }
 
   @OptIn(RiskFeature::class)
@@ -87,6 +113,7 @@ class StateRegister(private val teacherApi: TeacherApi) {
       registerStateForBotState<PresetTeacherState, TeacherApi>(teacherApi)
       registerStateForBotState<ChooseGroupCourseState, TeacherApi>(teacherApi)
       onStateOrSubstate<SimpleTeacherState> { it.handle(this, teacherApi) { _, _ -> Unit } }
+      strictlyOn<ExceptionState> { it.handle(this) }
     }
   }
 }

@@ -41,7 +41,7 @@ class StudentRunner(
     telegramBotWithBehaviourAndFSMAndStartLongPolling(
         botToken,
         CoroutineScope(Dispatchers.IO),
-        onStateHandlingErrorHandler = ::reportExceptionAndPreserveState,
+        onStateHandlingErrorHandler = ::reportExceptionAndGoToStartingState,
       ) {
         println(getMe())
 
@@ -86,7 +86,7 @@ class StudentRunner(
     }
   }
 
-  private fun reportExceptionAndPreserveState(state: State, e: Throwable): State {
+  private fun reportExceptionAndGoToStartingState(state: State, e: Throwable): State {
     println("Thrown error on $state")
     e.printStackTrace()
     val context = state.context

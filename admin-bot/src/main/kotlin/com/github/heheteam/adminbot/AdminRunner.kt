@@ -7,8 +7,6 @@ import com.github.heheteam.adminbot.states.AskFirstNameState
 import com.github.heheteam.adminbot.states.AskLastNameState
 import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
-import com.github.heheteam.adminbot.states.CreateAssignmentErrorState
-import com.github.heheteam.adminbot.states.CreateAssignmentState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
 import com.github.heheteam.adminbot.states.MenuState
@@ -17,6 +15,11 @@ import com.github.heheteam.adminbot.states.QueryCourseForEditing
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
 import com.github.heheteam.adminbot.states.StartState
+import com.github.heheteam.adminbot.states.assignments.CompleteAssignmentCreationState
+import com.github.heheteam.adminbot.states.assignments.CreateAssignmentErrorState
+import com.github.heheteam.adminbot.states.assignments.QueryAssignmentDescriptionState
+import com.github.heheteam.adminbot.states.assignments.QueryProblemDescriptionsState
+import com.github.heheteam.adminbot.states.assignments.QueryStatementsUrlState
 import com.github.heheteam.adminbot.states.general.AdminHandleable
 import com.github.heheteam.adminbot.states.scheduled.AddScheduledMessageStartState
 import com.github.heheteam.adminbot.states.scheduled.ConfirmScheduledMessageState
@@ -143,7 +146,10 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerState<AskLastNameState, AdminApi>(adminApi)
     registerStateForBotStateWithHandlers<QueryScheduledMessageUserGroupState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<CreateAssignmentState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryAssignmentDescriptionState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryProblemDescriptionsState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryStatementsUrlState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CompleteAssignmentCreationState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddAdminState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)

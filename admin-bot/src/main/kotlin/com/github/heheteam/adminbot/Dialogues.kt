@@ -124,6 +124,8 @@ object Dialogues {
       "3a \"Лёгкая задача\"\n" +
       "3b \"Сложная задача\" 10"
 
+  const val askStatementsUrl: String = "Введите ссылку на серию"
+
   const val incorrectProblemDescriptionEmpty: String =
     "Некорректный формат ввода (обнаружена пустая строка). Попробуйте ещё раз!"
 
@@ -150,6 +152,8 @@ object Dialogues {
     "Введите дату в формате дд.мм.гггг или /stop, чтобы отменить операцию."
   const val invalidDateFormat: String =
     "Неправильный формат даты. Введите дату в формате дд.мм.гггг или /stop, чтобы отменить операцию."
+  const val invalidUrlFormat =
+    "Неправильный формат ссылки. Нужно отправить ссылку, начинающуюся на http/https"
   const val invalidDateButtonFormat: String = "Неправильный формат даты из кнопки."
   const val queryScheduledMessageTime: String =
     "Введите время в формате чч:мм или /stop, чтобы отменить операцию."

@@ -1,5 +1,6 @@
 package com.github.heheteam.adminbot.states
 
+import com.github.heheteam.adminbot.states.assignments.QueryAssignmentDescriptionState
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -15,7 +16,7 @@ data class QueryCourseForAssignmentCreation(override val context: User, val admi
     service: AdminApi,
     input: Course?,
   ): Result<Pair<State, Unit>, FrontendError> =
-    if (input != null) CreateAssignmentState(context, adminId, input) to Unit
+    if (input != null) QueryAssignmentDescriptionState(context, adminId, input) to Unit
       else {
         MenuState(context, adminId) to Unit
       }

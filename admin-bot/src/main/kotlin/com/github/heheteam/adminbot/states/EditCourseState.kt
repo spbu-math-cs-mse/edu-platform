@@ -1,6 +1,7 @@
 package com.github.heheteam.adminbot.states
 
 import com.github.heheteam.adminbot.AdminKeyboards
+import com.github.heheteam.adminbot.states.assignments.QueryAssignmentDescriptionState
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -84,7 +85,7 @@ class EditCourseState(
           EditDescriptionState(context, course, course.name, adminId)
         },
         ButtonData("Создать задание", AdminKeyboards.CREATE_ASSIGNMENT) {
-          CreateAssignmentState(context, adminId, course)
+          QueryAssignmentDescriptionState(context, adminId, course)
         },
         ButtonData("Назад \uD83D\uDD19", AdminKeyboards.RETURN_BACK) { MenuState(context, adminId) },
       )

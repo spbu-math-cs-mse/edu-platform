@@ -17,7 +17,6 @@ import com.github.heheteam.commonlib.util.HandlerResultWithUserInputOrUnhandled
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.UpdateHandlerManager
-import com.github.heheteam.studentbot.state.ApplyForCoursesState
 import com.github.heheteam.studentbot.state.AskParentFirstNameState
 import com.github.heheteam.studentbot.state.AskParentLastNameState
 import com.github.heheteam.studentbot.state.AskStudentFirstNameState
@@ -98,7 +97,6 @@ internal class StateRegister(
       registerStateWithStudentId<RescheduleDeadlinesState, StudentApi>(studentApi)
       registerStateForBotState<CheckDeadlinesState, StudentApi>(studentApi)
       registerStateForBotState<PetTheDachshundState, StudentApi>(studentApi)
-      registerStateWithStudentId<ApplyForCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<SolutionsStudentMenuState, StudentApi>(

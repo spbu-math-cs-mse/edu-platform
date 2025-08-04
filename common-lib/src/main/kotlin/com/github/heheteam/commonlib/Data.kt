@@ -155,6 +155,7 @@ data class Assignment(
   val serialNumber: Int,
   val description: String,
   val courseId: CourseId,
+  val statementsUrl: String?,
 )
 
 @Serializable

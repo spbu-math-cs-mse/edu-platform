@@ -1,8 +1,6 @@
 package com.github.heheteam.studentbot
 
-import com.github.heheteam.commonlib.Course
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
-import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
@@ -33,18 +31,6 @@ object Keyboards {
           row { dataButton("Каталог курсов", COURSES_CATALOG) }
           row { dataButton("Почесать Таксе пузо", PET_THE_DACHSHUND) }
           row { dataButton("Квест от Таксы Дуси", FREE_ACTIVITY) }
-        }
-    )
-
-  fun coursesSelector(availableCourses: List<Pair<Course, Boolean>>) =
-    InlineKeyboardMarkup(
-      keyboard =
-        matrix {
-          availableCourses.forEach { (course, status) ->
-            val description = if (status) "${course.name} ✅" else course.name
-            row { urlButton(description, "https://youtu.be/dQw4w9WgXcQ?si=XOpzfatg17iJuHyt") }
-          }
-          row { dataButton("Назад", RETURN_BACK) }
         }
     )
 

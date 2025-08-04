@@ -124,6 +124,7 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
             it[AssignmentTable.serialNumber],
             it[AssignmentTable.description],
             it[AssignmentTable.courseId].value.toCourseId(),
+            it[AssignmentTable.statementsUrl],
           )
         }) {
           Problem(

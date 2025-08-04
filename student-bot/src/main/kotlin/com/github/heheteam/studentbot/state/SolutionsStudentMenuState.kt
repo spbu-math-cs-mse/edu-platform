@@ -64,6 +64,7 @@ class SolutionsStudentMenuState(override val context: User, override val userId:
       StudentKeyboards.SOLUTION3 -> handleSolution(bot, 3)
       StudentKeyboards.SOLUTION4 -> handleSolution(bot, 4)
       StudentKeyboards.SOLUTION5 -> handleSolution(bot, 5)
+      StudentKeyboards.SOLUTION6 -> handleSolution(bot, 6)
 
       StudentKeyboards.MENU -> {
         MenuState(context, userId)

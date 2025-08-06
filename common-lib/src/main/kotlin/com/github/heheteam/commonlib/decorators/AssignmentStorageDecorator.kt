@@ -35,6 +35,20 @@ internal constructor(
         it
       }
 
+  override fun createChallenge(
+    assignmentId: AssignmentId,
+    courseId: CourseId,
+    description: String,
+    statementsUrl: String?,
+    problemsDescriptions: List<ProblemDescription>,
+  ): Result<AssignmentId, DatabaseExceptionError> =
+    assignmentStorage
+      .createChallenge(assignmentId, courseId, description, statementsUrl, problemsDescriptions)
+      .map {
+        ratingRecorder.updateRating(courseId)
+        it
+      }
+
   override fun getAssignmentsForCourse(
     courseId: CourseId
   ): Result<List<Assignment>, EduPlatformError> =

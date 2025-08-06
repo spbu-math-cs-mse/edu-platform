@@ -9,6 +9,20 @@ import dev.inmo.tgbotapi.utils.row
 
 object AdminKeyboards {
   const val FICTITIOUS = "fictitious"
+  const val YES = "yes"
+  const val NO = "no"
+
+  fun yesNo() =
+    InlineKeyboardMarkup(
+      keyboard =
+        matrix {
+          row {
+            dataButton("Да \uD83D\uDC4D", YES)
+            dataButton("Нет \uD83D\uDC4E", NO)
+          }
+        }
+    )
+
   const val RETURN_BACK = "Назад"
 
   fun returnBack() =

@@ -20,6 +20,11 @@ import com.github.heheteam.adminbot.states.assignments.CreateAssignmentErrorStat
 import com.github.heheteam.adminbot.states.assignments.QueryAssignmentDescriptionState
 import com.github.heheteam.adminbot.states.assignments.QueryProblemDescriptionsState
 import com.github.heheteam.adminbot.states.assignments.QueryStatementsUrlState
+import com.github.heheteam.adminbot.states.challenges.CompleteChallengeCreationState
+import com.github.heheteam.adminbot.states.challenges.CreateChallengeErrorState
+import com.github.heheteam.adminbot.states.challenges.QueryChallengeDescriptionState
+import com.github.heheteam.adminbot.states.challenges.QueryChallengeProblemDescriptionsState
+import com.github.heheteam.adminbot.states.challenges.QueryChallengeStatementsUrlState
 import com.github.heheteam.adminbot.states.general.AdminHandleable
 import com.github.heheteam.adminbot.states.scheduled.AddScheduledMessageStartState
 import com.github.heheteam.adminbot.states.scheduled.ConfirmScheduledMessageState
@@ -146,11 +151,8 @@ class AdminRunner(private val adminApi: AdminApi) {
     registerState<AskLastNameState, AdminApi>(adminApi)
     registerStateForBotStateWithHandlers<QueryScheduledMessageUserGroupState>(::registerHandlers)
     registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<QueryAssignmentDescriptionState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<QueryProblemDescriptionsState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<QueryStatementsUrlState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<CompleteAssignmentCreationState>(::registerHandlers)
-    registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
+    registerAssignmentCreationStates()
+    registerChallengeCreationStates()
     registerStateForBotStateWithHandlers<AddAdminState>(::registerHandlers)
     registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)
     registerStateForBotStateWithHandlers<RemoveStudentState>(::registerHandlers)
@@ -174,6 +176,22 @@ class AdminRunner(private val adminApi: AdminApi) {
       state.adminBotToken = botToken
       state.handle(this, adminApi, ::registerHandlers)
     }
+  }
+
+  private fun DefaultBehaviourContextWithFSM<State>.registerAssignmentCreationStates() {
+    registerStateForBotStateWithHandlers<QueryAssignmentDescriptionState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryProblemDescriptionsState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryStatementsUrlState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CompleteAssignmentCreationState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CreateAssignmentErrorState>(::registerHandlers)
+  }
+
+  private fun DefaultBehaviourContextWithFSM<State>.registerChallengeCreationStates() {
+    registerStateForBotStateWithHandlers<QueryChallengeDescriptionState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryChallengeProblemDescriptionsState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<QueryChallengeStatementsUrlState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CompleteChallengeCreationState>(::registerHandlers)
+    registerStateForBotStateWithHandlers<CreateChallengeErrorState>(::registerHandlers)
   }
 
   private fun registerHandlers(

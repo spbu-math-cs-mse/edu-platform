@@ -1,11 +1,19 @@
 package com.github.heheteam.commonlib.database.table
 
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.not
+import org.jetbrains.exposed.sql.or
 
 object AssignmentTable : LongIdTable("assignment") {
   val serialNumber = integer("serialNumber")
   val description = varchar("description", 100)
-  val statementsUrl = varchar("statementsUrl", 100).nullable()
   val courseId = reference("courseId", CourseTable.id)
-  val challengeId = reference("challengeId", ChallengeTable.id).nullable()
+  val statementsUrl = varchar("statementsUrl", 100).nullable()
+  val challengeId = reference("challengeId", ChallengeTable.id).nullable().default(null)
+  val isChallenge = bool("isChallenge").default(false)
+
+  init {
+    check { (isChallenge and challengeId.isNull()) or not(isChallenge) }
+  }
 }

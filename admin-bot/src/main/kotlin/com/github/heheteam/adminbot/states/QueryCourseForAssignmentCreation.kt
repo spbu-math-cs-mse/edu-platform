@@ -16,7 +16,7 @@ data class QueryCourseForAssignmentCreation(override val context: User, val admi
     service: AdminApi,
     input: Course?,
   ): Result<Pair<State, Unit>, FrontendError> =
-    if (input != null) QueryAssignmentDescriptionState(context, adminId, input) to Unit
+    if (input != null) QueryAssignmentDescriptionState(context, adminId, input.id) to Unit
       else {
         MenuState(context, adminId) to Unit
       }

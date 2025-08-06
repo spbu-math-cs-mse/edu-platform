@@ -43,16 +43,6 @@ data class AssignmentId(val long: Long) {
 }
 
 @Serializable
-data class ChallengeId(val long: Long) {
-  override fun toString(): String = "$long"
-}
-
-@Serializable
-data class ChallengingProblemId(val long: Long) {
-  override fun toString(): String = "$long"
-}
-
-@Serializable
 data class SpreadsheetId(val long: String) {
   override fun toString(): String = long
 }
@@ -65,10 +55,6 @@ data class QuizId(val long: Long) {
 fun Long.toCourseId() = CourseId(this)
 
 fun Long.toAssignmentId() = AssignmentId(this)
-
-fun Long.toChallengeId() = ChallengeId(this)
-
-fun Long.toChallengingProblemId() = ChallengingProblemId(this)
 
 fun Long.toProblemId() = ProblemId(this)
 

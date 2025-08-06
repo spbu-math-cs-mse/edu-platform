@@ -16,7 +16,6 @@ import com.github.heheteam.commonlib.errors.NumberedError
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
-import com.github.heheteam.commonlib.interfaces.ChallengeId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
@@ -171,7 +170,8 @@ internal constructor(
     assignmentId: AssignmentId,
     challengeDescription: String,
     challengingProblemsDescriptions: List<ProblemDescription>,
-  ): Result<ChallengeId?, NumberedError> =
+    statementsUrl: String?,
+  ): Result<AssignmentId?, NumberedError> =
     errorManagementService.serviceBinding {
       challengeService
         .createChallenge(
@@ -179,6 +179,7 @@ internal constructor(
           assignmentId,
           challengeDescription,
           challengingProblemsDescriptions,
+          statementsUrl,
         )
         .bind()
     }

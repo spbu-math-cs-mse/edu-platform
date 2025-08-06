@@ -3,7 +3,6 @@ package com.github.heheteam.commonlib.api
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
-import com.github.heheteam.commonlib.database.DatabaseChallengeStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
@@ -233,8 +232,7 @@ class ApiFabric(
         studentStorage,
         teacherStorage,
       )
-    val challengeStorage = DatabaseChallengeStorage(database)
-    val challengeService = ChallengeService(challengeStorage)
+    val challengeService = ChallengeService(assignmentStorage)
 
     val studentApi =
       StudentApi(

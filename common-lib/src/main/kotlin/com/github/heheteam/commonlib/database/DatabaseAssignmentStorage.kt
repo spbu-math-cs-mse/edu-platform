@@ -11,8 +11,8 @@ import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
-import com.github.heheteam.commonlib.interfaces.toChallengeId
 import com.github.heheteam.commonlib.interfaces.toCourseId
+import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -47,7 +47,7 @@ class DatabaseAssignmentStorage(
           row[AssignmentTable.description],
           row[AssignmentTable.courseId].value.toCourseId(),
           row[AssignmentTable.statementsUrl],
-          row[AssignmentTable.challengeId]?.value?.toChallengeId(),
+          row[AssignmentTable.challengeId]?.value?.toAssignmentId(),
         )
       )
     }
@@ -58,28 +58,61 @@ class DatabaseAssignmentStorage(
     description: String,
     statementsUrl: String?,
     problemsDescriptions: List<ProblemDescription>,
-  ): Result<AssignmentId, DatabaseExceptionError> {
-    val assignId =
-      transaction(database) {
-          val serialNumber =
-            (AssignmentTable.select(AssignmentTable.serialNumber.max())
-              .where(AssignmentTable.courseId eq courseId.long)
-              .firstOrNull()
-              ?.get(AssignmentTable.serialNumber.max()) ?: 0) + 1
-          AssignmentTable.insertAndGetId {
+  ): Result<AssignmentId, DatabaseExceptionError> =
+    catchingTransaction(database) {
+      val serialNumber =
+        (AssignmentTable.select(AssignmentTable.serialNumber.max())
+          .where(AssignmentTable.courseId eq courseId.long)
+          .firstOrNull()
+          ?.get(AssignmentTable.serialNumber.max()) ?: 0) + 1
+      val assignId =
+        AssignmentTable.insertAndGetId {
             it[AssignmentTable.serialNumber] = serialNumber
             it[AssignmentTable.description] = description
             it[AssignmentTable.courseId] = courseId.long
             it[AssignmentTable.statementsUrl] = statementsUrl
+            it[AssignmentTable.challengeId] = null
+            it[AssignmentTable.isChallenge] = false
           }
-        }
-        .value
-        .toAssignmentId()
-    problemsDescriptions.mapIndexed { number, problemDescription ->
-      problemStorage.createProblem(assignId, number, problemDescription)
+          .value
+          .toAssignmentId()
+      problemsDescriptions.mapIndexed { number, problemDescription ->
+        problemStorage.createProblem(assignId, number, problemDescription)
+      }
+
+      assignId
     }
-    return assignId.ok()
-  }
+
+  override fun createChallenge(
+    assignmentId: AssignmentId,
+    courseId: CourseId,
+    description: String,
+    statementsUrl: String?,
+    problemsDescriptions: List<ProblemDescription>,
+  ): Result<AssignmentId, DatabaseExceptionError> =
+    catchingTransaction(database) {
+      val serialNumber =
+        (AssignmentTable.select(AssignmentTable.serialNumber.max())
+          .where(AssignmentTable.courseId eq courseId.long)
+          .firstOrNull()
+          ?.get(AssignmentTable.serialNumber.max()) ?: 0) + 1
+      val assignId =
+        AssignmentTable.insertAndGetId {
+            it[AssignmentTable.serialNumber] = serialNumber
+            it[AssignmentTable.description] = description
+            it[AssignmentTable.courseId] = courseId.long
+            it[AssignmentTable.statementsUrl] = statementsUrl
+            it[AssignmentTable.challengeId] = null
+            it[AssignmentTable.isChallenge] = true
+          }
+          .value
+          .toAssignmentId()
+      problemsDescriptions.mapIndexed { number, problemDescription ->
+        problemStorage.createProblem(assignId, number, problemDescription)
+      }
+
+      assignId
+    }
 
   override fun getAssignmentsForCourse(
     courseId: CourseId
@@ -92,7 +125,7 @@ class DatabaseAssignmentStorage(
             it[AssignmentTable.description],
             it[AssignmentTable.courseId].value.toCourseId(),
             it[AssignmentTable.statementsUrl],
-            it[AssignmentTable.challengeId]?.value?.toChallengeId(),
+            it[AssignmentTable.challengeId]?.value?.toAssignmentId(),
           )
         }
       }

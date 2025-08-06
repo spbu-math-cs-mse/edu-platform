@@ -1,4 +1,4 @@
-package com.github.heheteam.adminbot.states.assignments
+package com.github.heheteam.adminbot.states.challenges
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.Dialogues
@@ -6,6 +6,7 @@ import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotContext
 import com.github.heheteam.commonlib.state.SimpleState
@@ -18,10 +19,11 @@ import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.datetime.LocalDateTime
 
 @Suppress("")
-class QueryStatementsUrlState(
+class QueryChallengeStatementsUrlState(
   override val context: User,
   override val userId: AdminId,
   private val courseId: CourseId,
+  private val assignmentId: AssignmentId,
   private var description: Pair<String, LocalDateTime?>,
   private var problems: List<ProblemDescription>,
 ) : SimpleState<AdminApi, AdminId>() {
@@ -39,9 +41,7 @@ class QueryStatementsUrlState(
 
     addDataCallbackHandler { callback ->
       if (callback.data == AdminKeyboards.SKIP_THIS_STEP) {
-        NewState(
-          CompleteAssignmentCreationState(context, userId, courseId, description, problems, "")
-        )
+        newState()
       } else {
         Unhandled
       }
@@ -52,16 +52,7 @@ class QueryStatementsUrlState(
         "/stop" -> NewState(MenuState(context, userId))
         else ->
           if (message.content.text.isUrl()) {
-            NewState(
-              CompleteAssignmentCreationState(
-                context,
-                userId,
-                courseId,
-                description,
-                problems,
-                message.content.text,
-              )
-            )
+            newState(message.content.text)
           } else {
             bot.send(context, Dialogues.invalidUrlFormat)
             Unhandled
@@ -69,6 +60,19 @@ class QueryStatementsUrlState(
       }
     }
   }
+
+  private fun newState(statementsUrl: String? = null): NewState =
+    NewState(
+      CompleteChallengeCreationState(
+        context,
+        userId,
+        courseId,
+        assignmentId,
+        description,
+        problems,
+        statementsUrl,
+      )
+    )
 
   private fun String.isUrl(): Boolean = startsWith("http://") || startsWith("https://")
 }

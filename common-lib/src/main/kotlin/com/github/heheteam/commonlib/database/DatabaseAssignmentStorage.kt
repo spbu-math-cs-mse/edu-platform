@@ -3,26 +3,18 @@ package com.github.heheteam.commonlib.database
 import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.database.table.ChallengeAccessTable
 import com.github.heheteam.commonlib.errors.DatabaseExceptionError
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ResolveError
-import com.github.heheteam.commonlib.interfaces.AssignmentId
-import com.github.heheteam.commonlib.interfaces.AssignmentStorage
-import com.github.heheteam.commonlib.interfaces.CourseId
-import com.github.heheteam.commonlib.interfaces.ProblemStorage
-import com.github.heheteam.commonlib.interfaces.toAssignmentId
-import com.github.heheteam.commonlib.interfaces.toCourseId
+import com.github.heheteam.commonlib.interfaces.*
 import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.max
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DatabaseAssignmentStorage(
@@ -30,7 +22,7 @@ class DatabaseAssignmentStorage(
   private val problemStorage: ProblemStorage,
 ) : AssignmentStorage {
   init {
-    transaction(database) { SchemaUtils.create(AssignmentTable) }
+    transaction(database) { SchemaUtils.createMissingTablesAndColumns(AssignmentTable) }
   }
 
   override fun resolveAssignment(
@@ -112,6 +104,28 @@ class DatabaseAssignmentStorage(
       }
 
       assignId
+    }
+
+  override fun grantAccessToChallenge(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Unit, DatabaseExceptionError> =
+    catchingTransaction(database) {
+      val challenges =
+        AssignmentTable.select(AssignmentTable.id).where {
+          (AssignmentTable.isChallenge eq true) and
+            (AssignmentTable.courseId eq courseId.long) and
+            (notExists(
+              ChallengeAccessTable.selectAll().where {
+                (ChallengeAccessTable.challengeId eq AssignmentTable.id) and
+                  (ChallengeAccessTable.studentId eq studentId.long)
+              }
+            ))
+        }
+      ChallengeAccessTable.batchInsert(challenges) {
+        this[ChallengeAccessTable.studentId] = studentId.long
+        this[ChallengeAccessTable.challengeId] = it[AssignmentTable.id]
+      }
     }
 
   override fun getAssignmentsForCourse(

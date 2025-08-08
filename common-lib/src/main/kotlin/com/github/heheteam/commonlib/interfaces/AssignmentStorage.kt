@@ -25,5 +25,10 @@ interface AssignmentStorage {
     problemsDescriptions: List<ProblemDescription>,
   ): Result<AssignmentId, DatabaseExceptionError>
 
+  fun grantAccessToChallenge(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Unit, DatabaseExceptionError>
+
   fun getAssignmentsForCourse(courseId: CourseId): Result<List<Assignment>, EduPlatformError>
 }

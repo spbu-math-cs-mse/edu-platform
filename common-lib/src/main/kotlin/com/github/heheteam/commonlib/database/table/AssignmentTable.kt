@@ -10,7 +10,7 @@ object AssignmentTable : LongIdTable("assignment") {
   val description = varchar("description", 100)
   val courseId = reference("courseId", CourseTable.id)
   val statementsUrl = varchar("statementsUrl", 100).nullable()
-  val challengeId = reference("challengeId", ChallengeTable.id).nullable().default(null)
+  val challengeId = reference("challengeId", AssignmentTable.id).nullable().default(null)
   val isChallenge = bool("isChallenge").default(false)
 
   init {

@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.database.table.ChallengeAccessTable
 import com.github.heheteam.commonlib.database.table.ProblemTable
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ResolveError
@@ -11,6 +12,7 @@ import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.ProblemStorage
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.toAssignmentId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toProblemId
@@ -23,7 +25,10 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.exists
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -106,8 +111,10 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
         }
     }
 
+  @Suppress("LongMethod")
   override fun getProblemsWithAssignmentsFromCourse(
-    courseId: CourseId
+    courseId: CourseId,
+    studentId: StudentId,
   ): Result<Map<Assignment, List<Problem>>, EduPlatformError> =
     catchingTransaction(database) {
       ProblemTable.join(
@@ -117,7 +124,17 @@ class DatabaseProblemStorage(val database: Database) : ProblemStorage {
           otherColumn = AssignmentTable.id,
         )
         .selectAll()
-        .where(AssignmentTable.courseId eq courseId.long)
+        .where {
+          (AssignmentTable.courseId eq courseId.long) and
+            ((AssignmentTable.isChallenge eq false) or
+              ((AssignmentTable.isChallenge eq true) and
+                (exists(
+                  ChallengeAccessTable.selectAll().where {
+                    (ChallengeAccessTable.challengeId eq AssignmentTable.id) and
+                      (ChallengeAccessTable.studentId eq studentId.long)
+                  }
+                ))))
+        }
         .groupBy({
           Assignment(
             it[AssignmentTable.id].value.toAssignmentId(),

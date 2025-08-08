@@ -77,4 +77,5 @@ object AdminKeyboards {
   }
 
   const val MOVE_DEADLINES = "moveDeadlines"
+  const val GRANT_ACCESS_TO_CHALLENGE = "accessToChallenge"
 }

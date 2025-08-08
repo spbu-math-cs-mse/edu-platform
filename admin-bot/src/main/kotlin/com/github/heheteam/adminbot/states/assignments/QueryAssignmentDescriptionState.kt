@@ -11,17 +11,8 @@ import com.github.heheteam.commonlib.state.BotContext
 import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
-import dev.inmo.kslog.common.KSLog
-import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
-import dev.inmo.tgbotapi.extensions.api.delete
-import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.chat.User
-import dev.inmo.tgbotapi.types.message.abstracts.ContentMessage
-import dev.inmo.tgbotapi.types.message.content.TextContent
 import kotlinx.datetime.LocalDateTime
 
 class QueryAssignmentDescriptionState(
@@ -30,31 +21,11 @@ class QueryAssignmentDescriptionState(
   private val courseId: CourseId,
 ) : SimpleState<AdminApi, AdminId>() {
 
-  private val sentMessages = mutableListOf<ContentMessage<TextContent>>()
-  private var lastMessageId: MessageId? = null
-
   override fun defaultState(): State = MenuState(context, userId)
 
-  override suspend fun outro(bot: BehaviourContext, service: AdminApi) {
-    sentMessages.forEach {
-      try {
-        bot.delete(it)
-      } catch (e: CommonRequestException) {
-        KSLog.warning("Failed to delete message", e)
-      }
-    }
-  }
-
   override suspend fun BotContext.run(service: AdminApi) {
-    val msg =
-      bot
-        .send(
-          context,
-          Dialogues.askAssignmentDescription,
-          replyMarkup = AdminKeyboards.returnBack(),
-        )
-        .also { it.deleteLater() }
-    lastMessageId = msg.messageId
+    send(Dialogues.askAssignmentDescription, replyMarkup = AdminKeyboards.returnBack())
+      .deleteLater()
 
     addDataCallbackHandler { callback ->
       if (callback.data == RETURN_BACK) {

@@ -30,6 +30,7 @@ import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryProblemForSubmissionSendingState
 import com.github.heheteam.studentbot.state.RandomActivityState
+import com.github.heheteam.studentbot.state.RequestChallengeState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.heheteam.studentbot.state.SelectParentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentGradeState
@@ -92,6 +93,7 @@ internal class StateRegister(
       registerSendSubmissionState(botToken, studentApi)
       strictlyOnPresetStudentState(studentApi)
       registerStateWithStudentId<RescheduleDeadlinesState, StudentApi>(studentApi)
+      registerStateWithStudentId<RequestChallengeState, StudentApi>(studentApi)
       registerStateForBotState<CheckDeadlinesState, StudentApi>(studentApi)
       registerStateForBotState<PetTheDachshundState, StudentApi>(studentApi)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)

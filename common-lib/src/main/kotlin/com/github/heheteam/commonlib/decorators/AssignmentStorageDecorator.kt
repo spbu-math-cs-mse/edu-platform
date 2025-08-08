@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
+import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
 
@@ -48,6 +49,12 @@ internal constructor(
         ratingRecorder.updateRating(courseId)
         it
       }
+
+  override fun grantAccessToChallenge(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Unit, DatabaseExceptionError> =
+    assignmentStorage.grantAccessToChallenge(studentId, courseId)
 
   override fun getAssignmentsForCourse(
     courseId: CourseId

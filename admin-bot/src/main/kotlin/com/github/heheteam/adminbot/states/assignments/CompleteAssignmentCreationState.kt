@@ -40,9 +40,9 @@ class CompleteAssignmentCreationState(
     send(Dialogues.assignmentWasCreatedSuccessfully, AdminKeyboards.yesNo()).deleteLater()
     addDataCallbackHandler { callback ->
       when (callback.data) {
-        AdminKeyboards.YES -> NewState(MenuState(context, userId))
-        AdminKeyboards.NO ->
+        AdminKeyboards.YES ->
           NewState(QueryChallengeDescriptionState(context, userId, courseId, assignmentId))
+        AdminKeyboards.NO -> NewState(MenuState(context, userId))
         else -> Unhandled
       }
     }

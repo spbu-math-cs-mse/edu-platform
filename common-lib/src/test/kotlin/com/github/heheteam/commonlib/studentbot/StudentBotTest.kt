@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.studentbot
 
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.config.loadConfig
+import com.github.heheteam.commonlib.database.DatabaseAdminStorage
 import com.github.heheteam.commonlib.database.DatabaseAssignmentStorage
 import com.github.heheteam.commonlib.database.DatabaseCourseRepository
 import com.github.heheteam.commonlib.database.DatabaseCourseStorage
@@ -12,6 +13,7 @@ import com.github.heheteam.commonlib.database.DatabaseSubmissionDistributor
 import com.github.heheteam.commonlib.database.DatabaseTeacherStorage
 import com.github.heheteam.commonlib.database.RandomTeacherResolver
 import com.github.heheteam.commonlib.database.reset
+import com.github.heheteam.commonlib.errors.CourseService
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -32,6 +34,7 @@ import com.github.heheteam.commonlib.logic.ui.NewSubmissionTeacherNotifier
 import com.github.heheteam.commonlib.logic.ui.UiController
 import com.github.heheteam.commonlib.quiz.QuizService
 import com.github.heheteam.commonlib.telegram.AdminBotTelegramController
+import com.github.heheteam.commonlib.telegram.StudentBotTelegramController
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -74,6 +77,7 @@ class StudentBotTest {
     val mockCourseTokensService = mockk<CourseTokenService>(relaxed = true)
     val teacherNotifier = mockk<NewSubmissionTeacherNotifier>()
     val adminBotController = mockk<AdminBotTelegramController>(relaxed = true)
+    val studentBotController = mockk<StudentBotTelegramController>(relaxed = true)
     val quizService = mockk<QuizService>(relaxed = true)
     academicWorkflowService =
       AcademicWorkflowService(
@@ -97,7 +101,14 @@ class StudentBotTest {
         mockCourseTokensService,
         ErrorManagementService(adminBotController),
         quizService,
-        ChallengeService(DatabaseChallengeStorage(database)),
+        ChallengeService(
+          DatabaseAdminStorage(database),
+          studentStorage,
+          assignmentStorage,
+          CourseService(DatabaseCourseRepository(), studentStorage, database),
+          adminBotController,
+          studentBotController,
+        ),
       )
   }
 

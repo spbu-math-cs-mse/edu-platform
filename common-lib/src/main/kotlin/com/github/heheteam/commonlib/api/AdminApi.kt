@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.domain.RemoveStudentStatus
 import com.github.heheteam.commonlib.errors.CourseService
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
@@ -112,9 +113,18 @@ internal constructor(
   suspend fun moveAllDeadlinesForStudent(
     studentId: StudentId,
     newDeadline: kotlinx.datetime.LocalDateTime,
-  ) {
-    personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
-  }
+  ): Result<Unit, EduPlatformError> =
+    errorManagementService.coroutineServiceBinding {
+      personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
+    }
+
+  suspend fun grantAccessToChallengeForStudent(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Unit, EduPlatformError> =
+    errorManagementService.coroutineServiceBinding {
+      challengeService.grantAccessToChallenge(studentId, courseId)
+    }
 
   fun getCourse(courseName: String): Result<Course?, NumberedError> =
     errorManagementService.serviceBinding {

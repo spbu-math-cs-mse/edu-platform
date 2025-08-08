@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.telegram
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.SubmissionAssessment
@@ -25,6 +26,11 @@ interface StudentBotTelegramController {
   suspend fun notifyStudentOnDeadlineRescheduling(
     chatId: RawChatId,
     newDeadline: LocalDateTime,
+  ): Result<Unit, EduPlatformError>
+
+  suspend fun notifyStudentOnGrantedAccessToChallenge(
+    chatId: RawChatId,
+    course: Course,
   ): Result<Unit, EduPlatformError>
 
   suspend fun sendScheduledInformationalMessage(

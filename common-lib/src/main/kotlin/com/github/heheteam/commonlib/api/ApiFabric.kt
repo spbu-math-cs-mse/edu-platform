@@ -232,7 +232,16 @@ class ApiFabric(
         studentStorage,
         teacherStorage,
       )
-    val challengeService = ChallengeService(assignmentStorage)
+    val courseService = CourseService(courseRepository, studentStorage, database)
+    val challengeService =
+      ChallengeService(
+        adminStorage,
+        studentStorage,
+        assignmentStorage,
+        courseService,
+        adminBotTelegramController,
+        studentBotTelegramController,
+      )
 
     val studentApi =
       StudentApi(
@@ -246,7 +255,6 @@ class ApiFabric(
         quizService,
         challengeService,
       )
-    val courseService = CourseService(courseRepository, studentStorage, database)
     val adminApi =
       AdminApi(
         scheduledMessageService,

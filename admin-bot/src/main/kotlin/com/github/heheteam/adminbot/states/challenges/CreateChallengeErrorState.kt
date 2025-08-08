@@ -11,7 +11,6 @@ import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.types.chat.User
 
 class CreateChallengeErrorState(
@@ -25,7 +24,7 @@ class CreateChallengeErrorState(
   override fun defaultState(): State = MenuState(context, userId)
 
   override suspend fun BotContext.run(service: AdminApi) {
-    bot.send(context, errorMessage, replyMarkup = AdminKeyboards.returnBack()).deleteLater()
+    send(errorMessage, replyMarkup = AdminKeyboards.returnBack()).deleteLater()
 
     addDataCallbackHandler { callback ->
       if (callback.data == AdminKeyboards.RETURN_BACK) {

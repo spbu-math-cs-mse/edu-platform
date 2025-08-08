@@ -1,7 +1,6 @@
 package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Assignment
-import com.github.heheteam.commonlib.Challenge
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
@@ -75,9 +74,6 @@ internal constructor(
       academicWorkflowService.getGradingsForAssignment(assignmentId, studentId).bind()
     }
 
-  fun getAllCourses(): Result<List<Course>, NumberedError> =
-    errorManagementService.serviceBinding { studentViewService.getAllCourses().bind() }
-
   fun getStudentCourses(studentId: StudentId): Result<List<Course>, NumberedError> =
     errorManagementService.serviceBinding { studentViewService.getStudentCourses(studentId).bind() }
 
@@ -123,20 +119,20 @@ internal constructor(
   fun calculateRescheduledDeadlines(studentId: StudentId, problems: List<Problem>): List<Problem> =
     personalDeadlinesService.calculateNewDeadlines(studentId, problems)
 
+  suspend fun requestChallengeAccess(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Unit, NumberedError> =
+    errorManagementService.coroutineServiceBinding {
+      challengeService.requestChallengeAccess(studentId, courseId).bind()
+    }
+
   fun getActiveProblems(
     studentId: StudentId,
     courseId: CourseId,
   ): Result<Map<Assignment, List<Problem>>, NumberedError> =
     errorManagementService.serviceBinding {
       personalDeadlinesService.getActiveProblems(studentId, courseId).bind()
-    }
-
-  fun getActiveChallengingProblems(
-    studentId: StudentId,
-    courseId: CourseId,
-  ): Result<Map<Challenge, List<Problem>>, NumberedError> =
-    errorManagementService.serviceBinding {
-      challengeService.getActiveChallengingProblems(studentId, courseId).bind()
     }
 
   fun registerForCourseWithToken(

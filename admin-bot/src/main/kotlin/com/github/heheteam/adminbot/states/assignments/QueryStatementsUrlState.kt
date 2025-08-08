@@ -12,8 +12,6 @@ import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.send
-import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.datetime.LocalDateTime
 
@@ -26,16 +24,10 @@ class QueryStatementsUrlState(
   private var problems: List<ProblemDescription>,
 ) : SimpleState<AdminApi, AdminId>() {
 
-  private var lastMessageId: MessageId? = null
-
   override fun defaultState(): State = MenuState(context, userId)
 
   override suspend fun BotContext.run(service: AdminApi) {
-    val msg =
-      bot
-        .send(context, Dialogues.askStatementsUrl, replyMarkup = AdminKeyboards.skipThisStep())
-        .also { it.deleteLater() }
-    lastMessageId = msg.messageId
+    send(Dialogues.askStatementsUrl, replyMarkup = AdminKeyboards.skipThisStep()).deleteLater()
 
     addDataCallbackHandler { callback ->
       if (callback.data == AdminKeyboards.SKIP_THIS_STEP) {
@@ -63,7 +55,7 @@ class QueryStatementsUrlState(
               )
             )
           } else {
-            bot.send(context, Dialogues.invalidUrlFormat)
+            send(Dialogues.invalidUrlFormat)
             Unhandled
           }
       }

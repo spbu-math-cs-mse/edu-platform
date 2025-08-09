@@ -159,13 +159,6 @@ data class Assignment(
   val challengeId: AssignmentId?,
 )
 
-data class Challenge(
-  val id: AssignmentId,
-  val assignmentId: AssignmentId,
-  val description: String,
-  val courseId: CourseId,
-)
-
 @Serializable
 data class SubmissionAssessment(
   val grade: Grade,

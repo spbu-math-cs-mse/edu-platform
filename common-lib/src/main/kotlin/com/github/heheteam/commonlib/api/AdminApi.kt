@@ -181,7 +181,7 @@ internal constructor(
     challengeDescription: String,
     challengingProblemsDescriptions: List<ProblemDescription>,
     statementsUrl: String?,
-  ): Result<AssignmentId?, NumberedError> =
+  ): Result<AssignmentId, NumberedError> =
     errorManagementService.serviceBinding {
       challengeService
         .createChallenge(

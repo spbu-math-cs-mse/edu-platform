@@ -81,7 +81,7 @@ class TestDataBuilder(internal val apis: ApiCollection) {
     return course
   }
 
-  inner class CourseContext(private val courseId: CourseId) {
+  inner class CourseContext(val courseId: CourseId) {
     fun setChat(tgId: Long = defaultChatId) {
       apis.teacherApi.setCourseGroup(courseId, tgId.toRawChatId())
       coursesChatId[courseId] = tgId.toRawChatId()
@@ -108,9 +108,24 @@ class TestDataBuilder(internal val apis: ApiCollection) {
         apis.studentApi.getCourseAssignments(courseId).value.first { it.id == assignmentId }
       return assignment to apis.studentApi.getProblemsFromAssignment(assignmentId).value
     }
+
+    fun challenge(
+      assignment: Assignment,
+      description: String,
+      setup: AssignmentContext.() -> Unit = {},
+    ): Pair<Assignment, List<Problem>> {
+      val assignmentContext = AssignmentContext().apply(setup)
+      val challengeId =
+        apis.adminApi
+          .createChallenge(courseId, assignment.id, description, assignmentContext.problems, null)
+          .value
+      val challenge =
+        apis.studentApi.getCourseAssignments(courseId).value.first { it.id == challengeId }
+      return challenge to apis.studentApi.getProblemsFromAssignment(challengeId).value
+    }
   }
 
-  inner class AssignmentContext {
+  class AssignmentContext {
     val problems = mutableListOf<ProblemDescription>()
 
     fun problem(description: String, maxScore: Int, deadline: LocalDateTime? = null) {

@@ -7,9 +7,13 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.michaelbull.result.Result
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class DatabasePersonalDeadlineStorage(val database: Database) : PersonalDeadlineStorage {
   init {

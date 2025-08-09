@@ -79,7 +79,7 @@ internal constructor(
     challengeDescription: String,
     challengingProblemsDescriptions: List<ProblemDescription>,
     statementsUrl: String?,
-  ): Result<AssignmentId?, EduPlatformError> = binding {
+  ): Result<AssignmentId, EduPlatformError> = binding {
     assignmentStorage
       .createChallenge(
         assignmentId,

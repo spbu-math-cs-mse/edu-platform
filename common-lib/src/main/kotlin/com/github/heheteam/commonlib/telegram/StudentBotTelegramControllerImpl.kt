@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.telegram
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.SubmissionAssessment
@@ -11,6 +12,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
@@ -80,6 +82,20 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
         studentBot.send(
           chatId.toChatId(),
           text = "Ваши дедлайны были продлены до ${newDeadline.format(deadlineFormat)}",
+        )
+      }
+      .map {}
+      .mapError { TelegramError(it) }
+  }
+
+  override suspend fun notifyStudentOnGrantedAccessToChallenge(
+    chatId: RawChatId,
+    course: Course,
+  ): Result<Unit, EduPlatformError> = coroutineBinding {
+    runCatching {
+        studentBot.send(
+          chatId.toChatId(),
+          text = "Вам был предоставлен доступ к челленджам курса \"${course.name}\"!",
         )
       }
       .map {}

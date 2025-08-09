@@ -85,7 +85,7 @@ class EditCourseState(
           EditDescriptionState(context, course, course.name, adminId)
         },
         ButtonData("Создать задание", AdminKeyboards.CREATE_ASSIGNMENT) {
-          QueryAssignmentDescriptionState(context, adminId, course)
+          QueryAssignmentDescriptionState(context, adminId, course.id)
         },
         ButtonData("Назад \uD83D\uDD19", AdminKeyboards.RETURN_BACK) { MenuState(context, adminId) },
       )

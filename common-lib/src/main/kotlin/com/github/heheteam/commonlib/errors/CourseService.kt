@@ -52,4 +52,8 @@ class CourseService(
   fun getStudentCourses(studentId: StudentId): EduPlatformResult<List<RichCourse>> {
     return transaction(database) { courseRepository.findByStudent(studentId) }
   }
+
+  fun resolveCourse(courseId: CourseId): EduPlatformResult<RichCourse?> {
+    return transaction(database) { courseRepository.findById(courseId) }
+  }
 }

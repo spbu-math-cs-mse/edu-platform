@@ -1,4 +1,4 @@
-package com.github.heheteam.adminbot.states.assignments
+package com.github.heheteam.adminbot.states.challenges
 
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.AdminKeyboards.RETURN_BACK
@@ -6,6 +6,7 @@ import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
+import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.state.BotContext
 import com.github.heheteam.commonlib.state.SimpleState
@@ -15,10 +16,11 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.datetime.LocalDateTime
 
-class QueryAssignmentDescriptionState(
+class QueryChallengeDescriptionState(
   override val context: User,
   override val userId: AdminId,
   private val courseId: CourseId,
+  private val assignmentId: AssignmentId,
 ) : SimpleState<AdminApi, AdminId>() {
 
   override fun defaultState(): State = MenuState(context, userId)
@@ -47,13 +49,25 @@ class QueryAssignmentDescriptionState(
     return if (text.contains("\$")) {
       val tokens = text.split("\$")
       if (tokens.size != 2) {
-        CreateAssignmentErrorState(context, courseId, "too many dollar signs in query", userId)
+        CreateChallengeErrorState(
+          context,
+          courseId,
+          assignmentId,
+          "too many dollar signs in query",
+          userId,
+        )
       } else {
         val date = LocalDateTime.Formats.ISO.parseOrNull(tokens[1])
-        QueryProblemDescriptionsState(context, userId, courseId, tokens[0] to date)
+        QueryChallengeProblemDescriptionsState(
+          context,
+          userId,
+          courseId,
+          assignmentId,
+          tokens[0] to date,
+        )
       }
     } else {
-      QueryProblemDescriptionsState(context, userId, courseId, text to null)
+      QueryChallengeProblemDescriptionsState(context, userId, courseId, assignmentId, text to null)
     }
   }
 }

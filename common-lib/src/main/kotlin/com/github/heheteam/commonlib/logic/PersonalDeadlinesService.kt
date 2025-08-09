@@ -71,7 +71,7 @@ internal class PersonalDeadlinesService(
     studentId: StudentId,
     courseId: CourseId,
   ): Result<Map<Assignment, List<Problem>>, EduPlatformError> = binding {
-    val problems = problemStorage.getProblemsWithAssignmentsFromCourse(courseId).bind()
+    val problems = problemStorage.getProblemsWithAssignmentsFromCourse(courseId, studentId).bind()
     val newDeadline = personalDeadlineStorage.resolveDeadline(studentId)
     problems
       .map { (assignment, problems) ->

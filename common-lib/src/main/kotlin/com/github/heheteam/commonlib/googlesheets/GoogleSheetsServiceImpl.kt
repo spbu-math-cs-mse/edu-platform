@@ -25,10 +25,9 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.Permission
 import com.google.api.services.sheets.v4.Sheets
-import com.google.api.services.sheets.v4.model.AddSheetRequest
+import com.google.api.services.sheets.v4.model.AppendDimensionRequest
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest
 import com.google.api.services.sheets.v4.model.ClearValuesRequest
-import com.google.api.services.sheets.v4.model.DeleteSheetRequest
 import com.google.api.services.sheets.v4.model.DimensionProperties
 import com.google.api.services.sheets.v4.model.DimensionRange
 import com.google.api.services.sheets.v4.model.GridRange
@@ -41,6 +40,7 @@ import com.google.api.services.sheets.v4.model.SpreadsheetProperties
 import com.google.api.services.sheets.v4.model.UnmergeCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateCellsRequest
 import com.google.api.services.sheets.v4.model.UpdateDimensionPropertiesRequest
+import com.google.api.services.sheets.v4.model.UpdateSheetPropertiesRequest
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import java.io.File
@@ -98,19 +98,12 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
       .mapError { SetupPermissionsError(courseName, it) }
       .bind()
 
-    val addSheetRequest =
-      AddSheetRequest().setProperties(SheetProperties().setTitle(RATING_SHEET_TITLE))
-
-    val defaultSheetId = createdSpreadsheet.sheets.first().properties.sheetId
-    val deleteDefaultSheetRequest = DeleteSheetRequest().setSheetId(defaultSheetId)
+    val defaultSheet = createdSpreadsheet.sheets.first().properties
 
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()
         .setRequests(
-          listOf(
-            Request().setAddSheet(addSheetRequest),
-            Request().setDeleteSheet(deleteDefaultSheetRequest),
-          )
+          generateRenameSheetRequest() + generateExtendTableRequest(defaultSheet.sheetId)
         )
 
     runCatching {
@@ -124,6 +117,37 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
 
     return@binding SpreadsheetId(createdSpreadsheet.spreadsheetId)
   }
+
+  private fun generateRenameSheetRequest(): List<Request?> =
+    listOf(
+      Request()
+        .setUpdateSheetProperties(
+          UpdateSheetPropertiesRequest().apply {
+            this.properties = SheetProperties().setTitle(RATING_SHEET_TITLE)
+            this.fields = "title"
+          }
+        )
+    )
+
+  private fun generateExtendTableRequest(sheetId: Int?): List<Request?> =
+    listOf(
+      Request()
+        .setAppendDimension(
+          AppendDimensionRequest().apply {
+            this.sheetId = sheetId
+            this.dimension = "COLUMNS"
+            this.length = 1e2.toInt()
+          }
+        ),
+      Request()
+        .setAppendDimension(
+          AppendDimensionRequest().apply {
+            this.sheetId = sheetId
+            this.dimension = "ROWS"
+            this.length = 1e2.toInt()
+          }
+        ),
+    )
 
   override fun updateRating(
     courseSpreadsheetId: String,

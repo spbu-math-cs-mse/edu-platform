@@ -156,6 +156,7 @@ data class Assignment(
   val description: String,
   val courseId: CourseId,
   val statementsUrl: String?,
+  val challengeId: AssignmentId?,
 )
 
 @Serializable

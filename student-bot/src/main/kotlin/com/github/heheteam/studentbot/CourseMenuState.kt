@@ -12,6 +12,7 @@ import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryProblemForSubmissionSendingState
+import com.github.heheteam.studentbot.state.RequestChallengeState
 import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.michaelbull.result.BindingScope
 import com.github.michaelbull.result.Result
@@ -24,10 +25,10 @@ import dev.inmo.tgbotapi.utils.buildEntities
 class CourseMenuState(
   override val context: User,
   override val userId: StudentId,
-  val course: com.github.heheteam.commonlib.Course,
+  val course: Course,
 ) : NavigationBotStateWithHandlersAndStudentId<StudentApi>() {
   override val introMessageContent: TextSourcesList
-    get() = buildEntities { +"Меню курса" }
+    get() = buildEntities { +"Меню курса \"${course.name}\"" }
 
   override fun createKeyboard(
     service: StudentApi
@@ -39,6 +40,7 @@ class CourseMenuState(
       simpleButtonData("Посмотреть успеваемость", { viewGradesNextState(service) }),
       simpleButtonData("Посмотреть дедлайны", { CheckDeadlinesState(context, userId, course) }),
       simpleButtonData("Попросить дорешку", { RescheduleDeadlinesState(context, userId) }),
+      simpleButtonData("Челлендж!", { RequestChallengeState(context, userId, course) }),
       simpleButtonData("Назад", { MenuState(context, userId) }),
     )
   }

@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.TelegramMessageContent
 import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.domain.RemoveStudentStatus
 import com.github.heheteam.commonlib.errors.CourseService
+import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ErrorManagementService
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.NumberedError
@@ -26,6 +27,7 @@ import com.github.heheteam.commonlib.interfaces.SubmissionDistributor
 import com.github.heheteam.commonlib.interfaces.TeacherId
 import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AdminAuthService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -53,6 +55,7 @@ internal constructor(
   private val tokenStorage: CourseTokenService,
   private val errorManagementService: ErrorManagementService,
   private val courseService: CourseService,
+  private val challengeService: ChallengeService,
 ) {
   fun sendScheduledMessage(
     adminId: AdminId,
@@ -110,9 +113,18 @@ internal constructor(
   suspend fun moveAllDeadlinesForStudent(
     studentId: StudentId,
     newDeadline: kotlinx.datetime.LocalDateTime,
-  ) {
-    personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
-  }
+  ): Result<Unit, EduPlatformError> =
+    errorManagementService.coroutineServiceBinding {
+      personalDeadlinesService.moveDeadlinesForStudent(studentId, newDeadline)
+    }
+
+  suspend fun grantAccessToChallengeForStudent(
+    studentId: StudentId,
+    courseId: CourseId,
+  ): Result<Unit, EduPlatformError> =
+    errorManagementService.coroutineServiceBinding {
+      challengeService.grantAccessToChallenge(studentId, courseId)
+    }
 
   fun getCourse(courseName: String): Result<Course?, NumberedError> =
     errorManagementService.serviceBinding {
@@ -160,6 +172,25 @@ internal constructor(
     errorManagementService.serviceBinding {
       assignmentStorage
         .createAssignment(courseId, description, statementsUrl, problemsDescriptions)
+        .bind()
+    }
+
+  fun createChallenge(
+    courseId: CourseId,
+    assignmentId: AssignmentId,
+    challengeDescription: String,
+    challengingProblemsDescriptions: List<ProblemDescription>,
+    statementsUrl: String?,
+  ): Result<AssignmentId, NumberedError> =
+    errorManagementService.serviceBinding {
+      challengeService
+        .createChallenge(
+          courseId,
+          assignmentId,
+          challengeDescription,
+          challengingProblemsDescriptions,
+          statementsUrl,
+        )
         .bind()
     }
 

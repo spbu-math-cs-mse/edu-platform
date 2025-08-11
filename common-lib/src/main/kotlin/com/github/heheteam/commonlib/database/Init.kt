@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.database.table.AdminTable
 import com.github.heheteam.commonlib.database.table.AdminWhitelistTable
 import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
+import com.github.heheteam.commonlib.database.table.ChallengeAccessTable
 import com.github.heheteam.commonlib.database.table.CourseStudents
 import com.github.heheteam.commonlib.database.table.CourseTable
 import com.github.heheteam.commonlib.database.table.CourseTeachers
@@ -53,6 +54,7 @@ private val allTables =
     AdminWhitelistTable,
     QuizTable,
     StudentAnswersTable,
+    ChallengeAccessTable,
   )
 
 fun main(args: Array<String>) {
@@ -71,7 +73,7 @@ fun reset(database: Database) {
       "H2" -> exec("DROP ALL OBJECTS")
       else -> exec("DROP TABLE IF EXISTS ${allTables.joinToString { it.tableName }} CASCADE")
     }
-    SchemaUtils.create(*allTables)
+    createTables(database)
   }
 }
 

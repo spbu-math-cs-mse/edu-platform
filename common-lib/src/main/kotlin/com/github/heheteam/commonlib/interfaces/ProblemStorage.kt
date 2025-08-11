@@ -21,6 +21,7 @@ interface ProblemStorage {
   fun getProblemsFromCourse(courseId: CourseId): Result<List<Problem>, EduPlatformError>
 
   fun getProblemsWithAssignmentsFromCourse(
-    courseId: CourseId
+    courseId: CourseId,
+    studentId: StudentId,
   ): Result<Map<Assignment, List<Problem>>, EduPlatformError>
 }

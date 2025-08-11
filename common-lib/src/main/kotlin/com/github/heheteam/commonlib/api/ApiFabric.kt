@@ -37,6 +37,7 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.logic.AcademicWorkflowLogic
 import com.github.heheteam.commonlib.logic.AcademicWorkflowService
 import com.github.heheteam.commonlib.logic.AdminAuthService
+import com.github.heheteam.commonlib.logic.ChallengeService
 import com.github.heheteam.commonlib.logic.CourseTokenService
 import com.github.heheteam.commonlib.logic.PersonalDeadlinesService
 import com.github.heheteam.commonlib.logic.ScheduledMessageService
@@ -231,6 +232,17 @@ class ApiFabric(
         studentStorage,
         teacherStorage,
       )
+    val courseService = CourseService(courseRepository, studentStorage, database)
+    val challengeService =
+      ChallengeService(
+        adminStorage,
+        studentStorage,
+        assignmentStorage,
+        courseService,
+        adminBotTelegramController,
+        studentBotTelegramController,
+      )
+
     val studentApi =
       StudentApi(
         academicWorkflowService,
@@ -241,8 +253,8 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
         quizService,
+        challengeService,
       )
-    val courseService = CourseService(courseRepository, studentStorage, database)
     val adminApi =
       AdminApi(
         scheduledMessageService,
@@ -256,6 +268,7 @@ class ApiFabric(
         courseTokenService,
         errorManagementService,
         courseService,
+        challengeService,
       )
     val parentRepository = DatabaseParentRepository()
     val parentService = ParentService(parentRepository, studentStorage, database)

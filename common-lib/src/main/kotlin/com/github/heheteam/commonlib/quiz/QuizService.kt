@@ -70,10 +70,9 @@ internal constructor(
   ): EduPlatformResult<QuizActivationResult> =
     newSuspendedTransaction(db = db) {
       coroutineBinding {
-        val quiz = quizRepository.findQuizById(quizId).bind()
-        if (quiz == null) {
-          return@coroutineBinding QuizActivationResult.QuizNotFound
-        }
+        val quiz =
+          quizRepository.findQuizById(quizId).bind()
+            ?: return@coroutineBinding QuizActivationResult.QuizNotFound
 
         if (quiz.isActive) {
           return@coroutineBinding QuizActivationResult.QuizAlreadyActive

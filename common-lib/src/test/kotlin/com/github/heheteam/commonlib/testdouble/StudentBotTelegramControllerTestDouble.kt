@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.testdouble
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ScheduledMessage
 import com.github.heheteam.commonlib.SubmissionAssessment
@@ -54,6 +55,11 @@ class StudentBotTelegramControllerTestDouble : StudentBotTelegramController {
     chatId: RawChatId,
     newDeadline: LocalDateTime,
   ) = Ok(Unit)
+
+  override suspend fun notifyStudentOnGrantedAccessToChallenge(
+    chatId: RawChatId,
+    course: Course,
+  ): Result<Unit, EduPlatformError> = Ok(Unit)
 
   override suspend fun sendScheduledInformationalMessage(
     chatId: RawChatId,

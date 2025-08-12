@@ -10,6 +10,7 @@ import com.github.heheteam.commonlib.util.waitTextMessageWithUser
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
+import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
@@ -21,6 +22,7 @@ class AskFirstNameState(override val context: User) : BotState<String, Unit, Adm
     service: AdminApi,
   ): Result<String, FrontendError> =
     runCatching {
+        bot.sendSticker(context, Dialogues.greetingSticker)
         bot.send(context, Dialogues.askFirstName)
         val firstName = bot.waitTextMessageWithUser(context.id).first().content.text
         firstName

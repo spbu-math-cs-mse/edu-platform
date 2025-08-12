@@ -24,13 +24,13 @@ import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.RawChatId
-import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.message.Markdown
+import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.types.toChatId
-import dev.inmo.tgbotapi.utils.extensions.toMarkdown
-import dev.inmo.tgbotapi.utils.row
 import dev.inmo.tgbotapi.utils.buildEntities
+import dev.inmo.tgbotapi.utils.extensions.toMarkdown
 import dev.inmo.tgbotapi.utils.regularln
+import dev.inmo.tgbotapi.utils.row
 
 class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   TeacherBotTelegramController {

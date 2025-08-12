@@ -11,7 +11,7 @@ import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.util.raiseError
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
-import java.util.*
+import java.util.UUID
 
 class CourseTokenService
 internal constructor(

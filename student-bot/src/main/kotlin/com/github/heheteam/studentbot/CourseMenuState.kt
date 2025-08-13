@@ -37,11 +37,11 @@ class CourseMenuState(
       simpleButtonData("Отправить решение") {
         QueryProblemForSubmissionSendingState(context, userId, course.id)
       },
-      simpleButtonData("Посмотреть успеваемость", { viewGradesNextState(service) }),
-      simpleButtonData("Посмотреть дедлайны", { CheckDeadlinesState(context, userId, course) }),
-      simpleButtonData("Попросить дорешку", { RescheduleDeadlinesState(context, userId) }),
+      simpleButtonData("Посмотреть успеваемость") { viewGradesNextState(service) },
+      simpleButtonData("Посмотреть дедлайны") { CheckDeadlinesState(context, userId, course) },
+      simpleButtonData("Попросить дорешку") { RescheduleDeadlinesState(context, userId) },
       simpleButtonData("Челлендж!", { RequestChallengeState(context, userId, course) }),
-      simpleButtonData("Назад", { MenuState(context, userId) }),
+      simpleButtonData("Назад") { MenuState(context, userId) },
     )
   }
 

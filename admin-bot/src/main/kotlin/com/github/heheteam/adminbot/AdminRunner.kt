@@ -1,9 +1,7 @@
 package com.github.heheteam.adminbot
 
-import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.states.StartState
 import com.github.heheteam.commonlib.api.AdminApi
-import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.util.getCurrentMoscowTime
 import com.github.heheteam.commonlib.util.startStateOnUnhandledUpdate
 import com.github.michaelbull.result.get
@@ -52,9 +50,7 @@ class AdminRunner(private val adminApi: AdminApi) {
         }
         command("bind") { tryBindingChatToErrorService(it) }
 
-        startStateOnUnhandledUpdate { user ->
-          if (user != null) startChain(MenuState(user, DEFAULT_ADMIN_ID.toAdminId()))
-        }
+        startStateOnUnhandledUpdate { user -> if (user != null) startChain(StartState(user)) }
 
         StateRegister(adminApi, this).registerStates(botToken)
 

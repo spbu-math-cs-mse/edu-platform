@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.logic
 
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.database.DatabaseCourseTokenStorage
+import com.github.heheteam.commonlib.domain.AddStudentStatus
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.CourseId
@@ -44,11 +45,15 @@ internal constructor(
   fun registerStudentForToken(
     studentId: StudentId,
     token: String,
-  ): Result<Course, EduPlatformError> = binding {
+  ): Result<Course?, EduPlatformError> = binding {
     val courseIdResult = getCourseIdByToken(token).bind()
-    courseStorage.addStudentToCourse(studentId, courseIdResult).bind()
     useToken(token).bind()
-    courseStorage.resolveCourse(courseIdResult).bind()
+    val status = courseStorage.addStudentToCourse(studentId, courseIdResult).bind()
+    if (status == AddStudentStatus.Success) {
+      courseStorage.resolveCourse(courseIdResult).bind()
+    } else {
+      null
+    }
   }
 
   fun getTokenForCourse(courseId: CourseId): String? =

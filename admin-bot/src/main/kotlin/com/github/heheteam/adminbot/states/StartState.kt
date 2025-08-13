@@ -12,7 +12,6 @@ import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
-import dev.inmo.tgbotapi.extensions.api.send.media.sendSticker
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.behaviour_builder.expectations.waitDataCallbackQuery
@@ -28,7 +27,6 @@ class StartState(override val context: User) : BotState<Boolean, String?, AdminA
   ): Result<Boolean, FrontendError> = coroutineBinding {
     runCatching {
         if (service.tgIdIsInWhitelist(context.id).bind()) {
-          bot.sendSticker(context, Dialogues.greetingSticker)
           return@runCatching true
         }
 
@@ -54,10 +52,10 @@ class StartState(override val context: User) : BotState<Boolean, String?, AdminA
     } else {
       val adminOrNull = service.loginByTgId(context.id).bind()
       if (adminOrNull == null) {
-        AskFirstNameState(context)
+        AskFirstNameState(context) to Dialogues.greetings
       } else {
-        MenuState(context, adminOrNull.id)
-      } to Dialogues.greetings
+        MenuState(context, adminOrNull.id) to null
+      }
     }
   }
 

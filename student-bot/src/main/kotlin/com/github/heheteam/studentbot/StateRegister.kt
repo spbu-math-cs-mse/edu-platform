@@ -45,8 +45,6 @@ import com.github.heheteam.studentbot.state.StudentMethodologyState
 import com.github.heheteam.studentbot.state.StudentStartState
 import com.github.heheteam.studentbot.state.parent.ParentMenuState
 import com.github.heheteam.studentbot.state.parent.registerParentStates
-import com.github.heheteam.studentbot.state.quiz.FirstQuestion
-import com.github.heheteam.studentbot.state.quiz.ZeroQuestion
 import com.github.heheteam.studentbot.state.quiz.registerParentQuests
 import com.github.heheteam.studentbot.state.quiz.registerStudentQuests
 import com.github.heheteam.studentbot.state.strictlyOnPresetStudentState
@@ -128,8 +126,6 @@ internal class StateRegister(
       )
       registerStateWithStudentId<CourseMenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MyCoursesState, StudentApi>(studentApi, ::initializeHandlers)
-      registerStateWithStudentId<ZeroQuestion, StudentApi>(studentApi, ::initializeHandlers)
-      registerStateWithStudentId<FirstQuestion, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)
       registerParentQuests(parentApi, ::initializeParentsHandlers)
       strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }

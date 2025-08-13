@@ -2,8 +2,6 @@ package com.github.heheteam.studentbot.state
 
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.errors.NumberedError
-import com.github.heheteam.commonlib.errors.TelegramBotError
 import com.github.heheteam.commonlib.errors.TokenError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
@@ -76,18 +74,14 @@ class AskStudentLastNameState(
         .registerForCourseWithToken(token, studentId)
         .mapBoth(
           success = { course ->
-            bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
+            if (course != null)
+              bot.send(context, Dialogues.successfullyRegisteredForCourse(course, token))
           },
           failure = { error ->
-            when (error) {
-              is TelegramBotError -> {}
-              is NumberedError -> {
-                val deepError = error.error
-                if (deepError is TokenError)
-                  bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
-                else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
-              }
-            }
+            val deepError = error.error
+            if (deepError is TokenError)
+              bot.send(context, Dialogues.failedToRegisterForCourse(deepError))
+            else if (!error.shouldBeIgnored) bot.send(context, error.toMessageText())
           },
         )
     }

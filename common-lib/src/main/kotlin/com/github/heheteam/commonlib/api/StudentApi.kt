@@ -138,7 +138,7 @@ internal constructor(
   fun registerForCourseWithToken(
     token: String,
     studentId: StudentId,
-  ): Result<Course, NumberedError> =
+  ): Result<Course?, NumberedError> =
     errorManagementService.serviceBinding {
       courseTokenService.registerStudentForToken(studentId, token).bind()
     }

@@ -1,19 +1,11 @@
 package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.Student
-import com.github.heheteam.commonlib.errors.BindError
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.michaelbull.result.Result
 import dev.inmo.tgbotapi.types.UserId
 
 interface StudentStorage {
-  fun bindStudentToParent(
-    studentId: StudentId,
-    parentId: ParentId,
-  ): Result<Unit, BindError<StudentId, ParentId>>
-
-  fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError>
-
   fun getAll(): Result<List<Student>, EduPlatformError>
 
   fun getWithCompletedQuest(): Result<List<Student>, EduPlatformError>
@@ -37,5 +29,10 @@ interface StudentStorage {
   fun updateLastQuestState(
     studentId: StudentId,
     lastQuestState: String,
+  ): Result<Unit, EduPlatformError>
+
+  fun updateSelectedCourse(
+    studentId: StudentId,
+    selectedCourseId: CourseId?,
   ): Result<Unit, EduPlatformError>
 }

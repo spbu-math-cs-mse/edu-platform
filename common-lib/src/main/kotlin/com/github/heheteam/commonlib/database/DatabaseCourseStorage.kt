@@ -175,6 +175,7 @@ class DatabaseCourseStorage(private val courseRepository: CourseRepository) : Co
             it[StudentTable.surname],
             it[StudentTable.tgId].toRawChatId(),
             it[StudentTable.lastQuestState],
+            it[StudentTable.selectedCourseId]?.value?.toCourseId(),
           )
         }
     }

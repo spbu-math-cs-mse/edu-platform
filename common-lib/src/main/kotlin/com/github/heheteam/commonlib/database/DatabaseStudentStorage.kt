@@ -4,13 +4,12 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.database.table.AdminTable
 import com.github.heheteam.commonlib.database.table.ParentStudents
 import com.github.heheteam.commonlib.database.table.StudentTable
-import com.github.heheteam.commonlib.errors.BindError
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ResolveError
-import com.github.heheteam.commonlib.errors.asEduPlatformError
-import com.github.heheteam.commonlib.interfaces.ParentId
+import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.StudentStorage
+import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.util.catchingTransaction
 import com.github.heheteam.commonlib.util.toRawChatId
@@ -38,56 +37,6 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
     }
   }
 
-  override fun bindStudentToParent(
-    studentId: StudentId,
-    parentId: ParentId,
-  ): Result<Unit, BindError<StudentId, ParentId>> =
-    try {
-      transaction(database) {
-        ParentStudents.insert {
-          it[ParentStudents.studentId] = studentId.long
-          it[ParentStudents.parentId] = parentId.long
-        }
-      }
-      Ok(Unit)
-    } catch (e: Throwable) {
-      Err(
-        BindError(
-          studentId,
-          parentId,
-          causedBy = e.asEduPlatformError(DatabaseStudentStorage::class),
-        )
-      )
-    }
-
-  override fun getChildren(parentId: ParentId): Result<List<Student>, EduPlatformError> = binding {
-    val ids =
-      catchingTransaction(database) {
-          ParentStudents.selectAll().where(ParentStudents.parentId eq parentId.long).map {
-            it[ParentStudents.studentId].value
-          }
-        }
-        .bind()
-
-    catchingTransaction(database) {
-        ids.map { studentId ->
-          StudentTable.selectAll()
-            .where(StudentTable.id eq studentId)
-            .map {
-              Student(
-                studentId.toStudentId(),
-                it[StudentTable.name],
-                it[StudentTable.name],
-                it[StudentTable.tgId].toRawChatId(),
-                it[StudentTable.lastQuestState],
-              )
-            }
-            .single()
-        }
-      }
-      .bind()
-  }
-
   override fun getAll(): Result<List<Student>, EduPlatformError> = binding {
     catchingTransaction(database) {
         StudentTable.selectAll().map {
@@ -97,6 +46,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
             it[StudentTable.name],
             it[StudentTable.tgId].toRawChatId(),
             it[StudentTable.lastQuestState],
+            it[StudentTable.selectedCourseId]?.value?.toCourseId(),
           )
         }
       }
@@ -112,6 +62,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
             it[StudentTable.name],
             it[StudentTable.tgId].toRawChatId(),
             it[StudentTable.lastQuestState],
+            it[StudentTable.selectedCourseId]?.value?.toCourseId(),
           )
         }
       }
@@ -134,6 +85,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
               it[StudentTable.name],
               it[StudentTable.tgId].toRawChatId(),
               it[StudentTable.lastQuestState],
+              it[StudentTable.selectedCourseId]?.value?.toCourseId(),
             )
           }
       }
@@ -169,6 +121,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
         row[StudentTable.surname],
         row[StudentTable.tgId].toRawChatId(),
         row[StudentTable.lastQuestState],
+        row[StudentTable.selectedCourseId]?.value?.toCourseId(),
       )
     }
 
@@ -183,6 +136,7 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
         row[StudentTable.surname],
         row[StudentTable.tgId].toRawChatId(),
         row[StudentTable.lastQuestState],
+        row[StudentTable.selectedCourseId]?.value?.toCourseId(),
       )
     }
   }
@@ -218,6 +172,22 @@ class DatabaseStudentStorage(val database: Database) : StudentStorage {
       Ok(Unit)
     } else {
       Err(ResolveError(studentId))
+    }
+  }
+
+  override fun updateSelectedCourse(
+    studentId: StudentId,
+    selectedCourseId: CourseId?,
+  ): Result<Unit, EduPlatformError> = binding {
+    val rows =
+      catchingTransaction(database) {
+          StudentTable.update({ StudentTable.id eq studentId.long }) {
+            it[StudentTable.selectedCourseId] = selectedCourseId?.long
+          }
+        }
+        .bind()
+    if (rows != 1) {
+      Err(ResolveError(studentId)).bind()
     }
   }
 }

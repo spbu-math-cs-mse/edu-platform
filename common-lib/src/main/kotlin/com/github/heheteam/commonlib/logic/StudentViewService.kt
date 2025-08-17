@@ -31,5 +31,8 @@ internal constructor(
   ): Result<List<Problem>, EduPlatformError> =
     problemStorage.getProblemsFromAssignment(assignmentId)
 
+  fun getCourse(courseId: CourseId): Result<Course, EduPlatformError> =
+    courseStorage.resolveCourse(courseId)
+
   fun getAllCourses(): Result<List<Course>, EduPlatformError> = courseStorage.getCourses()
 }

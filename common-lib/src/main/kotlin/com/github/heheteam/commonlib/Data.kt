@@ -40,7 +40,8 @@ data class Student(
   val name: String = "",
   val surname: String = "",
   val tgId: RawChatId,
-  val lastQuestState: String? = null,
+  val lastQuestState: String?,
+  val selectedCourseId: CourseId?,
 )
 
 data class Parent(

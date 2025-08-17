@@ -1,9 +1,13 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.interfaces.CourseId
+import com.github.heheteam.studentbot.Keyboards
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
+import dev.inmo.tgbotapi.types.buttons.InlineKeyboardButtons.InlineKeyboardButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
+import dev.inmo.tgbotapi.utils.MatrixBuilder
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
 
@@ -22,7 +26,8 @@ object StudentKeyboards {
   const val MENU = "menu"
   const val MY_COURSES = "my courses"
 
-  fun menu() = inlineKeyboard {
+  fun menu(selectedCourseId: CourseId?) = inlineKeyboard {
+    if (selectedCourseId != null) inlineCourseMenu()
     row { dataButton("\uD83C\uDFAE Квест от Таксы Дуси", FREE_ACTIVITY) }
     row { dataButton("\uD83D\uDCD6 Подробнее о курсе", ABOUT_COURSE) }
     row { urlButton("\uD83D\uDECD Купить курс", "https://dabromat.ru/start") }
@@ -42,6 +47,25 @@ object StudentKeyboards {
     row { dataButton("Шестая задача", SOLUTION6) }
     //    row { dataButton("Седьмая задача", SOLUTION7) }
     row { dataButton("В главное меню", MENU) }
+  }
+
+  const val SEND_SOLUTION = "sendSubmission"
+  const val CHECK_GRADES = "checkGrades"
+  const val CHECK_DEADLINES = "deadlines"
+  const val RESCHEDULE_DEADLINES = "rescheduleDeadlines"
+  const val CHALLENGE = "challenge"
+
+  private fun MatrixBuilder<InlineKeyboardButton>.inlineCourseMenu() {
+    row { dataButton("Отправить решение", SEND_SOLUTION) }
+    row { dataButton("Посмотреть успеваемость", CHECK_GRADES) }
+    row { dataButton("Посмотреть дедлайны", CHECK_DEADLINES) }
+    row { dataButton("Попросить дорешку", RESCHEDULE_DEADLINES) }
+    row { dataButton("Челлендж!", CHALLENGE) }
+  }
+
+  fun courseMenu() = inlineKeyboard {
+    inlineCourseMenu()
+    row { dataButton("Назад", Keyboards.RETURN_BACK) }
   }
 
   fun defaultKeyboard() = inlineKeyboard {

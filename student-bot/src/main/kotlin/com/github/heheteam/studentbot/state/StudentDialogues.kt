@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.Course
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 
 object StudentDialogues {
@@ -33,7 +34,13 @@ object StudentDialogues {
   fun askGrade(firstName: String, lastName: String): String =
     "Рад знакомству, $firstName $lastName!\nВ каком классе ты учишься?"
 
-  const val menu: String = "\u2705 Главное меню"
+  fun menu(course: Course?): String =
+    if (course == null) {
+      "\u2705 Главное меню"
+    } else {
+      "\u2705 Главное меню курса \"${course.name}\""
+    }
+
   const val solutionsIntro: String = "Здесь вы можете посмотреть на разборы задач"
 
   const val aboutCourse: String = "\uD83D\uDCD6 Подробнее о курсе"

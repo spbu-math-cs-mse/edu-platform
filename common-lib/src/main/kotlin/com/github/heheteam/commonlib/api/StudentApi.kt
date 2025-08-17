@@ -161,4 +161,24 @@ internal constructor(
     errorManagementService.serviceBinding {
       studentStorage.updateLastQuestState(userId, questState).bind()
     }
+
+  fun resolveSelectedCourse(userId: StudentId): Result<Course?, NumberedError> =
+    errorManagementService.serviceBinding {
+      val student =
+        studentStorage.resolveStudent(userId).bind()
+          ?: Err(NamedError("Cannot resolve student with id: $userId") as EduPlatformError).bind()
+      return@serviceBinding if (student.selectedCourseId == null) {
+        null
+      } else {
+        studentViewService.getCourse(student.selectedCourseId).bind()
+      }
+    }
+
+  fun saveSelectedCourse(
+    userId: StudentId,
+    selectedCourseId: CourseId,
+  ): Result<Unit, NumberedError> =
+    errorManagementService.serviceBinding {
+      studentStorage.updateSelectedCourse(userId, selectedCourseId).bind()
+    }
 }

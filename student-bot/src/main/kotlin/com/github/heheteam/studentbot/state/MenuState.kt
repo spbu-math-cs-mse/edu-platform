@@ -1,5 +1,6 @@
 package com.github.heheteam.studentbot.state
 
+import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
@@ -16,6 +17,7 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
+import com.github.heheteam.studentbot.CourseMenuState
 import com.github.heheteam.studentbot.Dialogues
 import com.github.heheteam.studentbot.MyCoursesState
 import com.github.heheteam.studentbot.state.quiz.L0Student
@@ -45,11 +47,9 @@ class MenuState(
 
   override fun defaultState(): State = MenuState(context, userId)
 
-  override suspend fun intro(
-    bot: BehaviourContext,
-    service: StudentApi,
-    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State, FrontendError>,
-  ): Result<Unit, FrontendError> = coroutineBinding {
+  var selectedCourse: Course? = null
+
+  private suspend fun handleCourseToken(bot: BehaviourContext, service: StudentApi) {
     if (courseToken != null) {
       val registerForCourseWithToken =
         service.registerForCourseWithToken(token = courseToken, userId)
@@ -66,14 +66,27 @@ class MenuState(
         },
       )
     }
+  }
+
+  override suspend fun intro(
+    bot: BehaviourContext,
+    service: StudentApi,
+    updateHandlersController: UpdateHandlersController<SuspendableBotAction, State, FrontendError>,
+  ): Result<Unit, FrontendError> = coroutineBinding {
+    handleCourseToken(bot, service)
+
+    selectedCourse = service.resolveSelectedCourse(userId).bind()
+
     val stickerMessage = bot.sendSticker(context.id, StudentDialogues.typingSticker)
     val initialMessage =
-      bot.send(context, text = StudentDialogues.menu, replyMarkup = StudentKeyboards.menu())
+      bot.send(
+        context,
+        text = StudentDialogues.menu(selectedCourse),
+        replyMarkup = StudentKeyboards.menu(selectedCourse?.id),
+      )
     sentMessages.add(stickerMessage)
     sentMessages.add(initialMessage)
-    updateHandlersController.addDataCallbackHandler { it ->
-      processKeyboardButtonPresses(it, service)
-    }
+    updateHandlersController.addDataCallbackHandler { processKeyboardButtonPresses(it, service) }
   }
 
   private fun processKeyboardButtonPresses(
@@ -92,7 +105,12 @@ class MenuState(
 
         StudentKeyboards.SOLUTIONS -> SolutionsStudentMenuState(context, userId)
         StudentKeyboards.MY_COURSES -> noCourseStubState(service).get()
-        else -> null
+        else ->
+          selectedCourse?.let {
+            CourseMenuState(context, userId, it)
+              .handleKeyboardCallback(callback.data, service)
+              .get()
+          }
       }
     return if (state != null) {
       UserInput(state)

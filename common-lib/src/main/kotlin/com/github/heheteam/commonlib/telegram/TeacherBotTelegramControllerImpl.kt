@@ -106,7 +106,27 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
   ): Result<Unit, EduPlatformError> =
     teacherBot.sendTextWithMediaAttachments(chatId.toChatId(), content).map { Unit }
 
-  override suspend fun sendMenuMessage(
+  override suspend fun sendMenuMessageInPersonalChat(
+    chatId: RawChatId,
+    replyTo: TelegramMessageInfo?,
+  ): Result<TelegramMessageInfo, EduPlatformError> =
+    runCatching {
+        val keyboard = inlineKeyboard { row { dataButton("Создать опрос", "newquiz") } }
+        if (replyTo != null) {
+            teacherBot.reply(
+              replyTo.chatId.toChatId(),
+              replyTo.messageId,
+              "\u2705 Главное меню",
+              replyMarkup = keyboard,
+            )
+          } else {
+            teacherBot.sendMessage(chatId.toChatId(), "\u2705 Главное меню", replyMarkup = keyboard)
+          }
+          .toTelegramMessageInfo()
+      }
+      .mapError { "".asNamedError(TeacherBotTelegramControllerImpl::class) }
+
+  override suspend fun sendMenuMessageInGroupChat(
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, EduPlatformError> =
@@ -114,11 +134,7 @@ class TeacherBotTelegramControllerImpl(private val teacherBot: TelegramBot) :
         if (replyTo != null) {
             teacherBot.reply(replyTo.chatId.toChatId(), replyTo.messageId, "\u2705 Главное меню")
           } else {
-            teacherBot.sendMessage(
-              chatId.toChatId(),
-              "\u2705 Главное меню",
-              replyMarkup = inlineKeyboard { row { dataButton("Создать опрос", "newquiz") } },
-            )
+            teacherBot.sendMessage(chatId.toChatId(), "\u2705 Главное меню")
           }
           .toTelegramMessageInfo()
       }

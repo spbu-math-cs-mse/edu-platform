@@ -9,6 +9,8 @@ import com.github.heheteam.commonlib.util.buildColumnMenu
 import com.github.heheteam.commonlib.util.id
 import com.github.heheteam.commonlib.util.map
 import com.github.heheteam.commonlib.util.simpleButtonData
+import com.github.heheteam.teacherbot.Keyboards
+import com.github.heheteam.teacherbot.states.MenuState
 import com.github.heheteam.teacherbot.states.SimpleTeacherState
 import com.github.michaelbull.result.mapBoth
 import dev.inmo.tgbotapi.types.chat.User
@@ -17,6 +19,11 @@ data class SelectCourseForQuiz(override val context: User, override val userId: 
   SimpleTeacherState() {
   override suspend fun BotContext.run(service: TeacherApi) {
     val courses = service.getTeacherCoursesForQuiz(userId).value
+    if (courses.isEmpty()) {
+      send("Вы не записаны ни на один курс", replyMarkup = Keyboards.back())
+      addDataCallbackHandler { NewState(MenuState(context, userId)) }
+      return
+    }
     val menu =
       buildColumnMenu(courses.map { simpleButtonData(it.name) { it } }).map {
         NewState(InputQuestionForQuiz(context, userId, QuizMetaInformationBuilder(it, userId)))

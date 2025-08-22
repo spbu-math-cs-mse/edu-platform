@@ -9,7 +9,10 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.urlButton
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
 import dev.inmo.tgbotapi.utils.matrix
 import dev.inmo.tgbotapi.utils.row
+import kotlin.math.ceil
 import kotlinx.datetime.LocalDateTime
+
+private const val MAX_LENGTH_OF_KEYBOARD_ROW: Float = 10f
 
 fun buildProblemSendingSelector(
   availableProblems: Map<Assignment, List<Problem>>,
@@ -29,9 +32,13 @@ fun buildProblemSendingSelector(
               dataButton("${assignment.description}:", Keyboards.FICTITIOUS)
             }
           }
-          row {
-            problems.forEach { problem ->
-              dataButton(problem.number, "${Keyboards.PROBLEM_ID} ${problem.id}")
+          val numberOfRows = ceil(problems.size.toFloat() / MAX_LENGTH_OF_KEYBOARD_ROW)
+          val rowLength = ceil(problems.size.toFloat() / numberOfRows).toInt()
+          problems.chunked(rowLength).forEach { problemsRow ->
+            row {
+              problemsRow.forEach { problem ->
+                dataButton(problem.number, "${Keyboards.PROBLEM_ID} ${problem.id}")
+              }
             }
           }
         }

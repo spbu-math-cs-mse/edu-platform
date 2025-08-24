@@ -27,8 +27,6 @@ import dev.inmo.tgbotapi.types.message.content.TextContent
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
 
-private const val DATACALLBACK_MESSAGE_LENGTH_LIMIT = 10
-
 class QueryScheduledMessageUserGroupState(
   override val context: User,
   val adminId: AdminId,
@@ -39,16 +37,23 @@ class QueryScheduledMessageUserGroupState(
     +Dialogues.queryScheduledMessageUserGroup
   }
 
+  private infix fun <A, B, C> Pair<A, B>.and(third: C): Triple<A, B, C> =
+    Triple(first, second, third)
+
   override fun createKeyboard(service: AdminApi): MenuKeyboardData<State?> {
+    val courses = service.getCourses().value
     val groups =
       listOf(
-        "Все зарегистрированные пользователи" to UserGroup.AllRegisteredUsers,
-        "Завершившие квест" to UserGroup.CompletedQuest,
-        "Только админы" to UserGroup.OnlyAdmins,
-      )
+        "Все зарегистрированные пользователи" to "all users" and UserGroup.AllRegisteredUsers,
+        "Завершившие квест" to "completed quest" and UserGroup.CompletedQuest,
+        "Только админы" to "only admins" and UserGroup.OnlyAdmins,
+      ) +
+        courses.map { (_, course) ->
+          "Ученики \"${course.name}\"" to "course ${course.id}" and UserGroup.CourseGroup(course.id)
+        }
     val dateButtons =
-      groups.map { (groupName, group) ->
-        ButtonData(groupName, groupName.slice(0..DATACALLBACK_MESSAGE_LENGTH_LIMIT)) {
+      groups.map { (groupName, uniqueData, group) ->
+        ButtonData(groupName, uniqueData) {
           QueryScheduledMessageContentState(context, adminId, group) as State
         }
       }

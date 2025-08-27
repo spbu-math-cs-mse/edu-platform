@@ -132,7 +132,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
       course("Course1") {
         withStudent(student)
         withTeacher(teacher)
-        val (_, problems) = assignment("Assignment1") { problem("Problem1", 10) }
+        val (assignment, problems) = assignment("Assignment1") { problem("Problem1", 10) }
 
         val submission = submission(student, problems.first(), "Submission1")
         val assessment = assessment(teacher, submission, 1)
@@ -141,8 +141,8 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
           studentBotController.notifyStudentOnNewAssessment(
             chatId = student.tgId,
             messageToReplyTo = submission.messageId,
-            studentId = student.id,
             problem = problems.first(),
+            assignment = assignment,
             assessment = assessment,
           )
         }

@@ -160,6 +160,7 @@ class ApiFabric(
         StudentNewGradeNotifierImpl(
           studentBotTelegramController,
           problemStorage,
+          assignmentStorage,
           submissionDistributor,
         ),
         TelegramMessagesJournalUpdater(

@@ -87,6 +87,9 @@ class EditCourseState(
         ButtonData("Создать задание", AdminKeyboards.CREATE_ASSIGNMENT) {
           QueryAssignmentDescriptionState(context, adminId, course.id)
         },
+        ButtonData("Удалить задание", AdminKeyboards.DELETE_ASSIGNMENT) {
+          QueryAssignmentForDeleting(context, adminId, course.id)
+        },
         ButtonData("Назад \uD83D\uDD19", AdminKeyboards.RETURN_BACK) { MenuState(context, adminId) },
       )
     return editCourseKeyboard

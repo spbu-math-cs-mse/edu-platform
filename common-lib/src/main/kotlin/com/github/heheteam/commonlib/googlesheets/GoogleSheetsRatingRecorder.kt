@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.googlesheets
 
 import com.github.heheteam.commonlib.errors.EduPlatformError
+import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.AssignmentStorage
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.CourseStorage
@@ -80,6 +81,19 @@ internal constructor(
           }
         }
         .mapError { error -> KSLog.error(error) }
+    }
+  }
+
+  override fun updateRating(assignmentId: AssignmentId) {
+    scope.launch {
+      val result = binding {
+        val courseId = assignmentStorage.resolveAssignment(assignmentId).bind().courseId
+        updateRating(courseId)
+      }
+      val error = result.getError()
+      if (error != null) {
+        KSLog.error("Failed to update rating for data lookup problem: $error")
+      }
     }
   }
 

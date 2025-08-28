@@ -11,6 +11,8 @@ interface RatingRecorder {
 
   fun updateRating(courseId: CourseId)
 
+  fun updateRating(assignmentId: AssignmentId)
+
   fun updateRating(problemId: ProblemId)
 
   fun updateRating(submissionId: SubmissionId)

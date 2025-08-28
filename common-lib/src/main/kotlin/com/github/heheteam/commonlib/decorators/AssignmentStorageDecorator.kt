@@ -36,6 +36,11 @@ internal constructor(
         it
       }
 
+  override fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, DatabaseExceptionError> =
+    assignmentStorage.deleteAssignment(assignmentId).map {
+      ratingRecorder.updateRating(assignmentId)
+    }
+
   override fun createChallenge(
     assignmentId: AssignmentId,
     courseId: CourseId,

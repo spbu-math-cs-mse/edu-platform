@@ -11,6 +11,7 @@ import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
 import com.github.heheteam.adminbot.states.MenuState
 import com.github.heheteam.adminbot.states.PerformDeleteMessageState
+import com.github.heheteam.adminbot.states.QueryAssignmentForDeleting
 import com.github.heheteam.adminbot.states.QueryCourseForEditing
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
@@ -82,10 +83,10 @@ internal class StateRegister(
       registerStateForBotState<StartState, AdminApi>(adminApi)
       registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
       registerState<AskLastNameState, AdminApi>(adminApi)
-      registerStateForBotStateWithHandlers<QueryScheduledMessageUserGroupState>(::registerHandlers)
       registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
       registerScheduledMessagesStates(botToken)
       registerAssignmentCreationStates()
+      registerStateForBotStateWithHandlers<QueryAssignmentForDeleting>(::registerHandlers)
       registerChallengeCreationStates()
       registerStateForBotStateWithHandlers<AddAdminState>(::registerHandlers)
       registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)

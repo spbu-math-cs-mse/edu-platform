@@ -17,6 +17,8 @@ interface AssignmentStorage {
     problemsDescriptions: List<ProblemDescription>,
   ): Result<AssignmentId, DatabaseExceptionError>
 
+  fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, DatabaseExceptionError>
+
   fun createChallenge(
     assignmentId: AssignmentId,
     courseId: CourseId,

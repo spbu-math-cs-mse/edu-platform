@@ -24,9 +24,11 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.max
 import org.jetbrains.exposed.sql.notExists
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -86,6 +88,23 @@ class DatabaseAssignmentStorage(
       }
 
       assignId
+    }
+
+  override fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, DatabaseExceptionError> =
+    catchingTransaction(database) {
+      val challengeId =
+        AssignmentTable.selectAll()
+          .where { AssignmentTable.id eq assignmentId.long }
+          .singleOrNull()
+          ?.get(AssignmentTable.challengeId)
+          ?.value
+      if (challengeId == null) {
+        AssignmentTable.deleteWhere { AssignmentTable.id eq assignmentId.long }
+      } else {
+        AssignmentTable.deleteWhere {
+          (AssignmentTable.id eq assignmentId.long) or (AssignmentTable.id eq challengeId)
+        }
+      }
     }
 
   override fun createChallenge(

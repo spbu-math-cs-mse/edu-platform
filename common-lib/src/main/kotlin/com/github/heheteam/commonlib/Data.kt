@@ -160,6 +160,13 @@ data class Assignment(
   val challengeId: AssignmentId?,
 )
 
+data class AssignmentDependencies(
+  val assignment: Assignment,
+  val numberOfProblems: Long,
+  val numberOfSubmissions: Long,
+  val numberOfAssessments: Long,
+)
+
 @Serializable
 data class SubmissionAssessment(
   val grade: Grade,

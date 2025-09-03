@@ -5,11 +5,13 @@ import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.AskFirstNameState
 import com.github.heheteam.adminbot.states.AskLastNameState
+import com.github.heheteam.adminbot.states.ConfirmDeleteAssignmentState
 import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateCourseState
 import com.github.heheteam.adminbot.states.EditCourseState
 import com.github.heheteam.adminbot.states.MenuState
+import com.github.heheteam.adminbot.states.PerformDeleteAssignmentState
 import com.github.heheteam.adminbot.states.PerformDeleteMessageState
 import com.github.heheteam.adminbot.states.QueryAssignmentForDeleting
 import com.github.heheteam.adminbot.states.QueryCourseForEditing
@@ -60,6 +62,7 @@ import dev.inmo.tgbotapi.extensions.behaviour_builder.DefaultBehaviourContextWit
 import dev.inmo.tgbotapi.types.chat.User
 import kotlinx.datetime.LocalDateTime
 
+@Suppress("TooManyFunctions")
 internal class StateRegister(
   private val adminApi: AdminApi,
   private val bot: DefaultBehaviourContextWithFSM<State>,
@@ -86,7 +89,7 @@ internal class StateRegister(
       registerStateForBotStateWithHandlers<CreateCourseState>(::registerHandlers)
       registerScheduledMessagesStates(botToken)
       registerAssignmentCreationStates()
-      registerStateForBotStateWithHandlers<QueryAssignmentForDeleting>(::registerHandlers)
+      registerAssignmentDeletionStates()
       registerChallengeCreationStates()
       registerStateForBotStateWithHandlers<AddAdminState>(::registerHandlers)
       registerStateForBotStateWithHandlers<AddStudentState>(::registerHandlers)
@@ -118,6 +121,12 @@ internal class StateRegister(
     registerStateForBotStateWithHandlers<QueryScheduledMessageTimeState>(::registerHandlers)
     registerStateForBotStateWithHandlers<QueryScheduledMessageUserGroupState>(::registerHandlers)
     registerStateForBotStateWithHandlers<ScheduledMessagesMenuState>(::registerHandlers)
+  }
+
+  private fun DefaultBehaviourContextWithFSM<State>.registerAssignmentDeletionStates() {
+    registerStateForBotStateWithHandlers<QueryAssignmentForDeleting>(::registerHandlers)
+    registerStateForBotStateWithHandlers<ConfirmDeleteAssignmentState>(::registerHandlers)
+    registerStateForBotState<PerformDeleteAssignmentState, AdminApi>(adminApi)
   }
 
   private fun DefaultBehaviourContextWithFSM<State>.registerAssignmentCreationStates() {

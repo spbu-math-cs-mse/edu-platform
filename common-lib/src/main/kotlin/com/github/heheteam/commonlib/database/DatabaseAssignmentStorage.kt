@@ -1,9 +1,13 @@
 package com.github.heheteam.commonlib.database
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.AssignmentDependencies
 import com.github.heheteam.commonlib.ProblemDescription
+import com.github.heheteam.commonlib.database.table.AssessmentTable
 import com.github.heheteam.commonlib.database.table.AssignmentTable
 import com.github.heheteam.commonlib.database.table.ChallengeAccessTable
+import com.github.heheteam.commonlib.database.table.ProblemTable
+import com.github.heheteam.commonlib.database.table.SubmissionTable
 import com.github.heheteam.commonlib.errors.DatabaseExceptionError
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.ResolveError
@@ -20,6 +24,8 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.FieldSet
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -88,6 +94,51 @@ class DatabaseAssignmentStorage(
       }
 
       assignId
+    }
+
+  private fun FieldSet.countDependencies(assignment: Assignment) =
+    this.selectAll()
+      .where {
+        ((ProblemTable.assignmentId eq assignment.id.long) or
+          (ProblemTable.assignmentId eq assignment.challengeId?.long))
+      }
+      .count()
+
+  override fun resolveAssignmentAndDependencies(
+    assignmentId: AssignmentId
+  ): Result<AssignmentDependencies, EduPlatformError> =
+    catchingTransaction(database) {
+      val assignment = resolveAssignment(assignmentId).value
+      val numberOfDependentProblems = ProblemTable.countDependencies(assignment)
+      val numberOfDependentSubmissions =
+        ProblemTable.join(
+            SubmissionTable,
+            joinType = JoinType.INNER,
+            onColumn = ProblemTable.id,
+            otherColumn = SubmissionTable.problemId,
+          )
+          .countDependencies(assignment)
+      val numberOfDependentAssessments =
+        ProblemTable.join(
+            SubmissionTable,
+            joinType = JoinType.INNER,
+            onColumn = ProblemTable.id,
+            otherColumn = SubmissionTable.problemId,
+          )
+          .join(
+            AssessmentTable,
+            joinType = JoinType.INNER,
+            onColumn = SubmissionTable.id,
+            otherColumn = AssessmentTable.submissionId,
+          )
+          .countDependencies(assignment)
+
+      AssignmentDependencies(
+        assignment,
+        numberOfDependentProblems,
+        numberOfDependentSubmissions,
+        numberOfDependentAssessments,
+      )
     }
 
   override fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, DatabaseExceptionError> =

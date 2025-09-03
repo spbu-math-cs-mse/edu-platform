@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.interfaces
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.AssignmentDependencies
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.errors.DatabaseExceptionError
 import com.github.heheteam.commonlib.errors.EduPlatformError
@@ -17,7 +18,11 @@ interface AssignmentStorage {
     problemsDescriptions: List<ProblemDescription>,
   ): Result<AssignmentId, DatabaseExceptionError>
 
-  fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, DatabaseExceptionError>
+  fun resolveAssignmentAndDependencies(
+    assignmentId: AssignmentId
+  ): Result<AssignmentDependencies, EduPlatformError>
+
+  fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, EduPlatformError>
 
   fun createChallenge(
     assignmentId: AssignmentId,

@@ -2,6 +2,7 @@ package com.github.heheteam.commonlib.api
 
 import com.github.heheteam.commonlib.Admin
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.AssignmentDependencies
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.CourseStatistics
 import com.github.heheteam.commonlib.NewScheduledMessageInfo
@@ -179,6 +180,13 @@ internal constructor(
       assignmentStorage
         .createAssignment(courseId, description, statementsUrl, problemsDescriptions)
         .bind()
+    }
+
+  fun resolveAssignmentAndDependencies(
+    assignmentId: AssignmentId
+  ): Result<AssignmentDependencies, NumberedError> =
+    errorManagementService.serviceBinding {
+      assignmentStorage.resolveAssignmentAndDependencies(assignmentId).bind()
     }
 
   fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, NumberedError> =

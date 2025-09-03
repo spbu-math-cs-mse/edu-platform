@@ -124,8 +124,8 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
-      registerStateWithStudentId<CourseMenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MyCoursesState, StudentApi>(studentApi, ::initializeHandlers)
+      registerStateWithStudentId<DachshundMenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)
       registerParentQuests(parentApi, ::initializeParentsHandlers)
       strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }

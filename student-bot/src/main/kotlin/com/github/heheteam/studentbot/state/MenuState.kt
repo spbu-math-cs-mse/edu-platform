@@ -17,11 +17,16 @@ import com.github.heheteam.commonlib.util.UpdateHandlersController
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
 import com.github.heheteam.commonlib.util.ok
-import com.github.heheteam.studentbot.CourseMenuState
+import com.github.heheteam.studentbot.DachshundMenuState
 import com.github.heheteam.studentbot.Dialogues
+import com.github.heheteam.studentbot.Keyboards.CHALLENGE
+import com.github.heheteam.studentbot.Keyboards.CHECK_DEADLINES
+import com.github.heheteam.studentbot.Keyboards.CHECK_GRADES
+import com.github.heheteam.studentbot.Keyboards.RESCHEDULE_DEADLINES
+import com.github.heheteam.studentbot.Keyboards.RETURN_BACK
+import com.github.heheteam.studentbot.Keyboards.SEND_SOLUTION
 import com.github.heheteam.studentbot.MyCoursesState
-import com.github.heheteam.studentbot.state.quiz.L0Student
-import com.github.heheteam.studentbot.state.quiz.QuestState
+import com.github.michaelbull.result.BindingScope
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -95,22 +100,14 @@ class MenuState(
   ): HandlerResultWithUserInputOrUnhandled<Nothing, State, Nothing> {
     val state =
       when (callback.data) {
-        StudentKeyboards.ABOUT_COURSE -> StudentAboutCourseState(context, userId)
-        StudentKeyboards.FREE_ACTIVITY -> {
-          val stateName = service.resolveCurrentQuestState(userId).get()
-          val state =
-            QuestState.restoreState<StudentApi, StudentId>(stateName, context, userId).get()
-          state ?: L0Student(context, userId)
-        }
-
-        StudentKeyboards.SOLUTIONS -> SolutionsStudentMenuState(context, userId)
         StudentKeyboards.MY_COURSES -> noCourseStubState(service).get()
-        else ->
-          selectedCourse?.let {
-            CourseMenuState(context, userId, it)
-              .handleKeyboardCallback(callback.data, service)
-              .get()
-          }
+        StudentKeyboards.DACHSHUND_QUEST -> DachshundMenuState(context, userId)
+        else -> {
+          DachshundMenuState(context, userId).handleKeyboardCallback(callback.data, service).get()
+            ?: selectedCourse?.let {
+              handleCourseMenuKeyboardCallback(callback.data, it, service).get()
+            }
+        }
       }
     return if (state != null) {
       UserInput(state)
@@ -140,6 +137,30 @@ class MenuState(
       MyCoursesState(context, userId, courses)
     }
   }
+
+  private fun handleCourseMenuKeyboardCallback(data: String, course: Course, service: StudentApi) =
+    binding {
+      when (data) {
+        SEND_SOLUTION -> QueryProblemForSubmissionSendingState(context, userId, course.id)
+        CHECK_GRADES -> viewGradesNextState(course, service)
+        CHECK_DEADLINES -> CheckDeadlinesState(context, userId, course)
+        RESCHEDULE_DEADLINES -> RescheduleDeadlinesState(context, userId)
+        CHALLENGE -> RequestChallengeState(context, userId, course)
+        RETURN_BACK -> MenuState(context, userId)
+        else -> null
+      }
+    }
+
+  private fun BindingScope<FrontendError>.viewGradesNextState(
+    course: Course,
+    service: StudentApi,
+  ): QueryAssignmentForCheckingGradesState =
+    QueryAssignmentForCheckingGradesState(
+      context,
+      userId,
+      course.id,
+      service.getCourseAssignments(course.id).bind(),
+    )
 
   override suspend fun computeNewState(
     service: StudentApi,

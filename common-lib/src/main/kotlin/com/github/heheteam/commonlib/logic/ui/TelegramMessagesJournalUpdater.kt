@@ -12,10 +12,16 @@ import com.github.heheteam.commonlib.interfaces.TeacherStorage
 import com.github.heheteam.commonlib.interfaces.TelegramTechnicalMessagesStorage
 import com.github.heheteam.commonlib.telegram.SubmissionStatusMessageInfo
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramController
+import com.github.heheteam.commonlib.util.ok
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.toResultOr
+import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
 
 @Suppress("LongParameterList") // will go away with refactoring after tests are there
 class TelegramMessagesJournalUpdater
@@ -32,21 +38,31 @@ internal constructor(
   override suspend fun updateJournalDisplaysForSubmission(
     submissionId: SubmissionId
   ): Result<Unit, EduPlatformError> {
-    return coroutineBinding {
-      val submissionStatusMessageInfo = extractSubmissionStatusMessageInfo(submissionId).bind()
-      val groupTechnicalMessage = technicalMessageStorage.resolveGroupMessage(submissionId).bind()
-      teacherBotTelegramController
-        .updateSubmissionStatusMessageInCourseGroupChat(
-          groupTechnicalMessage,
-          submissionStatusMessageInfo,
-        )
-        .bind()
-      val personalTechnicalMessage =
-        technicalMessageStorage.resolvePersonalMessage(submissionId).bind()
-      teacherBotTelegramController
-        .updateSubmissionStatusMessageDM(personalTechnicalMessage, submissionStatusMessageInfo)
-        .bind()
-    }
+    val submissionStatusMessageInfo =
+      extractSubmissionStatusMessageInfo(submissionId)
+        .mapError {
+          return Err(it)
+        }
+        .value
+    coroutineBinding {
+        val groupTechnicalMessage = technicalMessageStorage.resolveGroupMessage(submissionId).bind()
+        teacherBotTelegramController
+          .updateSubmissionStatusMessageInCourseGroupChat(
+            groupTechnicalMessage,
+            submissionStatusMessageInfo,
+          )
+          .bind()
+      }
+      .onFailure { KSLog.error(it) }
+    coroutineBinding {
+        val personalTechnicalMessage =
+          technicalMessageStorage.resolvePersonalMessage(submissionId).bind()
+        teacherBotTelegramController
+          .updateSubmissionStatusMessageDM(personalTechnicalMessage, submissionStatusMessageInfo)
+          .bind()
+      }
+      .onFailure { KSLog.error(it) }
+    return Unit.ok()
   }
 
   private fun extractSubmissionStatusMessageInfo(

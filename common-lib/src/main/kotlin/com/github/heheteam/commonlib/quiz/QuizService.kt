@@ -127,12 +127,14 @@ internal constructor(
         for (course in courses) {
           val courseSpreadsheetId = course.spreadsheetId
           if (courseSpreadsheetId != null) {
-            googleSheetsService.updateQuizzesSheet(
-              courseSpreadsheetId.string,
-              course,
-              course.students.map { studentStorage.resolveStudent(it).bind() },
-              retrieve(course.id).bind(),
-            )
+            val result =
+              googleSheetsService.updateQuizzesSheet(
+                courseSpreadsheetId.string,
+                course,
+                course.students.map { studentStorage.resolveStudent(it).bind() },
+                retrieve(course.id).bind(),
+              )
+            result.onFailure { logger.error(it) }
           }
         }
         Ok(Unit)

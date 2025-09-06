@@ -40,7 +40,8 @@ internal class TableComposer {
   fun composeQuizzesTable(quizzes: List<RichQuiz>, students: List<Student>): ComposedTable {
     val sortedQuizzes = quizzes.sortedBy { it.metaInformation.createdAt }
     val headerRow =
-      listOf(FormattedCell()) + sortedQuizzes.map { FormattedCell(it.id.long.toString()) }
+      listOf(FormattedCell()) +
+        sortedQuizzes.map { FormattedCell("${it.id.long}\n${it.metaInformation.questionText}") }
     val studentRows =
       students.map { student ->
         val leadingCell = FormattedCell(student.surname + " " + student.name)
@@ -60,7 +61,7 @@ internal class TableComposer {
     val cells = listOf(headerRow) + studentRows
     return ComposedTable(
       cells,
-      listOf(ID_COLUMN_WIDTH, null, null) + List<Int?>(sortedQuizzes.size) { RATING_COLUMN_WIDTH },
+      listOf(null) + List<Int?>(sortedQuizzes.size) { RATING_COLUMN_WIDTH },
     )
   }
 

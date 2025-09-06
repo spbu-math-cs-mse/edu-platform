@@ -18,8 +18,8 @@ import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.quiz.RichQuiz
+import com.github.heheteam.commonlib.util.raiseError
 import com.github.michaelbull.result.BindingScope
-import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.mapError
@@ -38,6 +38,7 @@ import com.google.api.services.sheets.v4.model.GridRange
 import com.google.api.services.sheets.v4.model.MergeCellsRequest
 import com.google.api.services.sheets.v4.model.Request
 import com.google.api.services.sheets.v4.model.RowData
+import com.google.api.services.sheets.v4.model.Sheet
 import com.google.api.services.sheets.v4.model.SheetProperties
 import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.google.api.services.sheets.v4.model.SpreadsheetProperties
@@ -101,7 +102,9 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
         this.type = "anyone"
         this.role = "reader"
       }
-    val addQuizzesSheet = createAddQuizzesSheetRequest()
+    //    val addQuizzesSheet =
+    //    createAddNewSheetRequest(QUIZZES_SHEET_TITLE)
+    val addQuizzesSheet = listOf<Request?>()
 
     runCatching {
         driveClient.permissions().create(createdSpreadsheet.spreadsheetId, permission).execute()
@@ -131,14 +134,10 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
     return@binding SpreadsheetId(createdSpreadsheet.spreadsheetId)
   }
 
-  private fun createAddQuizzesSheetRequest(): List<Request?> =
+  private fun createAddNewSheetRequest(name: String): List<Request?> =
     listOf(
       Request()
-        .setAddSheet(
-          AddSheetRequest().apply {
-            this.properties = SheetProperties().setTitle(QUIZZES_SHEET_TITLE)
-          }
-        )
+        .setAddSheet(AddSheetRequest().apply { this.properties = SheetProperties().setTitle(name) })
     )
 
   private fun generateRenameSheetRequest(): List<Request?> =
@@ -207,17 +206,33 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
         .mapError { GetSpreadsheetError(courseSpreadsheetId, it) }
         .bind()
 
-    val sheetId =
-      spreadsheet.sheets.firstOrNull { it.properties.title == sheetName }?.properties?.sheetId
-        ?: Err(SheetNotFoundError(courseSpreadsheetId, RATING_SHEET_TITLE)).bind()
+    val relevantSheetId =
+      spreadsheet.sheets
+        .firstOrNull<Sheet> { it.properties.title == sheetName }
+        ?.properties
+        ?.sheetId
+        ?: run {
+          createQuizzesSheet(courseSpreadsheetId)
+          val spreadsheetRerequested =
+            runCatching { apiClient.spreadsheets().get(courseSpreadsheetId).execute() }
+              .mapError { GetSpreadsheetError(courseSpreadsheetId, it) }
+              .bind()
+
+          val foundSheetId =
+            spreadsheetRerequested.sheets
+              .firstOrNull { it.properties.title == sheetName }
+              ?.properties
+              ?.sheetId ?: raiseError(SheetNotFoundError(courseSpreadsheetId, RATING_SHEET_TITLE))
+          foundSheetId
+        }
 
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()
         .setRequests(
-          generateUnmergeRequests(sheetId) +
-            generateUpdateRequests(table.cells, sheetId) +
-            generateResizeRequests(table.columnWidths, sheetId) +
-            generateMergeRequests(table.cells, sheetId)
+          generateUnmergeRequests(relevantSheetId) +
+            generateUpdateRequests(table.cells, relevantSheetId) +
+            generateResizeRequests(table.columnWidths, relevantSheetId) +
+            generateMergeRequests(table.cells, relevantSheetId)
         )
 
     clearSheet(spreadsheet.spreadsheetId, sheetName).bind()
@@ -226,6 +241,17 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
         apiClient.spreadsheets().batchUpdate(courseSpreadsheetId, batchUpdateRequest).execute()
       }
       .mapError { BatchUpdateError(courseSpreadsheetId, it) }
+      .bind()
+  }
+
+  private fun BindingScope<EduPlatformError>.createQuizzesSheet(courseSpreadsheetId: String) {
+    val batchUpdateRequest =
+      BatchUpdateSpreadsheetRequest().setRequests(createAddNewSheetRequest(QUIZZES_SHEET_TITLE))
+
+    runCatching {
+        apiClient.spreadsheets().batchUpdate(courseSpreadsheetId, batchUpdateRequest).execute()
+      }
+      .mapError { CreateSheetError(QUIZZES_SHEET_TITLE, it) }
       .bind()
   }
 

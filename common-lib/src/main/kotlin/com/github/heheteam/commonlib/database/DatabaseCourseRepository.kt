@@ -32,14 +32,14 @@ class DatabaseCourseRepository : CourseRepository {
     if (exists) {
       CourseTable.update({ CourseTable.id eq courseIdLong }) {
         it[CourseTable.name] = course.description
-        it[CourseTable.spreadsheetId] = course.spreadsheetId?.long
+        it[CourseTable.spreadsheetId] = course.spreadsheetId?.string
         it[CourseTable.groupRawChatId] = course.groupChatId?.long
       }
     } else {
       CourseTable.insert {
         it[CourseTable.id] = courseIdLong
         it[CourseTable.name] = course.description
-        it[CourseTable.spreadsheetId] = course.spreadsheetId?.long
+        it[CourseTable.spreadsheetId] = course.spreadsheetId?.string
         it[CourseTable.groupRawChatId] = course.groupChatId?.long
       }
     }

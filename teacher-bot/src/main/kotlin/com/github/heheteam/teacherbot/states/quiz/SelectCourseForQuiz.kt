@@ -25,10 +25,17 @@ data class SelectCourseForQuiz(override val context: User, override val userId: 
       return
     }
     val menu =
-      buildColumnMenu(courses.map { simpleButtonData(it.name) { it } }).map {
-        NewState(InputQuestionForQuiz(context, userId, QuizMetaInformationBuilder(it, userId)))
+      buildColumnMenu((courses + null).map { simpleButtonData(it?.name ?: "Назад") { it } }).map {
+        course ->
+        if (course != null) {
+          NewState(
+            InputQuestionForQuiz(context, userId, QuizMetaInformationBuilder(course, userId))
+          )
+        } else {
+          NewState(MenuState(context, userId))
+        }
       }
-    send("Выберите курс, для которого вы хотите составить запрос", replyMarkup = menu.keyboard)
+    send("Выберите курс, для которого вы хотите составить опрос", replyMarkup = menu.keyboard)
       .deleteLater()
     addDataCallbackHandler {
       menu.handler(it.data).mapBoth(success = ::id, failure = { Unhandled })

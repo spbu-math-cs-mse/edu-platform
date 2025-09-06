@@ -133,7 +133,7 @@ class GoogleSheetsTest {
       )
     }
 
-    val spreadsheetId = googleSheetsService.createCourseSpreadsheet("test sheet").get()?.long
+    val spreadsheetId = googleSheetsService.createCourseSpreadsheet("test sheet").get()?.string
     assertNotNull(spreadsheetId)
 
     googleSheetsService.updateRating(

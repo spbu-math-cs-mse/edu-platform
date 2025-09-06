@@ -28,7 +28,6 @@ class Config(private val dotenv: Dotenv) {
       studentBotToken = readSecret("STUDENT_BOT_TOKEN_FILE"),
       teacherBotToken = readSecret("TEACHER_BOT_TOKEN_FILE"),
       adminBotToken = readSecret("ADMIN_BOT_TOKEN_FILE"),
-      parentBotToken = readSecret("PARENT_BOT_TOKEN_FILE"),
       studentBotUsername = env("STUDENT_BOT_USERNAME"),
       adminIds = env("ADMIN_IDS").split(',').filter { it.isNotBlank() }.map { it.toLong() },
     )

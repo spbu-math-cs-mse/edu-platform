@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.domain.RichCourse
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.EduPlatformResult
 import com.github.heheteam.commonlib.errors.toStackedString
+import com.github.heheteam.commonlib.googlesheets.GoogleSheetsService
 import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
@@ -35,6 +36,7 @@ internal constructor(
   private val db: Database,
   private val studentStorage: StudentStorage,
   private val teacherStorage: TeacherStorage,
+  private val googleSheetsService: GoogleSheetsService,
 ) {
 
   fun create(quizMetaInformation: QuizMetaInformation): EduPlatformResult<QuizId> =
@@ -121,6 +123,18 @@ internal constructor(
             }
           }
         }
+        val courses = courseRepository.findAll().bind()
+        for (course in courses) {
+          val courseSpreadsheetId = course.spreadsheetId
+          if (courseSpreadsheetId != null) {
+            googleSheetsService.updateQuizzesSheet(
+              courseSpreadsheetId.string,
+              course,
+              course.students.map { studentStorage.resolveStudent(it).bind() },
+              retrieve(course.id).bind(),
+            )
+          }
+        }
         Ok(Unit)
       }
     }
@@ -178,21 +192,18 @@ internal constructor(
   ): EduPlatformResult<AnswerQuizResult> =
     transaction(db) {
       binding {
-        val quiz = quizRepository.findQuizById(quizId).bind()
-        if (quiz == null) {
-          return@binding AnswerQuizResult.QuizNotFound
-        }
+        val quiz =
+          quizRepository.findQuizById(quizId).bind() ?: return@binding AnswerQuizResult.QuizNotFound
 
         if (!quiz.isActive) {
           return@binding AnswerQuizResult.QuizInactive
         }
-        val chosenAnswer = quiz.metaInformation.answers.getOrNull(chosenAnswerIndex)
-        if (chosenAnswer == null) {
-          return@binding AnswerQuizResult.QuizAnswerIndexOutOfBounds(
-            chosenAnswerIndex,
-            quiz.metaInformation.answers.lastIndex,
-          )
-        }
+        val chosenAnswer =
+          quiz.metaInformation.answers.getOrNull(chosenAnswerIndex)
+            ?: return@binding AnswerQuizResult.QuizAnswerIndexOutOfBounds(
+              chosenAnswerIndex,
+              quiz.metaInformation.answers.lastIndex,
+            )
 
         quizRepository.storeStudentAnswer(quizId, studentId, chosenAnswerIndex).bind()
         AnswerQuizResult.Success(chosenAnswer)

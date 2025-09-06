@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.domain.RichCourse
 import com.github.heheteam.commonlib.errors.BatchUpdateError
 import com.github.heheteam.commonlib.errors.ClearSheetError
 import com.github.heheteam.commonlib.errors.CreateSheetError
@@ -16,6 +17,8 @@ import com.github.heheteam.commonlib.errors.SheetNotFoundError
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.quiz.RichQuiz
+import com.github.michaelbull.result.BindingScope
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.binding
@@ -25,6 +28,7 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.Permission
 import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.model.AddSheetRequest
 import com.google.api.services.sheets.v4.model.AppendDimensionRequest
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest
 import com.google.api.services.sheets.v4.model.ClearValuesRequest
@@ -46,7 +50,9 @@ import com.google.auth.oauth2.GoogleCredentials
 import java.io.File
 
 private const val RATING_SHEET_TITLE: String = "Рейтинг"
+private const val QUIZZES_SHEET_TITLE: String = "Опросы"
 
+@Suppress("TooManyFunctions") // low-level class, ok to have many functions
 class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsService {
   private val apiClient: Sheets
   private val driveClient: Drive
@@ -78,6 +84,10 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
 
   override fun createCourseSpreadsheet(
     courseName: String
+  ): Result<SpreadsheetId, EduPlatformError> = createSpreadsheetWithName(courseName)
+
+  private fun createSpreadsheetWithName(
+    courseName: String
   ): Result<SpreadsheetId, EduPlatformError> = binding {
     val spreadsheetProperties = SpreadsheetProperties().setTitle(courseName)
     val spreadsheet = Spreadsheet().setProperties(spreadsheetProperties)
@@ -91,6 +101,7 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
         this.type = "anyone"
         this.role = "reader"
       }
+    val addQuizzesSheet = createAddQuizzesSheetRequest()
 
     runCatching {
         driveClient.permissions().create(createdSpreadsheet.spreadsheetId, permission).execute()
@@ -103,7 +114,9 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()
         .setRequests(
-          generateRenameSheetRequest() + generateExtendTableRequest(defaultSheet.sheetId)
+          generateRenameSheetRequest() +
+            generateExtendTableRequest(defaultSheet.sheetId) +
+            addQuizzesSheet
         )
 
     runCatching {
@@ -117,6 +130,16 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
 
     return@binding SpreadsheetId(createdSpreadsheet.spreadsheetId)
   }
+
+  private fun createAddQuizzesSheetRequest(): List<Request?> =
+    listOf(
+      Request()
+        .setAddSheet(
+          AddSheetRequest().apply {
+            this.properties = SheetProperties().setTitle(QUIZZES_SHEET_TITLE)
+          }
+        )
+    )
 
   private fun generateRenameSheetRequest(): List<Request?> =
     listOf(
@@ -157,19 +180,36 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
     students: List<Student>,
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
   ): Result<Unit, EduPlatformError> = binding {
+    val table: ComposedTable =
+      tableComposer.composeTable(course, problems, assignments, students, performance)
+
+    writeTableToSheet(courseSpreadsheetId, RATING_SHEET_TITLE, table)
+  }
+
+  override fun updateQuizzesSheet(
+    courseSpreadsheetId: String,
+    course: RichCourse,
+    students: List<Student?>,
+    bind: List<RichQuiz>,
+  ): Result<Unit, EduPlatformError> = binding {
+    val table: ComposedTable = tableComposer.composeQuizzesTable(bind, students.filterNotNull())
+
+    writeTableToSheet(courseSpreadsheetId, QUIZZES_SHEET_TITLE, table)
+  }
+
+  private fun BindingScope<EduPlatformError>.writeTableToSheet(
+    courseSpreadsheetId: String,
+    sheetName: String,
+    table: ComposedTable,
+  ) {
     val spreadsheet =
       runCatching { apiClient.spreadsheets().get(courseSpreadsheetId).execute() }
         .mapError { GetSpreadsheetError(courseSpreadsheetId, it) }
         .bind()
 
     val sheetId =
-      spreadsheet.sheets
-        .firstOrNull { it.properties.title == RATING_SHEET_TITLE }
-        ?.properties
-        ?.sheetId ?: Err(SheetNotFoundError(courseSpreadsheetId, RATING_SHEET_TITLE)).bind()
-
-    val table: ComposedTable =
-      tableComposer.composeTable(course, problems, assignments, students, performance)
+      spreadsheet.sheets.firstOrNull { it.properties.title == sheetName }?.properties?.sheetId
+        ?: Err(SheetNotFoundError(courseSpreadsheetId, RATING_SHEET_TITLE)).bind()
 
     val batchUpdateRequest =
       BatchUpdateSpreadsheetRequest()
@@ -180,7 +220,7 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
             generateMergeRequests(table.cells, sheetId)
         )
 
-    clearSheet(spreadsheet.spreadsheetId, RATING_SHEET_TITLE).bind()
+    clearSheet(spreadsheet.spreadsheetId, sheetName).bind()
 
     runCatching {
         apiClient.spreadsheets().batchUpdate(courseSpreadsheetId, batchUpdateRequest).execute()

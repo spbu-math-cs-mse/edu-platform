@@ -8,6 +8,7 @@ import com.github.heheteam.commonlib.Student
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.quiz.RichQuiz
 
 private const val ID_COLUMN_WIDTH: Int = 30
 private const val RATING_COLUMN_WIDTH: Int = 40
@@ -33,6 +34,33 @@ internal class TableComposer {
       composeHeader(course, assignments, assignmentSizes, sortedProblems) +
         composeGrades(students, sortedProblems, performance),
       listOf(ID_COLUMN_WIDTH, null, null) + List<Int?>(sortedProblems.size) { RATING_COLUMN_WIDTH },
+    )
+  }
+
+  fun composeQuizzesTable(quizzes: List<RichQuiz>, students: List<Student>): ComposedTable {
+    val sortedQuizzes = quizzes.sortedBy { it.metaInformation.createdAt }
+    val headerRow =
+      listOf(FormattedCell()) + sortedQuizzes.map { FormattedCell(it.id.long.toString()) }
+    val studentRows =
+      students.map { student ->
+        val leadingCell = FormattedCell(student.surname + " " + student.name)
+        val theRest =
+          sortedQuizzes.map {
+            val answer = it.studentAnswers[student.id]
+            val cellValue =
+              when (answer) {
+                null -> "-"
+                it.metaInformation.correctAnswerIndex -> "1"
+                else -> "0"
+              }
+            FormattedCell(cellValue)
+          }
+        listOf(leadingCell) + theRest
+      }
+    val cells = listOf(headerRow) + studentRows
+    return ComposedTable(
+      cells,
+      listOf(ID_COLUMN_WIDTH, null, null) + List<Int?>(sortedQuizzes.size) { RATING_COLUMN_WIDTH },
     )
   }
 

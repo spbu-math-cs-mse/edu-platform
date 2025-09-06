@@ -232,6 +232,7 @@ class ApiFabric(
         database,
         studentStorage,
         teacherStorage,
+        googleSheetsService,
       )
     val courseService = CourseService(courseRepository, studentStorage, database)
     val challengeService =

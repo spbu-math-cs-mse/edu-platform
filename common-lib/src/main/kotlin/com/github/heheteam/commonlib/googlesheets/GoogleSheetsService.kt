@@ -5,10 +5,12 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Grade
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Student
+import com.github.heheteam.commonlib.domain.RichCourse
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.ProblemId
 import com.github.heheteam.commonlib.interfaces.SpreadsheetId
 import com.github.heheteam.commonlib.interfaces.StudentId
+import com.github.heheteam.commonlib.quiz.RichQuiz
 import com.github.michaelbull.result.Result
 
 interface GoogleSheetsService {
@@ -21,5 +23,12 @@ interface GoogleSheetsService {
     problems: List<Problem>,
     students: List<Student>,
     performance: Map<StudentId, Map<ProblemId, Grade?>>,
+  ): Result<Unit, EduPlatformError>
+
+  fun updateQuizzesSheet(
+    courseSpreadsheetId: String,
+    course: RichCourse,
+    students: List<Student?>,
+    bind: List<RichQuiz>,
   ): Result<Unit, EduPlatformError>
 }

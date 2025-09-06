@@ -43,8 +43,8 @@ data class AssignmentId(val long: Long) {
 }
 
 @Serializable
-data class SpreadsheetId(val long: String) {
-  override fun toString(): String = long
+data class SpreadsheetId(val string: String) {
+  override fun toString(): String = string
 }
 
 @Serializable

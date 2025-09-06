@@ -67,7 +67,7 @@ internal constructor(
                   courseStorage.resolveCourseWithSpreadsheetId(courseId).bind()
                 googleSheetsService
                   .updateRating(
-                    spreadsheetId.long,
+                    spreadsheetId.string,
                     course,
                     assignmentStorage.getAssignmentsForCourse(courseId).bind(),
                     problemStorage.getProblemsFromCourse(courseId).bind(),

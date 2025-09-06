@@ -17,7 +17,6 @@ import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.util.getCurrentInstant
 import com.github.heheteam.commonlib.util.getCurrentMoscowTime
-import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
 import com.github.heheteam.teacherbot.StateRegister
 import com.github.heheteam.teacherbot.TeacherRunner
@@ -47,7 +46,6 @@ class MultiBotRunner : CliktCommand() {
     val studentBotToken = config.botConfig.studentBotToken
     val teacherBotToken = config.botConfig.teacherBotToken
     val adminBotToken = config.botConfig.adminBotToken
-    val parentBotToken = config.botConfig.parentBotToken
 
     CourseStatisticsFormatter.studentBotUsername = config.botConfig.studentBotUsername
 
@@ -125,7 +123,6 @@ class MultiBotRunner : CliktCommand() {
           .run()
       }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
-      launch { parentRun(parentBotToken, apis.parentApi) }
     }
   }
 }

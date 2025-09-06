@@ -56,7 +56,7 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
       }
 
     val messageText = buildEntities {
-      +"Ваше решение задачи ${problem.number}, серия \"${assignment.description}\" " +
+      +"Ваше решение задачи ${problem.number}, серия \"${assignment.name}\" " +
         "(id задачи: ${problem.id}) проверено!\n"
       +"Оценка: $emoji ${assessment.grade}/${problem.maxScore}\n"
       if (

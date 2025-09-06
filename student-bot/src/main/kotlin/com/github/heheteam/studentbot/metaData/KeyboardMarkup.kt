@@ -27,9 +27,9 @@ fun buildProblemSendingSelector(
           row {
             val statementsUrl = assignment.statementsUrl
             if (statementsUrl != null && useUrls) {
-              urlButton("${assignment.description}:", statementsUrl)
+              urlButton("${assignment.name}:", statementsUrl)
             } else {
-              dataButton("${assignment.description}:", Keyboards.FICTITIOUS)
+              dataButton("${assignment.name}:", Keyboards.FICTITIOUS)
             }
           }
           val numberOfRows = ceil(problems.size.toFloat() / MAX_LENGTH_OF_KEYBOARD_ROW)

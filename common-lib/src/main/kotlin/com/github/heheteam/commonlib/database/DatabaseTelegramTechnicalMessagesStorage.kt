@@ -221,7 +221,7 @@ internal class DatabaseTelegramTechnicalMessagesStorage(
             .map { it[CourseTable.groupRawChatId] }
             .firstOrNull()
             ?: return@transaction Err(
-              "Course $courseId does not have a corresponding group chat  !"
+              "Course $courseId does not have a corresponding group chat!"
                 .asNamedError(serviceClass)
             )
         return@transaction MenuMessageInfo(RawChatId(chatId)).ok()

@@ -83,7 +83,7 @@ internal constructor(
         submission.responsibleTeacherId?.let { teacherStorage.resolveTeacher(it).bind() }
       SubmissionStatusMessageInfo(
         submissionId,
-        assignment.description,
+        assignment.name,
         problem.number,
         student,
         responsibleTeacher,

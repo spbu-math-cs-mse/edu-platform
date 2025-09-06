@@ -32,7 +32,8 @@ data class PerformDeleteAssignmentState(
             failure = { error ->
               bot.send(
                 context,
-                "Не удалось удалить серию. Пожалуйста, попробуйте еще раз.\nОшибка: ${error.shortDescription}",
+                "Не удалось удалить серию. Пожалуйста, попробуйте еще раз.\n" +
+                  "Ошибка №${error.number}: ${error.shortDescription}",
               )
             },
           )

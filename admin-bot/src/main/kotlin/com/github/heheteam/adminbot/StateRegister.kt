@@ -5,7 +5,6 @@ import com.github.heheteam.adminbot.states.AddStudentState
 import com.github.heheteam.adminbot.states.AddTeacherState
 import com.github.heheteam.adminbot.states.AskFirstNameState
 import com.github.heheteam.adminbot.states.AskLastNameState
-import com.github.heheteam.adminbot.states.ConfirmDeleteAssignmentState
 import com.github.heheteam.adminbot.states.ConfirmDeleteMessageState
 import com.github.heheteam.adminbot.states.CourseInfoState
 import com.github.heheteam.adminbot.states.CreateCourseState
@@ -42,11 +41,13 @@ import com.github.heheteam.adminbot.states.scheduled.QueryScheduledMessageUserGr
 import com.github.heheteam.adminbot.states.scheduled.ScheduledMessagesMenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
+import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
@@ -83,6 +84,9 @@ internal class StateRegister(
 
   fun registerStates(botToken: String) =
     with(bot) {
+      onStateOrSubstate<SimpleState<AdminApi, AdminId>> {
+        it.handle(this, adminApi) { _, _ -> }
+      }
       registerStateForBotState<StartState, AdminApi>(adminApi)
       registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
       registerState<AskLastNameState, AdminApi>(adminApi)
@@ -125,7 +129,6 @@ internal class StateRegister(
 
   private fun DefaultBehaviourContextWithFSM<State>.registerAssignmentDeletionStates() {
     registerStateForBotStateWithHandlers<QueryAssignmentForDeleting>(::registerHandlers)
-    registerStateForBotStateWithHandlers<ConfirmDeleteAssignmentState>(::registerHandlers)
     registerStateForBotState<PerformDeleteAssignmentState, AdminApi>(adminApi)
   }
 

@@ -62,7 +62,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
             submissionStatusMessageInfo =
               SubmissionStatusMessageInfo(
                 submissionId = submission.id,
-                assignmentDisplayName = assignment.description,
+                assignmentDisplayName = assignment.name,
                 problemDisplayName = problems.first().number,
                 student = student,
                 responsibleTeacher = teacher,

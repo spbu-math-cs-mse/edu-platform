@@ -97,8 +97,7 @@ data class QueryAssignmentForCheckingGradesState(
     assignment: Assignment,
     gradedProblems: List<Pair<Problem, ProblemGrade>>,
   ) {
-    val strGrades =
-      "Оценки за серию ${assignment.description}:\n" + gradedProblems.withGradesToText()
+    val strGrades = "Оценки за серию ${assignment.name}:\n" + gradedProblems.withGradesToText()
     bot.send(context, text = strGrades)
   }
 

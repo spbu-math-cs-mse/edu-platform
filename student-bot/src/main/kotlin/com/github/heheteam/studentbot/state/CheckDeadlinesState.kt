@@ -47,7 +47,7 @@ class CheckDeadlinesState(
           problemsWithPersonalDeadlines
             .sortedBy { it.first.id.long }
             .forEach { (assignment, problems) ->
-              +bold(assignment.description) + regular("\n")
+              +bold(assignment.name) + regular("\n")
               service.calculateRescheduledDeadlines(studentId, problems).forEach { problem ->
                 val formattedDeadline =
                   problem.deadline?.format(deadlineFormat)?.let { regular(it) }

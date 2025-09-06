@@ -9,6 +9,7 @@ import com.github.heheteam.commonlib.interfaces.QuizId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.quiz.AnswerQuizResult
 import com.github.heheteam.commonlib.state.InformationState
+import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
@@ -125,7 +126,6 @@ internal class StateRegister(
         ::initializeHandlers,
       )
       registerStateWithStudentId<MyCoursesState, StudentApi>(studentApi, ::initializeHandlers)
-      registerStateWithStudentId<DachshundMenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)
       registerParentQuests(parentApi, ::initializeParentsHandlers)
       strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }
@@ -136,6 +136,9 @@ internal class StateRegister(
       registerParentStates(parentApi, ::initializeParentsHandlers)
       strictlyOn<ExceptionErrorMessageState> { it.handle(this) }
       strictlyOn<StartState> { it.handle(studentApi, parentApi) }
+      onStateOrSubstate<SimpleState<StudentApi, StudentId>> {
+        it.handle(this, studentApi) { _, _ -> }
+      }
     }
   }
 

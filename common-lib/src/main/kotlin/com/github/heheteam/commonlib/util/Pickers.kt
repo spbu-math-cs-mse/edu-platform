@@ -69,9 +69,9 @@ fun createRichCoursePicker(courses: List<RichCourse>): MenuKeyboardData<RichCour
   createPickerWithBackButtonFromList(courses) { it.description }
 
 fun createAssignmentPicker(assignments: List<Assignment>): MenuKeyboardData<Assignment?> =
-  createPickerWithBackButtonFromList(assignments) { it.description }
+  createPickerWithBackButtonFromList(assignments) { it.name }
 
 suspend fun BehaviourContext.queryAssignment(
   user: User,
   assignments: List<Assignment>,
-): Assignment? = queryPickerWithBackFromList(user, assignments, "Выберите серию") { it.description }
+): Assignment? = queryPickerWithBackFromList(user, assignments, "Выберите серию") { it.name }

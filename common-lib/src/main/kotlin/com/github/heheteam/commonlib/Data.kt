@@ -154,7 +154,7 @@ data class Course(val id: CourseId, val name: String)
 data class Assignment(
   val id: AssignmentId,
   val serialNumber: Int,
-  val description: String,
+  val name: String,
   val courseId: CourseId,
   val statementsUrl: String?,
   val challengeId: AssignmentId?,

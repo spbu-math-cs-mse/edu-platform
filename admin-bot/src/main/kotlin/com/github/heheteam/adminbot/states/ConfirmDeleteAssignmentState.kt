@@ -25,7 +25,7 @@ data class ConfirmDeleteAssignmentState(
 
   private fun formatAssignment(assignmentDependencies: AssignmentDependencies): TextSourcesList =
     buildEntities {
-      bold("Вы собираетесь удалить серию:${assignmentDependencies.assignment.description}\n")
+      bold("Вы собираетесь удалить серию:${assignmentDependencies.assignment.name}\n")
       bold("ID: ${assignmentDependencies.assignment.id.long}\n\n")
       boldln("Вместе с ней удалятся:")
       bold("${assignmentDependencies.numberOfProblems}")

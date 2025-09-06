@@ -6,7 +6,6 @@ import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.state.BotContext
-import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import dev.inmo.micro_utils.fsm.common.State
@@ -21,7 +20,7 @@ data class ConfirmDeleteAssignmentState(
   override val context: User,
   override val userId: AdminId,
   val assignmentId: AssignmentId,
-) : SimpleState<AdminApi, AdminId>() {
+) : SimpleAdminState() {
 
   private fun formatAssignment(assignmentDependencies: AssignmentDependencies): TextSourcesList =
     buildEntities {

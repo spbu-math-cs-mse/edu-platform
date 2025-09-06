@@ -3,10 +3,10 @@ package com.github.heheteam.studentbot
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotContext
-import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.studentbot.state.MenuState
+import com.github.heheteam.studentbot.state.SimpleStudentState
 import com.github.heheteam.studentbot.state.SolutionsStudentMenuState
 import com.github.heheteam.studentbot.state.StudentAboutCourseState
 import com.github.heheteam.studentbot.state.StudentKeyboards
@@ -19,7 +19,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.utils.buildEntities
 
 class DachshundMenuState(override val context: User, override val userId: StudentId) :
-  SimpleState<StudentApi, StudentId>() {
+  SimpleStudentState() {
   fun handleKeyboardCallback(data: String, service: StudentApi) = binding {
     when (data) {
       StudentKeyboards.ABOUT_COURSE -> StudentAboutCourseState(context, userId)

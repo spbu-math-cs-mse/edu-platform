@@ -16,6 +16,7 @@ import com.github.heheteam.adminbot.states.QueryAssignmentForDeleting
 import com.github.heheteam.adminbot.states.QueryCourseForEditing
 import com.github.heheteam.adminbot.states.RemoveStudentState
 import com.github.heheteam.adminbot.states.RemoveTeacherState
+import com.github.heheteam.adminbot.states.SimpleAdminState
 import com.github.heheteam.adminbot.states.StartState
 import com.github.heheteam.adminbot.states.assignments.CompleteAssignmentCreationState
 import com.github.heheteam.adminbot.states.assignments.CreateAssignmentErrorState
@@ -41,13 +42,11 @@ import com.github.heheteam.adminbot.states.scheduled.QueryScheduledMessageUserGr
 import com.github.heheteam.adminbot.states.scheduled.ScheduledMessagesMenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.interfaces.toAdminId
 import com.github.heheteam.commonlib.interfaces.toCourseId
 import com.github.heheteam.commonlib.interfaces.toStudentId
 import com.github.heheteam.commonlib.state.BotStateWithHandlers
-import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.state.SuspendableBotAction
 import com.github.heheteam.commonlib.state.registerState
 import com.github.heheteam.commonlib.state.registerStateForBotState
@@ -84,9 +83,7 @@ internal class StateRegister(
 
   fun registerStates(botToken: String) =
     with(bot) {
-      onStateOrSubstate<SimpleState<AdminApi, AdminId>> {
-        it.handle(this, adminApi) { _, _ -> }
-      }
+      onStateOrSubstate<SimpleAdminState> { it.handle(this, adminApi) { _, _ -> } }
       registerStateForBotState<StartState, AdminApi>(adminApi)
       registerStateForBotState<AskFirstNameState, AdminApi>(adminApi)
       registerState<AskLastNameState, AdminApi>(adminApi)

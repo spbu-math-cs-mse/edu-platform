@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalDateTime
 
 fun Map<Assignment, List<Problem>>.filterByDeadlineAndSort(
   currentMoscowTime: LocalDateTime
-): Iterable<Pair<Assignment, List<Problem>>> =
+): List<Pair<Assignment, List<Problem>>> =
   this.map { (assignment, problems) ->
       assignment to
         problems.filter { !isDeadlineMissed(it, currentMoscowTime) }.sortedBy { it.serialNumber }

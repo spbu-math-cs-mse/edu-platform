@@ -37,7 +37,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
     } returns Unit.ok()
 
   private fun mockSendMenuMessage(returnValue: Result<TelegramMessageInfo, EduPlatformError>) =
-    coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns returnValue
+    coEvery { teacherBotController.sendMenuMessageInPersonalChat(any(), any()) } returns returnValue
 
   @Test
   fun `telegram notifications are sent on new submission`() = runTest {
@@ -62,7 +62,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
             submissionStatusMessageInfo =
               SubmissionStatusMessageInfo(
                 submissionId = submission.id,
-                assignmentDisplayName = assignment.description,
+                assignmentDisplayName = assignment.name,
                 problemDisplayName = problems.first().number,
                 student = student,
                 responsibleTeacher = teacher,
@@ -108,7 +108,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
   fun `teacher api updateTeacherMenuMessage propagates telegram errors`() = runTest {
     mockSendInitSubmissionStatusMessageDM(Ok(messageInfoNum(1)))
     mockSendInitSubmissionStatusMessageInCourseGroupChat(Ok(messageInfoNum(1)))
-    coEvery { teacherBotController.sendMenuMessage(any(), any()) } returns
+    coEvery { teacherBotController.sendMenuMessageInPersonalChat(any(), any()) } returns
       Err(TelegramError(RuntimeException("Simulated Telegram error during sendMenuMessage")))
 
     buildData(createDefaultApis()) {
@@ -132,7 +132,7 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
       course("Course1") {
         withStudent(student)
         withTeacher(teacher)
-        val (_, problems) = assignment("Assignment1") { problem("Problem1", 10) }
+        val (assignment, problems) = assignment("Assignment1") { problem("Problem1", 10) }
 
         val submission = submission(student, problems.first(), "Submission1")
         val assessment = assessment(teacher, submission, 1)
@@ -141,8 +141,8 @@ class AcademicWorkflowTest : IntegrationTestEnvironment() {
           studentBotController.notifyStudentOnNewAssessment(
             chatId = student.tgId,
             messageToReplyTo = submission.messageId,
-            studentId = student.id,
             problem = problems.first(),
+            assignment = assignment,
             assessment = assessment,
           )
         }

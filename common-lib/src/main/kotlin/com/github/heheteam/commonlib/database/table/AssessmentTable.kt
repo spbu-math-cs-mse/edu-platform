@@ -3,12 +3,14 @@ package com.github.heheteam.commonlib.database.table
 import com.github.heheteam.commonlib.TextWithMediaAttachments
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.json.json
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object AssessmentTable : LongIdTable("assessment") {
-  val submissionId = reference("submissionId", SubmissionTable.id)
+  val submissionId =
+    reference("submissionId", SubmissionTable.id, onDelete = ReferenceOption.CASCADE)
   val teacherId = reference("teacherId", TeacherTable.id)
   val grade = integer("grade")
   val comment = json<TextWithMediaAttachments>("content", Json)

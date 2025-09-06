@@ -36,6 +36,7 @@ import com.github.heheteam.studentbot.state.SelectParentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
 import com.github.heheteam.studentbot.state.SendSubmissionState
+import com.github.heheteam.studentbot.state.SimpleStudentState
 import com.github.heheteam.studentbot.state.SolutionsStudentMenuState
 import com.github.heheteam.studentbot.state.StartState
 import com.github.heheteam.studentbot.state.StudentAboutCourseState
@@ -124,7 +125,6 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
-      registerStateWithStudentId<CourseMenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MyCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)
       registerParentQuests(parentApi, ::initializeParentsHandlers)
@@ -136,6 +136,7 @@ internal class StateRegister(
       registerParentStates(parentApi, ::initializeParentsHandlers)
       strictlyOn<ExceptionErrorMessageState> { it.handle(this) }
       strictlyOn<StartState> { it.handle(studentApi, parentApi) }
+      onStateOrSubstate<SimpleStudentState> { it.handle(this, studentApi) { _, _ -> } }
     }
   }
 

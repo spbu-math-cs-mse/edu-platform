@@ -3,13 +3,12 @@ package com.github.heheteam.adminbot.states
 import com.github.heheteam.adminbot.AdminKeyboards
 import com.github.heheteam.adminbot.AdminKeyboards.ADD_ADMIN
 import com.github.heheteam.adminbot.AdminKeyboards.COURSE_INFO
-import com.github.heheteam.adminbot.AdminKeyboards.CREATE_ASSIGNMENT
 import com.github.heheteam.adminbot.AdminKeyboards.CREATE_COURSE
 import com.github.heheteam.adminbot.AdminKeyboards.EDIT_COURSE
 import com.github.heheteam.adminbot.AdminKeyboards.SEND_SCHEDULED
 import com.github.heheteam.adminbot.Dialogues
 import com.github.heheteam.adminbot.states.general.AdminBotStateWithHandlers
-import com.github.heheteam.adminbot.states.scheduled.ScheduledMessagesMenu
+import com.github.heheteam.adminbot.states.scheduled.ScheduledMessagesMenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.interfaces.AdminId
@@ -60,7 +59,6 @@ class MenuState(override val context: User, val adminId: AdminId) :
       when (callback.data) {
         CREATE_COURSE -> NewState(CreateCourseState(context, adminId))
         EDIT_COURSE -> NewState(QueryCourseForEditing(context, adminId))
-        CREATE_ASSIGNMENT -> NewState(QueryCourseForAssignmentCreation(context, adminId))
         COURSE_INFO -> {
           val courses = service.getCourses().value.map { it.value }
           bot.queryCourse(context, courses)?.let { course ->
@@ -68,7 +66,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
           } ?: Unhandled
         }
         ADD_ADMIN -> NewState(AddAdminState(context, adminId))
-        SEND_SCHEDULED -> NewState(ScheduledMessagesMenu(context, adminId))
+        SEND_SCHEDULED -> NewState(ScheduledMessagesMenuState(context, adminId))
         else -> Unhandled
       }
     }

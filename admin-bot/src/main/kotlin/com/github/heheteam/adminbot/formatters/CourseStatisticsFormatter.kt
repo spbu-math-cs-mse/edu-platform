@@ -40,9 +40,7 @@ object CourseStatisticsFormatter {
 
     if (stats.assignments.isNotEmpty()) {
       add(RegularTextSource("📝 Серии заданий:\n"))
-      stats.assignments.forEach { assignment ->
-        add(RegularTextSource("• ${assignment.description}\n"))
-      }
+      stats.assignments.forEach { assignment -> add(RegularTextSource("• ${assignment.name}\n")) }
     }
 
     add(RegularTextSource("\n👨‍🏫 ID преподавателей:\n"))

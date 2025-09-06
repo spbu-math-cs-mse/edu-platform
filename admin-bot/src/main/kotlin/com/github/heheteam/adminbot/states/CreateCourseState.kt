@@ -11,12 +11,13 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
-import com.github.heheteam.commonlib.util.ok
 import com.github.heheteam.commonlib.util.toUrl
+import com.github.michaelbull.result.BindingScope
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
 import com.github.michaelbull.result.mapBoth
-import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
@@ -53,28 +54,25 @@ class CreateCourseState(override val context: User, val adminId: AdminId) :
   override suspend fun computeNewState(
     service: AdminApi,
     input: String,
-  ): Result<Pair<State, CreateCourseResponse?>, FrontendError> {
+  ): Result<Pair<State, CreateCourseResponse?>, FrontendError> = binding {
     val response =
       if (input == "/stop") null
       else {
         response(service, input)
       }
-    return Pair(MenuState(context, adminId), response).ok()
+    Pair(MenuState(context, adminId), response)
   }
 
-  private fun response(service: AdminApi, input: String): CreateCourseResponse {
-    val courses =
-      service
-        .getCourses()
-        .mapError {
-          return CreateCourseResponse.FailedToLookupCourses
-        }
-        .value
+  private fun BindingScope<FrontendError>.response(
+    service: AdminApi,
+    input: String,
+  ): CreateCourseResponse {
+    val courses = service.getCourses().get() ?: return CreateCourseResponse.FailedToLookupCourses
     val sameNameCourse = courses.map { it.value }.find { it.name == input }
     if (sameNameCourse != null) {
       return CreateCourseResponse.CourseWithNameExists(input, sameNameCourse.id)
     }
-    val courseId = service.createCourse(input).value
+    val courseId = service.createCourse(input).bind()
     return service
       .resolveCourseWithSpreadsheetId(courseId)
       .mapBoth(

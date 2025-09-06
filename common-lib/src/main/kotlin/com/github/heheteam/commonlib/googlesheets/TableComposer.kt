@@ -48,7 +48,7 @@ internal class TableComposer {
       listOf(FormattedCell(course.name, DataType.STRING, 3).centerAlign().bold().borders(2)) +
         // Assignments
         sortedAssignments.map {
-          FormattedCell(it.description, DataType.STRING, assignmentSizes[it.id] ?: 0)
+          FormattedCell(it.name, DataType.STRING, assignmentSizes[it.id] ?: 0)
             .bold()
             .borders(2)
             .centerAlign()

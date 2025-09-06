@@ -29,7 +29,8 @@ class MyCoursesState(
     val coursesPicker = createCoursePicker(courses)
     coursesPicker.map { course ->
       if (course != null) {
-        CourseMenuState(context, userId, course)
+        service.saveSelectedCourse(userId, course.id)
+        MenuState(context, userId)
       } else null
     }
   }

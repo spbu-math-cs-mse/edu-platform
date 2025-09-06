@@ -4,7 +4,6 @@ import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.state.BotContext
-import com.github.heheteam.commonlib.state.SimpleState
 import com.github.heheteam.commonlib.util.NewState
 import com.github.heheteam.studentbot.Keyboards
 import dev.inmo.micro_utils.fsm.common.State
@@ -14,7 +13,7 @@ data class RequestChallengeState(
   override val context: User,
   override val userId: StudentId,
   private val course: Course,
-) : SimpleState<StudentApi, StudentId>() {
+) : SimpleStudentState() {
   override fun defaultState(): State = MenuState(context, userId)
 
   override suspend fun BotContext.run(service: StudentApi) {

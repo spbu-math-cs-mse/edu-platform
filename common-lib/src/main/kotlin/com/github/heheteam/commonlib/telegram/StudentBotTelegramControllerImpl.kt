@@ -1,5 +1,6 @@
 package com.github.heheteam.commonlib.telegram
 
+import com.github.heheteam.commonlib.Assignment
 import com.github.heheteam.commonlib.Course
 import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.ScheduledMessage
@@ -8,7 +9,6 @@ import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.errors.TelegramError
 import com.github.heheteam.commonlib.errors.UncaughtExceptionError
 import com.github.heheteam.commonlib.interfaces.QuizId
-import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.UserGroup
 import com.github.heheteam.commonlib.util.sendTextWithMediaAttachments
 import com.github.michaelbull.result.Result
@@ -44,8 +44,8 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
   override suspend fun notifyStudentOnNewAssessment(
     chatId: RawChatId,
     messageToReplyTo: MessageId,
-    studentId: StudentId,
     problem: Problem,
+    assignment: Assignment,
     assessment: SubmissionAssessment,
   ): Result<Unit, EduPlatformError> {
     val emoji =
@@ -56,7 +56,8 @@ class StudentBotTelegramControllerImpl(private val studentBot: TelegramBot) :
       }
 
     val messageText = buildEntities {
-      +"Ваше решение задачи ${problem.number}, серия ${problem.assignmentId} (id задачи: ${problem.id}) проверено!\n"
+      +"Ваше решение задачи ${problem.number}, серия \"${assignment.name}\" " +
+        "(id задачи: ${problem.id}) проверено!\n"
       +"Оценка: $emoji ${assessment.grade}/${problem.maxScore}\n"
       if (
         assessment.comment.text.makeString().isNotEmpty() ||

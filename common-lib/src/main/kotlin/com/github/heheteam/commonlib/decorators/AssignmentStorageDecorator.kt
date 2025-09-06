@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.decorators
 
 import com.github.heheteam.commonlib.Assignment
+import com.github.heheteam.commonlib.AssignmentDependencies
 import com.github.heheteam.commonlib.ProblemDescription
 import com.github.heheteam.commonlib.errors.DatabaseExceptionError
 import com.github.heheteam.commonlib.errors.EduPlatformError
@@ -11,6 +12,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import com.github.heheteam.commonlib.interfaces.RatingRecorder
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.binding
 import com.github.michaelbull.result.map
 
 class AssignmentStorageDecorator
@@ -35,6 +37,18 @@ internal constructor(
         ratingRecorder.updateRating(courseId)
         it
       }
+
+  override fun resolveAssignmentAndDependencies(
+    assignmentId: AssignmentId
+  ): Result<AssignmentDependencies, EduPlatformError> =
+    assignmentStorage.resolveAssignmentAndDependencies(assignmentId)
+
+  override fun deleteAssignment(assignmentId: AssignmentId): Result<Unit, EduPlatformError> =
+    binding {
+      val courseId = assignmentStorage.resolveAssignment(assignmentId).bind().courseId
+      assignmentStorage.deleteAssignment(assignmentId)
+      ratingRecorder.updateRating(courseId)
+    }
 
   override fun createChallenge(
     assignmentId: AssignmentId,

@@ -43,6 +43,7 @@ object AdminKeyboards {
   const val CREATE_COURSE = "create course"
   const val EDIT_COURSE = "edit course"
   const val CREATE_ASSIGNMENT = "create assignment"
+  const val DELETE_ASSIGNMENT = "delete assignment"
   const val COURSE_INFO = "course info"
   const val ADD_ADMIN = "add admin"
   const val SEND_SCHEDULED = "send scheduled"

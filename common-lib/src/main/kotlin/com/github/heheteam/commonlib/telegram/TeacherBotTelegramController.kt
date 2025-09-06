@@ -32,7 +32,12 @@ interface TeacherBotTelegramController {
     content: TextWithMediaAttachments,
   ): Result<Unit, EduPlatformError>
 
-  suspend fun sendMenuMessage(
+  suspend fun sendMenuMessageInPersonalChat(
+    chatId: RawChatId,
+    replyTo: TelegramMessageInfo?,
+  ): Result<TelegramMessageInfo, EduPlatformError>
+
+  suspend fun sendMenuMessageInGroupChat(
     chatId: RawChatId,
     replyTo: TelegramMessageInfo?,
   ): Result<TelegramMessageInfo, EduPlatformError>

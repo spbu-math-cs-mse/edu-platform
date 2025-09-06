@@ -34,17 +34,20 @@ class CheckDeadlinesState(
     bot: BehaviourContext,
     service: StudentApi,
   ): Result<Unit, FrontendError> = coroutineBinding {
-    val problemsWithPersonalDeadlines = service.getActiveProblems(studentId, course.id).bind()
+    val problemsWithPersonalDeadlines =
+      service
+        .getActiveProblems(studentId, course.id)
+        .bind()
+        .filterByDeadlineAndSort(getCurrentMoscowTime())
     val messageText =
       if (problemsWithPersonalDeadlines.isEmpty()) {
         buildEntities(" ") { +"Нет активных дедлайнов" }
       } else {
         buildEntities(" ") {
           problemsWithPersonalDeadlines
-            .filterByDeadlineAndSort(getCurrentMoscowTime())
             .sortedBy { it.first.id.long }
             .forEach { (assignment, problems) ->
-              +bold(assignment.description) + regular("\n")
+              +bold(assignment.name) + regular("\n")
               service.calculateRescheduledDeadlines(studentId, problems).forEach { problem ->
                 val formattedDeadline =
                   problem.deadline?.format(deadlineFormat)?.let { regular(it) }

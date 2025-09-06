@@ -24,7 +24,6 @@ import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
-import dev.inmo.kslog.common.error
 import dev.inmo.micro_utils.coroutines.firstNotNull
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.TelegramBot
@@ -99,10 +98,10 @@ class MenuState(override val context: User, private val teacherId: TeacherId) : 
     )
 
   private fun createDataCallbackHandlers() =
-    listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress, ::handleMenuPressess)
+    listOf(::tryHandleConfirmButtonPress, ::tryHandleGradingButtonPress, ::handleMenuPresses)
 
   @OptIn(RiskFeature::class)
-  private fun handleMenuPressess(
+  private fun handleMenuPresses(
     data: DataCallbackQuery
   ): Result<HandlerResult<TeacherAction>, Any>? =
     if (data.data == "newquiz") {

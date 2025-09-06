@@ -14,6 +14,7 @@ import com.github.heheteam.commonlib.util.Unhandled
 import com.github.heheteam.commonlib.util.ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.get
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.send
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
@@ -33,7 +34,7 @@ class CourseInfoState(override val context: User, val course: Course, val adminI
     bot.send(
       context,
       entities = CourseStatisticsFormatter.format(course.id, course.name, stats, courseToken),
-      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).bind(), courseToken),
+      replyMarkup = AdminKeyboards.courseInfo(service.getRatingLink(course.id).get(), courseToken),
     )
 
     updateHandlersController.addDataCallbackHandler { callback ->

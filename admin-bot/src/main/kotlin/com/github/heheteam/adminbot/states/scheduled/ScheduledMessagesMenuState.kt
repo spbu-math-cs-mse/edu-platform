@@ -12,7 +12,7 @@ import dev.inmo.tgbotapi.types.chat.User
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
 import dev.inmo.tgbotapi.utils.buildEntities
 
-class ScheduledMessagesMenu(override val context: User, val adminId: AdminId) :
+class ScheduledMessagesMenuState(override val context: User, val adminId: AdminId) :
   AdminNavigationBotStateWithHandlers() {
   override val introMessageContent: TextSourcesList = buildEntities { +"Меню рассылок" }
 

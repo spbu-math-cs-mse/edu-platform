@@ -3,7 +3,6 @@ package com.github.heheteam.studentbot.state
 import com.github.heheteam.commonlib.SubmissionInputRequest
 import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
-import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.errors.toTelegramError
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
@@ -21,6 +20,8 @@ import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.runCatching
 import dev.inmo.kslog.common.KSLog
+import dev.inmo.kslog.common.error
+import dev.inmo.kslog.common.logger
 import dev.inmo.kslog.common.warning
 import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.bot.exceptions.CommonRequestException
@@ -104,16 +105,16 @@ class ConfirmSubmissionState(
         }
         if (response != null) {
           when (response) {
-            is SubmissionSendingResult.Failure ->
-              bot.send(
-                context.id,
-                "Случилась ошибка при отправке решения\n" + response.error.toStackedString(),
-              )
-            is SubmissionSendingResult.Success ->
+            is SubmissionSendingResult.Failure -> {
+              logger.error(response.error)
+              bot.send(context.id, "Случилась ошибка при отправке решения")
+            }
+            is SubmissionSendingResult.Success -> {
               bot.send(
                 context.id,
                 "Решение ${response.submissionId.long} успешно отправлено на проверку!",
               )
+            }
           }
         }
       }

@@ -4,6 +4,7 @@ import com.github.heheteam.commonlib.Problem
 import com.github.heheteam.commonlib.Submission
 import com.github.heheteam.commonlib.SubmissionAssessment
 import com.github.heheteam.commonlib.SubmissionInputRequest
+import com.github.heheteam.commonlib.errors.AggregateError
 import com.github.heheteam.commonlib.errors.EduPlatformError
 import com.github.heheteam.commonlib.interfaces.AssignmentId
 import com.github.heheteam.commonlib.interfaces.ProblemGrade
@@ -57,8 +58,17 @@ internal class AcademicWorkflowService(
             submissionInputRequest.timestamp,
           )
         val notificationStatus = newSubmissionTeacherNotifier.notifyNewSubmission(submission)
-
-        SubmissionSendingResult.Success(submissionId, notificationStatus)
+        val errors =
+          listOfNotNull(
+            notificationStatus.groupNewSubmissionNotificationStatus.groupDirectMessageSendingError
+          )
+        if (errors.isEmpty()) {
+          SubmissionSendingResult.Success(submissionId, notificationStatus)
+        } else {
+          SubmissionSendingResult.Failure(
+            AggregateError("failed to send to group submission id  $submissionId", errors)
+          )
+        }
       },
       failure = { SubmissionSendingResult.Failure(it) },
     )

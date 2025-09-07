@@ -1,6 +1,6 @@
 package com.github.heheteam.commonlib.errors
 
-class TelegramError(val exception: Throwable) : EduPlatformError {
+data class TelegramError(val exception: Throwable) : EduPlatformError {
   override val causedBy: EduPlatformError?
     get() = null
 

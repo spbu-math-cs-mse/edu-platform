@@ -22,7 +22,7 @@ class FailedToResolveSubmission(
     get() = "Failed ot find submission id=${submission.id} in the database"
 }
 
-class SendToGroupSubmissionError(
+data class SendToGroupSubmissionError(
   val courseId: CourseId,
   override val causedBy: EduPlatformError? = null,
 ) : SubmissionSendingError(causedBy) {

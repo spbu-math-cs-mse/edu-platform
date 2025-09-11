@@ -191,9 +191,10 @@ class GoogleSheetsServiceImpl(serviceAccountKeyFile: String) : GoogleSheetsServi
     students: List<Student?>,
     bind: List<RichQuiz>,
   ): Result<Unit, EduPlatformError> = binding {
-    val table: ComposedTable = tableComposer.composeQuizzesTable(bind, students.filterNotNull())
-
-    writeTableToSheet(courseSpreadsheetId, QUIZZES_SHEET_TITLE, table)
+    //    val table: ComposedTable = tableComposer.composeQuizzesTable(bind,
+    // students.filterNotNull())
+    //
+    //    writeTableToSheet(courseSpreadsheetId, QUIZZES_SHEET_TITLE, table)
   }
 
   private fun BindingScope<EduPlatformError>.writeTableToSheet(

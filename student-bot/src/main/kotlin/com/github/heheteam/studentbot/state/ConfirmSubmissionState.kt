@@ -5,6 +5,7 @@ import com.github.heheteam.commonlib.api.StudentApi
 import com.github.heheteam.commonlib.errors.FrontendError
 import com.github.heheteam.commonlib.errors.toStackedString
 import com.github.heheteam.commonlib.errors.toTelegramError
+import com.github.heheteam.commonlib.errors.unwrapOfThrowEduPlatformException
 import com.github.heheteam.commonlib.interfaces.StudentId
 import com.github.heheteam.commonlib.logic.SubmissionSendingResult
 import com.github.heheteam.commonlib.state.BotStateWithHandlersAndStudentId
@@ -58,7 +59,9 @@ class ConfirmSubmissionState(
         ButtonData("Нет (отменить отправку)", "no") { false },
       )
     submissionMessage =
-      bot.sendTextWithMediaAttachments(context.id, submissionInputRequest.submissionContent).value
+      bot
+        .sendTextWithMediaAttachments(context.id, submissionInputRequest.submissionContent)
+        .unwrapOfThrowEduPlatformException()
     confirmMessage =
       bot.sendMessage(
         context,

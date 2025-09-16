@@ -11,6 +11,7 @@ import com.github.heheteam.adminbot.states.general.AdminBotStateWithHandlers
 import com.github.heheteam.adminbot.states.scheduled.ScheduledMessagesMenuState
 import com.github.heheteam.commonlib.api.AdminApi
 import com.github.heheteam.commonlib.errors.FrontendError
+import com.github.heheteam.commonlib.errors.unwrapOfThrowEduPlatformException
 import com.github.heheteam.commonlib.interfaces.AdminId
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.NewState
@@ -60,7 +61,7 @@ class MenuState(override val context: User, val adminId: AdminId) :
         CREATE_COURSE -> NewState(CreateCourseState(context, adminId))
         EDIT_COURSE -> NewState(QueryCourseForEditing(context, adminId))
         COURSE_INFO -> {
-          val courses = service.getCourses().value.map { it.value }
+          val courses = service.getCourses().unwrapOfThrowEduPlatformException().map { it.value }
           bot.queryCourse(context, courses)?.let { course ->
             NewState(CourseInfoState(context, course, adminId))
           } ?: Unhandled

@@ -1,6 +1,7 @@
 package com.github.heheteam.commonlib.errors
 
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapBoth
 import dev.inmo.micro_utils.common.joinTo
 import dev.inmo.micro_utils.fsm.common.State
 import kotlin.reflect.KClass
@@ -85,3 +86,12 @@ fun EduPlatformError.toStackedString(): String {
 typealias MaybeEduPlatformError = Result<Unit, EduPlatformError>
 
 typealias EduPlatformResult<T> = Result<T, EduPlatformError>
+
+data class EduPlatformException(val underlying: EduPlatformError) : RuntimeException() {
+  override val message: String
+    get() = underlying.toStackedString()
+}
+
+fun <T> Result<T, EduPlatformError>.unwrapOfThrowEduPlatformException(): T {
+  return mapBoth(success = { it }, failure = { throw EduPlatformException(it) })
+}

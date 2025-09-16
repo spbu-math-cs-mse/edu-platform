@@ -47,7 +47,6 @@ class MultiBotRunner : CliktCommand() {
     val studentBotToken = config.botConfig.studentBotToken
     val teacherBotToken = config.botConfig.teacherBotToken
     val adminBotToken = config.botConfig.adminBotToken
-    val parentBotToken = config.botConfig.parentBotToken
 
     CourseStatisticsFormatter.studentBotUsername = config.botConfig.studentBotUsername
 
@@ -125,7 +124,6 @@ class MultiBotRunner : CliktCommand() {
           .run()
       }
       launch { AdminRunner(apis.adminApi).run(adminBotToken) }
-      launch { parentRun(parentBotToken, apis.parentApi) }
     }
   }
 }

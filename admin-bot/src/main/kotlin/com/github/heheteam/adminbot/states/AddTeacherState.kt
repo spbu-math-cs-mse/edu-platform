@@ -17,11 +17,13 @@ import com.github.heheteam.commonlib.state.BotStateWithHandlers
 import com.github.heheteam.commonlib.state.UpdateHandlersControllerDefault
 import com.github.heheteam.commonlib.util.UserInput
 import com.github.heheteam.commonlib.util.delete
+import com.github.heheteam.commonlib.util.id
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State

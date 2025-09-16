@@ -21,17 +21,13 @@ import com.github.heheteam.studentbot.state.AskParentFirstNameState
 import com.github.heheteam.studentbot.state.AskParentLastNameState
 import com.github.heheteam.studentbot.state.AskStudentFirstNameState
 import com.github.heheteam.studentbot.state.AskStudentLastNameState
-import com.github.heheteam.studentbot.state.CheckDeadlinesState
 import com.github.heheteam.studentbot.state.ConfirmSubmissionState
 import com.github.heheteam.studentbot.state.ExceptionErrorMessageState
 import com.github.heheteam.studentbot.state.MenuState
 import com.github.heheteam.studentbot.state.ParentStartState
-import com.github.heheteam.studentbot.state.PetTheDachshundState
 import com.github.heheteam.studentbot.state.QueryAssignmentForCheckingGradesState
 import com.github.heheteam.studentbot.state.QueryProblemForSubmissionSendingState
 import com.github.heheteam.studentbot.state.RandomActivityState
-import com.github.heheteam.studentbot.state.RequestChallengeState
-import com.github.heheteam.studentbot.state.RescheduleDeadlinesState
 import com.github.heheteam.studentbot.state.SelectParentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentGradeState
 import com.github.heheteam.studentbot.state.SelectStudentParentState
@@ -68,6 +64,17 @@ internal class StateRegister(
   @Suppress("LongMethod") // ok, as it only initializes states
   fun registerStates(botToken: String) {
     with(bot) {
+      // first, initialize states without handlers
+      strictlyOn<SelectStudentGradeState> { it.handle(this, studentApi) }
+      strictlyOn<ConfirmAndGoToQuestState> { it.handle(this, studentApi) }
+      registerStateForBotState<StudentStartState, StudentApi>(studentApi)
+      registerStateForBotState<AskStudentFirstNameState, StudentApi>(studentApi)
+      registerState<AskStudentLastNameState, StudentApi>(studentApi)
+      registerSendSubmissionState(botToken, studentApi)
+      strictlyOnPresetStudentState(studentApi)
+      strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }
+      // below all states must initialize handlers
+
       registerStateWithStudentId<StudentAboutCourseState, StudentApi>(
         studentApi,
         ::initializeHandlers,
@@ -84,17 +91,6 @@ internal class StateRegister(
         studentApi,
         ::initializeHandlers,
       )
-      strictlyOn<SelectStudentGradeState> { it.handle(this, studentApi) }
-      strictlyOn<ConfirmAndGoToQuestState> { it.handle(this, studentApi) }
-      registerStateForBotState<StudentStartState, StudentApi>(studentApi)
-      registerStateForBotState<AskStudentFirstNameState, StudentApi>(studentApi)
-      registerState<AskStudentLastNameState, StudentApi>(studentApi)
-      registerSendSubmissionState(botToken, studentApi)
-      strictlyOnPresetStudentState(studentApi)
-      registerStateWithStudentId<RescheduleDeadlinesState, StudentApi>(studentApi)
-      registerStateWithStudentId<RequestChallengeState, StudentApi>(studentApi)
-      registerStateForBotState<CheckDeadlinesState, StudentApi>(studentApi)
-      registerStateForBotState<PetTheDachshundState, StudentApi>(studentApi)
       registerStateWithStudentId<RandomActivityState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<MenuState, StudentApi>(studentApi, ::initializeHandlers)
       registerStateWithStudentId<SolutionsStudentMenuState, StudentApi>(
@@ -128,7 +124,6 @@ internal class StateRegister(
       registerStateWithStudentId<MyCoursesState, StudentApi>(studentApi, ::initializeHandlers)
       registerStudentQuests(studentApi, ::initializeHandlers)
       registerParentQuests(parentApi, ::initializeParentsHandlers)
-      strictlyOn<SelectStudentParentState> { it.handle(this, studentApi) }
       strictlyOn<AskParentFirstNameState> { it.handle(this, parentApi) }
       strictlyOn<AskParentLastNameState> { it.handle(this, parentApi) }
       strictlyOn<SelectParentGradeState> { it.handle(this, parentApi) }
@@ -136,7 +131,11 @@ internal class StateRegister(
       registerParentStates(parentApi, ::initializeParentsHandlers)
       strictlyOn<ExceptionErrorMessageState> { it.handle(this) }
       strictlyOn<StartState> { it.handle(studentApi, parentApi) }
-      onStateOrSubstate<SimpleStudentState> { it.handle(this, studentApi) { _, _ -> } }
+      onStateOrSubstate<SimpleStudentState> {
+        it.handle(this, studentApi) { controller, context ->
+          initializeHandlers(controller, context, it.userId)
+        }
+      }
     }
   }
 
@@ -169,8 +168,7 @@ internal class StateRegister(
     studentId: StudentId,
     context: User,
   ): Unhandled {
-    val parseResult = parsePExpression(dataCallbackQuery.data)
-    if (parseResult == null) return Unhandled
+    val parseResult = parsePExpression(dataCallbackQuery.data) ?: return Unhandled
     val (quizId, answerIndex) = parseResult
     val answer = studentApi.answerQuiz(QuizId(quizId.toLong()), studentId, answerIndex)
     return answer.mapBoth(

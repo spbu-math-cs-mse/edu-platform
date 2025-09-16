@@ -17,7 +17,6 @@ import com.github.heheteam.commonlib.telegram.StudentBotTelegramControllerImpl
 import com.github.heheteam.commonlib.telegram.TeacherBotTelegramControllerImpl
 import com.github.heheteam.commonlib.util.getCurrentInstant
 import com.github.heheteam.commonlib.util.getCurrentMoscowTime
-import com.github.heheteam.parentbot.parentRun
 import com.github.heheteam.studentbot.StudentRunner
 import com.github.heheteam.teacherbot.StateRegister
 import com.github.heheteam.teacherbot.TeacherRunner

@@ -5,7 +5,6 @@ rootProject.name = "edu-platform"
 include(
   ":common-lib",
   ":student-bot",
-  ":parent-bot",
   ":teacher-bot",
   ":admin-bot",
   ":multi-bot",

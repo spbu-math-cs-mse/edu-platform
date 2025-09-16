@@ -23,7 +23,6 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.coroutines.coroutineBinding
-import com.github.michaelbull.result.mapBoth
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.runCatching
 import dev.inmo.micro_utils.fsm.common.State

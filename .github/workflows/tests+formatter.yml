@@ -179,5 +179,5 @@ jobs:
             cd /root/edu-platform
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull backend
-            CONTOUR=${{ github.event.inputs.contour }} docker compose up -d --force-recreate backend
+            CONTOUR=${{ github.event.inputs.contour }} DB_PORT=5431 docker compose up -d --force-recreate backend
             docker image prune -af

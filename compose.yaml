@@ -9,13 +9,13 @@ services:
       - .env
     container_name: "${CONTOUR}-edu-platform"
     environment:
-      DB_LOGIN_FILE: "/run/${CONTOUR}_secrets/db_user"
-      DB_PASSWORD_FILE: "/run/${CONTOUR}_secrets/db_password"
-      STUDENT_BOT_TOKEN_FILE: "/run/${CONTOUR}_secrets/student_bot_token"
-      TEACHER_BOT_TOKEN_FILE: "/run/${CONTOUR}_secrets/teacher_bot_token"
-      ADMIN_BOT_TOKEN_FILE: "/run/${CONTOUR}_secrets/admin_bot_token"
-      PARENT_BOT_TOKEN_FILE: "/run/${CONTOUR}_secrets/parent_bot_token"
-      GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE: "/run/${CONTOUR}_secrets/google_api_key"
+      DB_LOGIN_FILE: "/run/secrets/db_user"
+      DB_PASSWORD_FILE: "/run/secrets/db_password"
+      STUDENT_BOT_TOKEN_FILE: "/run/secrets/student_bot_token"
+      TEACHER_BOT_TOKEN_FILE: "/run/secrets/teacher_bot_token"
+      ADMIN_BOT_TOKEN_FILE: "/run/secrets/admin_bot_token"
+      PARENT_BOT_TOKEN_FILE: "/run/secrets/parent_bot_token"
+      GOOGLE_SHEETS_SERVICE_ACCOUNT_KEY_FILE: "/run/secrets/google_api_key"
     depends_on:
       postgres:
         condition: service_healthy
@@ -34,8 +34,8 @@ services:
     image: postgres:15
     container_name: postgres_db
     environment:
-      POSTGRES_USER_FILE: "/run/${CONTOUR}_secrets/db_user"
-      POSTGRES_PASSWORD_FILE: "/run/${CONTOUR}_secrets/db_password"
+      POSTGRES_USER_FILE: "/run/secrets/db_user"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
       POSTGRES_DB: "${CONTOUR}-edu-platform"
     secrets:
       - db_user
@@ -45,7 +45,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $$(cat /run/${CONTOUR}_secrets/db_user) -d edu-platform" ]
+      test: [ "CMD-SHELL", "pg_isready -U $$(cat /run/secrets/db_user) -d edu-platform" ]
       interval: 10s
       timeout: 5s
       retries: 5

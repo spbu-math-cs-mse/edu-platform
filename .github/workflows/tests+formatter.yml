@@ -124,7 +124,7 @@ jobs:
       (github.event.inputs.contour == 'test' && github.ref == 'refs/heads/deploy') # TODO: this should not be in hamster!!!!
 
     runs-on: ubuntu-latest
-#    needs: [ run-backend-tests, check-formatting, check-static-analyzer ] # TODO: this should not be in hamster!!!!
+    #    needs: [ run-backend-tests, check-formatting, check-static-analyzer ] # TODO: this should not be in hamster!!!!
     permissions:
       contents: read
       packages: write
@@ -179,5 +179,5 @@ jobs:
             cd /root/edu-platform
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull backend
-            CONTOUR=${{ github.event.inputs.contour }} DB_PORT=5431 docker compose up -d --force-recreate backend
+            CONTOUR=${{ github.event.inputs.contour }} DB_PORT=5431 DB_URL=jdbc:postgresql://postgres_db:5432/edu-platform docker compose up -d --force-recreate backend
             docker image prune -af

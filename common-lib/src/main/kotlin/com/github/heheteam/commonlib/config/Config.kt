@@ -39,7 +39,7 @@ class Config(private val dotenv: Dotenv) {
 
   val databaseConfig =
     DatabaseConfig(
-      url = System.getenv("DB_URL").ifEmpty { error("Environment variable DB_URL is not set.")  },
+      url = System.getenv("DB_URL").ifEmpty { error("Environment variable DB_URL is not set.") },
       driver = env("DB_DRIVER"),
       login = readSecret("DB_LOGIN_FILE"),
       password = readSecret("DB_PASSWORD_FILE"),

@@ -15,7 +15,7 @@ include(
 dependencyResolutionManagement {
   versionCatalogs {
     create("libs") {
-      version("tgbotapi", "18.2.1")
+      version("tgbotapi", "30.0.2")
       version("slf4j", "1.6.1")
       version("exposed", "0.56.0")
       version("postgresql", "42.7.2")

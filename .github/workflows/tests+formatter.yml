@@ -39,7 +39,7 @@ jobs:
 
 
   run-backend-tests:
-    if: ${{ github.event.inputs.enable-tests == 'true' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.enable-tests == 'true' }}
     runs-on: ubuntu-latest
     needs: setup-environment
     services:

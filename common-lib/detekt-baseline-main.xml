@@ -15,7 +15,6 @@
     <ID>MagicNumber:TeacherTable.kt$TeacherTable$255</ID>
     <ID>SpreadOperator:Init.kt$(*allTables)</ID>
     <ID>SuspendFunWithFlowReturnType:CallbackWithUser.kt$suspend</ID>
-    <ID>TooGenericExceptionCaught:DatabaseStudentStorage.kt$DatabaseStudentStorage$e: Throwable</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setLeft(Border().setWidth(width).setStyle("SOLID")) }</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setRight(Border().setWidth(width).setStyle("SOLID")) }</ID>

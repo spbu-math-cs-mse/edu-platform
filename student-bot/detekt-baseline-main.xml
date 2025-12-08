@@ -5,7 +5,6 @@
     <ID>CyclomaticComplexMethod:Level1.kt$L1S2$override suspend fun QuestBotContext.run(service: ApiService)</ID>
     <ID>CyclomaticComplexMethod:Level1.kt$L1S4Wrong$override suspend fun QuestBotContext.run(service: ApiService)</ID>
     <ID>DoubleMutabilityForCollection:QuestState.kt$QuestState$var messagesWithKeyboard: MutableList&lt;ContentMessage&lt;*&gt;&gt; = mutableListOf()</ID>
-    <ID>ExplicitItLambdaParameter:MenuState.kt$MenuState${ it -&gt; processKeyboardButtonPresses(it, service) }</ID>
     <ID>LongMethod:Level0.kt$L0$override suspend fun QuestBotContext.run(service: ApiService)</ID>
     <ID>LongMethod:Level1.kt$L1S0$override suspend fun QuestBotContext.run(service: ApiService)</ID>
     <ID>LongMethod:Level1.kt$L1S1$override suspend fun QuestBotContext.run(service: ApiService)</ID>

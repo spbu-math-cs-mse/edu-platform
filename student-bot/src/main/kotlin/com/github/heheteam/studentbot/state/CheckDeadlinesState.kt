@@ -14,9 +14,9 @@ import dev.inmo.micro_utils.fsm.common.State
 import dev.inmo.tgbotapi.extensions.api.send.sendMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.types.chat.User
-import dev.inmo.tgbotapi.types.message.textsources.bold
-import dev.inmo.tgbotapi.types.message.textsources.italic
-import dev.inmo.tgbotapi.types.message.textsources.regular
+import dev.inmo.tgbotapi.types.message.textsources.boldTextSource
+import dev.inmo.tgbotapi.types.message.textsources.italicTextSource
+import dev.inmo.tgbotapi.types.message.textsources.regularTextSource
 import dev.inmo.tgbotapi.utils.buildEntities
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -47,11 +47,13 @@ class CheckDeadlinesState(
           problemsWithPersonalDeadlines
             .sortedBy { it.first.id.long }
             .forEach { (assignment, problems) ->
-              +bold(assignment.name) + regular("\n")
+              +boldTextSource(assignment.name) + regularTextSource("\n")
               service.calculateRescheduledDeadlines(studentId, problems).forEach { problem ->
                 val formattedDeadline =
-                  problem.deadline?.format(deadlineFormat)?.let { regular(it) }
-                +" • ${problem.number}:   " + (formattedDeadline ?: italic("Без дедлайна")) + "\n"
+                  problem.deadline?.format(deadlineFormat)?.let { regularTextSource(it) }
+                +" • ${problem.number}:   " +
+                  (formattedDeadline ?: italicTextSource("Без дедлайна")) +
+                  "\n"
               }
               +"\n"
             }

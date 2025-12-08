@@ -14,7 +14,7 @@ import dev.inmo.tgbotapi.types.MessageId
 import dev.inmo.tgbotapi.types.RawChatId
 import dev.inmo.tgbotapi.types.message.abstracts.AccessibleMessage
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
-import dev.inmo.tgbotapi.types.message.textsources.regular
+import dev.inmo.tgbotapi.types.message.textsources.regularTextSource
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -127,12 +127,12 @@ data class RemoteMediaAttachment(
 
 @Serializable
 data class TextWithMediaAttachments(
-  val text: TextSourcesList = listOf(regular("")),
+  val text: TextSourcesList = listOf(regularTextSource("")),
   val attachments: List<MediaAttachment> = listOf(),
 ) {
   companion object {
     fun fromString(string: String): TextWithMediaAttachments {
-      return TextWithMediaAttachments(text = listOf(regular(string)))
+      return TextWithMediaAttachments(text = listOf(regularTextSource(string)))
     }
   }
 }

@@ -5,7 +5,7 @@ import com.github.heheteam.commonlib.interfaces.CourseId
 import dev.inmo.tgbotapi.types.message.textsources.RegularTextSource
 import dev.inmo.tgbotapi.types.message.textsources.TextSource
 import dev.inmo.tgbotapi.types.message.textsources.URLTextSource
-import dev.inmo.tgbotapi.types.message.textsources.bold
+import dev.inmo.tgbotapi.types.message.textsources.boldTextSource
 import dev.inmo.tgbotapi.utils.RiskFeature
 
 object CourseStatisticsFormatter {
@@ -20,7 +20,7 @@ object CourseStatisticsFormatter {
     token: String?,
   ): List<TextSource> = buildList {
     add(RegularTextSource("📊 Статистика курса "))
-    add(bold(courseName))
+    add(boldTextSource(courseName))
     add(RegularTextSource(" (ID ${courseId.long})"))
     add(RegularTextSource("\n\n"))
 

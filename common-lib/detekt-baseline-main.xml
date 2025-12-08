@@ -13,6 +13,7 @@
     <ID>MagicNumber:StudentTable.kt$StudentTable$255</ID>
     <ID>MagicNumber:TableComposer.kt$TableComposer$3</ID>
     <ID>MagicNumber:TeacherTable.kt$TeacherTable$255</ID>
+    <ID>RedundantSuspendModifier:CallbackWithUser.kt$suspend</ID>
     <ID>SpreadOperator:Init.kt$(*allTables)</ID>
     <ID>SuspendFunWithFlowReturnType:CallbackWithUser.kt$suspend</ID>
     <ID>UnnecessaryApply:FormattedCell.kt$FormattedCell$apply { borders.setBottom(Border().setWidth(width).setStyle("SOLID")) }</ID>

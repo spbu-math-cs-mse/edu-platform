@@ -9,6 +9,7 @@ services:
       - .env
     container_name: "${CONTOUR}-edu-platform"
     environment:
+      DB_URL: "${DB_URL}"
       DB_LOGIN_FILE: "/run/secrets/db_user"
       DB_PASSWORD_FILE: "/run/secrets/db_password"
       STUDENT_BOT_TOKEN_FILE: "/run/secrets/student_bot_token"

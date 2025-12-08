@@ -2,9 +2,9 @@ package com.github.heheteam.adminbot
 
 import dev.inmo.tgbotapi.requests.abstracts.InputFile
 import dev.inmo.tgbotapi.types.message.textsources.TextSourcesList
-import dev.inmo.tgbotapi.types.message.textsources.code
+import dev.inmo.tgbotapi.types.message.textsources.codeTextSource
 import dev.inmo.tgbotapi.types.message.textsources.plus
-import dev.inmo.tgbotapi.types.message.textsources.regularln
+import dev.inmo.tgbotapi.types.message.textsources.regularTextSourceLn
 
 object Dialogues {
   val greetingSticker =
@@ -40,9 +40,9 @@ object Dialogues {
   const val devAskForId: String = "Введите свой id:"
 
   fun adminIdIsNotInWhitelist(tgId: Long): TextSourcesList =
-    regularln(
+    regularTextSourceLn(
       "Вашего аккаунта нет в списке разрешенных. Попросите админа вас добавить.\n\nВаш Telegram id: "
-    ) + code(tgId.toString())
+    ) + codeTextSource(tgId.toString())
 
   const val devIdIsNotLong: String = "Некорректный id - он должен быть числом! Попробуйте ещё раз:"
 

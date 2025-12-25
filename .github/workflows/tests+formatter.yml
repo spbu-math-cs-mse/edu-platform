@@ -121,7 +121,7 @@ jobs:
   build-and-push:
     if: |
       (
-        (github.event.inputs.contour == 'prod' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        (github.event.inputs.contour == 'prod' && github.event_name == 'workflow_dispatch') ||
         (github.event.inputs.contour == 'test' && github.event_name == 'workflow_dispatch')
       )
       &&
@@ -194,5 +194,5 @@ jobs:
             export CONTOUR="${{ github.event.inputs.contour }}"
             export DB_PORT="5431"
             export DB_URL="jdbc:postgresql://postgres_db:5432/${{ github.event.inputs.contour }}-edu-platform"
-            docker compose up -d --force-recreate backend
+            docker compose -p "$CONTOUR-edu-platform" up -d --force-recreate backend
             docker image prune -af

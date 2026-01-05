@@ -193,7 +193,7 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull backend
             export CONTOUR="${{ github.event.inputs.contour }}"
-            if [ "$CONTOUR" == "test" ]
+            if [ "$CONTOUR" = "test" ]
               export DB_PORT="5431"
             else
               export DB_PORT="5430"

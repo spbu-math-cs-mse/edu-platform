@@ -193,11 +193,11 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull backend
             export CONTOUR="${{ github.event.inputs.contour }}"
-            if [[ "$CONTOUR" == "test" ]]; then
+            if [ "$CONTOUR" == "test" ]
               export DB_PORT="5431"
             else
               export DB_PORT="5430"
-            fi
+            end
             export DB_URL="jdbc:postgresql://postgres_db:5432/${{ github.event.inputs.contour }}-edu-platform"
             docker compose -p "$CONTOUR-edu-platform" up -d --force-recreate backend
             docker image prune -af

@@ -33,7 +33,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: postgres_db
+    container_name: "${CONTOUR}-postgres-db"
     environment:
       POSTGRES_USER_FILE: "/run/secrets/db_user"
       POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"

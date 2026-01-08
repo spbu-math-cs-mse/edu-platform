@@ -164,6 +164,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+    if: always() && needs.build-and-push.result == 'success'
     env:
       DBUSER: ${{ secrets.PROD_DB_USER }}
       DBPASSWORD: ${{ secrets.PROD_DB_PASSWORD }}

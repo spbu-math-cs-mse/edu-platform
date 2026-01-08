@@ -121,7 +121,7 @@ jobs:
   build-and-push:
     if: |
       (
-        (github.event.inputs.contour == 'prod' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        (github.event.inputs.contour == 'prod' && github.event_name == 'workflow_dispatch') ||
         (github.event.inputs.contour == 'test' && github.event_name == 'workflow_dispatch')
       )
       &&
@@ -164,6 +164,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+    if: always() && needs.build-and-push.result == 'success'
     env:
       DBUSER: ${{ secrets.PROD_DB_USER }}
       DBPASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
@@ -188,11 +189,16 @@ jobs:
           username: ${{ secrets.PROD_SSH_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
+            set -e
             cd /root/edu-platform
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull backend
             export CONTOUR="${{ github.event.inputs.contour }}"
-            export DB_PORT="5431"
-            export DB_URL="jdbc:postgresql://postgres_db:5432/${{ github.event.inputs.contour }}-edu-platform"
-            docker compose up -d --force-recreate backend
+            if [ "$CONTOUR" = "test" ]
+              export DB_PORT="5431"
+            else
+              export DB_PORT="5430"
+            end
+            export DB_URL="jdbc:postgresql://${{ github.event.inputs.contour }}-postgres-db:5432/${{ github.event.inputs.contour }}-edu-platform"
+            docker compose -p "$CONTOUR-edu-platform" up -d --force-recreate backend
             docker image prune -af
